@@ -289,7 +289,12 @@ async function doLogout() {
 window._currentUser = null;
 
 async function loadUserProfile(authUser) {
-  if (!authUser) { window._currentUser = null; updateNavForUser(null); return; }
+  if (!authUser) {
+    window._currentUser = null;
+    updateNavForUser(null);
+    refreshCTFSolvedForCurrentUser();
+    return;
+  }
   let profile = {
     email    : authUser.email,
     name     : authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User',
@@ -308,6 +313,20 @@ async function loadUserProfile(authUser) {
   }
   updateNavForUser(profile);
   window._currentUser = profile;
+  refreshCTFSolvedForCurrentUser();
+}
+
+// CTF page's solved-state is namespaced by user id in localStorage (see ctf.html).
+// loadUserProfile() resolves asynchronously, so if the CTF page already rendered
+// with the wrong/empty bucket (e.g. guest, or a previous account), re-load and
+// re-render once the real user id is known — this is what makes account switches
+// inside the same tab/browser show correct solves without a manual refresh.
+function refreshCTFSolvedForCurrentUser() {
+  try {
+    if (typeof loadCTFSolvedFromStorage === 'function') loadCTFSolvedFromStorage();
+    if (typeof ctfRender === 'function') ctfRender();
+    if (typeof updateCTFStats === 'function') updateCTFStats();
+  } catch(e) {}
 }
 
 /* ═══════════════════════════════════════════

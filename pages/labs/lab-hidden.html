@@ -736,13 +736,18 @@ async function submitFlag(flagVal) {
       if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
       invalidateLabSession();
 
-      // Save solved to localStorage so modal can sync
+      // Save solved to localStorage so modal can sync.
+      // Namespaced by current user id — must match ctf.html's ctfSolvedStorageKey(),
+      // otherwise solves written here would land back in the old global bucket
+      // and reappear for every account again.
       try {
-        const raw = localStorage.getItem('acx_ctf_solved');
+        const _uid = (window.opener && window.opener._currentUser?.id) || window._currentUser?.id || 'guest';
+        const _key = 'acx_ctf_solved_' + _uid;
+        const raw = localStorage.getItem(_key);
         const solved = raw ? JSON.parse(raw) : {};
         if (!solved['web-01']) {
           solved['web-01'] = { xp: 100, solvedAt: new Date().toISOString() };
-          localStorage.setItem('acx_ctf_solved', JSON.stringify(solved));
+          localStorage.setItem(_key, JSON.stringify(solved));
         }
       } catch(e) {}
 

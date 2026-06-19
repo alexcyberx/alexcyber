@@ -585,7 +585,13 @@ async function ctfStartInstance(c) {
   document.getElementById('ctfTimerRow').classList.add('show');
   document.getElementById('ctfFlagSection').style.display = 'block';
 
-  ctfActiveTab = window.open(c.lab_url, '_blank');
+  // Generate token and store in sessionStorage so lab page can validate it
+  const labId = c.id || (c.lab_url.match(/lab-([a-z0-9]+)\.html/i)?.[1]) || apiId || 'lab';
+  const token = 'tok_' + Math.random().toString(36).substring(2, 18);
+  try { sessionStorage.setItem('acx_lab_token_' + labId, token); } catch(e) {}
+  const labUrl = c.lab_url + '?acx_token=' + encodeURIComponent(token);
+
+  ctfActiveTab = window.open(labUrl, '_blank');
 
   if (apiId) {
     try {
@@ -612,7 +618,12 @@ function ctfOpenLabTab(e) {
   if (ctfActiveTab && !ctfActiveTab.closed) {
     ctfActiveTab.focus();
   } else {
-    ctfActiveTab = window.open(c.lab_url, '_blank');
+    // Generate fresh token for new tab
+    const apiId = ctfLabApiBase(c);
+    const labId = c.id || (c.lab_url.match(/lab-([a-z0-9]+)\.html/i)?.[1]) || apiId || 'lab';
+    const token = 'tok_' + Math.random().toString(36).substring(2, 18);
+    try { sessionStorage.setItem('acx_lab_token_' + labId, token); } catch(e) {}
+    ctfActiveTab = window.open(c.lab_url + '?acx_token=' + encodeURIComponent(token), '_blank');
   }
   return false;
 }
@@ -627,11 +638,17 @@ async function ctfRestartInstance(c) {
       });
     } catch (err) {}
   }
+  // Generate fresh token for restarted lab
+  const labId = c.id || (c.lab_url.match(/lab-([a-z0-9]+)\.html/i)?.[1]) || apiId || 'lab';
+  const token = 'tok_' + Math.random().toString(36).substring(2, 18);
+  try { sessionStorage.setItem('acx_lab_token_' + labId, token); } catch(e) {}
+  const labUrl = c.lab_url + '?acx_token=' + encodeURIComponent(token);
+
   if (ctfActiveTab && !ctfActiveTab.closed) {
-    ctfActiveTab.location.href = c.lab_url + '?_=' + Date.now();
+    ctfActiveTab.location.href = labUrl + '&_=' + Date.now();
     ctfActiveTab.focus();
   } else {
-    ctfActiveTab = window.open(c.lab_url, '_blank');
+    ctfActiveTab = window.open(labUrl, '_blank');
   }
   ctfPollInstanceTimer(c);
 }
@@ -680,17 +697,28 @@ function initCTFPage() {
   updateCTFLoginBanner();
 }
 
-/* ── STORAGE (Supabase ya localStorage) ── */
+/* ── STORAGE (Supabase ya localStorage) ──
+   NOTE: localStorage is per-BROWSER, not per-ACCOUNT. Without namespacing
+   by user id, every account on the same browser shared one global
+   'acx_ctf_solved' key — so switching accounts showed stale/wrong solves.
+   This is a stopgap fix only; once the backend lands, solved-state should
+   be read from Supabase (ctf_solves table) per logged-in user instead of
+   trusting localStorage at all. */
+function ctfSolvedStorageKey() {
+  const uid = window._currentUser?.id || 'guest';
+  return 'acx_ctf_solved_' + uid;
+}
+
 function loadCTFSolvedFromStorage() {
   try {
-    const raw = localStorage.getItem('acx_ctf_solved');
+    const raw = localStorage.getItem(ctfSolvedStorageKey());
     ctfSolved = raw ? JSON.parse(raw) : {};
   } catch(e) { ctfSolved = {}; }
 }
 
 function saveCTFSolvedToStorage() {
   try {
-    localStorage.setItem('acx_ctf_solved', JSON.stringify(ctfSolved));
+    localStorage.setItem(ctfSolvedStorageKey(), JSON.stringify(ctfSolved));
   } catch(e) {}
 }
 
