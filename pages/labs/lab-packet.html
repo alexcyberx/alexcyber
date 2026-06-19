@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Packet Detective — AlexCyberX Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#07070f;--surface:#0d0d1a;--surface2:#111120;
+  --border:rgba(255,255,255,0.06);--red:#dc1414;
+  --white:#f0f0f8;--dim:#505068;--green:#4ade80;
+  --green-dim:rgba(74,222,128,0.06);--blue:#63b3ed;--orange:#fb923c;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+}
+body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:100vh;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;position:sticky;top:0;z-index:100;}
+.topbar-left{display:flex;align-items:center;gap:16px;}
+.back-link{display:flex;align-items:center;gap:6px;color:var(--dim);font-size:12px;font-weight:500;text-decoration:none;cursor:pointer;transition:color 0.15s;}
+.back-link:hover{color:var(--white);}
+.topbar-sep{width:1px;height:16px;background:var(--border);}
+.topbar-id{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--red);letter-spacing:0.5px;}
+.topbar-title{font-size:13px;font-weight:600;color:var(--white);}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.diff-badge{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 10px;border-radius:4px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);color:#fbbf24;}
+.timer-wrap{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;}
+.timer-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
+.timer-val{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--white);min-width:52px;text-align:center;}
+
+.lab-wrap{max-width:1140px;margin:0 auto;padding:28px 20px 60px;display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.card-head{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.card-head-dot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;}
+.card-head-title{font-size:10px;font-weight:700;letter-spacing:1.3px;color:var(--dim);text-transform:uppercase;}
+.card-body{padding:16px;}
+.scenario-text{font-size:12.5px;color:#8888a0;line-height:1.8;border-left:2px solid var(--red);padding-left:12px;}
+.scenario-text strong{color:var(--white);}
+.info-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;margin-top:14px;}
+.info-label:first-child{margin-top:0;}
+.code-block{background:#050510;border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:13px 15px;font-family:var(--mono);font-size:11px;line-height:1.9;color:var(--dim);overflow-x:auto;}
+.kw{color:var(--blue);}.str{color:#68d391;}.cmt{color:#3a3a5a;font-style:italic;}.hi{color:var(--orange);}
+.obj-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.obj-item{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:#8888a0;line-height:1.5;}
+.obj-num{width:20px;height:20px;border-radius:5px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--dim);flex-shrink:0;transition:all 0.3s;font-family:var(--mono);}
+.obj-item.done .obj-num{background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.25);color:var(--green);}
+.obj-item.done .obj-text{color:var(--green);}
+.hint-item{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px;}
+.hint-btn{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;cursor:pointer;background:var(--surface2);border:none;width:100%;font-family:var(--sans);transition:background 0.15s;}
+.hint-btn:hover{background:rgba(255,255,255,0.025);}
+.hint-btn-left{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:500;color:var(--dim);}
+.hint-icon{width:22px;height:22px;border-radius:5px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hint-pill{font-size:10px;font-weight:600;color:#fbbf24;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.14);border-radius:4px;padding:1px 7px;}
+.hint-body{display:none;padding:12px 13px;border-top:1px solid var(--border);font-size:12px;color:#8888a0;line-height:1.75;background:rgba(251,191,36,0.02);}
+.hint-body.open{display:block;}
+.hint-body code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
+
+.right-col{display:flex;flex-direction:column;gap:0;}
+
+/* File download card */
+.file-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.file-card-body{padding:20px;display:flex;align-items:center;gap:16px;}
+.file-icon-box{width:48px;height:48px;border-radius:10px;background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.file-meta{flex:1;}
+.file-name{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px;}
+.file-sub{font-size:11px;color:var(--dim);}
+.download-btn{display:flex;align-items:center;gap:8px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;white-space:nowrap;}
+.download-btn:hover{background:#c01010;}
+
+.tool-note{background:rgba(99,179,237,0.04);border:1px solid rgba(99,179,237,0.15);border-radius:10px;padding:14px 16px;margin-bottom:14px;display:flex;gap:12px;}
+.tool-note-icon{flex-shrink:0;margin-top:1px;}
+.tool-note-text{font-size:12px;color:#8888a0;line-height:1.7;}
+.tool-note-text strong{color:var(--blue);}
+.tool-note-text code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
+
+/* Analysis checklist */
+.analysis-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.analysis-body{padding:14px;display:flex;flex-direction:column;gap:10px;}
+.step-row{display:flex;gap:12px;padding:12px;background:#050510;border:1px solid var(--border);border-radius:8px;}
+.step-num{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--dim);flex-shrink:0;}
+.step-content{flex:1;}
+.step-title{font-size:12px;font-weight:600;color:var(--white);margin-bottom:4px;}
+.step-desc{font-size:11.5px;color:var(--dim);line-height:1.6;}
+.step-desc code{font-family:var(--mono);font-size:10.5px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
+
+/* Submit */
+.submit-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.submit-body{padding:14px;display:flex;flex-direction:column;gap:10px;}
+.submit-row{display:flex;gap:10px;}
+.flag-input{flex:1;background:#050510;border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:12px;color:var(--white);outline:none;transition:border-color 0.15s;}
+.flag-input:focus{border-color:rgba(220,20,20,0.4);}
+.flag-input::placeholder{color:var(--dim);}
+.submit-btn-main{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;white-space:nowrap;}
+.submit-btn-main:hover{background:#c01010;}
+.submit-result{display:none;font-size:12px;padding:9px 12px;border-radius:6px;font-family:var(--mono);line-height:1.5;}
+.submit-result.ok{display:block;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);color:var(--green);}
+.submit-result.err{display:block;background:rgba(220,20,20,0.06);border:1px solid rgba(220,20,20,0.2);color:var(--red);}
+
+.flag-box{display:none;background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.15);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.flag-box.show{display:block;}
+.flag-head{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid rgba(74,222,128,0.1);}
+.flag-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.flag-head-label{font-size:10px;font-weight:700;letter-spacing:1.3px;color:var(--green);text-transform:uppercase;}
+.flag-body-inner{padding:16px;}
+.flag-value{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green);letter-spacing:0.5px;margin-bottom:6px;}
+.flag-note{font-size:11px;color:rgba(74,222,128,0.5);line-height:1.5;}
+
+@media(max-width:780px){.lab-wrap{grid-template-columns:1fr;}.topbar-title{display:none;}.file-card-body{flex-direction:column;align-items:flex-start;}}
+
+.launch-btn{display:flex;align-items:center;gap:7px;background:var(--green);color:#07070f;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.launch-btn:hover{background:#3dd673;}
+.stop-btn{display:none;align-items:center;gap:7px;background:rgba(220,20,20,0.1);color:var(--red);border:1px solid rgba(220,20,20,0.3);border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.stop-btn:hover{background:rgba(220,20,20,0.18);}
+.lab-running .launch-btn{display:none;}
+.lab-running .stop-btn{display:flex;}
+.timer-wrap.idle .timer-val{color:var(--dim);}
+.timer-wrap.running .timer-val{color:var(--green);}
+.right-col{position:relative;}
+.lock-overlay{position:absolute;inset:0;background:rgba(7,7,15,0.88);backdrop-filter:blur(3px);z-index:50;display:flex;align-items:center;justify-content:center;border-radius:12px;}
+.lab-running .lock-overlay{display:none;}
+.lock-overlay-inner{text-align:center;padding:40px;max-width:320px;}
+.lock-icon-box{width:56px;height:56px;border-radius:14px;background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+.lock-title{font-size:15px;font-weight:600;color:var(--white);margin-bottom:8px;}
+.lock-desc{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:20px;}
+.lock-start-btn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.lock-start-btn:hover{background:#c01010;}
+</style>
+</head>
+<body id="labBody">
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back-link" href="/pages/ctf.html#challenge=for-01" onclick="sessionStorage.setItem('ctf_return_id','for-01')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Labs
+    </a>
+    <div class="topbar-sep"></div>
+    <span class="topbar-id">FOR-01</span>
+    <span class="topbar-title">Packet Detective</span>
+  </div>
+  <div class="topbar-right">
+    <span class="diff-badge">Medium</span>
+    <div class="timer-wrap idle">
+      <span class="timer-label">Time</span>
+      <span class="timer-val" id="timerVal">00:00</span>
+    </div>
+  </div>
+    <button class="launch-btn" id="launchBtn" onclick="startChallenge()">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M3 2l6 3.5L3 9V2z" fill="#07070f"/></svg>
+      Start Challenge
+    </button>
+    <button class="stop-btn" id="stopBtn" onclick="stopChallenge()">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="2.5" y="2.5" width="6" height="6" fill="#dc1414"/></svg>
+      Stop
+    </button>
+</div>
+
+<div class="lab-wrap">
+  <div class="left-col">
+
+    <div class="card">
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Scenario</span></div>
+      <div class="card-body">
+        <p class="scenario-text">
+          The CorpX security team flagged unusual outbound traffic from an internal host. A <strong>60 second packet capture</strong> was taken at the network egress point during the suspected window.
+          <br><br>
+          Your task is to analyze the capture in <strong>Wireshark</strong> and determine what data was exfiltrated, and how.
+          <br><br>
+          This is a real .pcap file. There is no simulation here — open it in an actual packet analyzer.
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Objectives</span></div>
+      <div class="card-body">
+        <ul class="obj-list">
+          <li class="obj-item" id="obj1"><span class="obj-num">1</span><span class="obj-text">Download the capture file</span></li>
+          <li class="obj-item" id="obj2"><span class="obj-num">2</span><span class="obj-text">Open it in Wireshark and identify all protocols present</span></li>
+          <li class="obj-item" id="obj3"><span class="obj-num">3</span><span class="obj-text">Use Follow TCP Stream on the FTP session</span></li>
+          <li class="obj-item" id="obj4"><span class="obj-num">4</span><span class="obj-text">Identify the suspicious DNS query pattern</span></li>
+          <li class="obj-item" id="obj5"><span class="obj-num">5</span><span class="obj-text">Extract and decode the exfiltrated data, submit the flag</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Hints</span></div>
+      <div class="card-body">
+        <div class="hint-item">
+          <button class="hint-btn" onclick="toggleHint(this,1)">
+            <div class="hint-btn-left">
+              <div class="hint-icon"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="#fbbf24" stroke-width="1"/><path d="M5.5 3.5v.5M5.5 6v2" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+              Where to start in Wireshark
+            </div>
+            <span class="hint-pill">H1</span>
+          </button>
+          <div class="hint-body" id="hb1">
+            Use the filter bar. Try <code>ftp</code> to isolate the FTP control session — right click any packet in that conversation and choose Follow then TCP Stream to see the full plaintext exchange. Separately, try filtering <code>dns</code> to see every DNS query in the capture.
+          </div>
+        </div>
+        <div class="hint-item">
+          <button class="hint-btn" onclick="toggleHint(this,2)">
+            <div class="hint-btn-left">
+              <div class="hint-icon"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="#fbbf24" stroke-width="1"/><path d="M5.5 3.5v.5M5.5 6v2" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+              The FTP session is a decoy
+            </div>
+            <span class="hint-pill">H2</span>
+          </button>
+          <div class="hint-body" id="hb2">
+            The FTP login credentials are real plaintext, but they are not the answer to this challenge. They demonstrate a different problem entirely. The actual exfiltration uses a completely different protocol. Look at which DNS queries return NXDOMAIN and ask yourself why a host would repeatedly query a domain that does not resolve.
+          </div>
+        </div>
+        <div class="hint-item">
+          <button class="hint-btn" onclick="toggleHint(this,3)">
+            <div class="hint-btn-left">
+              <div class="hint-icon"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="#fbbf24" stroke-width="1"/><path d="M5.5 3.5v.5M5.5 6v2" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+              Decoding the exfil data
+            </div>
+            <span class="hint-pill">H3</span>
+          </button>
+          <div class="hint-body" id="hb3">
+            DNS exfiltration encodes stolen data as subdomain labels because DNS traffic is rarely blocked or inspected. Collect every unique subdomain label queried against the same parent domain, in the order they appear by timestamp. The labels look like Base32 — note that Base32 uses A-Z and 2-7 only, and is case-insensitive on decode. Concatenate the decoded chunks in query order.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="right-col">
+
+    <div class="lock-overlay" id="lockOverlay">
+      <div class="lock-overlay-inner">
+        <div class="lock-icon-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#dc1414" stroke-width="1.4"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#dc1414" stroke-width="1.4"/></svg>
+        </div>
+        <div class="lock-title">Challenge Locked</div>
+        <div class="lock-desc">Click start when you are ready. The timer begins the moment you start, and the interactive area unlocks.</div>
+        <button class="lock-start-btn" onclick="startChallenge()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M3.5 2l7 4.5-7 4.5V2z" fill="#fff"/></svg>
+          Start Challenge
+        </button>
+      </div>
+    </div>
+
+
+    <!-- Download card -->
+    <div class="file-card">
+      <div class="file-card-body">
+        <div class="file-icon-box">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <path d="M4 2h10l4 4v14H4V2z" stroke="#dc1414" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M14 2v4h4" stroke="#dc1414" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M7 12h8M7 15h8M7 9h4" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="file-meta">
+          <div class="file-name" id="fileNameDisplay">corpx_segment.pcap</div>
+          <div class="file-sub" id="fileSubDisplay">Loading capture metadata...</div>
+        </div>
+        <button class="download-btn" onclick="downloadPcap()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 6l3.5 3.5L10 6M2 11h9" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Download
+        </button>
+      </div>
+    </div>
+
+    <!-- Tool note -->
+    <div class="tool-note">
+      <svg class="tool-note-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#63b3ed" stroke-width="1.2"/><path d="M8 5v.5M8 7v4" stroke="#63b3ed" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <div class="tool-note-text">
+        This file must be opened with <strong>Wireshark</strong> (or any tool that reads standard libpcap format — tshark, tcpdump -r, etc). There is no in-browser packet viewer for this lab. If you do not have Wireshark installed, get it from <code>wireshark.org/download.html</code> — it is free and available for Windows, Linux, and macOS.
+      </div>
+    </div>
+
+    <!-- Analysis steps -->
+    <div class="analysis-panel">
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Suggested Analysis Path</span></div>
+      <div class="analysis-body">
+        <div class="step-row">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Open in Wireshark, scan protocols</div>
+            <div class="step-desc">Check Statistics then Protocol Hierarchy to see what is present: TCP, UDP, DNS, FTP. Note the proportion of each.</div>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Filter and follow the FTP stream</div>
+            <div class="step-desc">Apply filter <code>ftp</code>, right click a packet, choose Follow then TCP Stream. Read the full plaintext session.</div>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Filter DNS and inspect query names</div>
+            <div class="step-desc">Apply filter <code>dns</code>. Look at the Info column for each query. Most resolve normally. A few return NXDOMAIN against an unfamiliar parent domain.</div>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Collect the unusual subdomain labels in order</div>
+            <div class="step-desc">Sort by timestamp. Write down each subdomain label queried against the suspicious parent domain.</div>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <div class="step-title">Decode and concatenate</div>
+            <div class="step-desc">Decode each label, join them in order, and you should have a readable flag string.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-panel">
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Submit Flag</span></div>
+      <div class="submit-body">
+        <div class="submit-row">
+          <input class="flag-input" id="flagInput" type="text" placeholder="ACX{...}" spellcheck="false">
+          <button class="submit-btn-main" onclick="submitFlag()">Submit</button>
+        </div>
+        <div class="submit-result" id="submitResult"></div>
+      </div>
+    </div>
+
+    <!-- Flag box -->
+    <div class="flag-box" id="flagBox">
+      <div class="flag-head"><div class="flag-dot"></div><span class="flag-head-label">Flag Captured</span></div>
+      <div class="flag-body-inner">
+        <div class="flag-value" id="flagValue"></div>
+        <div class="flag-note">DNS exfiltration uses subdomain labels to smuggle data past firewalls that allow DNS but inspect HTTP. NXDOMAIN responses are normal here since these domains were never meant to resolve.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const BASE = window.location.origin;
+let elapsed = 0;
+
+let timerInterval = null;
+let isRunning = false;
+
+function updateTimerDisplay() {
+  const m = String(Math.floor(elapsed/60)).padStart(2,'0');
+  const s = String(elapsed%60).padStart(2,'0');
+  document.getElementById('timerVal').textContent = m+':'+s;
+}
+
+function startChallenge() {
+  if (isRunning) return;
+  isRunning = true;
+  document.getElementById('labBody').classList.add('lab-running');
+  document.querySelector('.timer-wrap').classList.remove('idle');
+  document.querySelector('.timer-wrap').classList.add('running');
+  timerInterval = setInterval(() => { elapsed++; updateTimerDisplay(); }, 1000);
+  if (typeof addLog === 'function') addLog('LOCAL', 'challenge started', 'running', 'ok');
+}
+
+function stopChallenge() {
+  if (!isRunning) return;
+  isRunning = false;
+  document.getElementById('labBody').classList.remove('lab-running');
+  document.querySelector('.timer-wrap').classList.add('idle');
+  document.querySelector('.timer-wrap').classList.remove('running');
+  clearInterval(timerInterval);
+  if (typeof addLog === 'function') addLog('LOCAL', 'challenge paused', 'paused', 'warn');
+}
+
+
+
+
+function completeObj(id) {
+  const el = document.getElementById(id);
+  if (el && !el.classList.contains('done')) el.classList.add('done');
+}
+
+function toggleHint(btn, n) {
+  document.getElementById('hb'+n).classList.toggle('open');
+}
+
+async function loadInfo() {
+  try {
+    const res = await fetch(`${BASE}/api/lab/packet/info`);
+    const data = await res.json();
+    document.getElementById('fileSubDisplay').textContent =
+      `${data.packet_count} packets, ${data.size_bytes} bytes, ${data.duration_sec}s capture`;
+  } catch(e) {
+    document.getElementById('fileSubDisplay').textContent = 'Network capture file';
+  }
+}
+loadInfo();
+
+function downloadPcap() {
+  window.location.href = `${BASE}/api/lab/packet/download`;
+  completeObj('obj1');
+  setTimeout(() => {
+    completeObj('obj2');
+    completeObj('obj3');
+    completeObj('obj4');
+  }, 1500);
+}
+
+async function submitFlag() {
+  const flag = document.getElementById('flagInput').value.trim();
+  const resultEl = document.getElementById('submitResult');
+  if (!flag) { resultEl.textContent = 'Flag field is empty.'; resultEl.className = 'submit-result err'; return; }
+
+  try {
+    const res = await fetch(`${BASE}/api/lab/packet/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ flag })
+    });
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      completeObj('obj5');
+      resultEl.textContent = data.message;
+      resultEl.className = 'submit-result ok';
+      document.getElementById('flagBox').classList.add('show');
+      document.getElementById('flagValue').textContent = data.flag;
+    } else {
+      resultEl.textContent = data.message;
+      resultEl.className = 'submit-result err';
+    }
+  } catch(err) {
+    resultEl.textContent = 'Request failed: ' + err.message;
+    resultEl.className = 'submit-result err';
+  }
+}
+
+document.getElementById('flagInput').addEventListener('keydown', e => { if(e.key==='Enter') submitFlag(); });
+</script>
+</body>
+</html>

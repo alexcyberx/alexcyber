@@ -1,0 +1,2287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Security headers -->
+<!-- Security headers are set via Netlify HTTP headers (netlify.toml) -->
+<!-- X-Frame-Options, Referrer-Policy etc. must be HTTP headers, not meta tags -->
+<title>AlexCyberX: Free Cybersecurity Education for Everyone</title>
+
+<!-- SEO -->
+<meta name="description" content="Pawan Tanwar aka AlexCyberX - Certified Ethical Hacker from Jhalawar, Rajasthan, India. Network Forensics, Ethical Hacking, Cyber Investigation. Free cybersecurity education in Hindi.">
+<meta name="keywords" content="Pawan Tanwar, AlexCyberX, alex cyberx, certified ethical hacker, network forensics, cyber investigation, cybersecurity hindi, ethical hacking hindi, wireshark, kali linux, burp suite, nmap, packet analysis, ctf, jhalawar, rajasthan cybersecurity, CEH, cyber police investigation">
+<meta name="author" content="Pawan Tanwar (AlexCyberX)">
+<meta name="robots" content="index, follow">
+
+<!-- Schema.org -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Pawan Tanwar",
+  "alternateName": "AlexCyberX",
+  "url": "https://alexcyberx.com",
+  "sameAs": [
+    "https://www.instagram.com/alex.cyberx"
+  ],
+  "jobTitle": "Certified Ethical Hacker",
+  "description": "Pawan Tanwar aka AlexCyberX is a Certified Ethical Hacker and cybersecurity educator from Jhalawar, Rajasthan, India. Specializes in Network Forensics, Ethical Hacking, and Cyber Investigation.",
+  "knowsAbout": ["Network Forensics", "Ethical Hacking", "Packet Analysis", "Threat Hunting", "Cyber Investigation", "PCAP Analysis", "Wireshark", "Kali Linux"],
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Jhalawar",
+    "addressRegion": "Rajasthan",
+    "addressCountry": "IN"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebSite",
+    "name": "AlexCyberX",
+    "url": "https://alexcyberx.com"
+  }
+}
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/nav.css">
+  <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/learn.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/modal.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<div class="glow-orb"></div>
+
+<!-- ═══════════ MAIN NAV (always visible) ═══════════ -->
+<nav id="mainNav">
+  <button class="nav-logo" onclick="showPage('home')">
+    <div class="logo-text"><strong>Alex <em>CyberX</em></strong></div>
+  </button>
+
+  <div class="nav-center" id="homeNavCenter">
+    <button class="nav-link" onclick="showPage('home'); scrollToSection('home')">Home</button>
+    <button class="nav-link" onclick="showPage('learn')">Tutorials</button>
+    <button class="nav-link" onclick="showPage('tools')">Tools</button>
+    <button class="nav-link" onclick="showPage('ctf')">
+      CTF
+    </button>
+    <button class="nav-link" onclick="showPage('home'); scrollToSection('about')">About</button>
+    <button class="nav-link" onclick="showPage('home'); scrollToSection('contact')">Contact</button>
+  </div>
+
+  <div class="nav-right" id="homeNavRight">
+
+    <button class="nav-btn ghost" id="langNavBtn" onclick="showLangModal()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 12px;" title="Change Language">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="7" cy="7" r="6" stroke="#6a6a7a" stroke-width="1.2"/>
+        <ellipse cx="7" cy="7" rx="2.8" ry="6" stroke="#6a6a7a" stroke-width="1.2"/>
+        <line x1="1.2" y1="4.5" x2="12.8" y2="4.5" stroke="#6a6a7a" stroke-width="1.2"/>
+        <line x1="1.2" y1="9.5" x2="12.8" y2="9.5" stroke="#6a6a7a" stroke-width="1.2"/>
+      </svg>
+      <span style="font-size:11px;letter-spacing:0.3px;" id="langNavLabel">Language</span>
+    </button>
+    <button class="nav-btn ghost" onclick="showAuth('login')" id="navLoginBtn" data-i18n="nav.login">Login</button>
+    <button class="nav-btn fill" onclick="showAuth('signup')" id="navSignupBtn" data-i18n="nav.signup">Sign Up</button>
+    <div class="nav-avatar" id="navAvatar" onclick="showPage('profile')" style="position:relative;">
+      <div class="nav-avatar-pic" id="navAvatarPic">A</div>
+      <span class="nav-avatar-name" id="navAvatarName">User</span>
+      <div class="nav-avatar-dropdown">
+        <button class="nav-avatar-dropdown-item" onclick="event.stopPropagation();showPage('profile')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4.5" r="2.5" stroke="#888" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-4 5-4s5 1.2 5 4" stroke="#888" stroke-width="1.2" stroke-linecap="round"/></svg>
+          My Profile
+        </button>
+        <hr/>
+        <button class="nav-avatar-dropdown-item danger" onclick="event.stopPropagation();doLogout()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 7h7M9 4.5L12 7l-3 2.5" stroke="#e06060" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 2H3a1 1 0 00-1 1v8a1 1 0 001 1h3" stroke="#e06060" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Sign Out
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile right: search icon first, then hamburger -->
+  <div class="nav-mobile-right" id="navMobileRight">
+    <div class="nav-search-wrap" id="navSearchWrap">
+      <button class="nav-search-icon-btn" id="navSearchToggle" onclick="toggleNavSearch()" title="Search">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <circle cx="6.5" cy="6.5" r="5" stroke="#6a6a7a" stroke-width="1.4"/>
+          <path d="M10.5 10.5L13.5 13.5" stroke="#6a6a7a" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="nav-search-expanded" id="navSearchExpanded" style="display:none;">
+        <svg width="13" height="13" viewBox="0 0 15 15" fill="none" style="flex-shrink:0;margin-left:10px;">
+          <circle cx="6.5" cy="6.5" r="5" stroke="#555" stroke-width="1.4"/>
+          <path d="M10.5 10.5L13.5 13.5" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input type="text" id="heroSearchInput" placeholder="Search courses, chapters..." autocomplete="off"
+          oninput="handleCourseSearch(this.value)" onkeydown="handleSearchKeydown(event)" />
+        <button id="searchClearBtn" onclick="clearCourseSearch()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 8px;opacity:0.6;">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="#888" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="search-results-dropdown" id="searchResultsDropdown" style="display:none;"></div>
+    </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════ LEARN SUB-NAV (CodeWithHarry style) ═══════════ -->
+<div id="learnSubNav">
+  <div class="lsn-left">
+    <button class="lsn-toggle" id="sidebarToggle" onclick="(currentPage==='learn2'?toggleCyberSidebar:toggleSidebar)()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="1" y="2.5" width="14" height="1.5" rx="1" fill="#888"/>
+        <rect x="1" y="7.25" width="14" height="1.5" rx="1" fill="#888"/>
+        <rect x="1" y="12" width="14" height="1.5" rx="1" fill="#888"/>
+      </svg>
+    </button>
+    <div class="lsn-breadcrumb">
+      <button onclick="showPage('home')">Tutorials</button>
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span id="lsnBreadcrumbLabel">Network Forensics</span>
+    </div>
+  </div>
+  <div class="lsn-right">
+    <button id="lsnLangBtn" onclick="showLangModal()" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:5px 10px;border-radius:7px;background:transparent;border:1px solid rgba(255,255,255,0.07);color:#6a6a7a;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;" title="Change Language">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.2"/><ellipse cx="6.5" cy="6.5" rx="2.6" ry="5.5" stroke="currentColor" stroke-width="1.2"/><line x1="1.2" y1="4.2" x2="11.8" y2="4.2" stroke="currentColor" stroke-width="1.1"/><line x1="1.2" y1="8.8" x2="11.8" y2="8.8" stroke="currentColor" stroke-width="1.1"/></svg>
+      <span id="lsnLangLabel" data-i18n="nav.lang">Language</span>
+    </button>
+    <button class="nav-btn ghost" style="font-size:11px;padding:5px 12px;" onclick="showAuth('login')" id="lsnLoginBtn" data-i18n="nav.login">Login</button>
+    <button class="nav-btn fill" style="font-size:11px;padding:5px 12px;" onclick="showAuth('signup')" id="lsnSignupBtn" data-i18n="nav.signup">Sign Up</button>
+    <div class="nav-avatar" id="lsnAvatar" style="gap:8px;" onclick="showPage('profile')">
+      <div class="nav-avatar-pic" id="lsnAvatarPic" style="width:28px;height:28px;font-size:12px;">A</div>
+      <span class="nav-avatar-name" id="lsnAvatarName" style="font-size:12px;">User</span>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+
+  <button class="m-nav" onclick="showPage('home'); toggleMenu()" data-i18n="nav.home">Home</button>
+  <button class="m-nav" onclick="showPage('learn'); toggleMenu()" data-i18n="nav.tutorials">Tutorials</button>
+  <button class="m-nav" onclick="showPage('tools'); toggleMenu()">Tools</button>
+  <button class="m-nav" onclick="showPage('ctf'); toggleMenu()">
+    CTF Challenges
+  </button>
+  <button class="m-nav" onclick="showPage('home'); scrollToSection('about'); toggleMenu()" data-i18n="nav.about">About</button>
+  <button class="m-nav" onclick="showPage('home'); scrollToSection('contact'); toggleMenu()" data-i18n="nav.contact">Contact</button>
+  <div class="m-divider"></div>
+  <button class="m-nav" onclick="showLangModal();toggleMenu();" style="display:flex;align-items:center;gap:10px;">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="7.5" cy="7.5" r="6.2" stroke="#6a6a7a" stroke-width="1.2"/>
+      <ellipse cx="7.5" cy="7.5" rx="3" ry="6.2" stroke="#6a6a7a" stroke-width="1.2"/>
+      <line x1="1.5" y1="5" x2="13.5" y2="5" stroke="#6a6a7a" stroke-width="1.2"/>
+      <line x1="1.5" y1="10" x2="13.5" y2="10" stroke="#6a6a7a" stroke-width="1.2"/>
+    </svg>
+    <span id="mLangLabel" data-i18n="nav.lang">Select Language</span>
+  </button>
+  <div class="m-divider"></div>
+  <div class="m-auth" id="mobileAuthBtns">
+    <button class="ml" onclick="showAuth('login');toggleMenu()" data-i18n="nav.login">Login</button>
+    <button class="ms" onclick="showAuth('signup');toggleMenu()" data-i18n="nav.signup">Sign Up</button>
+  </div>
+  <div class="m-auth" id="mobileUserBtns" style="display:none;">
+    <button class="ml" onclick="showPage('profile');toggleMenu()" style="flex:1;text-align:center;font-size:12px;font-weight:600;border-radius:7px;padding:10px 0;cursor:pointer;font-family:'Inter',sans-serif;border:1px solid var(--border);color:var(--text-dim);background:transparent;">My Profile</button>
+    <button class="ms" onclick="doLogout();toggleMenu()" style="flex:1;text-align:center;font-size:12px;font-weight:600;border-radius:7px;padding:10px 0;cursor:pointer;font-family:'Inter',sans-serif;background:rgba(220,20,20,0.1);color:#e06060;border:1px solid rgba(220,20,20,0.2);">Sign Out</button>
+  </div>
+</div>
+
+
+
+<div id="homePage" class="page active">
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        <span data-i18n="hero.badge.text">Cybersecurity Learning Platform</span>
+      </div>
+      <h1 class="hero-title">
+        <span class="t1"><span data-i18n="hero.title.line1">Learn Cyber</span> <em style="color:var(--red);font-style:normal;" data-i18n="hero.title.line2">Security</em></span>
+      </h1>
+      <p class="hero-sub" data-i18n="hero.sub">Cybersecurity ko samjho apni language mein. Network Forensics, Ethical Hacking, aur bahut kuch sikhenge step by step, beginner se expert tak.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="scrollToSection('tutorials')">
+          <span data-i18n="hero.cta1">Start Learning</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M7.5 3L11 7l-3.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="btn-secondary" onclick="scrollToSection('about')">
+          <span data-i18n="hero.cta2">About AlexCyberX</span>
+        </button>
+      </div>
+
+
+    </div>
+    <div class="hero-right">
+      <div class="hero-terminal">
+        <div class="ht-bar">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <span class="ht-title">terminal alexcyberx</span>
+        </div>
+        <div class="ht-body ht-body-split">
+          <!-- Left: nmap commands -->
+          <div class="ht-col-left">
+            <div><span class="ht-p">$</span> <span class="ht-c">nmap -sV target.com</span></div>
+            <span class="ht-out">Starting Nmap scan...</span>
+            <span class="ht-out">PORT     STATE  SERVICE</span>
+            <span class="ht-red">22/tcp   open   ssh</span>
+            <span class="ht-red">80/tcp   open   http</span>
+            <span class="ht-red">443/tcp  open   https</span>
+            <div style="margin-top:8px"><span class="ht-p">$</span> <span class="ht-c">wireshark -i eth0</span></div>
+            <span class="ht-out">Capturing packets...</span>
+            <span class="ht-green">&#10003; 1247 packets captured</span>
+            <div style="margin-top:8px"><span class="ht-p">$</span> <span class="ht-cursor2"></span></div>
+          </div>
+          <!-- Right: Kali commands -->
+          <div class="ht-col-right">
+            <div><span class="ht-p">$</span> <span class="ht-c">hydra -l admin -P rockyou.txt ssh://target.com</span></div>
+            <span class="ht-out">Hydra v9.4 starting...</span>
+            <span class="ht-green">&#10003; login: admin  pass: p@ss123</span>
+            <div style="margin-top:8px"><span class="ht-p">$</span> <span class="ht-c">sqlmap -u "target.com/login" --dbs</span></div>
+            <span class="ht-out">Backend DBMS: MySQL</span>
+            <span class="ht-red">DBs: users_db, admin_panel</span>
+            <div style="margin-top:8px"><span class="ht-p">$</span> <span class="ht-c">gobuster dir -u target.com -w common.txt</span></div>
+            <span class="ht-red">/admin  /backup  /config</span>
+            <div style="margin-top:8px"><span class="ht-p">$</span> <span class="ht-cursor2"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-tags">
+        <span class="htag">Network Forensics</span>
+        <span class="htag">Ethical Hacking</span>
+        <span class="htag">Wireshark</span>
+        <span class="htag">Kali Linux</span>
+        <span class="htag">Burp Suite</span>
+        <span class="htag">CTF</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-item"><span class="stat-num">20+</span><span class="stat-label" data-i18n="stat.chapters">Chapters</span></div>
+  <div class="stat-item"><span class="stat-num">8K+</span><span class="stat-label" data-i18n="stat.community">Community</span></div>
+  <div class="stat-item"><span class="stat-num">100%</span><span class="stat-label" data-i18n="stat.practical">Practical</span></div>
+  <div class="stat-item"><span class="stat-num">Free</span><span class="stat-label" data-i18n="stat.always">Always</span></div>
+</div>
+
+<!-- TUTORIALS -->
+<section class="section" id="tutorials">
+  <div class="section-label" data-i18n="courses.label">Courses</div>
+  <h2 class="section-heading" data-i18n="courses.heading">Choose Your Path</h2>
+  <div class="cards-grid">
+    <div class="tut-card" onclick="handleCourseClick()" style="cursor:pointer;">
+      <div class="card-icon-wrap">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="8" stroke="#dc1414" stroke-width="1.2"/>
+          <circle cx="10" cy="10" r="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
+          <line x1="4" y1="10" x2="7" y2="10" stroke="#dc1414" stroke-width="1"/>
+          <line x1="13" y1="10" x2="16" y2="10" stroke="#dc1414" stroke-width="1"/>
+          <line x1="10" y1="4" x2="10" y2="7" stroke="#dc1414" stroke-width="1"/>
+          <line x1="10" y1="13" x2="10" y2="16" stroke="#dc1414" stroke-width="1"/>
+          <line x1="12.5" y1="12.5" x2="15" y2="15" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="card-tag">Forensics</div>
+      <div class="card-title" data-i18n="card.nf.title">Network Forensics</div>
+      <p class="card-desc" data-i18n="card.nf.desc">Learn to collect digital evidence by analyzing network traffic. Complete guide to PCAP, Wireshark, and malware traffic analysis.</p>
+      <div class="card-footer">
+        <span class="card-chapters" data-i18n="card.nf.chapters">20 Chapters</span>
+        <div class="card-arrow">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6h8M6.5 3l3 3-3 3" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div class="tut-card" onclick="handleCourse2Click()" style="cursor:pointer;">
+      <div class="card-icon-wrap">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <path d="M10 1.5 L17 4.5 L17 9.5 Q17 15 10 18.5 Q3 15 3 9.5 L3 4.5 Z" stroke="#dc1414" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M7 9.5 L9.5 12 L13.5 7" stroke="#dc1414" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="card-tag">Fundamentals</div>
+      <div class="card-title" data-i18n="card.ca.title">Cyber Attacks Fundamentals</div>
+      <p class="card-desc" data-i18n="card.ca.desc">Common cyber attacks samjho - MITM, DoS/DDoS, SQL Injection, XSS, Ransomware, DNS Spoofing aur unse defense karne ke tareeke.</p>
+      <div class="card-footer">
+        <span class="card-chapters" data-i18n="card.ca.chapters">11 Chapters</span>
+        <div class="card-arrow">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6h8M6.5 3l3 3-3 3" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="section about-wrap" id="about">
+  <div class="about-grid">
+    <div class="about-text">
+      <div class="section-label" data-i18n="about.label">About</div>
+      <h2><span data-i18n="about.whois">Who is</span> <em>AlexCyberX</em></h2>
+      <p data-i18n="about.p1">Pawan Tanwar (AlexCyberX), Certified Ethical Hacker from Jhalawar, Rajasthan, India. Core focus is Network Forensics and cyber investigation.</p>
+      <p data-i18n="about.p2">Hands-on experience with Wireshark, Nmap, Burp Suite, Kali Linux. Deep interest in helping cyber investigations and assisting cyber police in case analysis. Practical over theoretical, always.</p>
+      <p data-i18n="about.p3">Running @alex.cyberx cybersecurity community on Instagram focused on CTF writeups, tools, and real-world techniques.</p>
+    </div>
+    <div class="terminal">
+      <div class="term-header">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <span class="term-title">alexcyberx@kali ~ $</span>
+      </div>
+      <div class="term-body">
+        <div><span class="t-prompt">$</span> <span class="t-cmd">whoami</span></div>
+        <span class="t-out-green">Pawan Tanwar (AlexCyberX)</span>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">cat cert.txt</span></div>
+        <span class="t-out-dim">Certified Ethical Hacker (CEH)</span>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">cat location.txt</span></div>
+        <span class="t-out-dim">Jhalawar, Rajasthan, India</span>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">cat field.txt</span></div>
+        <span class="t-out-dim">Cyber Security</span>
+        <div><span class="t-prompt">$</span> <span class="t-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section contact-wrap" id="contact">
+  <div class="contact-grid">
+    <div class="contact-left">
+      <div class="section-label" data-i18n="contact.label">Connect</div>
+      <h2 data-i18n="contact.heading">Get in Touch</h2>
+      <p data-i18n="contact.sub">Questions, collaborations, or want to learn something - reach out.</p>
+      <div class="social-list">
+        <a href="https://instagram.com/alex.cyberx" class="social-link" target="_blank">
+          <div class="social-icon-wrap">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <rect x="1" y="1" width="14" height="14" rx="3.5" stroke="#dc1414" stroke-width="1.2"/>
+              <circle cx="8" cy="8" r="3" stroke="#dc1414" stroke-width="1.2"/>
+              <circle cx="11.5" cy="4.5" r="0.9" fill="#dc1414"/>
+            </svg>
+          </div>
+          <div><div class="social-name">Instagram</div><div class="social-handle">@alex.cyberx</div></div>
+          <svg class="social-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 3l4 4-4 4" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <a href="https://github.com/alexcyberx" class="social-link" target="_blank">
+          <div class="social-icon-wrap">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M8 1C4.13 1 1 4.13 1 8c0 3.09 2.01 5.71 4.79 6.63.35.06.48-.15.48-.34v-1.2c-1.95.42-2.36-.94-2.36-.94-.32-.81-.78-1.03-.78-1.03-.64-.44.05-.43.05-.43.7.05 1.07.72 1.07.72.62 1.07 1.63.76 2.03.58.06-.45.24-.76.44-.93-1.56-.18-3.2-.78-3.2-3.47 0-.77.27-1.39.72-1.88-.07-.18-.31-.89.07-1.85 0 0 .59-.19 1.92.72A6.65 6.65 0 018 4.84c.59 0 1.19.08 1.75.23 1.33-.9 1.91-.72 1.91-.72.38.96.14 1.67.07 1.85.45.49.72 1.11.72 1.88 0 2.7-1.64 3.29-3.2 3.47.25.22.48.64.48 1.3v1.92c0 .19.13.4.48.34A7.002 7.002 0 0015 8c0-3.87-3.13-7-7-7z" fill="#dc1414"/>
+            </svg>
+          </div>
+          <div><div class="social-name">GitHub</div><div class="social-handle">alexcyberx</div></div>
+          <svg class="social-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 3l4 4-4 4" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <div class="contact-form">
+      <div class="form-title" data-i18n="form.title">Send Message</div>
+      <div class="form-field"><label data-i18n="form.name">Name</label><input id="contactName" type="text" data-i18n-placeholder="form.name.ph" placeholder="Your name"></div>
+      <div class="form-field"><label data-i18n="form.email">Email</label><input id="contactEmail" type="email" data-i18n-placeholder="form.email.ph" placeholder="your@email.com"></div>
+      <div class="form-field"><label data-i18n="form.msg">Message</label><textarea id="contactMsg" data-i18n-placeholder="form.msg.ph" placeholder="Write here..."></textarea></div>
+      <!-- Honeypot field - hidden from real users -->
+      <input type="text" id="contactHP" style="display:none;" tabindex="-1" autocomplete="off">
+      <div id="contactMsg_status" style="font-size:12px;margin-bottom:8px;min-height:18px;"></div>
+      <button class="btn-send" onclick="handleContactSubmit()">
+        <span data-i18n="form.send">Send Message</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M1 7h12M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-logo">Alex <em>CyberX</em></div>
+  <div class="foot-legal-links">
+    <a href="#" onclick="showPage('terms')">Terms of Service</a>
+    <span class="foot-sep">·</span>
+    <a href="#" onclick="showPage('privacy')">Privacy Policy</a>
+    <span class="foot-sep">·</span>
+    <a href="#" onclick="showPage('refund')">Refund Policy</a>
+    <span class="foot-sep">·</span>
+    <a href="#" onclick="showPage('cookie')">Cookie Notice</a>
+    <span class="foot-sep">·</span>
+    <a href="#" onclick="showPage('donotsell')">Do Not Sell My Info</a>
+    <span class="foot-sep">·</span>
+    <a href="#" onclick="showPage('disclaimer')">Disclaimer</a>
+    <span class="foot-sep">·</span>
+    <a href="#" onclick="showPage('legalwarning')" style="color:#dc1414;">Legal Warning</a>
+  </div>
+  <div class="foot-copy" data-i18n="footer.copy">© 2025 AlexCyberX. All rights reserved.</div>
+</footer>
+
+</div><!-- end #homePage -->
+
+
+
+<div id="learnPage" class="page">
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="learn-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">Network Forensics</div>
+    <div class="chapter-list" id="chapterList">
+      <a class="chapter-item active" onclick="loadChapter(0)">
+        <span class="chapter-num">01</span><span style="flex:1">Network Forensics Introduction</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(1)">
+        <span class="chapter-num">02</span><span style="flex:1">Networking Fundamentals</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(2)">
+        <span class="chapter-num">03</span><span style="flex:1">OSI & TCP/IP Deep Analysis</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(3)">
+        <span class="chapter-num">04</span><span style="flex:1">Packet Analysis Basics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(4)">
+        <span class="chapter-num">05</span><span style="flex:1">Wireshark Mastery</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(5)">
+        <span class="chapter-num">06</span><span style="flex:1">TCP/UDP/ICMP Investigation</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(6)">
+        <span class="chapter-num">07</span><span style="flex:1">DNS & HTTP Forensics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(7)">
+        <span class="chapter-num">08</span><span style="flex:1">HTTPS/TLS Analysis</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(8)">
+        <span class="chapter-num">09</span><span style="flex:1">Email Forensics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(9)">
+        <span class="chapter-num">10</span><span style="flex:1">PCAP Investigation Workflow</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(10)">
+        <span class="chapter-num">11</span><span style="flex:1">Malware Traffic Analysis</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(11)">
+        <span class="chapter-num">12</span><span style="flex:1">Intrusion Detection</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(12)">
+        <span class="chapter-num">13</span><span style="flex:1">Log Correlation</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(13)">
+        <span class="chapter-num">14</span><span style="flex:1">Threat Hunting</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(14)">
+        <span class="chapter-num">15</span><span style="flex:1">Memory + Network Correlation</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(15)">
+        <span class="chapter-num">16</span><span style="flex:1">Wireless Network Forensics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(16)">
+        <span class="chapter-num">17</span><span style="flex:1">Cloud Network Forensics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(17)">
+        <span class="chapter-num">18</span><span style="flex:1">SIEM & Enterprise Investigation</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(18)">
+        <span class="chapter-num">19</span><span style="flex:1">Real Incident Case Studies</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(19)">
+        <span class="chapter-num">20.1</span><span style="flex:1">Career Reality & Roles</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(20)">
+        <span class="chapter-num">20.2</span><span style="flex:1">Home Lab From Scratch</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(21)">
+        <span class="chapter-num">20.3</span><span style="flex:1">Wireshark & PCAP Mastery</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(22)">
+        <span class="chapter-num">20.4</span><span style="flex:1">Threat Hunting Mastery</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(23)">
+        <span class="chapter-num">20.5</span><span style="flex:1">DFIR & Incident Response</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(24)">
+        <span class="chapter-num">20.6</span><span style="flex:1">Certifications & Career Plan</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <!-- LEARN MAIN -->
+  <main class="learn-main" id="learnMain">
+    <div class="content-area">
+      <div class="topic-banner">
+        <div class="topic-banner-tag" data-i18n="learn.tag">Network Forensics</div>
+        <h1 data-i18n="learn.title">Network Forensics</h1>
+        <p data-i18n="learn.desc">Learn to collect digital evidence by analyzing network traffic. Complete guide to PCAP, Wireshark, and malware traffic analysis.</p>
+      </div>
+
+      <div class="content" id="chapterContent">
+        <h2>What is Network Forensics?</h2>
+        <p>Network Forensics matlab hai network mein aane-jaane wale data ko collect, monitor, analyze aur investigate karna. Sidebar se Chapter 1 select karo aur Part 1 ka full content padho.</p>
+        <div class="info-box">
+          <p><strong>Note:</strong> Sidebar se koi bhi chapter select karo aur padhna shuru karo. Chapters sequence mein follow karne se best experience milega.</p>
+        </div>
+      </div>
+
+      <div class="chapter-nav" id="chapterNav">
+        <button class="chapter-nav-btn prev" id="prevBtn" style="visibility:hidden;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L5 7l4 5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div><span class="label">Previous</span><span class="title" id="prevTitle">-</span></div>
+        </button>
+        <button class="chapter-nav-btn next" id="nextBtn" onclick="loadChapter(1)">
+          <div style="text-align:right"><span class="label">Next</span><span class="title" id="nextTitle">Networking Fundamentals</span></div>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l4 5-4 5" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+</div><!-- end #learnPage -->
+
+
+<div id="learn2Page" class="page">
+
+<div class="overlay" id="overlay2" onclick="toggleCyberSidebar()"></div>
+
+<div class="learn-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="cyberSidebar">
+    <div class="sidebar-header">Cyber Attacks Fundamentals</div>
+    <div class="chapter-list" id="cyberChapterList">
+      <a class="cyber-chapter-item chapter-item active" onclick="loadCyberChapter(0)">
+        <span class="chapter-num">01</span><span style="flex:1">Cyber Attacks Introduction</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(1)">
+        <span class="chapter-num">02</span><span style="flex:1">Social Engineering & Phishing</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(2)">
+        <span class="chapter-num">03</span><span style="flex:1">MITM Attack</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(3)">
+        <span class="chapter-num">04</span><span style="flex:1">DoS & DDoS Attacks</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(4)">
+        <span class="chapter-num">05</span><span style="flex:1">SQL Injection</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(5)">
+        <span class="chapter-num">06</span><span style="flex:1">XSS Attack</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(6)">
+        <span class="chapter-num">07</span><span style="flex:1">DNS Spoofing & Poisoning</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(7)">
+        <span class="chapter-num">08</span><span style="flex:1">Ransomware & Malware</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(8)">
+        <span class="chapter-num">09</span><span style="flex:1">TLS & Encryption Attacks</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(9)">
+        <span class="chapter-num">10</span><span style="flex:1">Brute Force & Password Attacks</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(10)">
+        <span class="chapter-num">11</span><span style="flex:1">Attack Defense & Prevention</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <!-- LEARN MAIN -->
+  <main class="learn-main" id="cyberLearnMain">
+    <div class="content-area">
+      <div class="topic-banner">
+        <div class="topic-banner-tag" data-i18n="learn2.tag">Cyber Attacks Fundamentals</div>
+        <h1 data-i18n="learn2.title">Cyber Attacks Fundamentals</h1>
+        <p data-i18n="learn2.desc">Common cyber attacks samjho - MITM, DoS/DDoS, SQL Injection, XSS, DNS Spoofing, Ransomware, TLS attacks aur unse defense karne ke tareeke, complete Hinglish mein.</p>
+      </div>
+
+      <div class="content" id="cyberChapterContent">
+        <h2>Cyber Attacks Fundamentals</h2>
+        <p>Cyber attacks ke fundamentals samjho - attacker kaise sochta hai, kaunse tools use karta hai aur tum apne aap ko kaise protect kar sakte ho. Sidebar se Chapter 1 select karo aur shuru karo.</p>
+        <div class="info-box">
+          <p><strong>Note:</strong> Sidebar se koi bhi chapter select karo aur padhna shuru karo. Chapters sequence mein follow karne se best experience milega.</p>
+        </div>
+      </div>
+
+      <div class="chapter-nav" id="cyberChapterNav">
+        <button class="chapter-nav-btn prev" id="cyberPrevBtn" style="visibility:hidden;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L5 7l4 5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div><span class="label">Previous</span><span class="title" id="cyberPrevTitle">-</span></div>
+        </button>
+        <button class="chapter-nav-btn next" id="cyberNextBtn" onclick="loadCyberChapter(1)">
+          <div style="text-align:right"><span class="label">Next</span><span class="title" id="cyberNextTitle">Social Engineering & Phishing</span></div>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l4 5-4 5" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+</div><!-- end #learn2Page -->
+
+<!-- ═══════════════════════════════════════════
+     TOOLS PAGE
+═══════════════════════════════════════════ -->
+<div id="toolsPage" class="page">
+  <div style="max-width:900px;margin:0 auto;padding:40px 24px 80px;">
+    <div style="margin-bottom:36px;">
+      <div style="font-size:10px;letter-spacing:4px;color:#dc1414;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:10px;padding:3px 14px;border:1px solid #dc141433;border-radius:20px;background:#dc14140a;display:inline-block;">TOOLS</div>
+      <h1 style="font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;color:#f4f4f5;margin-bottom:10px;">Cybersecurity Tools</h1>
+      <p style="font-family:'Inter',sans-serif;font-size:13px;color:#666;line-height:1.7;">Yahan future mein tools add kiye jayenge. Stay tuned!</p>
+    </div>
+    <div id="toolsComingSoon" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;border:1px dashed rgba(220,20,20,0.2);border-radius:16px;background:#0e0e14;">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:20px;opacity:0.4;">
+        <rect x="6" y="30" width="36" height="6" rx="3" stroke="#dc1414" stroke-width="2"/>
+        <path d="M18 30V18l-4-4h20l-4 4v12" stroke="#dc1414" stroke-width="2" stroke-linejoin="round"/>
+        <circle cx="24" cy="14" r="3" stroke="#dc1414" stroke-width="2"/>
+      </svg>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#f4f4f5;margin-bottom:8px;">Coming Soon</div>
+      <p style="font-family:'Inter',sans-serif;font-size:12px;color:#555;text-align:center;max-width:320px;">Cybersecurity tools is section mein add kiye jayenge. Aane wale time mein tools yahan available honge.</p>
+    </div>
+  </div>
+</div><!-- end #toolsPage -->
+
+
+
+
+<!-- ═══════════ LOGIN OVERLAY ═══════════ -->
+<div class="auth-overlay" id="loginOverlay">
+  <div class="auth-card">
+    <button class="auth-close" onclick="closeAuth()" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#888" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <div class="auth-logo">
+      <div class="auth-logo-dot"></div>
+      <div class="auth-logo-text">Alex <em>CyberX</em></div>
+    </div>
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-subtitle">Sign in to your account and continue learning.</div>
+    <div class="auth-error" id="loginError"></div>
+    <div class="auth-field">
+      <label class="auth-label">Email Address</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="loginEmail" type="email" placeholder="your@email.com" autocomplete="email"/>
+        <span class="auth-input-icon">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="3" width="13" height="9" rx="2" stroke="#444" stroke-width="1.3"/><path d="M1 5l6.5 4L14 5" stroke="#444" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="auth-field">
+      <label class="auth-label">Password</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="loginPassword" type="password" placeholder="Enter your password" autocomplete="current-password"/>
+        <button class="auth-toggle-pw" type="button" onclick="togglePw('loginPassword',this)" tabindex="-1">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><ellipse cx="7.5" cy="7.5" rx="6" ry="4" stroke="#444" stroke-width="1.3"/><circle cx="7.5" cy="7.5" r="2" stroke="#444" stroke-width="1.3"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="auth-row">
+      <label class="auth-remember">
+        <input type="checkbox" id="rememberMe"/>
+        <span>Remember me</span>
+      </label>
+      <button class="auth-forgot-link" onclick="showAuth('forgot')">Forgot password?</button>
+    </div>
+    <button class="auth-btn" onclick="doLogin()">Sign In</button>
+    <div class="auth-divider"><div class="auth-divider-line"></div><div class="auth-divider-text">or continue with</div><div class="auth-divider-line"></div></div>
+    <button class="auth-google-btn" onclick="doGoogleLogin()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+      Continue with Google
+    </button>
+    <div class="auth-switch">Don't have an account? <button onclick="showAuth('signup')">Sign up</button></div>
+  </div>
+</div>
+
+<!-- ═══════════ SIGNUP OVERLAY ═══════════ -->
+<div class="auth-overlay" id="signupOverlay">
+  <div class="auth-card">
+    <button class="auth-close" onclick="closeAuth()" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#888" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <div class="auth-logo">
+      <div class="auth-logo-dot"></div>
+      <div class="auth-logo-text">Alex <em>CyberX</em></div>
+    </div>
+    <div class="auth-title">Create account</div>
+    <div class="auth-subtitle">Join for free and get access to the complete cybersecurity roadmap.</div>
+    <div class="auth-error" id="signupError"></div>
+    <div class="auth-success" id="signupSuccess"></div>
+    <div class="auth-field">
+      <label class="auth-label">Full Name</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="signupName" type="text" placeholder="Your full name" autocomplete="name"/>
+        <span class="auth-input-icon">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="5" r="3" stroke="#444" stroke-width="1.3"/><path d="M2 13c0-3 2.5-4.5 5.5-4.5S13 10 13 13" stroke="#444" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="auth-field">
+      <label class="auth-label">Email Address</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="signupEmail" type="email" placeholder="your@email.com" autocomplete="email"/>
+        <span class="auth-input-icon">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="3" width="13" height="9" rx="2" stroke="#444" stroke-width="1.3"/><path d="M1 5l6.5 4L14 5" stroke="#444" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="auth-field">
+      <label class="auth-label">Password</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="signupPassword" type="password" placeholder="Create a strong password" autocomplete="new-password" oninput="checkStrength(this.value)"/>
+        <button class="auth-toggle-pw" type="button" onclick="togglePw('signupPassword',this)" tabindex="-1">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><ellipse cx="7.5" cy="7.5" rx="6" ry="4" stroke="#444" stroke-width="1.3"/><circle cx="7.5" cy="7.5" r="2" stroke="#444" stroke-width="1.3"/></svg>
+        </button>
+      </div>
+      <div class="auth-strength">
+        <div class="auth-strength-bar" id="sb1"></div>
+        <div class="auth-strength-bar" id="sb2"></div>
+        <div class="auth-strength-bar" id="sb3"></div>
+        <div class="auth-strength-bar" id="sb4"></div>
+        <span class="auth-strength-text" id="strengthText"></span>
+      </div>
+    </div>
+    <div class="auth-field">
+      <label class="auth-label">Confirm Password</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="signupConfirm" type="password" placeholder="Re-enter your password" autocomplete="new-password"/>
+        <button class="auth-toggle-pw" type="button" onclick="togglePw('signupConfirm',this)" tabindex="-1">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><ellipse cx="7.5" cy="7.5" rx="6" ry="4" stroke="#444" stroke-width="1.3"/><circle cx="7.5" cy="7.5" r="2" stroke="#444" stroke-width="1.3"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="auth-terms">By creating an account you agree to our <a href="#" onclick="showAuth(''); showPage('terms')">Terms of Service</a> and <a href="#" onclick="showAuth(''); showPage('privacy')">Privacy Policy</a>.</div>
+    <button class="auth-btn" onclick="doSignup()">Create Account</button>
+    <div class="auth-divider"><div class="auth-divider-line"></div><div class="auth-divider-text">or continue with</div><div class="auth-divider-line"></div></div>
+    <button class="auth-google-btn" onclick="doGoogleLogin()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+      Sign up with Google
+    </button>
+    <div class="auth-switch">Already have an account? <button onclick="showAuth('login')">Sign in</button></div>
+  </div>
+</div>
+
+<!-- ═══════════ FORGOT PASSWORD OVERLAY ═══════════ -->
+<div class="auth-overlay" id="forgotOverlay">
+  <div class="auth-card">
+    <button class="auth-close" onclick="closeAuth()" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#888" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <div class="auth-logo">
+      <div class="auth-logo-dot"></div>
+      <div class="auth-logo-text">Alex <em>CyberX</em></div>
+    </div>
+    <button class="auth-back-btn" onclick="showAuth('login')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="#555" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Sign In
+    </button>
+    <div class="auth-title">Reset Password</div>
+    <div class="auth-subtitle">Enter your registered email. We'll send you a password reset link.</div>
+    <div class="auth-error" id="forgotError"></div>
+    <div class="auth-success" id="forgotSuccess"></div>
+    <div class="auth-field">
+      <label class="auth-label">Email Address</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="forgotEmail" type="email" placeholder="your@email.com" autocomplete="email"/>
+        <span class="auth-input-icon">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="3" width="13" height="9" rx="2" stroke="#444" stroke-width="1.3"/><path d="M1 5l6.5 4L14 5" stroke="#444" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </span>
+      </div>
+    </div>
+    <button class="auth-btn" onclick="doForgot()">Send Reset Link</button>
+    <div class="auth-switch">Remembered it? <button onclick="showAuth('login')">Sign in</button></div>
+  </div>
+</div>
+
+<!-- ═══════════ PROFILE PAGE ═══════════ -->
+<div id="profilePage" class="page">
+  <div class="profile-wrap">
+    <div class="profile-card">
+      <div class="profile-banner">
+        <div class="profile-banner-overlay"></div>
+        <!-- Back button -->
+        <button onclick="showPage('home')" style="position:absolute;top:16px;left:16px;z-index:10;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:7px 14px;color:#ccc;font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.6)'" onmouseout="this.style.background='rgba(0,0,0,0.4)'">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back
+        </button>
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" id="profileAvatarBig">A</div>
+        </div>
+      </div>
+      <div class="profile-body">
+        <div class="profile-name" id="profileDisplayName">Alex User</div>
+        <div class="profile-email-tag" id="profileDisplayEmail">user@example.com</div>
+
+        <div class="profile-section-title">Personal Information</div>
+        <div class="profile-field">
+          <label class="profile-label">Full Name</label>
+          <input class="profile-input" id="profileName" type="text" placeholder="Your full name"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Email Address</label>
+          <input class="profile-input" id="profileEmail" type="email" disabled/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Username</label>
+          <input class="profile-input" id="profileUsername" type="text" placeholder="Your username"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Bio</label>
+          <input class="profile-input" id="profileBio" type="text" placeholder="Tell us a little about yourself..."/>
+        </div>
+
+        <div class="profile-divider"></div>
+        <div class="profile-section-title">Change Password</div>
+        <div class="profile-field">
+          <label class="profile-label">New Password</label>
+          <input class="profile-input" id="profileNewPw" type="password" placeholder="New password (optional)"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Confirm New Password</label>
+          <input class="profile-input" id="profileConfirmPw" type="password" placeholder="Re-enter new password"/>
+        </div>
+
+        <div class="profile-divider"></div>
+        <div class="profile-msg" id="profileMsg"></div>
+        <button class="profile-save-btn" onclick="saveProfile()">Save Changes</button>
+        <button class="profile-logout-btn" onclick="doLogout()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- ═══════════ LANGUAGE SELECTOR MODAL ═══════════ -->
+<div id="langModal" style="position:fixed;inset:0;z-index:99999;background:rgba(6,6,8,0.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);display:none;align-items:center;justify-content:center;">
+  <div id="langCard" style="background:#0c0c0f;border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:28px 24px 22px;max-width:480px;width:92%;box-shadow:0 32px 80px rgba(0,0,0,0.85);position:relative;">
+
+    <style>@keyframes langIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}</style>
+
+    <!-- Close -->
+    <button onclick="hideLangModal()" style="position:absolute;top:12px;right:12px;width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1L1 9" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:#dc1414;box-shadow:0 0 8px rgba(220,20,20,0.6);"></div>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#f4f4f5;letter-spacing:1px;">Alex <span style="color:#dc1414;">CyberX</span></span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#dc1414" stroke-width="1.3"/><ellipse cx="10" cy="10" rx="3.8" ry="8.5" stroke="#dc1414" stroke-width="1.3"/><line x1="1.8" y1="6.5" x2="18.2" y2="6.5" stroke="#dc1414" stroke-width="1.1"/><line x1="1.8" y1="13.5" x2="18.2" y2="13.5" stroke="#dc1414" stroke-width="1.1"/></svg>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;color:#f4f4f5;" data-i18n="modal.title">Choose Your Language</div>
+    </div>
+    <div style="font-family:'Inter',sans-serif;font-size:11px;color:#4a4a5a;margin-bottom:18px;" data-i18n="modal.sub">Website is language mein translate ho jaayegi. Nav bar se baad mein bhi change kar sakte ho.</div>
+
+    <!-- Grid -->
+    <div id="langGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px;"></div>
+
+    <!-- Continue -->
+    <button id="langApplyBtn" onclick="applyLanguage()" style="width:100%;padding:11px;background:#dc1414;border:1px solid #dc1414;color:#fff;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;gap:7px;" onmouseover="this.style.background='#e81818'" onmouseout="this.style.background='#dc1414'">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="langApplyTxt" data-i18n="modal.continue">Continue</span>
+    </button>
+  </div>
+</div>
+
+<!-- Translation overlay removed (offline dictionary used) -->
+
+<!-- ═══════════ LEGAL PAGES ═══════════ -->
+<div id="ctfRoomPage" class="page"></div>
+<div id="privacyPage" class="legal-page"></div>
+<div id="termsPage" class="legal-page"></div>
+<div id="disclaimerPage" class="legal-page"></div>
+<div id="refundPage" class="legal-page"></div>
+<div id="cookiePage" class="legal-page"></div>
+<div id="donotsellPage" class="legal-page"></div>
+<div id="legalwarningPage" class="legal-page"></div>
+
+<script>
+// Load legal pages dynamically - sanitized to strip inline scripts
+['privacy','terms','disclaimer','refund','cookie','donotsell','legalwarning','ctf-room'].forEach(function(page) {
+  fetch('pages/' + page + '.html')
+    .then(function(r){ return r.text(); })
+    .then(function(html){
+      // Parse safely using DOMParser, then remove any script tags
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(html, 'text/html');
+      doc.querySelectorAll('script').forEach(function(s){ s.remove(); });
+      doc.querySelectorAll('[onclick],[onerror],[onload],[onmouseover]').forEach(function(el){
+        ['onclick','onerror','onload','onmouseover'].forEach(function(attr){ el.removeAttribute(attr); });
+      });
+      var target = document.getElementById(page + 'Page');
+      if (target) target.innerHTML = doc.body.innerHTML;
+    })
+    .catch(function(){});
+});
+</script>
+
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/translate.js"></script>
+<script src="js/chapters.js"></script>
+<script src="js/chapters2.js"></script>
+<script src="js/router.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/search.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════
+   COURSE CLICK - Auth gate
+   Language already selected → saved in localStorage
+   If logged in → go to learn page directly
+   If not logged in → show login/signup modal, redirect after
+═══════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════
+   CONTACT FORM - Client-side validation
+═══════════════════════════════════════════ */
+async function handleContactSubmit() {
+  const name  = (document.getElementById('contactName')?.value  || '').trim();
+  const email = (document.getElementById('contactEmail')?.value || '').trim();
+  const msg   = (document.getElementById('contactMsg')?.value   || '').trim();
+  const hp    =  document.getElementById('contactHP')?.value    || '';
+  const status = document.getElementById('contactMsg_status');
+
+  function setStatus(txt, ok) {
+    if (!status) return;
+    status.style.color = ok ? '#4ade80' : '#e06060';
+    status.textContent = txt;
+  }
+
+  // Honeypot check - bot detected
+  if (hp) { setStatus('', true); return; }
+
+  // Validation
+  if (!name)  { setStatus('Apna naam daalo.', false); return; }
+  if (name.length > 60) { setStatus('Naam bahut lamba hai.', false); return; }
+  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { setStatus('Valid email daalo.', false); return; }
+  if (!msg || msg.length < 10) { setStatus('Message kam se kam 10 characters ka hona chahiye.', false); return; }
+  if (msg.length > 1000) { setStatus('Message 1000 characters se zyada nahi ho sakta.', false); return; }
+
+  // XSS check - no HTML tags
+  if (/<[^>]*>/.test(name + msg)) { setStatus('Special characters allowed nahi hain.', false); return; }
+
+  // Save to Supabase
+  const btn = document.querySelector('.btn-send');
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.7'; }
+
+  if (_supabase) {
+    const { error } = await _supabase.from('messages').insert({
+      name:       name,
+      email:      email,
+      message:    msg,
+      status:     'unread',
+      created_at: new Date().toISOString()
+    });
+    if (error) {
+      setStatus('Message nahi bheja ja saka. Dobara try karo.', false);
+      if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+      return;
+    }
+  }
+
+  setStatus('Message mil gaya! Jaldi reply karenge.', true);
+  document.getElementById('contactName').value  = '';
+  document.getElementById('contactEmail').value = '';
+  document.getElementById('contactMsg').value   = '';
+  if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+  setTimeout(() => setStatus('', true), 4000);
+}
+function handleCourseClick() {
+  showPage('learn');
+}
+function handleCourse2Click() {
+  showPage('learn2');
+}
+</script>
+<!-- COOKIE CONSENT BANNER -->
+<div id="cookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#111118;border-top:1px solid rgba(255,255,255,0.08);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+  <p style="margin:0;font-size:12px;color:#9090a0;flex:1;min-width:200px;">We use strictly necessary cookies to keep you logged in and remember your preferences. <a href="#" onclick="showPage('cookie')" style="color:#dc1414;text-decoration:none;">Cookie Notice</a></p>
+  <div style="display:flex;gap:8px;flex-shrink:0;">
+    <button onclick="acceptCookies()" style="background:#dc1414;color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Accept</button>
+    <button onclick="declineCookies()" style="background:transparent;color:#666;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 14px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;">Decline</button>
+  </div>
+</div>
+<script>
+(function(){
+  if(!localStorage.getItem('acx_cookie_consent')){
+    var b = document.getElementById('cookieBanner');
+    if(b){ b.style.display='flex'; }
+  }
+})();
+function acceptCookies(){
+  localStorage.setItem('acx_cookie_consent','accepted');
+  var b = document.getElementById('cookieBanner');
+  if(b) b.style.display='none';
+}
+function declineCookies(){
+  localStorage.setItem('acx_cookie_consent','declined');
+  var b = document.getElementById('cookieBanner');
+  if(b) b.style.display='none';
+}
+</script>
+<script>
+/* CTF Lab: Cookie Monster (web-02) — isAdmin cookie lab */
+(function() {
+  // Set lab cookie if not exists — user can manipulate this in DevTools
+  if (!document.cookie.includes('isAdmin')) {
+    document.cookie = 'isAdmin=false; path=/; SameSite=Lax';
+    document.cookie = 'session=user_guest; path=/; SameSite=Lax';
+  }
+  // Check if user has manipulated isAdmin cookie
+  function checkCTFCookie() {
+    const cookies = Object.fromEntries(document.cookie.split('; ').map(c => c.split('=')));
+    if (cookies['isAdmin'] === 'true') {
+      // Flag reveal - store in hidden element for the challenge
+      const el = document.getElementById('ctfCookieFlag');
+      const val = document.getElementById('ctfCookieFlagVal');
+      if (el && val) {
+        val.textContent = 'ACX{cookies_can_be_tampered}';
+        el.style.display = 'block';
+      }
+    }
+  }
+  setInterval(checkCTFCookie, 1000);
+})();
+</script>
+
+
+<!-- ═══════════ CTF PAGE ═══════════ -->
+<!-- ═══════════════════════════════════════════
+     CTF PAGE — AlexCyberX
+     Add this as pages/ctf.html
+     And include in index.html + router.js
+═══════════════════════════════════════════ -->
+<!-- TODO: Remove before production -->
+<!-- Developer Note: Testing credentials for CTF lab -->
+<!-- Flag: ACX{html_comments_are_not_safe} -->
+<!-- TODO: Also remove the /admin panel test route -->
+<div id="ctfPage" class="page">
+<!-- CTF Lab: Cookie Monster flag reveal (only shows when isAdmin=true cookie set) -->
+<div id="ctfCookieFlag" style="display:none;position:fixed;top:70px;right:20px;z-index:9999;background:#0a0a12;border:1px solid #4ade80;border-radius:10px;padding:12px 18px;font-family:monospace;font-size:13px;color:#4ade80;box-shadow:0 4px 20px rgba(74,222,128,0.15);">
+  🚩 Flag: <span id="ctfCookieFlagVal"></span>
+</div>
+<style>
+/* ── CTF PAGE STYLES ── */
+.ctf-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
+
+/* ── USERNAME SETUP VIEW ── */
+.ctf-setup-view { max-width: 540px; margin: 60px auto; text-align: center; }
+.ctf-setup-brand { font-family: 'Rajdhani', sans-serif; font-size: 34px; font-weight: 800; letter-spacing: 2px; color: var(--white); margin-bottom: 8px; }
+.ctf-setup-brand-accent { color: var(--red); }
+.ctf-setup-subtitle { font-size: 14px; color: var(--text-dim); margin-bottom: 32px; }
+.ctf-setup-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px 28px; text-align: center; }
+.ctf-setup-title { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700; color: var(--white); margin-bottom: 8px; }
+.ctf-setup-desc { font-size: 13px; color: var(--text-dim); margin-bottom: 24px; }
+.ctf-setup-field { text-align: left; margin-bottom: 18px; }
+.ctf-setup-label { display: block; font-size: 12px; font-weight: 600; color: var(--white); margin-bottom: 8px; }
+.ctf-setup-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 14px; color: var(--white); font-family: 'Inter', sans-serif; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+.ctf-setup-input:focus { border-color: rgba(220,20,20,0.4); }
+.ctf-setup-input::placeholder { color: var(--text-dim); }
+.ctf-setup-hint { font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+.ctf-setup-btn { width: 100%; padding: 13px; background: var(--red); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; transition: background 0.2s, opacity 0.2s; margin-bottom: 16px; }
+.ctf-setup-btn:hover { background: #e81818; }
+.ctf-setup-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ctf-setup-msg { font-size: 12px; margin-bottom: 12px; min-height: 1px; }
+.ctf-setup-msg.error { color: #f87171; }
+.ctf-setup-msg.success { color: #4ade80; }
+.ctf-setup-welcome { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+.ctf-setup-note { font-size: 12px; color: var(--text-dim); margin-top: 24px; }
+@media (max-width: 640px) {
+  .ctf-setup-view { margin: 32px auto; }
+  .ctf-setup-brand { font-size: 26px; }
+  .ctf-setup-card { padding: 24px 18px; }
+}
+
+
+/* Header */
+.ctf-header { margin-bottom: 32px; }
+.ctf-header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.ctf-title-wrap {}
+.ctf-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; color: var(--red); text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.ctf-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: ctf-blink 2s ease-in-out infinite; }
+@keyframes ctf-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.ctf-page-title { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; color: var(--white); line-height: 1.1; margin-bottom: 6px; }
+.ctf-page-sub { font-size: 13px; color: var(--text-dim); line-height: 1.6; max-width: 480px; }
+
+/* Stats bar */
+.ctf-stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+.ctf-stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; min-width: 120px; }
+.ctf-stat-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ctf-stat-icon.red   { background: var(--red-dim); border: 1px solid rgba(220,20,20,0.2); }
+.ctf-stat-icon.green { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.15); }
+.ctf-stat-icon.blue  { background: rgba(99,179,237,0.08); border: 1px solid rgba(99,179,237,0.15); }
+.ctf-stat-icon.gold  { background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.15); }
+.ctf-stat-val  { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; color: var(--white); line-height: 1; }
+.ctf-stat-lbl  { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
+
+/* XP Banner for guests */
+.ctf-login-banner { background: var(--surface); border: 1px solid rgba(220,20,20,0.2); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+.ctf-login-banner svg { flex-shrink: 0; color: var(--red); }
+.ctf-login-banner p { font-size: 13px; color: var(--text-dim); flex: 1; }
+.ctf-login-banner p strong { color: var(--white); }
+.ctf-login-banner button { font-size: 12px; white-space: nowrap; padding: 8px 16px; background: var(--red); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; transition: background 0.2s; }
+.ctf-login-banner button:hover { background: #e81818; }
+
+/* Filter bar */
+.ctf-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; }
+.ctf-filter-btn { font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; }
+.ctf-filter-btn:hover, .ctf-filter-btn.active { background: var(--red-dim); border-color: rgba(220,20,20,0.3); color: var(--white); }
+.ctf-filter-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+.ctf-diff-btn { font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: transparent; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; letter-spacing: 0.3px; }
+.ctf-diff-btn.easy   { color: #4ade80; }
+.ctf-diff-btn.medium { color: #fb923c; }
+.ctf-diff-btn.hard   { color: #f87171; }
+.ctf-diff-btn.active.easy   { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.3); }
+.ctf-diff-btn.active.medium { background: rgba(251,146,60,0.1); border-color: rgba(251,146,60,0.3); }
+.ctf-diff-btn.active.hard   { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); }
+.ctf-search { margin-left: auto; position: relative; }
+.ctf-search input { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px 7px 32px; font-size: 12px; color: var(--white); font-family: 'Inter', sans-serif; width: 200px; outline: none; transition: border-color 0.2s; }
+.ctf-search input:focus { border-color: rgba(220,20,20,0.4); }
+.ctf-search input::placeholder { color: var(--text-dim); }
+.ctf-search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+
+/* Challenge grid */
+.ctf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+
+/* Challenge card */
+.ctf-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; position: relative; transition: border-color 0.2s, transform 0.15s; cursor: pointer; display: flex; flex-direction: column; gap: 0; }
+.ctf-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+.ctf-card.solved { border-color: rgba(74,222,128,0.2); }
+.ctf-card.solved::after { content: '✓ Solved'; position: absolute; top: 12px; right: 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: #4ade80; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); padding: 3px 8px; border-radius: 20px; }
+
+.ctf-card-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+.ctf-card-icon { width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; }
+.ctf-cat-web     { background: rgba(99,179,237,0.1); border: 1px solid rgba(99,179,237,0.15); }
+.ctf-cat-forensics { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.15); }
+.ctf-cat-crypto  { background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.15); }
+.ctf-cat-osint   { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.15); }
+.ctf-cat-pwn     { background: rgba(220,20,20,0.1); border: 1px solid rgba(220,20,20,0.2); }
+.ctf-cat-misc    { background: rgba(156,163,175,0.1); border: 1px solid rgba(156,163,175,0.15); }
+.ctf-cat-reversing { background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.15); }
+
+.ctf-card-info { flex: 1; min-width: 0; }
+.ctf-card-title { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctf-card-cat { font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-dim); }
+
+.ctf-card-desc { font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.ctf-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }
+.ctf-diff-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; }
+.ctf-diff-badge.easy   { color: #4ade80; background: rgba(74,222,128,0.1); }
+.ctf-diff-badge.medium { color: #fb923c; background: rgba(251,146,60,0.1); }
+.ctf-diff-badge.hard   { color: #f87171; background: rgba(248,113,113,0.1); }
+.ctf-points { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--white); }
+.ctf-points span { font-size: 11px; color: var(--text-dim); font-family: 'Inter', sans-serif; font-weight: 400; }
+.ctf-solvers { font-size: 11px; color: var(--text-dim); }
+
+/* Empty state */
+.ctf-empty { text-align: center; padding: 60px 20px; grid-column: 1 / -1; }
+.ctf-empty-icon { width: 60px; height: 60px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+.ctf-empty h3 { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+.ctf-empty p { font-size: 13px; color: var(--text-dim); }
+
+/* ── MODAL ── */
+.ctf-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+.ctf-modal-overlay.active { display: flex; }
+.ctf-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; padding: 28px; position: relative; }
+.ctf-modal-close { position: absolute; top: 16px; right: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-dim); transition: color 0.15s; }
+.ctf-modal-close:hover { color: var(--white); }
+.ctf-modal-cat { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.ctf-modal-cat svg { width: 14px; height: 14px; }
+.ctf-modal-title { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+.ctf-modal-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+.ctf-modal-desc { font-size: 13px; color: var(--text); line-height: 1.7; margin-bottom: 22px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.ctf-modal-hint-wrap { margin-bottom: 20px; }
+.ctf-hint-toggle { font-size: 12px; color: var(--red); cursor: pointer; background: none; border: none; font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 5px; padding: 0; }
+.ctf-hint-toggle:hover { text-decoration: underline; }
+.ctf-hint-box { background: rgba(250,204,21,0.05); border: 1px solid rgba(250,204,21,0.15); border-radius: 8px; padding: 12px 14px; margin-top: 10px; font-size: 12px; color: #fbbf24; line-height: 1.6; display: none; }
+.ctf-hint-box.visible { display: block; }
+.ctf-hint-cost { font-size: 11px; color: var(--text-dim); }
+/* Launch button (Start) - small, inline, like original */
+.ctf-launch-btn { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; background:var(--surface2); border:1px solid var(--border); border-radius:9px; color:var(--white); font-size:13px; font-weight:600; font-family:"Inter",sans-serif; cursor:pointer; text-decoration:none; margin-bottom:16px; transition:border-color 0.15s,background 0.15s; }
+.ctf-launch-btn:hover { border-color:rgba(255,255,255,0.3); background:var(--surface3,rgba(255,255,255,0.05)); }
+.ctf-launch-icon { display:flex; align-items:center; justify-content:center; width:22px; height:22px; background:var(--white); border-radius:6px; flex-shrink:0; }
+.ctf-launch-icon svg path { fill:#07070f; }
+/* Restart button */
+.ctf-restart-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;background:#dc1414;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:"Inter",sans-serif;cursor:pointer;transition:background 0.15s;}
+.ctf-restart-btn:hover{background:#c01010;}
+/* View Lab button */
+.ctf-viewlab-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:11px;font-size:13px;font-weight:600;font-family:"Inter",sans-serif;cursor:pointer;text-decoration:none;transition:border-color 0.15s,color 0.15s;}
+.ctf-viewlab-btn:hover{border-color:rgba(255,255,255,0.25);color:var(--white);}
+/* Timer row */
+.ctf-timer-row{display:none;align-items:center;justify-content:space-between;background:rgba(220,20,20,0.06);border:1px solid rgba(220,20,20,0.18);border-radius:10px;padding:10px 14px;margin-bottom:14px;}
+.ctf-timer-row.show{display:flex;}
+.ctf-timer-left{display:flex;align-items:center;gap:8px;font-size:12px;color:#a0a0b8;}
+.ctf-timer-val{font-family:"JetBrains Mono",monospace;font-size:14px;font-weight:700;color:#4ade80;}
+.ctf-timer-val.warn{color:#fb923c;}
+.ctf-timer-val.danger{color:#dc1414;}
+
+/* Flag submission */
+.ctf-flag-section { }
+.ctf-flag-label { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.ctf-flag-row { display: flex; gap: 8px; }
+.ctf-flag-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; font-size: 13px; color: var(--white); font-family: 'monospace', monospace; outline: none; transition: border-color 0.2s; }
+.ctf-flag-input:focus { border-color: rgba(220,20,20,0.4); }
+.ctf-flag-input::placeholder { color: var(--text-dim); font-family: 'Inter', sans-serif; font-size: 12px; }
+.ctf-flag-input.correct { border-color: #4ade80 !important; }
+.ctf-flag-input.wrong   { border-color: #f87171 !important; animation: ctf-shake 0.3s; }
+@keyframes ctf-shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.ctf-submit-btn { padding: 11px 20px; background: var(--red); color: #fff; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: background 0.2s, opacity 0.2s; white-space: nowrap; }
+.ctf-submit-btn:hover { background: #e81818; }
+.ctf-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ctf-flag-msg { margin-top: 10px; font-size: 12px; padding: 10px 14px; border-radius: 8px; display: none; }
+.ctf-flag-msg.success { display: block; color: #4ade80; background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.15); }
+.ctf-flag-msg.error   { display: block; color: #f87171; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.15); }
+
+.ctf-solved-badge { text-align: center; padding: 20px; background: rgba(74,222,128,0.05); border: 1px solid rgba(74,222,128,0.15); border-radius: 10px; }
+.ctf-solved-badge svg { margin-bottom: 8px; }
+.ctf-solved-badge p { font-size: 14px; font-weight: 600; color: #4ade80; }
+.ctf-solved-badge small { font-size: 12px; color: var(--text-dim); }
+
+.ctf-xp-pill { font-size: 12px; font-weight: 600; color: #fbbf24; background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.15); border-radius: 20px; padding: 4px 10px; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .ctf-grid { grid-template-columns: 1fr; }
+  .ctf-search input { width: 160px; }
+  .ctf-page-title { font-size: 26px; }
+  .ctf-stats { gap: 8px; }
+  .ctf-stat-card { padding: 12px 14px; }
+}
+</style>
+
+<div class="ctf-wrap">
+
+  <!-- USERNAME SETUP VIEW (shown if logged in but no CTF username yet) -->
+  <div class="ctf-setup-view" id="ctfSetupView" style="display:none;">
+    <div class="ctf-setup-brand">
+      <span class="ctf-setup-brand-accent">ALEX</span>CYBERX
+    </div>
+    <p class="ctf-setup-subtitle">Complete your profile setup</p>
+
+    <div class="ctf-setup-card">
+      <h2 class="ctf-setup-title">Choose Your Username</h2>
+      <p class="ctf-setup-desc">This will be your unique identifier in the labs</p>
+
+      <div class="ctf-setup-field">
+        <label class="ctf-setup-label" for="ctfUsernameInput">Username</label>
+        <input type="text" id="ctfUsernameInput" class="ctf-setup-input" placeholder="Enter your username" autocomplete="off" maxlength="20" onkeydown="if(event.key==='Enter')submitCTFUsername()">
+        <p class="ctf-setup-hint">3-20 characters, letters, numbers, underscores, and hyphens only</p>
+      </div>
+
+      <button class="ctf-setup-btn" id="ctfUsernameSubmitBtn" onclick="submitCTFUsername()">Complete Setup</button>
+      <div class="ctf-setup-msg" id="ctfUsernameMsg"></div>
+
+      <p class="ctf-setup-welcome">Welcome to the cybersecurity training platform, <span id="ctfSetupEmail"></span>!</p>
+    </div>
+
+    <p class="ctf-setup-note">Your username will be visible to other users in leaderboards and forums.</p>
+  </div>
+
+  <!-- MAIN CTF VIEW -->
+  <div id="ctfMainView" style="display:none;">
+
+  <!-- HEADER -->
+  <div class="ctf-header">
+    <div class="ctf-header-top">
+      <div class="ctf-title-wrap">
+        <div class="ctf-eyebrow">
+          <span class="ctf-eyebrow-dot"></span>
+          Capture The Flag
+        </div>
+        <h1 class="ctf-page-title">CTF Challenges</h1>
+        <p class="ctf-page-sub">Real-world cybersecurity challenges. Find the flag, earn XP, climb the leaderboard.</p>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="ctf-stats">
+      <div class="ctf-stat-card">
+        <div class="ctf-stat-icon red">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5L10.5 6.5H14.5L11 9.5L12.5 14.5L8 11.5L3.5 14.5L5 9.5L1.5 6.5H5.5L8 1.5Z" stroke="var(--red)" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="ctf-stat-val" id="ctfTotalCount">—</div>
+          <div class="ctf-stat-lbl">Total Challenges</div>
+        </div>
+      </div>
+      <div class="ctf-stat-card">
+        <div class="ctf-stat-icon green">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="ctf-stat-val" id="ctfSolvedCount">0</div>
+          <div class="ctf-stat-lbl">Solved</div>
+        </div>
+      </div>
+      <div class="ctf-stat-card">
+        <div class="ctf-stat-icon gold">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.8 3.6L14 6.4l-3 2.9.7 4.1L8 11.4l-3.7 2 .7-4.1-3-2.9 4.2-.8L8 2z" stroke="#fbbf24" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="ctf-stat-val" id="ctfTotalXP">0</div>
+          <div class="ctf-stat-lbl">XP Earned</div>
+        </div>
+      </div>
+      <div class="ctf-stat-card">
+        <div class="ctf-stat-icon blue">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1.5" stroke="#63b3ed" stroke-width="1.3"/><rect x="9" y="2" width="5" height="5" rx="1.5" stroke="#63b3ed" stroke-width="1.3"/><rect x="2" y="9" width="5" height="5" rx="1.5" stroke="#63b3ed" stroke-width="1.3"/><rect x="9" y="9" width="5" height="5" rx="1.5" stroke="#63b3ed" stroke-width="1.3"/></svg>
+        </div>
+        <div>
+          <div class="ctf-stat-val" id="ctfCategoryCount">7</div>
+          <div class="ctf-stat-lbl">Categories</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="ctf-filters">
+    <button class="ctf-filter-btn active" data-cat="all" onclick="ctfSetFilter(this,'cat')">All</button>
+    <button class="ctf-filter-btn" data-cat="Web"       onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.4"/><path d="M2 10h16M10 2c2.2 2.2 3.4 5.1 3.4 8s-1.2 5.8-3.4 8c-2.2-2.2-3.4-5.1-3.4-8S7.8 4.2 10 2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Web</button>
+    <button class="ctf-filter-btn" data-cat="Forensics" onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Forensics</button>
+    <button class="ctf-filter-btn" data-cat="Crypto"    onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><rect x="4" y="9" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M6.5 9V6.5a3.5 3.5 0 017 0V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Crypto</button>
+    <button class="ctf-filter-btn" data-cat="OSINT"     onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8.5" cy="8.5" r="2" stroke="currentColor" stroke-width="1.2"/></svg>OSINT</button>
+    <button class="ctf-filter-btn" data-cat="Pwn"       onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><path d="M3 17L13 7M11 3l6 6-2 2-6-6 2-2zM4 16l-1 3 3-1-2-2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Pwn</button>
+    <button class="ctf-filter-btn" data-cat="Reversing" onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18M4.5 4.5l1.8 1.8M13.7 13.7l1.8 1.8M15.5 4.5l-1.8 1.8M5.5 14.5l-1.8 1.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Reversing</button>
+    <button class="ctf-filter-btn" data-cat="Misc"      onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="4" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="1" fill="currentColor"/></svg>Misc</button>
+
+    <div class="ctf-filter-sep"></div>
+    <button class="ctf-diff-btn easy"   data-diff="Easy"   onclick="ctfSetFilter(this,'diff')">Easy</button>
+    <button class="ctf-diff-btn medium" data-diff="Medium" onclick="ctfSetFilter(this,'diff')">Medium</button>
+    <button class="ctf-diff-btn hard"   data-diff="Hard"   onclick="ctfSetFilter(this,'diff')">Hard</button>
+
+    <div class="ctf-search">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#6a6a7a" stroke-width="1.2"/><path d="M9 9l2.5 2.5" stroke="#6a6a7a" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <input type="text" id="ctfSearchInput" placeholder="Search challenges..." oninput="ctfRender()">
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div class="ctf-grid" id="ctfGrid">
+    <!-- Populated by JS -->
+  </div>
+
+  </div>
+  <!-- /MAIN CTF VIEW -->
+
+</div>
+
+<!-- ── CHALLENGE MODAL ── -->
+<div class="ctf-modal-overlay" id="ctfModalOverlay" onclick="if(event.target===this)closeCTFModal()">
+  <div class="ctf-modal" id="ctfModal">
+    <button class="ctf-modal-close" onclick="closeCTFModal()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+
+    <div class="ctf-modal-cat" id="modalCat"></div>
+    <div class="ctf-modal-title" id="modalTitle"></div>
+    <div class="ctf-modal-meta" id="modalMeta"></div>
+    <div class="ctf-modal-desc" id="modalDesc"></div>
+
+    <!-- Objectives card (shown for lab challenges that have objectives) -->
+    <div id="ctfObjectivesCard" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;margin-bottom:14px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:#505068;text-transform:uppercase;margin-bottom:10px;">Objectives</div>
+      <ul id="modalObjList" style="list-style:none;display:flex;flex-direction:column;gap:6px;margin:0;padding:0;"></ul>
+    </div>
+    <div id="ctfLaunchWrap" style="display:none;">
+      <!-- Start button (before instance is running) -->
+      <div id="ctfStartWrap" style="margin-bottom:14px;">
+        <a class="ctf-launch-btn" id="ctfLaunchBtn" href="#" onclick="return ctfLaunchClick(event)">
+          <span class="ctf-launch-icon">
+            <svg width="11" height="11" viewBox="0 0 13 14" fill="none"><rect x="1" y="5" width="11" height="8" rx="1.5" stroke="#07070f" stroke-width="1.5"/><path d="M4 5V4a2.5 2.5 0 015 0v1" stroke="#07070f" stroke-width="1.5" stroke-linecap="round"/><circle cx="6.5" cy="9" r="1" fill="#07070f"/></svg>
+          </span>
+          <span id="ctfLaunchLabel">Start</span>
+        </a>
+
+      </div>
+      <!-- Restart Instance + View Lab (shown after Start) -->
+      <div id="ctfRunningWrap" style="display:none;">
+        <div style="display:flex;gap:10px;margin-bottom:16px;">
+          <button class="ctf-restart-btn" onclick="ctfRestartFromModal()">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5a4 4 0 1 0 1-2.6" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><path d="M2.5 2.5v2h2" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Restart Instance
+          </button>
+          <a class="ctf-viewlab-btn" href="#" onclick="return ctfOpenLabTab(event)">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M5 2H2.5A1.5 1.5 0 0 0 1 3.5v7A1.5 1.5 0 0 0 2.5 12h7A1.5 1.5 0 0 0 11 10.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8 1h4m0 0v4m0-4L6 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            View Lab
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instance timer (shown after Start) -->
+    <div class="ctf-timer-row" id="ctfTimerRow">
+      <div class="ctf-timer-left">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#4ade80" stroke-width="1.2"/><path d="M6.5 3.5v3l2 1.5" stroke="#4ade80" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Instance Time Remaining
+      </div>
+      <span class="ctf-timer-val" id="ctfTimerVal">30:00</span>
+    </div>
+
+    <!-- Flag submission -->
+    <div class="ctf-flag-section" id="ctfFlagSection" style="display:none;">
+      <div class="ctf-flag-label">Flag Submit Karein</div>
+      <div class="ctf-flag-row">
+        <input type="text" class="ctf-flag-input" id="ctfFlagInput" placeholder="ACX{your_flag_here}" autocomplete="off" onkeydown="if(event.key==='Enter')submitCTFFlag()">
+        <button class="ctf-submit-btn" id="ctfSubmitBtn" onclick="submitCTFFlag()">Submit</button>
+      </div>
+      <div class="ctf-flag-msg" id="ctfFlagMsg"></div>
+    </div>
+
+    <!-- Solved state -->
+    <div class="ctf-solved-badge" id="ctfSolvedBadge" style="display:none;">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="#4ade80" stroke-width="1.5"/><path d="M10 16l4 4 8-8" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <p>Challenge Solved! </p>
+      <small id="solvedXpLabel"></small>
+    </div>
+  </div>
+</div>
+
+<!-- ── CTF JAVASCRIPT ── -->
+<script>
+/* ═══════════════════════════════════════════
+   CTF DATA — AlexCyberX
+   Admin panel se manage hoga future mein (Supabase ctf_challenges table)
+   Abhi ke liye: local data (static seed)
+═══════════════════════════════════════════ */
+/* ── CATEGORY ICONS (SVG) ── */
+const CTF_ICONS = {
+  Web: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#63b3ed" stroke-width="1.4"/><path d="M2 10h16M10 2c2.2 2.2 3.4 5.1 3.4 8s-1.2 5.8-3.4 8c-2.2-2.2-3.4-5.1-3.4-8S7.8 4.2 10 2z" stroke="#63b3ed" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  Forensics: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="8.5" cy="8.5" r="5.5" stroke="#a78bfa" stroke-width="1.4"/><path d="M12.5 12.5L17 17" stroke="#a78bfa" stroke-width="1.4" stroke-linecap="round"/></svg>',
+  Crypto: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="9" width="12" height="8" rx="1.5" stroke="#facc15" stroke-width="1.4"/><path d="M6.5 9V6.5a3.5 3.5 0 017 0V9" stroke="#facc15" stroke-width="1.4" stroke-linecap="round"/><circle cx="10" cy="13" r="1.2" fill="#facc15"/></svg>',
+  OSINT: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="8.5" cy="8.5" r="5.5" stroke="#34d399" stroke-width="1.4"/><path d="M12.5 12.5L17 17" stroke="#34d399" stroke-width="1.4" stroke-linecap="round"/><circle cx="8.5" cy="8.5" r="2" stroke="#34d399" stroke-width="1.2"/></svg>',
+  Pwn: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 17L13 7M11 3l6 6-2 2-6-6 2-2zM4 16l-1 3 3-1-2-2z" stroke="#f87171" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  Reversing: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="#fb923c" stroke-width="1.4"/><path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18M4.5 4.5l1.8 1.8M13.7 13.7l1.8 1.8M15.5 4.5l-1.8 1.8M5.5 14.5l-1.8 1.8" stroke="#fb923c" stroke-width="1.4" stroke-linecap="round"/></svg>',
+  Misc: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#9ca3af" stroke-width="1.4"/><circle cx="10" cy="10" r="4" stroke="#9ca3af" stroke-width="1.4"/><circle cx="10" cy="10" r="1" fill="#9ca3af"/></svg>'
+};
+
+const ctfChallenges = [
+  // ── WEB ──
+  {
+    id: 'web-01', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
+    title: 'Hidden in Plain Sight',
+    desc: 'Ek website hai jiske source code mein kuch chupa hua hai. Page ka source carefully dekho. Developers kabhi kabhi comments mein bahut kuch chhor dete hain.',
+    diff: 'Easy', pts: 50, xp: 100,
+    flag: 'ACX{html_comments_are_not_safe}',
+    hint: 'Browser mein Ctrl+U (View Source) dabao aur HTML comments <!-- --> dhundo.',
+    labUrl: '/pages/labs/lab-hidden.html',
+    hasLabFlow: true,
+    solvers: 142,
+    objectives: [
+      'Enumerate the application: source, robots.txt, JS files',
+      'Find and decode Part 1 in the HTML source',
+      'Find Part 2 in an HTTP response header',
+      'Find and decode Part 3 in the JS file',
+      'Assemble and submit the complete flag'
+    ]
+  },
+  {
+    id: 'web-02', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
+    title: 'Cookie Monster',
+    desc: 'Authentication bypass karna hai. Application cookies ka use karti hai session manage karne ke liye. Kya in cookies mein kuch manipulate kiya ja sakta hai?',
+    diff: 'Medium', pts: 150, xp: 250,
+    flag: 'ACX{cookies_can_be_tampered}',
+    hint: 'Browser DevTools (F12) → Application → Cookies. `isAdmin` cookie ki value dekho aur true kar do.',
+    labUrl: null,
+    solvers: 67
+  },
+  {
+    id: 'web-03', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
+    title: 'SQL Injection 101',
+    desc: 'Login form mein SQL injection vulnerability hai. Database se admin password extract karo. Username field mein kuch interesting try karo.',
+    diff: 'Medium', pts: 200, xp: 350,
+    flag: 'ACX{sqli_basic_bypass_success}',
+    hint: "Username: `' OR '1'='1' --` try karo.",
+    labUrl: 'pages/lab-sqli.html',
+    solvers: 89
+  },
+  {
+    id: 'web-04', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
+    title: 'robots.txt Secret',
+    desc: 'Website ke robots.txt file mein koi restricted path chhupa hua hai jo search engines ko index karne se rokta hai. Woh path visit karo.',
+    diff: 'Easy', pts: 50, xp: 80,
+    flag: 'ACX{robots_txt_not_a_security_measure}',
+    hint: '/robots.txt URL open karo aur Disallow entries dekho.',
+    labUrl: 'robots.txt',
+    solvers: 210
+  },
+
+  // ── FORENSICS ──
+  {
+    id: 'for-01', cat: 'Forensics', icon: '🔍', iconClass: 'ctf-cat-forensics',
+    title: 'Packet Detective',
+    desc: 'Ek PCAP file di gayi hai jisme suspicious traffic hai. Network packets analyze karo aur hidden data dhundo. HTTP traffic carefully dekho.',
+    diff: 'Medium', pts: 200, xp: 350,
+    flag: 'ACX{wireshark_follow_http_stream}',
+    hint: 'Wireshark mein HTTP packet select karo → Right click → Follow → HTTP Stream.',
+    solvers: 54
+  },
+  {
+    id: 'for-02', cat: 'Forensics', icon: '🔍', iconClass: 'ctf-cat-forensics',
+    title: 'Metadata Matters',
+    desc: 'Ek image file di gayi hai. Lagta hai normal image hai lekin iske metadata mein kuch chhua hua hai. ExifTool ya strings command use karo.',
+    diff: 'Easy', pts: 75, xp: 120,
+    flag: 'ACX{exif_data_reveals_secrets}',
+    hint: '`exiftool image.jpg` command chalao ya online EXIF viewer use karo.',
+    solvers: 178
+  },
+  {
+    id: 'for-03', cat: 'Forensics', icon: '🔍', iconClass: 'ctf-cat-forensics',
+    title: 'Log Hunter',
+    desc: 'Server access logs diye gaye hain. Attacker ne kaunsa IP address use kiya aur kaunse path pe attack kiya? Logs parse karo aur attack pattern identify karo.',
+    diff: 'Hard', pts: 350, xp: 600,
+    flag: 'ACX{log_analysis_uncovers_attack}',
+    hint: '`grep` se 404 errors aur unusual user agents dhundo. `awk` se IPs count karo.',
+    solvers: 28
+  },
+
+  // ── CRYPTO ──
+  {
+    id: 'cry-01', cat: 'Crypto', icon: '🔐', iconClass: 'ctf-cat-crypto',
+    title: 'Caesar\'s Secret',
+    desc: 'Yeh ciphertext decode karo: "NJY{pnvzhy_pvfcure_vf_rnfl}". Ek classic substitution cipher hai jise Roman emperor ne bhi use kiya tha.',
+    diff: 'Easy', pts: 50, xp: 80,
+    flag: 'ACX{caesar_cipher_is_easy}',
+    hint: 'ROT13 ya Caesar cipher tool use karo. Shift 13 try karo.',
+    solvers: 195
+  },
+  {
+    id: 'cry-02', cat: 'Crypto', icon: '🔐', iconClass: 'ctf-cat-crypto',
+    title: 'Base64 Bonanza',
+    desc: 'Yeh string decode karo: "QUNYR3tiYXNlNjRfaXNfbm90X2VuY3J5cHRpb259". Dekho koi pattern milta hai ya nahi.',
+    diff: 'Easy', pts: 50, xp: 80,
+    flag: 'ACX{base64_is_not_encryption}',
+    hint: 'Base64 decode karo. Python mein: `import base64; base64.b64decode("...")`.decode()',
+    solvers: 231
+  },
+  {
+    id: 'cry-03', cat: 'Crypto', icon: '🔐', iconClass: 'ctf-cat-crypto',
+    title: 'RSA Weak Keys',
+    desc: 'Small primes se generate ki gayi RSA key di gayi hai. N = 3233, e = 17. Ciphertext = 2790. Private key recover karo aur message decrypt karo.',
+    diff: 'Hard', pts: 400, xp: 700,
+    flag: 'ACX{rsa_small_primes_are_vulnerable}',
+    hint: 'p aur q dhundo jinka product N=3233 ho. Factor: 61 × 53. Phir d = e⁻¹ mod φ(N).',
+    solvers: 19
+  },
+
+  // ── OSINT ──
+  {
+    id: 'osi-01', cat: 'OSINT', icon: '🕵️', iconClass: 'ctf-cat-osint',
+    title: 'Google Dorking',
+    desc: 'AlexCyberX ke creator ka full name dhundo jo publicly available hai. Website, social media, ya YouTube channel check karo.',
+    diff: 'Easy', pts: 50, xp: 75,
+    flag: 'ACX{Pawan_Tanwar_AlexCyberX}',
+    hint: 'alexcyberx.com ka "About" section ya YouTube channel description dekho.',
+    solvers: 289
+  },
+  {
+    id: 'osi-02', cat: 'OSINT', icon: '🕵️', iconClass: 'ctf-cat-osint',
+    title: 'Wayback Machine',
+    desc: 'Ek website ne apna content delete kar diya lekin internet poori tarah bhoolti nahi. web.archive.org use karke deleted content dhundo.',
+    diff: 'Medium', pts: 150, xp: 250,
+    flag: 'ACX{internet_never_forgets}',
+    hint: 'web.archive.org pe URL enter karo aur purane snapshots dekho.',
+    solvers: 73
+  },
+  {
+    id: 'osi-03', cat: 'OSINT', icon: '🕵️', iconClass: 'ctf-cat-osint',
+    title: 'Geolocation Challenge',
+    desc: 'Di gayi image mein ek location hai. Buildings, signs, aur landscape ke clues use karke exact city identify karo. Format: ACX{City_Country}',
+    diff: 'Hard', pts: 300, xp: 500,
+    flag: 'ACX{Jhalawar_India}',
+    hint: 'Image mein Rajasthani architecture aur Hindi signboards dhundo.',
+    solvers: 41
+  },
+
+  // ── PWN ──
+  {
+    id: 'pwn-01', cat: 'Pwn', icon: '💥', iconClass: 'ctf-cat-pwn',
+    title: 'Buffer Overflow 101',
+    desc: 'Ek vulnerable C program diya gaya hai jo `gets()` function use karta hai. Stack overflow karke return address overwrite karo aur win() function call karo.',
+    diff: 'Hard', pts: 400, xp: 700,
+    flag: 'ACX{buffer_overflow_pwned}',
+    hint: 'gdb use karo buffer size dhundne ke liye. Pattern create karo: `python3 -c "print(\'A\'*100)"`. EIP/RIP offset dhundo.',
+    solvers: 15
+  },
+  {
+    id: 'pwn-02', cat: 'Pwn', icon: '💥', iconClass: 'ctf-cat-pwn',
+    title: 'Format String Bug',
+    desc: 'Yeh program user input ko directly printf mein pass karta hai. Format string vulnerability exploit karke stack se flag read karo.',
+    diff: 'Hard', pts: 450, xp: 800,
+    flag: 'ACX{format_string_leaks_memory}',
+    hint: '`%x %x %x %x` input deke stack values leak karo. `%s` use karke string read karo.',
+    solvers: 9
+  },
+
+  // ── REVERSING ──
+  {
+    id: 'rev-01', cat: 'Reversing', icon: '⚙️', iconClass: 'ctf-cat-reversing',
+    title: 'Strings Hunt',
+    desc: 'Ek compiled binary diya gaya hai. Reverse engineer karo aur hidden flag dhundo. Sirf `strings` command se kaam chalega.',
+    diff: 'Easy', pts: 75, xp: 120,
+    flag: 'ACX{strings_command_is_powerful}',
+    hint: '`strings binary_file | grep ACX` command chalao.',
+    solvers: 156
+  },
+  {
+    id: 'rev-02', cat: 'Reversing', icon: '⚙️', iconClass: 'ctf-cat-reversing',
+    title: 'XOR Decoder',
+    desc: 'Flag ko XOR se encrypt kiya gaya hai key = 0x42 se. Encrypted bytes: [0x03, 0x07, 0x13, 0x26, 0x20, 0x07, 0x36, 0x07, 0x25]. Decode karo.',
+    diff: 'Medium', pts: 200, xp: 350,
+    flag: 'ACX{xor_is_reversible}',
+    hint: 'Python: `bytes([b ^ 0x42 for b in encrypted]).decode()`. XOR apni reverse operation hai.',
+    solvers: 62
+  },
+
+  // ── MISC ──
+  {
+    id: 'mis-01', cat: 'Misc', icon: '🎯', iconClass: 'ctf-cat-misc',
+    title: 'QR Code Mystery',
+    desc: 'Ek QR code image di gayi hai jo normal QR scanners se scan nahi hoti. Image mein kuch modified hai, carefully dekho. QR decoder tools try karo.',
+    diff: 'Medium', pts: 150, xp: 250,
+    flag: 'ACX{qr_codes_hide_secrets}',
+    hint: 'zbarimg ya online QR decoder use karo. Image pe adjustments try karo (brightness/contrast).',
+    solvers: 83
+  },
+  {
+    id: 'mis-02', cat: 'Misc', icon: '🎯', iconClass: 'ctf-cat-misc',
+    title: 'Steganography Intro',
+    desc: 'Ek innocent-looking image mein data chhupa hua hai. Steganography tools use karo aur hidden message extract karo.',
+    diff: 'Medium', pts: 175, xp: 300,
+    flag: 'ACX{stego_hides_data_in_plain_sight}',
+    hint: 'steghide ya zsteg tool use karo. `steghide extract -sf image.jpg` try karo.',
+    solvers: 71
+  },
+  {
+    id: 'mis-03', cat: 'Misc', icon: '🎯', iconClass: 'ctf-cat-misc',
+    title: 'Linux Basics',
+    desc: 'Ek Linux server pe ek file hai `/home/ctf/flag.txt` lekin permission se protected hai. Correct command dhundo aur file read karo. Flag format: ACX{...}',
+    diff: 'Easy', pts: 50, xp: 75,
+    flag: 'ACX{linux_permissions_matter}',
+    hint: '`ls -la` se permissions dekho. `chmod`, `sudo`, ya `find / -name flag.txt` try karo.',
+    solvers: 198
+  }
+];
+
+/* ── STATE ── */
+let ctfActiveFilter = { cat: 'all', diff: null };
+let ctfSolved = {}; // { challengeId: { xp, solvedAt } }
+let ctfCurrentChallenge = null;
+let ctfHintVisible = false;
+
+/* ── INIT ── */
+function initCTFPage() {
+  const user = window._currentUser;
+
+  const setupView = document.getElementById('ctfSetupView');
+  const mainView  = document.getElementById('ctfMainView');
+
+
+  if (!user) {
+    // Not logged in - shouldn't normally reach here (gated in router.js),
+    // but show setup view's container hidden and bail safely.
+    if (setupView) setupView.style.display = 'none';
+    if (mainView)  mainView.style.display  = 'none';
+    return;
+  }
+
+  if (!user.username || !user.username.trim()) {
+    // Show username setup view
+    if (setupView) setupView.style.display = 'block';
+    if (mainView)  mainView.style.display  = 'none';
+    const emailEl = document.getElementById('ctfSetupEmail');
+    if (emailEl) emailEl.textContent = user.email || '';
+    const inp = document.getElementById('ctfUsernameInput');
+    if (inp) { inp.value = ''; setTimeout(() => inp.focus(), 100); }
+    const msg = document.getElementById('ctfUsernameMsg');
+    if (msg) { msg.className = 'ctf-setup-msg'; msg.textContent = ''; }
+    return;
+  }
+
+  // Username already set - show main CTF page
+  if (setupView) setupView.style.display = 'none';
+  if (mainView)  mainView.style.display  = 'block';
+
+  loadCTFSolvedFromStorage();
+  ctfRender();
+  updateCTFStats();
+
+  // Apply saved language translation if not Hinglish/English
+  if (typeof selectedLang !== 'undefined' && selectedLang !== 'hl' && selectedLang !== 'en') {
+    if (typeof applyCTFTranslation === 'function') applyCTFTranslation(selectedLang);
+  }
+}
+
+/* ── CTF USERNAME SETUP ── */
+async function submitCTFUsername() {
+  const inp = document.getElementById('ctfUsernameInput');
+  const btn = document.getElementById('ctfUsernameSubmitBtn');
+  const msg = document.getElementById('ctfUsernameMsg');
+  const uname = (inp?.value || '').trim();
+
+  const showMsg = (type, text) => {
+    if (!msg) return;
+    msg.className = 'ctf-setup-msg ' + type;
+    msg.textContent = text;
+  };
+
+  if (!uname) { showMsg('error', 'Please enter a username.'); return; }
+  if (!/^[A-Za-z0-9_-]{3,20}$/.test(uname)) {
+    showMsg('error', 'Username must be 3-20 characters: letters, numbers, underscores, hyphens only.');
+    return;
+  }
+
+  if (!window._currentUser) { showMsg('error', 'You must be logged in.'); return; }
+  if (!_supabase) { showMsg('error', 'Service not configured. Please try again later.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  try {
+    // Check username uniqueness
+    const { data: existing } = await _supabase
+      .from('profiles')
+      .select('id')
+      .eq('username', uname)
+      .neq('id', window._currentUser.id)
+      .maybeSingle();
+
+    if (existing) {
+      showMsg('error', 'This username is already taken. Please choose another.');
+      btn.disabled = false;
+      btn.textContent = 'Complete Setup';
+      return;
+    }
+
+    const { error } = await _supabase.from('profiles').upsert({
+      id: window._currentUser.id,
+      username: uname,
+      updated_at: new Date().toISOString()
+    });
+
+    if (error) {
+      // RLS / 403 error — fallback: auth metadata mein save karo
+      console.warn('[ACX] profiles upsert failed, falling back to auth metadata:', error.message);
+      const { error: metaErr } = await _supabase.auth.updateUser({
+        data: { username: uname }
+      });
+      if (metaErr) {
+        showMsg('error', 'Could not save username. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Complete Setup';
+        return;
+      }
+    } else {
+      // Profiles save successful — auth metadata bhi sync karo
+      await _supabase.auth.updateUser({ data: { username: uname } }).catch(() => {});
+    }
+
+    window._currentUser.username = uname;
+    if (typeof updateNavForUser === 'function') updateNavForUser(window._currentUser);
+
+    showMsg('success', 'Username set! Loading challenges...');
+    setTimeout(() => initCTFPage(), 600);
+
+  } catch (e) {
+    showMsg('error', 'Something went wrong. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Complete Setup';
+  }
+}
+
+/* ── STORAGE (Supabase ya localStorage) ── */
+function loadCTFSolvedFromStorage() {
+  try {
+    const raw = localStorage.getItem('acx_ctf_solved');
+    ctfSolved = raw ? JSON.parse(raw) : {};
+  } catch(e) { ctfSolved = {}; }
+}
+
+function saveCTFSolvedToStorage() {
+  try {
+    localStorage.setItem('acx_ctf_solved', JSON.stringify(ctfSolved));
+  } catch(e) {}
+}
+
+/* Supabase mein save karo agar user logged in ho */
+async function saveSolvedToSupabase(challengeId, xp) {
+  if (!window._supabase || !window._currentUser) return;
+  try {
+    const { data: existing } = await window._supabase
+      .from('ctf_solves')
+      .select('id')
+      .eq('user_id', window._currentUser.id)
+      .eq('challenge_id', challengeId)
+      .maybeSingle();
+    if (existing) return; // already saved
+
+    await window._supabase.from('ctf_solves').insert({
+      user_id: window._currentUser.id,
+      challenge_id: challengeId,
+      xp_earned: xp,
+      solved_at: new Date().toISOString()
+    });
+
+    // XP table update
+    const { data: xpRow } = await window._supabase
+      .from('user_xp')
+      .select('xp')
+      .eq('user_id', window._currentUser.id)
+      .maybeSingle();
+
+    const currentXP = xpRow?.xp || 0;
+    await window._supabase.from('user_xp').upsert({
+      user_id: window._currentUser.id,
+      xp: currentXP + xp,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' });
+  } catch(e) { console.warn('CTF Supabase save failed:', e); }
+}
+
+/* ── FILTERS ── */
+function ctfSetFilter(btn, type) {
+  if (type === 'cat') {
+    document.querySelectorAll('.ctf-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ctfActiveFilter.cat = btn.dataset.cat;
+  } else {
+    const wasActive = btn.classList.contains('active');
+    document.querySelectorAll('.ctf-diff-btn').forEach(b => b.classList.remove('active'));
+    if (!wasActive) {
+      btn.classList.add('active');
+      ctfActiveFilter.diff = btn.dataset.diff;
+    } else {
+      ctfActiveFilter.diff = null;
+    }
+  }
+  ctfRender();
+}
+
+/* ── RENDER ── */
+function ctfRender() {
+  const grid = document.getElementById('ctfGrid');
+  if (!grid) return;
+
+  const query = (document.getElementById('ctfSearchInput')?.value || '').toLowerCase().trim();
+
+  const filtered = ctfChallenges.filter(c => {
+    if (ctfActiveFilter.cat !== 'all' && c.cat !== ctfActiveFilter.cat) return false;
+    if (ctfActiveFilter.diff && c.diff !== ctfActiveFilter.diff) return false;
+    if (query && !c.title.toLowerCase().includes(query) && !c.desc.toLowerCase().includes(query) && !c.cat.toLowerCase().includes(query)) return false;
+    return true;
+  });
+
+  if (!filtered.length) {
+    grid.innerHTML = `
+      <div class="ctf-empty">
+        <div class="ctf-empty-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#444" stroke-width="1.5"/><path d="M21 21l-4.35-4.35" stroke="#444" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Koi challenge nahi mila</h3>
+        <p>Filter change karo ya search query modify karo.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(c => {
+    const solved = !!ctfSolved[c.id];
+    return `
+    <div class="ctf-card ${solved ? 'solved' : ''}" onclick="openCTFModal('${c.id}')">
+      <div class="ctf-card-top">
+        <div class="ctf-card-icon ${c.iconClass}">${CTF_ICONS[c.cat] || ''}</div>
+        <div class="ctf-card-info">
+          <div class="ctf-card-title">${c.title}</div>
+          <div class="ctf-card-cat">${c.cat}</div>
+        </div>
+      </div>
+      <div class="ctf-card-desc">${c.desc}</div>
+      <div class="ctf-card-footer">
+        <span class="ctf-diff-badge ${c.diff.toLowerCase()}">${c.diff}</span>
+        <span class="ctf-points">${c.pts} <span>pts</span></span>
+        <span class="ctf-solvers">${c.solvers + (solved && !ctfSolved[c.id]?.counted ? 0 : 0)} solvers</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── STATS ── */
+function updateCTFStats() {
+  const solvedIds = Object.keys(ctfSolved);
+  const totalXP = solvedIds.reduce((sum, id) => sum + (ctfSolved[id]?.xp || 0), 0);
+  const el = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
+  el('ctfTotalCount', ctfChallenges.length);
+  el('ctfSolvedCount', solvedIds.length);
+  el('ctfTotalXP', totalXP);
+}
+
+/* ── MODAL ── */
+function openCTFModal(id) {
+  loadCTFSolvedFromStorage();
+  const c = ctfChallenges.find(x => x.id === id);
+  if (!c) return;
+  ctfCurrentChallenge = c;
+  ctfHintVisible = false;
+
+  const solved = !!ctfSolved[id];
+
+  // Fill modal
+  document.getElementById('modalCat').innerHTML = `<span style="display:inline-flex;align-items:center;">${CTF_ICONS[c.cat] || ''}</span> ${c.cat}`;
+  document.getElementById('modalTitle').textContent = c.title;
+  document.getElementById('modalDesc').textContent = c.desc;
+
+  // Show objectives card for lab challenges
+  const objCard = document.getElementById('ctfObjectivesCard');
+  const objList = document.getElementById('modalObjList');
+  if (objCard && objList && c.objectives && c.objectives.length) {
+    objList.innerHTML = c.objectives.map((obj, i) =>
+      `<li style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#a0a0b8;line-height:1.5;">
+        <span style="width:18px;height:18px;border-radius:5px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#505068;flex-shrink:0;margin-top:1px;">${i+1}</span>
+        <span>${obj}</span>
+      </li>`
+    ).join('');
+    objCard.style.display = 'block';
+  } else if (objCard) {
+    objCard.style.display = 'none';
+  }
+
+  const diffColor = { Easy: '#4ade80', Medium: '#fb923c', Hard: '#f87171' }[c.diff];
+  document.getElementById('modalMeta').innerHTML = `
+    <span class="ctf-diff-badge ${c.diff.toLowerCase()}">${c.diff}</span>
+    <span style="font-size:13px;font-weight:600;color:var(--white);">${c.pts} pts</span>
+    <span class="ctf-xp-pill">+${c.xp} XP</span>
+    <span style="font-size:12px;color:var(--text-dim);">${c.solvers} solvers</span>
+  `;
+
+  // Restore lab state if challenge was already running
+  if (typeof ctfTimerPoll !== 'undefined' && ctfTimerPoll) { clearInterval(ctfTimerPoll); ctfTimerPoll = null; }
+  const startWrap = document.getElementById('ctfStartWrap');
+  const runningWrap = document.getElementById('ctfRunningWrap');
+  const timerRow = document.getElementById('ctfTimerRow');
+  const labState = ctfLabState && ctfLabState[id];
+  if (labState && labState.running) {
+    // Lab was running - show Restart+ViewLab, hide Start
+    if (startWrap) startWrap.style.display = 'none';
+    if (runningWrap) runningWrap.style.display = 'block';
+    if (timerRow) timerRow.classList.add('show');
+    const tv = document.getElementById('ctfTimerVal');
+    if (tv && labState.timerVal) tv.textContent = labState.timerVal;
+    // Resume countdown from saved time
+    if (labState.timerVal) {
+      const parts = labState.timerVal.split(':');
+      let secs = parseInt(parts[0])*60 + parseInt(parts[1]);
+      if (secs > 0) {
+        ctfTimerPoll = setInterval(() => {
+          secs--;
+          const m = String(Math.floor(secs/60)).padStart(2,'0');
+          const s = String(secs%60).padStart(2,'0');
+          const t = document.getElementById('ctfTimerVal');
+          if (t) { t.textContent = m+':'+s; t.className='ctf-timer-val'+(secs<=300?' danger':secs<=600?' warn':''); }
+          if (secs<=0){clearInterval(ctfTimerPoll);ctfTimerPoll=null;}
+        }, 1000);
+      }
+    }
+  } else {
+    // Fresh start
+    ctfActiveTab = null;
+    if (startWrap) startWrap.style.display = 'block';
+    if (runningWrap) runningWrap.style.display = 'none';
+    if (timerRow) timerRow.classList.remove('show');
+  }
+
+  // Show/hide Launch wrap
+  const launchWrap = document.getElementById('ctfLaunchWrap');
+  if (launchWrap) launchWrap.style.display = c.labUrl ? 'block' : 'none';
+
+  // Solved state
+  const flagSection = document.getElementById('ctfFlagSection');
+  const solvedBadge = document.getElementById('ctfSolvedBadge');
+  const labStateNow = ctfLabState && ctfLabState[id];
+  if (solved) {
+    flagSection.style.display = 'none';
+    solvedBadge.style.display = 'block';
+    document.getElementById('solvedXpLabel').textContent = `+${ctfSolved[id]?.xp || c.xp} XP earned`;
+  } else {
+    // Show flag if: no lab, OR lab already running
+    const showFlag = !c.labUrl || (labStateNow && labStateNow.running);
+    flagSection.style.display = showFlag ? 'block' : 'none';
+    solvedBadge.style.display = 'none';
+    const inp = document.getElementById('ctfFlagInput');
+    if (inp) { inp.value = ''; inp.className = 'ctf-flag-input'; }
+    const msg = document.getElementById('ctfFlagMsg');
+    if (msg) msg.className = 'ctf-flag-msg';
+    const btn = document.getElementById('ctfSubmitBtn');
+    if (btn) btn.disabled = false;
+  }
+
+  document.getElementById('ctfModalOverlay').classList.add('active');
+  setTimeout(() => {
+    const inp = document.getElementById('ctfFlagInput');
+    if (inp && !solved) inp.focus();
+  }, 100);
+}
+
+// Lab state persist karo per challenge
+const ctfLabState = {};
+
+function closeCTFModal() {
+  document.getElementById('ctfModalOverlay').classList.remove('active');
+  // Save running state so reopening shows Restart not Start
+  if (ctfCurrentChallenge && ctfCurrentChallenge.labUrl) {
+    const runningWrap = document.getElementById('ctfRunningWrap');
+    const isRunning = runningWrap && runningWrap.style.display !== 'none';
+    const tv = document.getElementById('ctfTimerVal');
+    ctfLabState[ctfCurrentChallenge.id] = {
+      running: isRunning,
+      timerVal: tv ? tv.textContent : '30:00'
+    };
+  }
+  ctfCurrentChallenge = null;
+}
+
+/* ── LAB ACCESS TOKEN ── */
+// Token ek baar generate hota hai jab user Start dabaata hai.
+// Lab page is token ke bina open nahi hogi (direct URL se access block).
+const ctfLabTokens = {}; // challengeId → token
+
+function generateLabToken(challengeId) {
+  const token = 'acx_' + challengeId + '_' + Math.random().toString(36).substring(2, 12) + '_' + Date.now();
+  ctfLabTokens[challengeId] = token;
+  // sessionStorage mein save karo (lab page issi window.origin pe chalta hai)
+  try { sessionStorage.setItem('acx_lab_token_' + challengeId, token); } catch(e) {}
+  return token;
+}
+
+function getLabUrlWithToken(c) {
+  const token = generateLabToken(c.id);
+  const sep = c.labUrl.includes('?') ? '&' : '?';
+  return c.labUrl + sep + 'acx_token=' + encodeURIComponent(token);
+}
+
+/* ── LAB LAUNCH ── */
+let ctfActiveTab = null;
+let ctfTimerPoll = null;
+
+function ctfLaunchClick(e) {
+  e.preventDefault();
+  const c = ctfCurrentChallenge;
+  if (!c || !c.labUrl) return false;
+  ctfStartInstance(c);
+  return false;
+}
+
+async function ctfStartInstance(c) {
+  document.getElementById('ctfStartWrap').style.display = 'none';
+  document.getElementById('ctfRunningWrap').style.display = 'block';
+  document.getElementById('ctfTimerRow').classList.add('show');
+  document.getElementById('ctfFlagSection').style.display = 'block';
+  const timerVal = document.getElementById('ctfTimerVal');
+  if (timerVal) timerVal.textContent = '30:00';
+
+  // Token-protected URL generate karo
+  const labUrl = getLabUrlWithToken(c);
+  ctfActiveTab = window.open(labUrl, '_blank');
+
+  // Start countdown timer
+  let secs = 1800;
+  if (ctfTimerPoll) clearInterval(ctfTimerPoll);
+  ctfTimerPoll = setInterval(() => {
+    secs--;
+    const m = String(Math.floor(secs / 60)).padStart(2, '0');
+    const s = String(secs % 60).padStart(2, '0');
+    const tv = document.getElementById('ctfTimerVal');
+    if (tv) {
+      tv.textContent = m + ':' + s;
+      tv.className = 'ctf-timer-val' + (secs <= 300 ? ' danger' : secs <= 600 ? ' warn' : '');
+    }
+    if (secs <= 0) { clearInterval(ctfTimerPoll); ctfTimerPoll = null; }
+  }, 1000);
+}
+
+function ctfRestartFromModal() {
+  const c = ctfCurrentChallenge;
+  if (!c) return;
+  // New token generate karo on restart
+  const labUrl = getLabUrlWithToken(c);
+  if (ctfActiveTab && !ctfActiveTab.closed) {
+    ctfActiveTab.location.href = labUrl;
+    ctfActiveTab.focus();
+  } else {
+    ctfActiveTab = window.open(labUrl, '_blank');
+  }
+  // Reset timer
+  if (ctfTimerPoll) clearInterval(ctfTimerPoll);
+  let secs = 1800;
+  const tv = document.getElementById('ctfTimerVal');
+  if (tv) tv.textContent = '30:00';
+  ctfTimerPoll = setInterval(() => {
+    secs--;
+    const m = String(Math.floor(secs / 60)).padStart(2, '0');
+    const s = String(secs % 60).padStart(2, '0');
+    const t = document.getElementById('ctfTimerVal');
+    if (t) {
+      t.textContent = m + ':' + s;
+      t.className = 'ctf-timer-val' + (secs <= 300 ? ' danger' : secs <= 600 ? ' warn' : '');
+    }
+    if (secs <= 0) { clearInterval(ctfTimerPoll); ctfTimerPoll = null; }
+  }, 1000);
+}
+
+function ctfOpenLabTab(e) {
+  e.preventDefault();
+  const c = ctfCurrentChallenge;
+  if (!c) return false;
+  if (ctfActiveTab && !ctfActiveTab.closed) {
+    ctfActiveTab.focus();
+  } else {
+    ctfActiveTab = window.open(c.labUrl, '_blank');
+  }
+  return false;
+}
+
+/* ── FLAG SUBMIT ── */
+async function submitCTFFlag() {
+  if (!ctfCurrentChallenge) return;
+  const c = ctfCurrentChallenge;
+
+  if (!window._currentUser) {
+    showFlagMsg('error', '[!] Flag submit karne ke liye pehle login karein.');
+    return;
+  }
+
+  const inp = document.getElementById('ctfFlagInput');
+  const btn = document.getElementById('ctfSubmitBtn');
+  const flag = inp.value.trim();
+
+  if (!flag) { showFlagMsg('error', 'Flag enter karein.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Checking...';
+
+  // Slight delay for UX
+  await new Promise(r => setTimeout(r, 600));
+
+  if (flag === c.flag) {
+    // ✅ CORRECT
+    inp.classList.add('correct');
+    showFlagMsg('success', ` Sahi hai! +${c.xp} XP earn kiya!`);
+    // Close lab tab automatically (real CTF ki tarah)
+    if (ctfActiveTab && !ctfActiveTab.closed) {
+      try { ctfActiveTab.close(); } catch(e) {}
+      ctfActiveTab = null;
+    }
+    // Stop timer
+    if (ctfTimerPoll) { clearInterval(ctfTimerPoll); ctfTimerPoll = null; }
+    // Invalidate lab token
+    try { sessionStorage.removeItem('acx_lab_token_' + c.id); } catch(e) {}
+
+    // Save
+    ctfSolved[c.id] = { xp: c.xp, solvedAt: new Date().toISOString() };
+    saveCTFSolvedToStorage();
+    await saveSolvedToSupabase(c.id, c.xp);
+
+    // Update UI
+    updateCTFStats();
+    ctfRender();
+
+    // After 1.5s show solved badge
+    setTimeout(() => {
+      document.getElementById('ctfFlagSection').style.display = 'none';
+      const badge = document.getElementById('ctfSolvedBadge');
+      badge.style.display = 'block';
+      document.getElementById('solvedXpLabel').textContent = `+${c.xp} XP earned`;
+    }, 1500);
+
+  } else {
+    // [X] WRONG
+    inp.classList.add('wrong');
+    setTimeout(() => inp.classList.remove('wrong'), 500);
+    showFlagMsg('error', '[X] Galat flag. Dobara try karo!');
+    btn.disabled = false;
+    btn.textContent = 'Submit';
+  }
+}
+
+function showFlagMsg(type, text) {
+  const el = document.getElementById('ctfFlagMsg');
+  if (!el) return;
+  el.className = `ctf-flag-msg ${type}`;
+  el.textContent = text;
+}
+
+/* Keyboard shortcut — Esc closes modal */
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeCTFModal();
+});
+
+/* ── AUTO-OPEN MODAL: when user comes back from a lab page ── */
+(function autoOpenFromReturn() {
+  const hash = window.location.hash;
+  const hashMatch = hash.match(/[#&]?challenge=([a-z0-9-]+)/);
+  const returnId = sessionStorage.getItem('ctf_return_id');
+  const cid = (hashMatch && hashMatch[1]) || returnId;
+  if (cid) {
+    sessionStorage.removeItem('ctf_return_id');
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+    // Wait a tick for DOM + data to be ready
+    setTimeout(() => openCTFModal(cid), 100);
+  }
+})();
+</script>
+</div>
+</body>
+</html>

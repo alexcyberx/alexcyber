@@ -1,0 +1,103 @@
+# AlexCyberX — Netlify config
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Force HTTPS
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    # Clickjacking protection
+    X-Frame-Options = "SAMEORIGIN"
+    # MIME sniffing protection
+    X-Content-Type-Options = "nosniff"
+    # Referrer policy
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Permissions — disable unused browser features
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=()"
+    # XSS filter (legacy browsers)
+    X-XSS-Protection = "1; mode=block"
+    # CSP — comprehensive
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://*.googleapis.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cdn.jsdelivr.net https://*.googleapis.com https://translate.googleapis.com https://api.mymemory.translated.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-ancestors 'self';"
+
+# Cache static assets
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# Redirect HTTP to HTTPS
+[[redirects]]
+  from = "http://voluble-brioche-ac37ea.netlify.app/*"
+  to   = "https://voluble-brioche-ac37ea.netlify.app/:splat"
+  status = 301
+  force  = true
+
+# Serve security.txt with correct content type
+[[headers]]
+  for = "/.well-known/security.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=86400"
+
+# ── SPA ROUTING ──
+# Sab URL paths index.html pe serve hongi taaki refresh pe 404 na aaye.
+# Lab pages alag files hain, unhe directly serve karo.
+[[redirects]]
+  from = "/rooms/*"
+  to   = "/index.html"
+  status = 200
+  conditions = {Role = ["admin", "member", ""]}
+
+[[redirects]]
+  from = "/tutorials/*"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/profile"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy-policy"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/terms-of-service"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/disclaimer"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/refund-policy"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/cookie-notice"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/do-not-sell"
+  to   = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/legal-warning"
+  to   = "/index.html"
+  status = 200

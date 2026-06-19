@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>robots.txt Secret — AlexCyberX Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#07070f;--surface:#0d0d1a;--surface2:#111120;
+  --border:rgba(255,255,255,0.06);--red:#dc1414;
+  --white:#f0f0f8;--dim:#505068;--green:#4ade80;
+  --green-dim:rgba(74,222,128,0.06);--blue:#63b3ed;--orange:#fb923c;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+}
+body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:100vh;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;position:sticky;top:0;z-index:100;}
+.topbar-left{display:flex;align-items:center;gap:16px;}
+.back-link{display:flex;align-items:center;gap:6px;color:var(--dim);font-size:12px;font-weight:500;text-decoration:none;cursor:pointer;transition:color 0.15s;}
+.back-link:hover{color:var(--white);}
+.topbar-sep{width:1px;height:16px;background:var(--border);}
+.topbar-id{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--red);letter-spacing:0.5px;}
+.topbar-title{font-size:13px;font-weight:600;color:var(--white);}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.diff-badge{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 10px;border-radius:4px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green);}
+.timer-wrap{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;}
+.timer-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
+.timer-val{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--white);min-width:52px;text-align:center;}
+
+.lab-wrap{max-width:1140px;margin:0 auto;padding:28px 20px 60px;display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.card-head{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.card-head-dot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;}
+.card-head-title{font-size:10px;font-weight:700;letter-spacing:1.3px;color:var(--dim);text-transform:uppercase;}
+.card-body{padding:16px;}
+.scenario-text{font-size:12.5px;color:#8888a0;line-height:1.8;border-left:2px solid var(--red);padding-left:12px;}
+.scenario-text strong{color:var(--white);}
+.info-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;margin-top:14px;}
+.info-label:first-child{margin-top:0;}
+.code-block{background:#050510;border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:13px 15px;font-family:var(--mono);font-size:11px;line-height:1.9;color:var(--dim);overflow-x:auto;}
+.kw{color:var(--blue);}.str{color:#68d391;}.cmt{color:#3a3a5a;font-style:italic;}.hi{color:var(--orange);}
+.obj-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
+.obj-item{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:#8888a0;line-height:1.5;}
+.obj-num{width:20px;height:20px;border-radius:5px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--dim);flex-shrink:0;transition:all 0.3s;font-family:var(--mono);}
+.obj-item.done .obj-num{background:rgba(74,222,128,0.1);border-color:rgba(74,222,128,0.25);color:var(--green);}
+.obj-item.done .obj-text{color:var(--green);}
+.hint-item{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px;}
+.hint-btn{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;cursor:pointer;background:var(--surface2);border:none;width:100%;font-family:var(--sans);transition:background 0.15s;}
+.hint-btn:hover{background:rgba(255,255,255,0.025);}
+.hint-btn-left{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:500;color:var(--dim);}
+.hint-icon{width:22px;height:22px;border-radius:5px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hint-pill{font-size:10px;font-weight:600;color:#fbbf24;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.14);border-radius:4px;padding:1px 7px;}
+.hint-body{display:none;padding:12px 13px;border-top:1px solid var(--border);font-size:12px;color:#8888a0;line-height:1.75;background:rgba(251,191,36,0.02);}
+.hint-body.open{display:block;}
+.hint-body code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
+
+.right-col{display:flex;flex-direction:column;gap:0;}
+.burp-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.ep-switcher{display:flex;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--surface2);flex-wrap:wrap;}
+.ep-btn{font-size:10px;font-weight:600;font-family:var(--mono);padding:4px 10px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--dim);transition:all 0.15s;}
+.ep-btn:hover{color:var(--white);border-color:#404060;}
+.ep-btn.active{background:rgba(220,20,20,0.1);border-color:rgba(220,20,20,0.3);color:var(--red);}
+.target-bar{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--surface2);border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;}
+.target-method{font-weight:700;color:var(--orange);}
+.target-url{color:var(--dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.target-badge{font-size:9px;font-weight:700;letter-spacing:1px;padding:2px 8px;border-radius:3px;text-transform:uppercase;background:rgba(220,20,20,0.1);border:1px solid rgba(220,20,20,0.2);color:var(--red);flex-shrink:0;}
+.burp-tabs{display:flex;background:var(--surface2);border-bottom:1px solid var(--border);}
+.burp-tab{padding:9px 16px;font-size:11px;font-weight:600;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;font-family:var(--sans);background:none;border-top:none;border-left:none;border-right:none;}
+.burp-tab.active{color:var(--white);border-bottom-color:var(--red);}
+.burp-pane{display:none;}
+.burp-pane.active{display:block;}
+.http-editor{width:100%;background:#050510;border:none;border-bottom:1px solid var(--border);color:var(--white);font-family:var(--mono);font-size:12px;line-height:1.7;padding:14px;outline:none;resize:none;min-height:120px;tab-size:2;}
+.editor-toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.01);}
+.toolbar-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
+.send-btn{display:flex;align-items:center;gap:7px;background:var(--red);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.send-btn:hover{background:#c01010;}
+.response-status-bar{display:flex;align-items:center;gap:12px;padding:7px 14px;border-bottom:1px solid var(--border);background:var(--surface2);font-family:var(--mono);font-size:11px;}
+.status-code{font-weight:700;padding:1px 8px;border-radius:4px;font-size:11px;}
+.s200{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2);}
+.s403{background:rgba(251,146,60,0.1);color:var(--orange);border:1px solid rgba(251,146,60,0.2);}
+.s404{background:rgba(220,20,20,0.08);color:#888;border:1px solid rgba(255,255,255,0.06);}
+.s000{background:rgba(255,255,255,0.04);color:var(--dim);border:1px solid var(--border);}
+.response-wrap{min-height:130px;max-height:260px;overflow-y:auto;padding:14px;font-family:var(--mono);font-size:11.5px;line-height:1.75;color:var(--dim);background:#050510;}
+.response-placeholder{color:#2a2a40;font-size:11px;font-style:italic;font-family:var(--sans);}
+
+.findings-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.findings-body{padding:12px;display:flex;flex-direction:column;gap:8px;}
+.finding-row{display:flex;align-items:flex-start;gap:10px;padding:9px 10px;background:#050510;border:1px solid var(--border);border-radius:8px;font-size:11px;}
+.finding-icon{flex-shrink:0;margin-top:1px;}
+.finding-label{font-family:var(--mono);color:var(--dim);min-width:90px;font-size:10px;}
+.finding-val{color:#2a2a44;font-family:var(--mono);font-style:italic;flex:1;word-break:break-all;line-height:1.5;}
+.finding-val.found{color:var(--green);font-style:normal;}
+
+.submit-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.submit-body{padding:14px;display:flex;flex-direction:column;gap:10px;}
+.submit-row{display:flex;gap:10px;}
+.flag-input{flex:1;background:#050510;border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:12px;color:var(--white);outline:none;transition:border-color 0.15s;}
+.flag-input:focus{border-color:rgba(220,20,20,0.4);}
+.flag-input::placeholder{color:var(--dim);}
+.submit-btn-main{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;white-space:nowrap;}
+.submit-btn-main:hover{background:#c01010;}
+.submit-result{display:none;font-size:12px;padding:9px 12px;border-radius:6px;font-family:var(--mono);line-height:1.5;}
+.submit-result.ok{display:block;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);color:var(--green);}
+.submit-result.err{display:block;background:rgba(220,20,20,0.06);border:1px solid rgba(220,20,20,0.2);color:var(--red);}
+
+.flag-box{display:none;background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.15);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.flag-box.show{display:block;}
+.flag-head{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid rgba(74,222,128,0.1);}
+.flag-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.flag-head-label{font-size:10px;font-weight:700;letter-spacing:1.3px;color:var(--green);text-transform:uppercase;}
+.flag-body-inner{padding:16px;}
+.flag-value{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green);letter-spacing:0.5px;margin-bottom:6px;}
+.flag-note{font-size:11px;color:rgba(74,222,128,0.5);line-height:1.5;}
+
+.req-log{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.req-log-head{padding:9px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.req-log-title{font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--dim);text-transform:uppercase;}
+.req-log-clear{font-size:10px;color:var(--dim);cursor:pointer;background:none;border:none;font-family:var(--sans);}
+.req-log-clear:hover{color:var(--white);}
+.req-log-body{max-height:150px;overflow-y:auto;}
+.log-entry{display:grid;grid-template-columns:48px 1fr 60px 60px;gap:8px;padding:7px 14px;border-bottom:1px solid rgba(255,255,255,0.02);font-family:var(--mono);font-size:10.5px;color:var(--dim);}
+.log-method{color:var(--blue);font-weight:700;}
+.log-path{color:#3a3a5a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.log-status.ok{color:var(--green);}
+.log-status.err{color:var(--red);}
+.log-status.warn{color:var(--orange);}
+.log-time{color:#2a2a44;text-align:right;}
+@media(max-width:780px){.lab-wrap{grid-template-columns:1fr;}.topbar-title{display:none;}}
+
+.launch-btn{display:flex;align-items:center;gap:7px;background:var(--green);color:#07070f;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.launch-btn:hover{background:#3dd673;}
+.stop-btn{display:none;align-items:center;gap:7px;background:rgba(220,20,20,0.1);color:var(--red);border:1px solid rgba(220,20,20,0.3);border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.stop-btn:hover{background:rgba(220,20,20,0.18);}
+.lab-running .launch-btn{display:none;}
+.lab-running .stop-btn{display:flex;}
+.timer-wrap.idle .timer-val{color:var(--dim);}
+.timer-wrap.running .timer-val{color:var(--green);}
+.right-col{position:relative;}
+.lock-overlay{position:absolute;inset:0;background:rgba(7,7,15,0.88);backdrop-filter:blur(3px);z-index:50;display:flex;align-items:center;justify-content:center;border-radius:12px;}
+.lab-running .lock-overlay{display:none;}
+.lock-overlay-inner{text-align:center;padding:40px;max-width:320px;}
+.lock-icon-box{width:56px;height:56px;border-radius:14px;background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+.lock-title{font-size:15px;font-weight:600;color:var(--white);margin-bottom:8px;}
+.lock-desc{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:20px;}
+.lock-start-btn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.lock-start-btn:hover{background:#c01010;}
+</style>
+</head>
+<body id="labBody">
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back-link" href="/pages/ctf.html#challenge=web-04" onclick="sessionStorage.setItem('ctf_return_id','web-04')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Labs
+    </a>
+    <div class="topbar-sep"></div>
+    <span class="topbar-id">WEB-04</span>
+    <span class="topbar-title">robots.txt Secret</span>
+  </div>
+  <div class="topbar-right">
+    <span class="diff-badge">Easy</span>
+    <div class="timer-wrap idle">
+      <span class="timer-label">Time</span>
+      <span class="timer-val" id="timerVal">00:00</span>
+    </div>
+  </div>
+    <button class="launch-btn" id="launchBtn" onclick="startChallenge()">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M3 2l6 3.5L3 9V2z" fill="#07070f"/></svg>
+      Start Challenge
+    </button>
+    <button class="stop-btn" id="stopBtn" onclick="stopChallenge()">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="2.5" y="2.5" width="6" height="6" fill="#dc1414"/></svg>
+      Stop
+    </button>
+</div>
+
+<div class="lab-wrap">
+  <div class="left-col">
+
+    <div class="card">
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Scenario</span></div>
+      <div class="card-body">
+        <p class="scenario-text">
+          You are doing recon on <strong>CorpX Backup Manager</strong>. The server has a <code style="font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;">robots.txt</code> file that discloses several internal paths.
+          <br><br>
+          Most are decoys. One leads to a real directory listing containing a <strong>backup archive</strong>. The archive is encrypted — but the JS file loaded by the application contains a clue about the encryption scheme.
+          <br><br>
+          Enumerate, find the file, extract the key, decrypt, get the flag.
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Target Endpoints</span></div>
+      <div class="card-body">
+        <div class="info-label">Start here</div>
+        <div class="code-block">
+<span class="kw">GET</span> <span class="str">/api/lab/robots/robots.txt</span>
+<span class="cmt">  # Always the first step</span>
+
+<span class="kw">GET</span> <span class="str">/api/lab/robots/static/app.js</span>
+<span class="cmt">  # JS file — read carefully</span>
+
+<span class="kw">POST</span> <span class="str">/api/lab/robots/submit</span>
+<span class="cmt">  # Submit decrypted flag</span>
+        </div>
+        <div class="info-label">Flag format</div>
+        <div class="code-block"><span class="hi">ACX{...}</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Objectives</span></div>
+      <div class="card-body">
+        <ul class="obj-list">
+          <li class="obj-item" id="obj1"><span class="obj-num">1</span><span class="obj-text">Read robots.txt and identify all disallowed paths</span></li>
+          <li class="obj-item" id="obj2"><span class="obj-num">2</span><span class="obj-text">Find the real path with a directory listing</span></li>
+          <li class="obj-item" id="obj3"><span class="obj-num">3</span><span class="obj-text">Identify and download the encrypted .dat file</span></li>
+          <li class="obj-item" id="obj4"><span class="obj-num">4</span><span class="obj-text">Find the encryption key from the JS file</span></li>
+          <li class="obj-item" id="obj5"><span class="obj-num">5</span><span class="obj-text">Decrypt the file and submit the flag</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Hints</span></div>
+      <div class="card-body">
+        <div class="hint-item">
+          <button class="hint-btn" onclick="toggleHint(this,1)">
+            <div class="hint-btn-left">
+              <div class="hint-icon"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="#fbbf24" stroke-width="1"/><path d="M5.5 3.5v.5M5.5 6v2" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+              Which path is real?
+            </div>
+            <span class="hint-pill">H1</span>
+          </button>
+          <div class="hint-body" id="hb1">
+            robots.txt lists multiple disallowed paths. Test each one — most will return 403 or 503. A real directory listing returns 200 with HTML content showing filenames and sizes. Try all of them, not just the first one.
+          </div>
+        </div>
+        <div class="hint-item">
+          <button class="hint-btn" onclick="toggleHint(this,2)">
+            <div class="hint-btn-left">
+              <div class="hint-icon"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="#fbbf24" stroke-width="1"/><path d="M5.5 3.5v.5M5.5 6v2" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+              What is the .dat file?
+            </div>
+            <span class="hint-pill">H2</span>
+          </button>
+          <div class="hint-body" id="hb2">
+            The directory contains multiple files — a log, a large sql.gz, and a small .dat file. The sql.gz has been rotated. The .dat file is 58 bytes and contains hex-encoded encrypted data. The encryption scheme and key are documented in the JS file loaded by the app.
+          </div>
+        </div>
+        <div class="hint-item">
+          <button class="hint-btn" onclick="toggleHint(this,3)">
+            <div class="hint-btn-left">
+              <div class="hint-icon"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="#fbbf24" stroke-width="1"/><path d="M5.5 3.5v.5M5.5 6v2" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg></div>
+              How to decrypt XOR
+            </div>
+            <span class="hint-pill">H3</span>
+          </button>
+          <div class="hint-body" id="hb3">
+            XOR is symmetric — the same operation decrypts as encrypts. In Python: <code>key="..."; enc=bytes.fromhex("..."); print(''.join(chr(b^ord(key[i%len(key)])) for i,b in enumerate(enc)))</code>. The key is hex-encoded in the JS comment — hex decode it first to get the actual key string.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="right-col">
+
+    <div class="lock-overlay" id="lockOverlay">
+      <div class="lock-overlay-inner">
+        <div class="lock-icon-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#dc1414" stroke-width="1.4"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#dc1414" stroke-width="1.4"/></svg>
+        </div>
+        <div class="lock-title">Challenge Locked</div>
+        <div class="lock-desc">Click start when you are ready. The timer begins the moment you start, and the interactive area unlocks.</div>
+        <button class="lock-start-btn" onclick="startChallenge()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M3.5 2l7 4.5-7 4.5V2z" fill="#fff"/></svg>
+          Start Challenge
+        </button>
+      </div>
+    </div>
+
+
+    <div class="burp-panel">
+      <div class="ep-switcher">
+        <button class="ep-btn active" onclick="loadEp(this,'GET','/api/lab/robots/robots.txt','robots')">GET /robots.txt</button>
+        <button class="ep-btn" onclick="loadEp(this,'GET','/api/lab/robots/admin/','admin')">GET /admin/</button>
+        <button class="ep-btn" onclick="loadEp(this,'GET','/api/lab/robots/config/','config')">GET /config/</button>
+        <button class="ep-btn" onclick="loadEp(this,'GET','/api/lab/robots/internal/backup/','backup')">GET /internal/backup/</button>
+        <button class="ep-btn" onclick="loadEp(this,'GET','/api/lab/robots/static/app.js','js')">GET /app.js</button>
+      </div>
+      <div class="target-bar">
+        <span class="target-method" id="reqMethod">GET</span>
+        <span class="target-url" id="reqUrl">/api/lab/robots/robots.txt</span>
+        <span class="target-badge">TARGET</span>
+      </div>
+      <div class="burp-tabs">
+        <button class="burp-tab active" onclick="switchTab(this,'request')">Request</button>
+        <button class="burp-tab" onclick="switchTab(this,'response')">Response</button>
+      </div>
+      <div class="burp-pane active" id="pane-request">
+        <div class="editor-toolbar">
+          <span class="toolbar-label">Raw Request</span>
+          <button class="send-btn" onclick="sendRequest()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 4-8 4V7l5-1-5-1V2z" fill="#fff"/></svg>
+            Send
+          </button>
+        </div>
+        <textarea class="http-editor" id="httpEditor" spellcheck="false">GET /api/lab/robots/robots.txt HTTP/1.1
+Host: localhost:3000</textarea>
+      </div>
+      <div class="burp-pane" id="pane-response">
+        <div class="response-status-bar">
+          <span class="status-code s000" id="statusCode">---</span>
+          <span id="statusTime" style="font-size:10px;color:var(--dim);"></span>
+          <span id="statusSize" style="font-size:10px;color:var(--dim);margin-left:auto;"></span>
+        </div>
+        <div class="response-wrap" id="responseWrap"><span class="response-placeholder">Send a request to see the response.</span></div>
+      </div>
+    </div>
+
+    <!-- Findings tracker -->
+    <div class="findings-panel">
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Findings</span></div>
+      <div class="findings-body">
+        <div class="finding-row">
+          <svg class="finding-icon" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#505068" stroke-width="1"/></svg>
+          <span class="finding-label">Disallowed paths</span>
+          <span class="finding-val" id="fPaths">not checked yet</span>
+        </div>
+        <div class="finding-row">
+          <svg class="finding-icon" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#505068" stroke-width="1"/></svg>
+          <span class="finding-label">Real directory</span>
+          <span class="finding-val" id="fDir">not found yet</span>
+        </div>
+        <div class="finding-row">
+          <svg class="finding-icon" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#505068" stroke-width="1"/></svg>
+          <span class="finding-label">Encrypted file</span>
+          <span class="finding-val" id="fFile">not downloaded yet</span>
+        </div>
+        <div class="finding-row">
+          <svg class="finding-icon" width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#505068" stroke-width="1"/></svg>
+          <span class="finding-label">XOR key (hex)</span>
+          <span class="finding-val" id="fKey">not found yet</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-panel">
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Submit Flag</span></div>
+      <div class="submit-body">
+        <div class="submit-row">
+          <input class="flag-input" id="flagInput" type="text" placeholder="ACX{...}" spellcheck="false">
+          <button class="submit-btn-main" onclick="submitFlag()">Submit</button>
+        </div>
+        <div class="submit-result" id="submitResult"></div>
+      </div>
+    </div>
+
+    <!-- Flag box -->
+    <div class="flag-box" id="flagBox">
+      <div class="flag-head"><div class="flag-dot"></div><span class="flag-head-label">Flag Captured</span></div>
+      <div class="flag-body-inner">
+        <div class="flag-value" id="flagValue"></div>
+        <div class="flag-note">robots.txt exposed a real backup directory. The encrypted file used a weak XOR key stored in plain sight in the JS source. Never use robots.txt to hide sensitive paths.</div>
+      </div>
+    </div>
+
+    <!-- Log -->
+    <div class="req-log">
+      <div class="req-log-head"><span class="req-log-title">Request Log</span><button class="req-log-clear" onclick="clearLog()">Clear</button></div>
+      <div class="req-log-body" id="reqLogBody"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const BASE = window.location.origin;
+let elapsed = 0;
+
+let timerInterval = null;
+let isRunning = false;
+
+function updateTimerDisplay() {
+  const m = String(Math.floor(elapsed/60)).padStart(2,'0');
+  const s = String(elapsed%60).padStart(2,'0');
+  document.getElementById('timerVal').textContent = m+':'+s;
+}
+
+function startChallenge() {
+  if (isRunning) return;
+  isRunning = true;
+  document.getElementById('labBody').classList.add('lab-running');
+  document.querySelector('.timer-wrap').classList.remove('idle');
+  document.querySelector('.timer-wrap').classList.add('running');
+  timerInterval = setInterval(() => { elapsed++; updateTimerDisplay(); }, 1000);
+  if (typeof addLog === 'function') addLog('LOCAL', 'challenge started', 'running', 'ok');
+}
+
+function stopChallenge() {
+  if (!isRunning) return;
+  isRunning = false;
+  document.getElementById('labBody').classList.remove('lab-running');
+  document.querySelector('.timer-wrap').classList.add('idle');
+  document.querySelector('.timer-wrap').classList.remove('running');
+  clearInterval(timerInterval);
+  if (typeof addLog === 'function') addLog('LOCAL', 'challenge paused', 'paused', 'warn');
+}
+
+let currentMethod = 'GET';
+let currentPath = '/api/lab/robots/robots.txt';
+
+
+
+function ts() { return new Date().toTimeString().substring(0,8); }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function completeObj(id) {
+  const el = document.getElementById(id);
+  if (el && !el.classList.contains('done')) el.classList.add('done');
+}
+
+function setFinding(id, val) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = val; el.classList.add('found'); }
+}
+
+function addLog(method, path, status, cls) {
+  const body = document.getElementById('reqLogBody');
+  const e = document.createElement('div');
+  e.className = 'log-entry';
+  e.innerHTML = `<span class="log-method">${method}</span><span class="log-path">${path}</span><span class="log-status ${cls}">${status}</span><span class="log-time">${ts()}</span>`;
+  body.prepend(e);
+}
+
+function clearLog() { document.getElementById('reqLogBody').innerHTML = ''; }
+
+function toggleHint(btn, n) {
+  document.getElementById('hb'+n).classList.toggle('open');
+}
+
+function switchTab(btn, pane) {
+  document.querySelectorAll('.burp-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.burp-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pane-'+pane).classList.add('active');
+}
+
+function loadEp(btn, method, path, mode) {
+  document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentMethod = method;
+  currentPath = path;
+  document.getElementById('reqMethod').textContent = method;
+  document.getElementById('reqUrl').textContent = path;
+  document.getElementById('httpEditor').value = `${method} ${path} HTTP/1.1\nHost: ${window.location.host}`;
+}
+
+async function sendRequest() {
+  const t0 = Date.now();
+  addLog(currentMethod, currentPath, '...', 'warn');
+
+  try {
+    const res = await fetch(BASE + currentPath, { method: currentMethod });
+    const elapsed_ms = Date.now() - t0;
+    const text = await res.text();
+    const code = res.status;
+
+    document.getElementById('statusTime').textContent = elapsed_ms + 'ms';
+    document.getElementById('statusSize').textContent = text.length + ' B';
+
+    const cls = code === 200 ? 's200' : code === 403 ? 's403' : code === 404 ? 's404' : 's000';
+    document.getElementById('statusCode').className = 'status-code ' + cls;
+    document.getElementById('statusCode').textContent = code;
+    document.getElementById('responseWrap').innerHTML = `<pre style="white-space:pre-wrap;word-break:break-all;">${escHtml(text)}</pre>`;
+
+    addLog(currentMethod, currentPath, code, code === 200 ? 'ok' : 'err');
+
+    // Auto-detect findings
+    if (currentPath.includes('robots.txt') && code === 200) {
+      completeObj('obj1');
+      const paths = text.match(/Disallow: (.+)/g);
+      if (paths) setFinding('fPaths', paths.map(p => p.replace('Disallow: ','')).join(', '));
+    }
+    if (currentPath.includes('/internal/backup/') && code === 200 && text.includes('yxjjagl2zq')) {
+      completeObj('obj2');
+      setFinding('fDir', '/internal/backup/ (directory listing found)');
+    }
+    if (currentPath.includes('yxjjagl2zq.dat') && code === 200) {
+      completeObj('obj3');
+      setFinding('fFile', text.substring(0, 30) + '... (hex-encoded XOR encrypted data)');
+    }
+    if (currentPath.includes('app.js') && code === 200 && text.includes('6330727078')) {
+      completeObj('obj4');
+      setFinding('fKey', '0x6330727078 (hex decode: c0rpx)');
+    }
+
+    // Switch to response tab
+    document.querySelectorAll('.burp-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.burp-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.burp-tab')[1].classList.add('active');
+    document.getElementById('pane-response').classList.add('active');
+
+  } catch(err) {
+    document.getElementById('responseWrap').innerHTML = `<span style="color:var(--red)">Error: ${escHtml(err.message)}</span>`;
+    addLog(currentMethod, currentPath, 'ERR', 'err');
+  }
+}
+
+async function submitFlag() {
+  const flag = document.getElementById('flagInput').value.trim();
+  const resultEl = document.getElementById('submitResult');
+  if (!flag) { resultEl.textContent = 'Flag field is empty.'; resultEl.className = 'submit-result err'; return; }
+
+  try {
+    const res = await fetch(`${BASE}/api/lab/robots/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ flag })
+    });
+    const data = await res.json();
+    addLog('POST', '/api/lab/robots/submit', res.status, res.ok ? 'ok' : 'err');
+
+    if (res.ok && data.success) {
+      completeObj('obj5');
+      resultEl.textContent = data.message;
+      resultEl.className = 'submit-result ok';
+      document.getElementById('flagBox').classList.add('show');
+      document.getElementById('flagValue').textContent = data.flag;
+    } else {
+      resultEl.textContent = data.message;
+      resultEl.className = 'submit-result err';
+    }
+  } catch(err) {
+    resultEl.textContent = 'Request failed: ' + err.message;
+    resultEl.className = 'submit-result err';
+  }
+}
+
+document.getElementById('flagInput').addEventListener('keydown', e => { if(e.key==='Enter') submitFlag(); });
+</script>
+</body>
+</html>

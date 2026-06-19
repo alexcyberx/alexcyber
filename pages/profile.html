@@ -1,0 +1,51 @@
+<div id="profilePage" class="page">
+  <div class="profile-wrap">
+    <div class="profile-card">
+      <div class="profile-banner">
+        <div class="profile-banner-overlay"></div>
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" id="profileAvatarBig">A</div>
+        </div>
+      </div>
+      <div class="profile-body">
+        <div class="profile-name" id="profileDisplayName">Alex User</div>
+        <div class="profile-email-tag" id="profileDisplayEmail">user@example.com</div>
+
+        <div class="profile-section-title">Personal Information</div>
+        <div class="profile-field">
+          <label class="profile-label">Full Name</label>
+          <input class="profile-input" id="profileName" type="text" placeholder="Aapka naam"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Email Address</label>
+          <input class="profile-input" id="profileEmail" type="email" disabled/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Username</label>
+          <input class="profile-input" id="profileUsername" type="text" placeholder="Aapka username"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Bio</label>
+          <input class="profile-input" id="profileBio" type="text" placeholder="Khud ke baare mein kuch likho..."/>
+        </div>
+
+        <div class="profile-divider"></div>
+        <div class="profile-section-title">Change Password</div>
+        <div class="profile-field">
+          <label class="profile-label">New Password</label>
+          <input class="profile-input" id="profileNewPw" type="password" placeholder="Naya password (optional)"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Confirm New Password</label>
+          <input class="profile-input" id="profileConfirmPw" type="password" placeholder="Dobara dalo"/>
+        </div>
+
+        <div class="profile-divider"></div>
+        <div class="profile-msg" id="profileMsg"></div>
+        <button class="profile-save-btn" onclick="saveProfile()">Save Changes</button>
+        <button class="profile-logout-btn" onclick="doLogout()">Sign Out</button>
+      </div>
+    </div>
+  </div>
+</div>
+

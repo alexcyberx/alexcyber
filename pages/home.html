@@ -1,0 +1,214 @@
+<div id="homePage" class="page active">
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        <span data-i18n="hero.badge.text">Cybersecurity Learning Platform</span>
+      </div>
+      <h1 class="hero-title">
+        <span class="t1"><span data-i18n="hero.title.line1">Learn Cyber</span> <em style="color:var(--red);font-style:normal;" data-i18n="hero.title.line2">Security</em></span>
+      </h1>
+      <p class="hero-sub" data-i18n="hero.sub">Cybersecurity ko samjho apni language mein. Network Forensics, Ethical Hacking, aur bahut kuch sikhenge step by step, beginner se expert tak.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="scrollToSection('tutorials')">
+          <span data-i18n="hero.cta1">Start Learning</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M7.5 3L11 7l-3.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="btn-secondary" onclick="scrollToSection('about')">
+          <span data-i18n="hero.cta2">About AlexCyberX</span>
+        </button>
+      </div>
+
+      <!-- SEARCH BOX -->
+      <div class="hero-search-wrap" id="heroSearchWrap">
+        <div class="hero-search-box">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none" class="search-icon-svg">
+            <circle cx="6.5" cy="6.5" r="5" stroke="#555" stroke-width="1.4"/>
+            <path d="M10.5 10.5L13.5 13.5" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="text"
+            id="heroSearchInput"
+            placeholder="Search courses, chapters..."
+            autocomplete="off"
+            oninput="handleCourseSearch(this.value)"
+            onkeydown="handleSearchKeydown(event)"
+          />
+          <button class="search-clear-btn" id="searchClearBtn" onclick="clearCourseSearch()" style="display:none;">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="#555" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="search-results-dropdown" id="searchResultsDropdown" style="display:none;"></div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-terminal">
+        <div class="ht-bar">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <span class="ht-title">terminal alexcyberx</span>
+        </div>
+        <div class="ht-body">
+          <div><span class="ht-p">$</span> <span class="ht-c">nmap -sV target.com</span></div>
+          <span class="ht-out">Starting Nmap scan...</span>
+          <span class="ht-out">PORT     STATE  SERVICE</span>
+          <span class="ht-red">22/tcp   open   ssh</span>
+          <span class="ht-red">80/tcp   open   http</span>
+          <span class="ht-red">443/tcp  open   https</span>
+          <div style="margin-top:8px"><span class="ht-p">$</span> <span class="ht-c">wireshark -i eth0</span></div>
+          <span class="ht-out">Capturing packets...</span>
+          <span class="ht-green">✓ 1247 packets captured</span>
+          <div style="margin-top:8px"><span class="ht-p">$</span> <span class="ht-cursor2"></span></div>
+        </div>
+      </div>
+      <div class="hero-tags">
+        <span class="htag">Network Forensics</span>
+        <span class="htag">Ethical Hacking</span>
+        <span class="htag">Wireshark</span>
+        <span class="htag">Kali Linux</span>
+        <span class="htag">Burp Suite</span>
+        <span class="htag">CTF</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-item"><span class="stat-num">20+</span><span class="stat-label" data-i18n="stat.chapters">Chapters</span></div>
+  <div class="stat-item"><span class="stat-num">8K+</span><span class="stat-label" data-i18n="stat.community">Community</span></div>
+  <div class="stat-item"><span class="stat-num">100%</span><span class="stat-label" data-i18n="stat.practical">Practical</span></div>
+  <div class="stat-item"><span class="stat-num">Free</span><span class="stat-label" data-i18n="stat.always">Always</span></div>
+</div>
+
+<!-- TUTORIALS -->
+<section class="section" id="tutorials">
+  <div class="section-label" data-i18n="courses.label">Courses</div>
+  <h2 class="section-heading" data-i18n="courses.heading">Choose Your Path</h2>
+  <div class="cards-grid">
+    <div class="tut-card" onclick="showPage('learn')" role="button" tabindex="0" onkeypress="if(event.key==='Enter')showPage('learn')">
+      <div class="card-icon-wrap">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="8" stroke="#dc1414" stroke-width="1.2"/>
+          <circle cx="10" cy="10" r="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
+          <line x1="4" y1="10" x2="7" y2="10" stroke="#dc1414" stroke-width="1"/>
+          <line x1="13" y1="10" x2="16" y2="10" stroke="#dc1414" stroke-width="1"/>
+          <line x1="10" y1="4" x2="10" y2="7" stroke="#dc1414" stroke-width="1"/>
+          <line x1="10" y1="13" x2="10" y2="16" stroke="#dc1414" stroke-width="1"/>
+          <line x1="12.5" y1="12.5" x2="15" y2="15" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="card-tag">Forensics</div>
+      <div class="card-title" data-i18n="card.nf.title">Network Forensics</div>
+      <p class="card-desc" data-i18n="card.nf.desc">Network traffic analyze karke digital evidence collect karna seekho. PCAP, Wireshark, malware traffic complete guide Hindi mein.</p>
+      <div class="card-footer">
+        <span class="card-chapters" data-i18n="card.nf.chapters">20 Chapters</span>
+        <div class="card-arrow">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 6h8M6.5 3l3 3-3 3" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="section about-wrap" id="about">
+  <div class="about-grid">
+    <div class="about-text">
+      <div class="section-label" data-i18n="about.label">About</div>
+      <h2><span data-i18n="about.whois">Who is</span> <em>AlexCyberX</em></h2>
+      <p data-i18n="about.p1">Pawan Tanwar (AlexCyberX), Certified Ethical Hacker from Jhalawar, Rajasthan, India. Core focus is Network Forensics and cyber investigation.</p>
+      <p data-i18n="about.p2">Hands-on experience with Wireshark, Nmap, Burp Suite, Kali Linux. Deep interest in helping cyber investigations and assisting cyber police in case analysis. Practical over theoretical, always.</p>
+      <p data-i18n="about.p3">Running @alex.cyberx cybersecurity community on Instagram focused on CTF writeups, tools, and real-world techniques.</p>
+    </div>
+    <div class="terminal">
+      <div class="term-header">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <span class="term-title">alexcyberx@kali ~ $</span>
+      </div>
+      <div class="term-body">
+        <div><span class="t-prompt">$</span> <span class="t-cmd">whoami</span></div>
+        <span class="t-out-green">Pawan Tanwar (AlexCyberX)</span>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">cat cert.txt</span></div>
+        <span class="t-out-dim">Certified Ethical Hacker (CEH)</span>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">cat location.txt</span></div>
+        <span class="t-out-dim">Jhalawar, Rajasthan, India</span>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">cat field.txt</span></div>
+        <span class="t-out-dim">Cyber Security</span>
+        <div><span class="t-prompt">$</span> <span class="t-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section contact-wrap" id="contact">
+  <div class="contact-grid">
+    <div class="contact-left">
+      <div class="section-label" data-i18n="contact.label">Connect</div>
+      <h2 data-i18n="contact.heading">Get in Touch</h2>
+      <p data-i18n="contact.sub">Questions, collaborations, ya kuch sikhna hai reach out karo.</p>
+      <div class="social-list">
+        <a href="https://instagram.com/alex.cyberx" class="social-link" target="_blank">
+          <div class="social-icon-wrap">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <rect x="1" y="1" width="14" height="14" rx="3.5" stroke="#dc1414" stroke-width="1.2"/>
+              <circle cx="8" cy="8" r="3" stroke="#dc1414" stroke-width="1.2"/>
+              <circle cx="11.5" cy="4.5" r="0.9" fill="#dc1414"/>
+            </svg>
+          </div>
+          <div><div class="social-name">Instagram</div><div class="social-handle">@alex.cyberx</div></div>
+          <svg class="social-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 3l4 4-4 4" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <a href="https://github.com/alexcyberx" class="social-link" target="_blank">
+          <div class="social-icon-wrap">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M8 1C4.13 1 1 4.13 1 8c0 3.09 2.01 5.71 4.79 6.63.35.06.48-.15.48-.34v-1.2c-1.95.42-2.36-.94-2.36-.94-.32-.81-.78-1.03-.78-1.03-.64-.44.05-.43.05-.43.7.05 1.07.72 1.07.72.62 1.07 1.63.76 2.03.58.06-.45.24-.76.44-.93-1.56-.18-3.2-.78-3.2-3.47 0-.77.27-1.39.72-1.88-.07-.18-.31-.89.07-1.85 0 0 .59-.19 1.92.72A6.65 6.65 0 018 4.84c.59 0 1.19.08 1.75.23 1.33-.9 1.91-.72 1.91-.72.38.96.14 1.67.07 1.85.45.49.72 1.11.72 1.88 0 2.7-1.64 3.29-3.2 3.47.25.22.48.64.48 1.3v1.92c0 .19.13.4.48.34A7.002 7.002 0 0015 8c0-3.87-3.13-7-7-7z" fill="#dc1414"/>
+            </svg>
+          </div>
+          <div><div class="social-name">GitHub</div><div class="social-handle">alexcyberx</div></div>
+          <svg class="social-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 3l4 4-4 4" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <div class="contact-form">
+      <div class="form-title" data-i18n="form.title">Send Message</div>
+      <div class="form-field"><label data-i18n="form.name">Name</label><input id="contactName" type="text" data-i18n-placeholder="form.name.ph" placeholder="Your name" maxlength="60" autocomplete="name"></div>
+      <div class="form-field"><label data-i18n="form.email">Email</label><input id="contactEmail" type="email" data-i18n-placeholder="form.email.ph" placeholder="your@email.com" maxlength="100" autocomplete="email"></div>
+      <div class="form-field"><label data-i18n="form.msg">Message</label><textarea id="contactMsg" data-i18n-placeholder="form.msg.ph" placeholder="Write here..." maxlength="1000"></textarea></div>
+      <!-- Honeypot — bots fill this, humans don't see it -->
+      <div style="position:absolute;left:-9999px;opacity:0;" aria-hidden="true"><input id="contactHP" type="text" tabindex="-1" autocomplete="off"></div>
+      <button class="btn-send" onclick="handleContactSubmit()">
+        <span data-i18n="form.send">Send Message</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M1 7h12M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div id="contactMsg_status" style="font-family:'Inter',sans-serif;font-size:12px;margin-top:8px;min-height:18px;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-logo">Alex <em>CyberX</em></div>
+  <div class="foot-legal-links">
+    <a href="#" onclick="showPage('privacy')">Privacy Policy</a>
+    <a href="#" onclick="showPage('terms')">Terms of Service</a>
+    <a href="#" onclick="showPage('disclaimer')">Disclaimer</a>
+  </div>
+  <div class="foot-copy" data-i18n="footer.copy">© 2025 AlexCyberX. All rights reserved.</div>
+</footer>
+
+</div><!-- end #homePage -->
+

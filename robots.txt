@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /secret-panel
+Disallow: /flag-storage
+Disallow: /hidden/ACX{robots_txt_not_a_security_measure}
+
+# Note to self: move the flag out of here before launch
