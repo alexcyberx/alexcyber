@@ -415,21 +415,30 @@ async function saveProfile() {
 
   } catch(e) {}
 
+  // Guard: consumePendingRedirect sirf ONCE run karna chahiye per page load.
+  // Supabase onAuthStateChange SIGNED_IN page load pe bhi fire karta hai,
+  // toh getSession() branch aur onAuthStateChange dono call karte hain.
+  // Doosri call pe sab null hota hai aur showPage('home') chala jaata hai — yahi bug tha.
+  let _redirectConsumed = false;
+
   const consumePendingRedirect = () => {
-    // Channel C (same-tab lab return): sessionStorage acx_back_to_ctf was set by lab tab
-    // autoOpenFromReturn IIFE already consumed it into window._acxPendingLabReturn
+    // Channel C (same-tab lab return): acx_back_to_ctf sessionStorage se set hua
+    // autoOpenFromReturn IIFE ne window._acxPendingLabReturn mein store kiya
     if (window._acxPendingLabReturn) {
       const returnId = window._acxPendingLabReturn;
       window._acxPendingLabReturn = null;
-      // Let acxLabReturn handle navigation + modal open (it knows CTF page state)
+      _redirectConsumed = true;
       if (typeof window.acxLabReturn === 'function') {
         window.acxLabReturn(returnId);
       } else {
-        // Fallback: just go to CTF page
         showPage('ctf');
       }
       return;
     }
+
+    // Already ran once this page load — don't clobber the current page with home
+    if (_redirectConsumed) return;
+    _redirectConsumed = true;
 
     if (window._pendingRedirect) {
       const redirect = window._pendingRedirect;
