@@ -421,6 +421,14 @@ async function saveProfile() {
       window._pendingRedirect = null;
       try { sessionStorage.removeItem('acx_pending_redirect'); } catch(e) {}
       showPage(redirect);
+      if (redirect === 'ctf') {
+        // Let listeners (e.g. the lab-return auto-open-modal logic) know the
+        // CTF page has actually been shown (login-gated showPage may have
+        // silently redirected instead — only fire once the page is really up).
+        if (document.getElementById('ctfPage') && document.getElementById('ctfPage').classList.contains('active')) {
+          document.dispatchEvent(new CustomEvent('acx:ctf-page-shown'));
+        }
+      }
     } else if (window._initialPage && window._initialPage !== 'home') {
       // URL-based routing: show the page the user navigated to directly
       const pg = window._initialPage;

@@ -1100,15 +1100,6 @@ function declineCookies(){
 
 
 <!-- ═══════════ CTF PAGE ═══════════ -->
-<!-- ═══════════════════════════════════════════
-     CTF PAGE — AlexCyberX
-     Add this as pages/ctf.html
-     And include in index.html + router.js
-═══════════════════════════════════════════ -->
-<!-- TODO: Remove before production -->
-<!-- Developer Note: Testing credentials for CTF lab -->
-<!-- Flag: ACX{html_comments_are_not_safe} -->
-<!-- TODO: Also remove the /admin panel test route -->
 <div id="ctfPage" class="page">
 <!-- CTF Lab: Cookie Monster flag reveal (only shows when isAdmin=true cookie set) -->
 <div id="ctfCookieFlag" style="display:none;position:fixed;top:70px;right:20px;z-index:9999;background:#0a0a12;border:1px solid #4ade80;border-radius:10px;padding:12px 18px;font-family:monospace;font-size:13px;color:#4ade80;box-shadow:0 4px 20px rgba(74,222,128,0.15);">
@@ -1431,12 +1422,18 @@ function declineCookies(){
     <div class="ctf-modal-cat" id="modalCat"></div>
     <div class="ctf-modal-title" id="modalTitle"></div>
     <div class="ctf-modal-meta" id="modalMeta"></div>
-    <div class="ctf-modal-desc" id="modalDesc"></div>
 
-    <!-- Objectives card (shown for lab challenges that have objectives) -->
-    <div id="ctfObjectivesCard" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:14px;margin-bottom:14px;">
-      <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:#505068;text-transform:uppercase;margin-bottom:10px;">Objectives</div>
-      <ul id="modalObjList" style="list-style:none;display:flex;flex-direction:column;gap:6px;margin:0;padding:0;"></ul>
+    <!-- CHALLENGE card (like lab page screenshot) -->
+    <div id="ctfChallengeCard" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px;margin-bottom:14px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:#dc1414;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:#dc1414;display:inline-block;"></span>CHALLENGE
+      </div>
+      <!-- Badges row -->
+      <div id="modalChallengeBadges" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+      <!-- Author -->
+      <div id="modalChallengeAuthor" style="font-size:10px;font-weight:700;letter-spacing:1px;color:#505068;text-transform:uppercase;margin-bottom:12px;"></div>
+      <!-- Scenario description -->
+      <div id="modalChallengeScenario" style="font-size:12.5px;color:#a0a0b8;line-height:1.85;"></div>
     </div>
     <div id="ctfLaunchWrap" style="display:none;">
       <!-- Start button (before instance is running) -->
@@ -1510,16 +1507,20 @@ const CTF_ICONS = {
   Misc: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#9ca3af" stroke-width="1.4"/><circle cx="10" cy="10" r="4" stroke="#9ca3af" stroke-width="1.4"/><circle cx="10" cy="10" r="1" fill="#9ca3af"/></svg>'
 };
 
-const ctfChallenges = [
+const ctfChallenges = window.CTF_CHALLENGES = [
   // ── WEB ──
   {
     id: 'web-01', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
     title: 'Hidden in Plain Sight',
     desc: 'Ek website hai jiske source code mein kuch chupa hua hai. Page ka source carefully dekho. Developers kabhi kabhi comments mein bahut kuch chhor dete hain.',
+    scenario: 'You are performing recon on <strong>CorpX Internal Portal</strong>. The rendered page looks clean. Nothing sensitive is visible at first glance.<br><br>Can you find what the developers left behind? The flag is split into <strong>three separate parts</strong> hidden across the application.<br><br>Use Burp Suite or your browser DevTools to inspect everything, not just what renders.<br><br><span style="font-family:\'Courier New\',monospace;font-size:11px;color:#3a3a5a;">debug info: [session: active | engine: corpx_portal_v2]</span>',
+    author: 'AlexCyberX Security Team',
+    tags: ['Web Exploitation', 'AlexCyberX Labs'],
     diff: 'Easy', pts: 50, xp: 100,
-    flag: 'ACX{html_comments_are_not_safe}',
+    flag: 'ACX{c0mm3nts_4r3_n0t_s3cr3t}',
     hint: 'Browser mein Ctrl+U (View Source) dabao aur HTML comments <!-- --> dhundo.',
     labUrl: '/pages/labs/lab-hidden.html',
+    labApiPath: '/api/lab/hidden',
     hasLabFlow: true,
     solvers: 142,
     objectives: [
@@ -1979,33 +1980,48 @@ function openCTFModal(id) {
 
   const solved = !!ctfSolved[id];
 
-  // Fill modal
+  // Fill basic modal fields
   document.getElementById('modalCat').innerHTML = `<span style="display:inline-flex;align-items:center;">${CTF_ICONS[c.cat] || ''}</span> ${c.cat}`;
   document.getElementById('modalTitle').textContent = c.title;
-  document.getElementById('modalDesc').textContent = c.desc;
 
-  // Show objectives card for lab challenges
-  const objCard = document.getElementById('ctfObjectivesCard');
-  const objList = document.getElementById('modalObjList');
-  if (objCard && objList && c.objectives && c.objectives.length) {
-    objList.innerHTML = c.objectives.map((obj, i) =>
-      `<li style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#a0a0b8;line-height:1.5;">
-        <span style="width:18px;height:18px;border-radius:5px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#505068;flex-shrink:0;margin-top:1px;">${i+1}</span>
-        <span>${obj}</span>
-      </li>`
-    ).join('');
-    objCard.style.display = 'block';
-  } else if (objCard) {
-    objCard.style.display = 'none';
-  }
-
-  const diffColor = { Easy: '#4ade80', Medium: '#fb923c', Hard: '#f87171' }[c.diff];
   document.getElementById('modalMeta').innerHTML = `
     <span class="ctf-diff-badge ${c.diff.toLowerCase()}">${c.diff}</span>
     <span style="font-size:13px;font-weight:600;color:var(--white);">${c.pts} pts</span>
     <span class="ctf-xp-pill">+${c.xp} XP</span>
     <span style="font-size:12px;color:var(--text-dim);">${c.solvers} solvers</span>
   `;
+
+  // CHALLENGE card — show if scenario exists, else show plain desc
+  const challengeCard = document.getElementById('ctfChallengeCard');
+  if (challengeCard) {
+    if (c.scenario) {
+      // Badges
+      const badgesEl = document.getElementById('modalChallengeBadges');
+      if (badgesEl) {
+        const diffBadge = `<span style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 10px;border-radius:4px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:#4ade80;">${c.diff}</span>`;
+        const tagBadges = (c.tags || []).map(t =>
+          `<span style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 10px;border-radius:4px;background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);color:#dc1414;">${t}</span>`
+        ).join('');
+        badgesEl.innerHTML = diffBadge + tagBadges;
+      }
+      // Author
+      const authorEl = document.getElementById('modalChallengeAuthor');
+      if (authorEl) authorEl.textContent = c.author ? `Author: ${c.author}` : '';
+      // Scenario text
+      const scenarioEl = document.getElementById('modalChallengeScenario');
+      if (scenarioEl) scenarioEl.innerHTML = c.scenario;
+      challengeCard.style.display = 'block';
+    } else {
+      // Fallback: plain desc in challenge card
+      const scenarioEl = document.getElementById('modalChallengeScenario');
+      if (scenarioEl) scenarioEl.textContent = c.desc || '';
+      const badgesEl = document.getElementById('modalChallengeBadges');
+      if (badgesEl) badgesEl.innerHTML = '';
+      const authorEl = document.getElementById('modalChallengeAuthor');
+      if (authorEl) authorEl.textContent = '';
+      challengeCard.style.display = 'block';
+    }
+  }
 
   // Restore lab state if challenge was already running
   if (typeof ctfTimerPoll !== 'undefined' && ctfTimerPoll) { clearInterval(ctfTimerPoll); ctfTimerPoll = null; }
@@ -2215,7 +2231,41 @@ async function submitCTFFlag() {
   // Slight delay for UX
   await new Promise(r => setTimeout(r, 600));
 
-  if (flag === c.flag) {
+  // Real CTF rule: challenges backed by a live server lab (hasLabFlow) must be
+  // validated server-side. Client-side comparison is only used for local/static
+  // challenges that have no backend instance to check against.
+  let isCorrect = false;
+  if (c.hasLabFlow && c.labApiPath) {
+    try {
+      const sessionId = (function() {
+        try {
+          let sid = sessionStorage.getItem('acx_lab_session_' + c.id);
+          if (!sid) {
+            sid = 'sess_' + Math.random().toString(36).substring(2, 10);
+            sessionStorage.setItem('acx_lab_session_' + c.id, sid);
+          }
+          return sid;
+        } catch(e) { return 'sess_' + Math.random().toString(36).substring(2, 10); }
+      })();
+
+      const res = await fetch(c.labApiPath + '/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Lab-Session': sessionId },
+        body: JSON.stringify({ flag })
+      });
+      const data = await res.json().catch(() => ({}));
+      isCorrect = !!(res.ok && data.success);
+    } catch (e) {
+      showFlagMsg('error', '[!] Server se connect nahi ho paaya. Dobara try karein.');
+      btn.disabled = false;
+      btn.textContent = 'Submit';
+      return;
+    }
+  } else {
+    isCorrect = (flag === c.flag);
+  }
+
+  if (isCorrect) {
     // ✅ CORRECT
     inp.classList.add('correct');
     showFlagMsg('success', ` Sahi hai! +${c.xp} XP earn kiya!`);
@@ -2270,16 +2320,35 @@ document.addEventListener('keydown', function(e) {
 
 /* ── AUTO-OPEN MODAL: when user comes back from a lab page ── */
 (function autoOpenFromReturn() {
-  const hash = window.location.hash;
-  const hashMatch = hash.match(/[#&]?challenge=([a-z0-9-]+)/);
   const returnId = sessionStorage.getItem('ctf_return_id');
-  const cid = (hashMatch && hashMatch[1]) || returnId;
-  if (cid) {
-    sessionStorage.removeItem('ctf_return_id');
-    history.replaceState(null, '', window.location.pathname + window.location.search);
-    // Wait a tick for DOM + data to be ready
-    setTimeout(() => openCTFModal(cid), 100);
+  if (!returnId) return;
+  sessionStorage.removeItem('ctf_return_id');
+
+  let opened = false;
+  function tryOpen(attempts) {
+    if (opened) return;
+    const c = (window.CTF_CHALLENGES || []).find(x => x.id === returnId);
+    const overlay = document.getElementById('ctfModalOverlay');
+    const ctfPageEl = document.getElementById('ctfPage');
+    const ctfPageActive = ctfPageEl && ctfPageEl.classList.contains('active');
+    if (c && overlay && ctfPageActive) {
+      opened = true;
+      setTimeout(() => openCTFModal(returnId), 200);
+    } else if (c && overlay && typeof showPage === 'function' && window._currentUser) {
+      // Auth already resolved but page not yet flipped to ctf — drive it ourselves.
+      showPage('ctf', true);
+      if (attempts > 0) setTimeout(() => tryOpen(attempts - 1), 300);
+    } else if (attempts > 0) {
+      setTimeout(() => tryOpen(attempts - 1), 300);
+    }
   }
+
+  // Primary path: fired once auth.js has actually shown the CTF page.
+  document.addEventListener('acx:ctf-page-shown', () => tryOpen(15), { once: true });
+
+  // Fallback path: in case auth state resolved before this listener was attached,
+  // or the event never fires for some other reason — bounded retry poll.
+  setTimeout(() => tryOpen(15), 400);
 })();
 </script>
 </div>

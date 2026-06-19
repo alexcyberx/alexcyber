@@ -79,7 +79,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .info-label:first-child{margin-top:0;}
 
 .code-block{background:#050510;border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:13px 15px;font-family:var(--mono);font-size:11px;line-height:1.9;color:var(--dim);overflow-x:auto;}
-.kw{color:var(--blue);}.str{color:#68d391;}.cmt{color:#3a3a5a;font-style:italic;}.hi{color:var(--orange);}
+.kw{color:var(--blue);}.val{color:#68d391;}.str{color:#68d391;}.cmt{color:#3a3a5a;font-style:italic;}.hi{color:var(--orange);}
 
 .obj-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
 .obj-item{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:#8888a0;line-height:1.5;}
@@ -151,6 +151,9 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .submit-row{display:flex;gap:10px;}
 .flag-input{flex:1;background:#050510;border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:12px;color:var(--white);outline:none;transition:border-color 0.15s;}
 .flag-input:focus{border-color:rgba(220,20,20,0.4);}
+.flag-input.flag-correct{border-color:rgba(74,222,128,0.5)!important;}
+.flag-input.flag-wrong{border-color:rgba(220,20,20,0.5)!important;animation:shake 0.3s;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 .flag-input::placeholder{color:var(--dim);}
 .submit-btn{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;white-space:nowrap;}
 .submit-btn:hover{background:#c01010;}
@@ -214,7 +217,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 
 <div class="topbar">
   <div class="topbar-left">
-    <a class="back-link" href="/pages/ctf.html#challenge=web-01" onclick="sessionStorage.setItem('ctf_return_id','web-01')">
+    <a class="back-link" href="/" onclick="sessionStorage.setItem('ctf_return_id','web-01');sessionStorage.setItem('acx_pending_redirect','ctf')">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Labs
     </a>
@@ -225,7 +228,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
   <div class="topbar-right">
     <button class="lang-btn" onclick="showLangModal()" title="Change Language">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.1"/><path d="M1 6h10M6 1c1.6 1.4 1.6 8.6 0 10M6 1c-1.6 1.4-1.6 8.6 0 10" stroke="currentColor" stroke-width="1.1"/></svg>
-      <span id="mLangLabel">Language</span>
+      <span id="mLangLabel">English</span>
     </button>
     <span class="diff-badge">Easy</span>
   </div>
@@ -311,7 +314,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
           </button>
         </div>
       </div>
-      <iframe class="site-frame" id="siteFrame" src="/api/lab/hidden/page" sandbox="allow-same-origin"></iframe>
+      <iframe class="site-frame" id="siteFrame" src="" sandbox="allow-same-origin allow-scripts"></iframe>
     </div>
 
 
@@ -329,6 +332,20 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
       <div class="flag-body">
         <div class="flag-value" id="flagValue"></div>
         <div class="flag-note">Flag found across HTML source, HTTP header, and a JS file. Developers leave traces in places browsers never show users.</div>
+      </div>
+    </div>
+
+    <!-- Submit panel — real UI on lab page -->
+    <div class="submit-panel" id="labSubmitPanel">
+      <div class="card-head" style="border-bottom:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;gap:8px;">
+        <div class="card-head-dot"></div><span class="card-head-title">Submit Flag</span>
+      </div>
+      <div class="submit-body">
+        <div class="submit-row">
+          <input type="text" class="flag-input" id="labFlagInput" placeholder="ACX{your_flag_here}" autocomplete="off" onkeydown="if(event.key==='Enter')submitFlag(this.value)">
+          <button class="submit-btn" id="labSubmitBtn" onclick="submitFlag(document.getElementById('labFlagInput').value)">Submit</button>
+        </div>
+        <div class="submit-result" id="labSubmitResult"></div>
       </div>
     </div>
 
@@ -370,7 +387,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 /* ── ACCESS TOKEN VALIDATION ──
    Lab sirf tab accessible hai jab modal se Start button daba ke aaya ho.
    Direct URL se access karne par user wapas CTF page par redirect hoga. */
-(function validateLabAccess() {
+const _labAccessGranted = (function validateLabAccess() {
   const params = new URLSearchParams(window.location.search);
   const urlToken = params.get('acx_token');
   const challengeId = 'web-01';
@@ -378,26 +395,47 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 
   // Token must match what was generated in the modal
   if (!urlToken || !storedToken || urlToken !== storedToken) {
-    // Access denied — redirect back
-    document.body.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#07070f;font-family:'Inter',sans-serif;color:#fff;text-align:center;padding:24px;">
-        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:20px;"><circle cx="24" cy="24" r="20" stroke="#dc1414" stroke-width="1.8"/><path d="M16 16l16 16M32 16L16 32" stroke="#dc1414" stroke-width="2" stroke-linecap="round"/></svg>
-        <div style="font-size:20px;font-weight:700;margin-bottom:8px;">Access Denied</div>
-        <div style="font-size:13px;color:#8888a0;margin-bottom:24px;max-width:340px;">Yeh lab sirf CTF platform ke through accessible hai.<br>Start button dabao aur tab lab khuleg.</div>
-        <a href="/" onclick="sessionStorage.removeItem('acx_lab_token_web-01')" style="background:#dc1414;color:#fff;border:none;border-radius:8px;padding:12px 28px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;">CTF Platform Par Jao</a>
-      </div>`;
-    return;
+    // Defer DOM replacement until after scripts load to avoid errors
+    window.addEventListener('DOMContentLoaded', function() {
+      document.body.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#07070f;font-family:'Inter',sans-serif;color:#fff;text-align:center;padding:24px;">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:20px;"><circle cx="24" cy="24" r="20" stroke="#dc1414" stroke-width="1.8"/><path d="M16 16l16 16M32 16L16 32" stroke="#dc1414" stroke-width="2" stroke-linecap="round"/></svg>
+          <div style="font-size:20px;font-weight:700;margin-bottom:8px;">Access Denied</div>
+          <div style="font-size:13px;color:#8888a0;margin-bottom:24px;max-width:340px;">Yeh lab sirf CTF platform ke through accessible hai.<br>Start button dabao aur tab lab khulegi.</div>
+          <a href="/" style="background:#dc1414;color:#fff;border:none;border-radius:8px;padding:12px 28px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;">CTF Platform Par Jao</a>
+        </div>`;
+    }, { once: true });
+    return false;
   }
 
-  // Valid token — clean the URL (remove token from address bar)
-  try {
-    const cleanUrl = window.location.pathname;
-    history.replaceState(null, '', cleanUrl);
-  } catch(e) {}
+  // Valid token — clean URL (remove token from address bar)
+  try { history.replaceState(null, '', window.location.pathname); } catch(e) {}
+  // Clean up old token so replay attacks don't work
+  try { sessionStorage.removeItem('acx_lab_token_' + challengeId); } catch(e) {}
+  return true;
 })();
 
-const SESSION_ID = 'sess_' + Math.random().toString(36).substring(2,10);
+const SESSION_ID = (function() {
+  try {
+    let sid = sessionStorage.getItem('acx_lab_hidden_session');
+    if (!sid) {
+      sid = 'sess_' + Math.random().toString(36).substring(2, 10);
+      sessionStorage.setItem('acx_lab_hidden_session', sid);
+    }
+    return sid;
+  } catch (e) {
+    return 'sess_' + Math.random().toString(36).substring(2, 10);
+  }
+})();
 const BASE = window.location.origin;
+
+// iframe <src> can't carry custom headers, so the lab session id is passed as
+// a query param here. The server checks this as a fallback to the
+// X-Lab-Session header so the iframe-rendered page and this page's own
+// fetch() calls (status polling, restart, submit) resolve to the same
+// server-side instance instead of the iframe silently falling back to
+// req.ip and tracking a completely different session.
+document.getElementById('siteFrame').src = `/api/lab/hidden/page?session=${encodeURIComponent(SESSION_ID)}`;
 let sourceLoaded = false;
 let sourceVisible = false;
 let isRunning = false;
@@ -424,6 +462,9 @@ function storeLabOriginals() {
 }
 
 function restoreLabTranslation() {
+  // If nothing has been translated yet, original content is already showing —
+  // this is a no-op, not a failure. Don't bail silently in a way that looks
+  // like the function did nothing on purpose; just confirm there's nothing to do.
   if (!_labOriginals) return;
   LAB_TRANSLATE_BOXES.forEach(id => {
     const el = document.getElementById(id);
@@ -437,7 +478,10 @@ async function applyLabTranslation(lang) {
   const langName = (typeof LANG_NAMES !== 'undefined' && LANG_NAMES[lang]) || lang;
   for (const id of LAB_TRANSLATE_BOXES) {
     const el = document.getElementById(id);
-    if (!el || !_labOriginals[id]) continue;
+    // Use undefined-check, not truthiness — an originally-empty box ('') is
+    // still a valid stored original and shouldn't be skipped, otherwise that
+    // box is left untranslated while the others change (partial restore/translate).
+    if (!el || _labOriginals[id] === undefined) continue;
     const translated = await doTranslate(_labOriginals[id], lang, langName, 'lab_hidden_' + id + '_' + lang);
     injectTranslated(el, translated);
   }
@@ -447,7 +491,6 @@ function ts() { return new Date().toTimeString().substring(0,8); }
 function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 function completeObj(id) {
-  // Objectives card removed — no-op (safe fallback)
   const el = document.getElementById(id);
   if (el && !el.classList.contains('done')) el.classList.add('done');
 }
@@ -545,32 +588,50 @@ function stopChallenge() {
 }
 
 async function restartInstance() {
+  const btn = document.querySelector('.expired-restart-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Restarting...'; }
+
   try {
     const res = await fetch(`${BASE}/api/lab/hidden/instance/restart`, {
       method: 'POST',
       headers: { 'X-Lab-Session': SESSION_ID }
     });
+
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+
     const data = await res.json();
-    applyInstanceStatus(data);
     solvedShown = false;
+    sourceLoaded = false;
     document.getElementById('expiredOverlay').classList.remove('show');
     document.getElementById('flagBox').classList.remove('show');
 
+    // Reset submit UI
+    const inp = document.getElementById('labFlagInput');
+    const res2 = document.getElementById('labSubmitResult');
+    const sbtn = document.getElementById('labSubmitBtn');
+    if (inp) { inp.value = ''; inp.className = 'flag-input'; }
+    if (res2) { res2.textContent = ''; res2.className = 'submit-result'; }
+    if (sbtn) { sbtn.disabled = false; sbtn.textContent = 'Submit'; }
+
     // Reset objectives
     for (let i = 1; i <= 5; i++) {
-      const el = document.getElementById('obj'+i);
+      const el = document.getElementById('obj' + i);
       if (el) el.classList.remove('done');
     }
 
-    addLog('POST', '/api/lab/hidden/instance/restart', 'ok', 'ok');
-
+    addLog('POST', '/api/lab/hidden/instance/restart', res.status, 'ok');
     if (!isRunning) startChallenge();
 
-    // Reload iframe to get fresh page
-    document.getElementById('siteFrame').src = `/api/lab/hidden/page?_=${Date.now()}`;
-    sourceLoaded = false;
+    // Reload iframe with fresh page
+    document.getElementById('siteFrame').src = `/api/lab/hidden/page?session=${encodeURIComponent(SESSION_ID)}&_=${Date.now()}`;
+
   } catch(err) {
     addLog('POST', '/api/lab/hidden/instance/restart', 'ERR', 'err');
+    // Show error inside expired overlay
+    const desc = document.querySelector('.expired-desc');
+    if (desc) desc.textContent = 'Restart failed: ' + err.message + ' — Please refresh the page.';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Restart Instance'; }
   }
 }
 
@@ -592,6 +653,27 @@ async function loadSource() {
   } catch (err) {
     document.getElementById('sourceBody').textContent = 'Error loading source: ' + err.message;
   }
+
+  // Recon continues: check robots.txt-disallowed /internal/ path for the
+  // HTTP header part, and the linked JS file for the hex-encoded part.
+  // These run alongside the source fetch so obj3/obj4 reflect real recon
+  // instead of being rubber-stamped on flag submit.
+  try {
+    const internalRes = await fetch(`${BASE}/api/lab/hidden/internal/`, { headers: { 'X-Lab-Session': SESSION_ID } });
+    addLog('GET', '/api/lab/hidden/internal/', internalRes.status, 'warn');
+    if (internalRes.headers.get('X-Debug-Token')) completeObj('obj3');
+  } catch (err) {
+    addLog('GET', '/api/lab/hidden/internal/', 'ERR', 'err');
+  }
+
+  try {
+    const jsRes = await fetch(`${BASE}/api/lab/hidden/static/portal.js`, { headers: { 'X-Lab-Session': SESSION_ID } });
+    const jsText = await jsRes.text();
+    addLog('GET', '/api/lab/hidden/static/portal.js', jsRes.status, 'ok');
+    if (/0x[0-9a-f]{16,}/i.test(jsText)) completeObj('obj4');
+  } catch (err) {
+    addLog('GET', '/api/lab/hidden/static/portal.js', 'ERR', 'err');
+  }
 }
 
 function toggleSource() {
@@ -602,10 +684,20 @@ function toggleSource() {
 }
 
 async function submitFlag(flagVal) {
-  const flag = flagVal || '';
-  const resultEl = { textContent: '', className: '' }; // dummy, submit is in modal
+  if (!_labAccessGranted) return;
+  const flag = (flagVal || '').trim();
 
-  if (!flag) { resultEl.textContent = 'Flag field is empty.'; resultEl.className = 'submit-result err'; return; }
+  const resultEl = document.getElementById('labSubmitResult');
+  const submitBtn = document.getElementById('labSubmitBtn');
+  const inp = document.getElementById('labFlagInput');
+
+  if (!flag) {
+    if (resultEl) { resultEl.textContent = 'Flag field khali hai.'; resultEl.className = 'submit-result err'; }
+    return;
+  }
+
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Checking...'; }
+  if (resultEl) { resultEl.className = 'submit-result'; resultEl.textContent = ''; }
 
   addLog('POST', '/api/lab/hidden/submit', '...', 'warn');
 
@@ -620,12 +712,16 @@ async function submitFlag(flagVal) {
     addLog('POST', '/api/lab/hidden/submit', res.status, res.ok ? 'ok' : 'err');
 
     if (res.ok && data.success) {
-      completeObj('obj3'); completeObj('obj4'); completeObj('obj5');
-      resultEl.textContent = data.message;
-      resultEl.className = 'submit-result ok';
+      // obj3/obj4 are normally completed by real recon in loadSource(); these
+      // calls are a safety net for a student who found the parts via Burp/
+      // DevTools directly without clicking "View Source" in this UI.
+      completeObj('obj2'); completeObj('obj3'); completeObj('obj4'); completeObj('obj5');
+      if (resultEl) { resultEl.textContent = '✓ ' + data.message; resultEl.className = 'submit-result ok'; }
+      if (inp) inp.classList.add('flag-correct');
       document.getElementById('flagBox').classList.add('show');
       document.getElementById('flagValue').textContent = data.flag;
 
+      // Save solved to localStorage so modal can sync
       try {
         const raw = localStorage.getItem('acx_ctf_solved');
         const solved = raw ? JSON.parse(raw) : {};
@@ -633,34 +729,38 @@ async function submitFlag(flagVal) {
           solved['web-01'] = { xp: 100, solvedAt: new Date().toISOString() };
           localStorage.setItem('acx_ctf_solved', JSON.stringify(solved));
         }
-      } catch (e) {}
+      } catch(e) {}
 
-      const statusData = await fetchInstanceStatus();
-      applyInstanceStatus(statusData);
+      if (!solvedShown) { solvedShown = true; showSolvedPopup(); }
+
     } else {
-      resultEl.textContent = data.message || 'Wrong flag.';
-      resultEl.className = 'submit-result err';
+      if (resultEl) { resultEl.textContent = '[X] ' + (data.message || 'Wrong flag. Dobara try karo.'); resultEl.className = 'submit-result err'; }
+      if (inp) { inp.classList.add('flag-wrong'); setTimeout(() => inp && inp.classList.remove('flag-wrong'), 600); }
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
     }
-  } catch (err) {
-    resultEl.textContent = 'Request failed: ' + err.message;
-    resultEl.className = 'submit-result err';
+  } catch(err) {
+    if (resultEl) { resultEl.textContent = 'Request failed: ' + err.message; resultEl.className = 'submit-result err'; }
     addLog('POST', '/api/lab/hidden/submit', 'ERR', 'err');
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
   }
 }
 
-// flagInput moved to modal
+// flagInput moved to lab page submit panel
 
 document.getElementById('siteFrame').addEventListener('load', () => {
+  if (!_labAccessGranted) return;
   completeObj('obj1');
   addLog('GET', '/api/lab/hidden/page', '200', 'ok');
 });
 
 // Auto-start challenge on page load (user already clicked Start in modal)
-(async () => {
-  startChallenge();
-  const data = await fetchInstanceStatus();
-  applyInstanceStatus(data);
-})();
+if (_labAccessGranted) {
+  (async () => {
+    startChallenge();
+    const data = await fetchInstanceStatus();
+    applyInstanceStatus(data);
+  })();
+}
 </script>
 </body>
 </html>

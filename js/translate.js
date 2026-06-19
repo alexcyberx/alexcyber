@@ -316,7 +316,7 @@ async function applyCTFTranslation(lang) {
     if (typeof ctfCurrentChallenge !== 'undefined' && ctfCurrentChallenge) {
       const descEl = document.getElementById('modalDesc');
       const titleEl = document.getElementById('modalTitle');
-      const tr = translated[ctfCurrentChallenge.id];
+      const tr = cached[ctfCurrentChallenge.id];
       if (tr && descEl) descEl.textContent = tr.desc || ctfCurrentChallenge.desc;
       if (tr && titleEl) titleEl.textContent = tr.title || ctfCurrentChallenge.title;
     }

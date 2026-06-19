@@ -42,13 +42,13 @@ function getInstanceStatus(sessionId) {
 
 // GET /api/lab/hidden/instance/status
 router.get('/instance/status', (req, res) => {
-  const sessionId = req.headers['x-lab-session'] || req.ip;
+  const sessionId = req.headers['x-lab-session'] || req.query.session || req.ip;
   res.json(getInstanceStatus(sessionId));
 });
 
 // POST /api/lab/hidden/instance/restart
 router.post('/instance/restart', (req, res) => {
-  const sessionId = req.headers['x-lab-session'] || req.ip;
+  const sessionId = req.headers['x-lab-session'] || req.query.session || req.ip;
   resetInstance(sessionId);
   logAttempt('HIDDEN', req.ip, 'instance_restart', 'ok');
   res.json({ success: true, ...getInstanceStatus(sessionId) });
@@ -56,7 +56,15 @@ router.post('/instance/restart', (req, res) => {
 
 // GET /api/lab/hidden/page
 // Returns the target site HTML with 3 base64 strings in comments — only one is real
+// Session resolution order: X-Lab-Session header (used by fetch() calls) ->
+// ?session= query param (used by the <iframe src> load, which cannot set
+// custom headers) -> req.ip as a last resort. Without the query-param
+// fallback, the iframe's page load and the lab page's own status/restart/
+// submit calls (which DO send the header) would resolve to two different
+// session buckets server-side, breaking instance status sync.
 router.get('/page', (req, res) => {
+  const sessionId = req.headers['x-lab-session'] || req.query.session || req.ip;
+  getOrCreateInstance(sessionId);
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -184,7 +192,7 @@ router.get('/static/portal.js', (req, res) => {
 // POST /api/lab/hidden/submit
 router.post('/submit', flagLimiter, async (req, res) => {
   const { flag } = req.body;
-  const session_id = req.headers['x-lab-session'] || req.ip;
+  const session_id = req.headers['x-lab-session'] || req.query.session || req.ip;
   const ip         = req.ip;
 
   if (!flag) return res.status(400).json({ error: 'No flag provided' });
