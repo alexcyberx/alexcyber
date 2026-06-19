@@ -545,10 +545,22 @@ async function saveProfile() {
     if (event === 'SIGNED_IN'  && session) {
       closeAuth();
       await loadUserProfile(session.user);
+      // Re-anchor lab session to the newly signed-in user so instance
+      // state is per-user, not per-IP or per-page-load.
+      if (typeof ctfInitUserSession === 'function') ctfInitUserSession();
       // Redirect to pending page if set (e.g. learn page after course click)
       consumePendingRedirect();
     }
-    if (event === 'SIGNED_OUT' && window._currentUser) { window._currentUser = null; clearProfileFields(); updateNavForUser(null); }
+    if (event === 'SIGNED_OUT' && window._currentUser) {
+      window._currentUser = null;
+      clearProfileFields();
+      updateNavForUser(null);
+      // Reset lab session to a fresh anonymous token on logout so a
+      // new login on the same browser gets a clean session.
+      if (typeof ctfLabSession !== 'undefined') {
+        window.ctfLabSession = 'sess_' + Math.random().toString(36).substring(2, 10);
+      }
+    }
     if (event === 'USER_UPDATED' && session) { await loadUserProfile(session.user); }
   });
 })();

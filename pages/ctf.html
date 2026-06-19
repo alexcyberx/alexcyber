@@ -554,7 +554,21 @@ let ctfCurrentChallenge = null;
 let ctfHintVisible = false;
 let ctfActiveTab = null;
 let ctfTimerPoll = null;
+// Session must be tied to logged-in user ID so instance state is
+// per-user, not per-page-load or per-IP.  We initialise to a random
+// fallback and replace it with the real user-id as soon as the auth
+// state is known (see ctfInitUserSession below).
 let ctfLabSession = 'sess_' + Math.random().toString(36).substring(2, 10);
+
+function ctfInitUserSession() {
+  const uid = window._currentUser?.id;
+  if (uid) {
+    // Stable, user-scoped session key.  Prefixed so it never collides
+    // with the old random keys that may still live in the server's
+    // in-memory map.
+    ctfLabSession = 'usr_' + uid;
+  }
+}
 
 function ctfLabApiBase(c) {
   const m = (c.lab_url || '').match(/lab-([a-z0-9]+)\.html/i);
@@ -691,6 +705,7 @@ function ctfPollInstanceTimer(c) {
 
 /* ── INIT ── */
 function initCTFPage() {
+  ctfInitUserSession(); // must run first so all API calls use user-scoped session
   loadCTFSolvedFromStorage();
   ctfRender();
   updateCTFStats();
