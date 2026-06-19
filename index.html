@@ -2024,32 +2024,42 @@ function openCTFModal(id) {
   }
 
   // Restore lab state if challenge was already running
+  // Ab same-tab navigation hai, toh ctfLabState mein state nahi hogi (page reload ho jaata hai)
+  // sessionStorage mein acx_lab_active_<id> check karo — yahi real source of truth hai
   if (typeof ctfTimerPoll !== 'undefined' && ctfTimerPoll) { clearInterval(ctfTimerPoll); ctfTimerPoll = null; }
   const startWrap = document.getElementById('ctfStartWrap');
   const runningWrap = document.getElementById('ctfRunningWrap');
   const timerRow = document.getElementById('ctfTimerRow');
+
+  // Check karo ki lab active hai (sessionStorage se)
+  const labIsActive = (() => {
+    try { return sessionStorage.getItem('acx_lab_active_' + id) === '1'; } catch(e) { return false; }
+  })();
+  // Fallback: in-memory state (jab modal same page session mein close/reopen ho)
   const labState = ctfLabState && ctfLabState[id];
-  if (labState && labState.running) {
-    // Lab was running - show Restart+ViewLab, hide Start
+  const isLabRunning = labIsActive || (labState && labState.running);
+
+  if (isLabRunning) {
+    // Lab chal rahi hai — Restart + ViewLab dikhao, Start chupaao
     if (startWrap) startWrap.style.display = 'none';
     if (runningWrap) runningWrap.style.display = 'block';
     if (timerRow) timerRow.classList.add('show');
     const tv = document.getElementById('ctfTimerVal');
-    if (tv && labState.timerVal) tv.textContent = labState.timerVal;
-    // Resume countdown from saved time
-    if (labState.timerVal) {
-      const parts = labState.timerVal.split(':');
-      let secs = parseInt(parts[0])*60 + parseInt(parts[1]);
-      if (secs > 0) {
-        ctfTimerPoll = setInterval(() => {
-          secs--;
-          const m = String(Math.floor(secs/60)).padStart(2,'0');
-          const s = String(secs%60).padStart(2,'0');
-          const t = document.getElementById('ctfTimerVal');
-          if (t) { t.textContent = m+':'+s; t.className='ctf-timer-val'+(secs<=300?' danger':secs<=600?' warn':''); }
-          if (secs<=0){clearInterval(ctfTimerPoll);ctfTimerPoll=null;}
-        }, 1000);
-      }
+    // Timer value: in-memory se lena try karo, warna 30:00 default
+    const savedTimer = (labState && labState.timerVal) || '30:00';
+    if (tv) tv.textContent = savedTimer;
+    // Resume countdown
+    const parts = savedTimer.split(':');
+    let secs = parseInt(parts[0])*60 + parseInt(parts[1]);
+    if (secs > 0) {
+      ctfTimerPoll = setInterval(() => {
+        secs--;
+        const m = String(Math.floor(secs/60)).padStart(2,'0');
+        const s = String(secs%60).padStart(2,'0');
+        const t = document.getElementById('ctfTimerVal');
+        if (t) { t.textContent = m+':'+s; t.className='ctf-timer-val'+(secs<=300?' danger':secs<=600?' warn':''); }
+        if (secs<=0){clearInterval(ctfTimerPoll);ctfTimerPoll=null;}
+      }, 1000);
     }
   } else {
     // Fresh start
@@ -2072,8 +2082,8 @@ function openCTFModal(id) {
     solvedBadge.style.display = 'block';
     document.getElementById('solvedXpLabel').textContent = `+${ctfSolved[id]?.xp || c.xp} XP earned`;
   } else {
-    // Show flag if: no lab, OR lab already running
-    const showFlag = !c.labUrl || (labStateNow && labStateNow.running);
+    // Show flag if: no lab, OR lab already running (sessionStorage se check)
+    const showFlag = !c.labUrl || isLabRunning;
     flagSection.style.display = showFlag ? 'block' : 'none';
     solvedBadge.style.display = 'none';
     const inp = document.getElementById('ctfFlagInput');
@@ -2150,6 +2160,8 @@ async function ctfStartInstance(c) {
 
   // Token-protected URL generate karo
   const labUrl = getLabUrlWithToken(c);
+
+  // Naye tab mein kholo
   ctfActiveTab = window.open(labUrl, '_blank');
 
   // Start countdown timer
@@ -2318,37 +2330,65 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeCTFModal();
 });
 
-/* ── AUTO-OPEN MODAL: when user comes back from a lab page ── */
+/* ── AUTO-OPEN MODAL: when user clicks Labs/back from lab tab ── */
+/* Lab alag tab mein hai, toh sessionStorage share nahi hota.
+   localStorage + 'storage' event se cross-tab communicate karo. */
 (function autoOpenFromReturn() {
-  const returnId = sessionStorage.getItem('ctf_return_id');
-  if (!returnId) return;
-  sessionStorage.removeItem('ctf_return_id');
-
   let opened = false;
-  function tryOpen(attempts) {
-    if (opened) return;
-    const c = (window.CTF_CHALLENGES || []).find(x => x.id === returnId);
-    const overlay = document.getElementById('ctfModalOverlay');
-    const ctfPageEl = document.getElementById('ctfPage');
-    const ctfPageActive = ctfPageEl && ctfPageEl.classList.contains('active');
-    if (c && overlay && ctfPageActive) {
-      opened = true;
-      setTimeout(() => openCTFModal(returnId), 200);
-    } else if (c && overlay && typeof showPage === 'function' && window._currentUser) {
-      // Auth already resolved but page not yet flipped to ctf — drive it ourselves.
-      showPage('ctf', true);
-      if (attempts > 0) setTimeout(() => tryOpen(attempts - 1), 300);
-    } else if (attempts > 0) {
-      setTimeout(() => tryOpen(attempts - 1), 300);
+
+  function tryOpenModal(returnId) {
+    if (opened || !returnId) return;
+    function tryOpen(attempts) {
+      if (opened) return;
+      const c = (window.CTF_CHALLENGES || []).find(x => x.id === returnId);
+      const overlay = document.getElementById('ctfModalOverlay');
+      const ctfPageEl = document.getElementById('ctfPage');
+      const ctfPageActive = ctfPageEl && ctfPageEl.classList.contains('active');
+      if (c && overlay && ctfPageActive) {
+        opened = true;
+        setTimeout(() => openCTFModal(returnId), 200);
+      } else if (c && overlay && typeof showPage === 'function' && window._currentUser) {
+        showPage('ctf', true);
+        if (attempts > 0) setTimeout(() => tryOpen(attempts - 1), 300);
+      } else if (attempts > 0) {
+        setTimeout(() => tryOpen(attempts - 1), 300);
+      }
     }
+    document.addEventListener('acx:ctf-page-shown', () => tryOpen(15), { once: true });
+    setTimeout(() => tryOpen(15), 400);
   }
 
-  // Primary path: fired once auth.js has actually shown the CTF page.
-  document.addEventListener('acx:ctf-page-shown', () => tryOpen(15), { once: true });
+  // Case 1: Lab tab ne localStorage mein signal daala — storage event se pakdo
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'acx_return_to_modal' && e.newValue) {
+      const returnId = e.newValue;
+      // Stale signal ignore karo (5 second se purana)
+      try {
+        const ts = parseInt(localStorage.getItem('acx_return_ts') || '0');
+        if (Date.now() - ts > 5000) return;
+      } catch(ex) {}
+      try { localStorage.removeItem('acx_return_to_modal'); localStorage.removeItem('acx_return_ts'); } catch(ex) {}
+      tryOpenModal(returnId);
+    }
+  });
 
-  // Fallback path: in case auth state resolved before this listener was attached,
-  // or the event never fires for some other reason — bounded retry poll.
-  setTimeout(() => tryOpen(15), 400);
+  // Case 2: Same-tab navigation fallback (sessionStorage)
+  const returnId = sessionStorage.getItem('ctf_return_id');
+  if (returnId) {
+    sessionStorage.removeItem('ctf_return_id');
+    tryOpenModal(returnId);
+  }
+
+  // Case 3: Page load par check karo — agar localStorage mein fresh signal hai
+  try {
+    const lsId = localStorage.getItem('acx_return_to_modal');
+    const ts = parseInt(localStorage.getItem('acx_return_ts') || '0');
+    if (lsId && (Date.now() - ts < 5000)) {
+      localStorage.removeItem('acx_return_to_modal');
+      localStorage.removeItem('acx_return_ts');
+      tryOpenModal(lsId);
+    }
+  } catch(ex) {}
 })();
 </script>
 </div>

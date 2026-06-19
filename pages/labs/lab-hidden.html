@@ -136,7 +136,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .view-source-btn:hover{background:rgba(99,179,237,0.15);}
 .lang-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--white);padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
 .lang-btn:hover{background:rgba(255,255,255,0.08);}
-.site-frame{width:100%;height:500px;border:none;background:#fff;display:block;overflow:hidden;}
+.site-frame{width:100%;height:calc(100vh - 140px);min-height:600px;border:none;background:#fff;display:block;}
 
 .source-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;display:none;}
 .source-panel.visible{display:block;}
@@ -185,7 +185,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .log-status.warn{color:var(--orange);}
 .log-time{color:#2a2a44;text-align:right;}
 
-@media(max-width:780px){.lab-wrap{grid-template-columns:1fr;}.topbar-title{display:none;}.site-frame{height:auto;min-height:300px;}}
+@media(max-width:780px){.lab-wrap{grid-template-columns:1fr;}.topbar-title{display:none;}.site-frame{height:220px;}}
 </style>
 </head>
 <body id="labBody">
@@ -217,7 +217,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 
 <div class="topbar">
   <div class="topbar-left">
-    <a class="back-link" href="#" onclick="sessionStorage.setItem('ctf_return_id','web-01');sessionStorage.setItem('acx_pending_redirect','ctf');window.location.href='/'">
+    <a class="back-link" href="#" onclick="labGoBack(); return false;">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Labs
     </a>
@@ -314,7 +314,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
           </button>
         </div>
       </div>
-      <iframe class="site-frame" id="siteFrame" src="" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
+      <iframe class="site-frame" id="siteFrame" src="" sandbox="allow-same-origin allow-scripts"></iframe>
     </div>
 
 
@@ -335,7 +335,19 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
       </div>
     </div>
 
-    <!-- Submit Flag panel removed — lives in the modal pop-up only -->
+    <!-- Submit panel — real UI on lab page -->
+    <div class="submit-panel" id="labSubmitPanel">
+      <div class="card-head" style="border-bottom:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;gap:8px;">
+        <div class="card-head-dot"></div><span class="card-head-title">Submit Flag</span>
+      </div>
+      <div class="submit-body">
+        <div class="submit-row">
+          <input type="text" class="flag-input" id="labFlagInput" placeholder="ACX{your_flag_here}" autocomplete="off" onkeydown="if(event.key==='Enter')submitFlag(this.value)">
+          <button class="submit-btn" id="labSubmitBtn" onclick="submitFlag(document.getElementById('labFlagInput').value)">Submit</button>
+        </div>
+        <div class="submit-result" id="labSubmitResult"></div>
+      </div>
+    </div>
 
     <div class="req-log">
       <div class="req-log-head"><span class="req-log-title">Request Log</span><button class="req-log-clear" onclick="clearLog()">Clear</button></div>
@@ -374,33 +386,56 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 <script>
 /* ── ACCESS TOKEN VALIDATION ──
    Lab sirf tab accessible hai jab modal se Start button daba ke aaya ho.
-   Direct URL se access karne par user wapas CTF page par redirect hoga. */
+   Direct URL se access block hai — lekin tab open rehne tak refresh allow hai.
+
+   Flow:
+   1. Pehli baar: URL mein acx_token aata hai (modal ne diya) + sessionStorage mein match hota hai → valid
+      - Token URL se hata do (clean URL), lekin sessionStorage mein RAKHO taaki refresh kaam kare
+      - acx_lab_active_<id> = '1' set karo — yahi "tab active hai" ka signal hai
+
+   2. Refresh: URL mein token nahi hoga, lekin acx_lab_active_<id> sessionStorage mein hai → valid
+      (sessionStorage tab close hone par khud delete ho jaata hai — yahi real CTF behaviour hai)
+
+   3. Direct URL (dusra tab/window): na token URL mein, na active flag → Access Denied ✓
+
+   4. Flag submit / instance expire par: acx_lab_active_<id> delete karo → refresh pe Denied ✓
+*/
+const _labChallengeId = 'web-01';
+const _labActiveKey = 'acx_lab_active_' + _labChallengeId;
+
 const _labAccessGranted = (function validateLabAccess() {
   const params = new URLSearchParams(window.location.search);
   const urlToken = params.get('acx_token');
-  const challengeId = 'web-01';
-  const storedToken = (() => { try { return sessionStorage.getItem('acx_lab_token_' + challengeId); } catch(e) { return null; } })();
+  const storedToken = (() => { try { return sessionStorage.getItem('acx_lab_token_' + _labChallengeId); } catch(e) { return null; } })();
+  const isActive = (() => { try { return sessionStorage.getItem(_labActiveKey) === '1'; } catch(e) { return false; } })();
 
-  // Token must match what was generated in the modal
-  if (!urlToken || !storedToken || urlToken !== storedToken) {
-    // Defer DOM replacement until after scripts load to avoid errors
-    window.addEventListener('DOMContentLoaded', function() {
-      document.body.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#07070f;font-family:'Inter',sans-serif;color:#fff;text-align:center;padding:24px;">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:20px;"><circle cx="24" cy="24" r="20" stroke="#dc1414" stroke-width="1.8"/><path d="M16 16l16 16M32 16L16 32" stroke="#dc1414" stroke-width="2" stroke-linecap="round"/></svg>
-          <div style="font-size:20px;font-weight:700;margin-bottom:8px;">Access Denied</div>
-          <div style="font-size:13px;color:#8888a0;margin-bottom:24px;max-width:340px;">Yeh lab sirf CTF platform ke through accessible hai.<br>Start button dabao aur tab lab khulegi.</div>
-          <a href="/" style="background:#dc1414;color:#fff;border:none;border-radius:8px;padding:12px 28px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;">CTF Platform Par Jao</a>
-        </div>`;
-    }, { once: true });
-    return false;
+  // Case 1: Fresh launch — URL token matches sessionStorage token
+  if (urlToken && storedToken && urlToken === storedToken) {
+    // Mark this tab as active (survives refresh, dies when tab closes)
+    try { sessionStorage.setItem(_labActiveKey, '1'); } catch(e) {}
+    // Token can now be removed from sessionStorage (active flag replaces it)
+    try { sessionStorage.removeItem('acx_lab_token_' + _labChallengeId); } catch(e) {}
+    // Clean token from URL bar
+    try { history.replaceState(null, '', window.location.pathname); } catch(e) {}
+    return true;
   }
 
-  // Valid token — clean URL (remove token from address bar)
-  try { history.replaceState(null, '', window.location.pathname); } catch(e) {}
-  // Clean up old token so replay attacks don't work
-  try { sessionStorage.removeItem('acx_lab_token_' + challengeId); } catch(e) {}
-  return true;
+  // Case 2: Refresh — tab was already active (sessionStorage survives F5)
+  if (isActive) {
+    return true;
+  }
+
+  // Case 3: Direct URL / different tab → Access Denied
+  window.addEventListener('DOMContentLoaded', function() {
+    document.body.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#07070f;font-family:'Inter',sans-serif;color:#fff;text-align:center;padding:24px;">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:20px;"><circle cx="24" cy="24" r="20" stroke="#dc1414" stroke-width="1.8"/><path d="M16 16l16 16M32 16L16 32" stroke="#dc1414" stroke-width="2" stroke-linecap="round"/></svg>
+        <div style="font-size:20px;font-weight:700;margin-bottom:8px;">Access Denied</div>
+        <div style="font-size:13px;color:#8888a0;margin-bottom:24px;max-width:340px;">Yeh lab sirf CTF platform ke through accessible hai.<br>Start button dabao aur tab lab khulegi.</div>
+        <a href="/" style="background:#dc1414;color:#fff;border:none;border-radius:8px;padding:12px 28px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;">CTF Platform Par Jao</a>
+      </div>`;
+  }, { once: true });
+  return false;
 })();
 
 const SESSION_ID = (function() {
@@ -530,6 +565,7 @@ function applyInstanceStatus(data) {
   if (!data.running) {
     if (isRunning) {
       stopChallenge();
+      invalidateLabSession(); // Real CTF: expire hone par refresh pe Access Denied
       const exp = document.getElementById('expiredOverlay');
       if (exp) exp.classList.add('show');
     }
@@ -709,6 +745,10 @@ async function submitFlag(flagVal) {
       document.getElementById('flagBox').classList.add('show');
       document.getElementById('flagValue').textContent = data.flag;
 
+      // Real CTF: flag submit par instance band — refresh pe Access Denied
+      if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+      invalidateLabSession();
+
       // Save solved to localStorage so modal can sync
       try {
         const raw = localStorage.getItem('acx_ctf_solved');
@@ -735,19 +775,35 @@ async function submitFlag(flagVal) {
 
 // flagInput lives in modal submit panel — lab page submit panel removed
 
+/* ── LAB SESSION HELPERS ── */
+// Back button: Lab tab band karo, CTF page ka main tab modal khol le
+// localStorage use karo — sessionStorage alag tab mein share nahi hota
+function labGoBack() {
+  try {
+    localStorage.setItem('acx_return_to_modal', _labChallengeId);
+    localStorage.setItem('acx_return_ts', Date.now().toString());
+  } catch(e) {}
+  // Lab tab band karo (ya home pe navigate karo agar tab close nahi ho sakta)
+  try {
+    window.close();
+    // Agar window.close() kaam nahi kiya (browser block kare), home par jao
+    setTimeout(() => { window.location.href = '/'; }, 300);
+  } catch(e) {
+    window.location.href = '/';
+  }
+}
+
+// Lab session invalidate karo (expire ya solve hone par)
+// Iske baad refresh pe Access Denied aayega — real CTF behaviour
+function invalidateLabSession() {
+  try { sessionStorage.removeItem(_labActiveKey); } catch(e) {}
+  try { sessionStorage.removeItem('acx_lab_hidden_session'); } catch(e) {}
+}
+
 document.getElementById('siteFrame').addEventListener('load', () => {
   if (!_labAccessGranted) return;
   completeObj('obj1');
   addLog('GET', '/api/lab/hidden/page', '200', 'ok');
-  // Auto-resize iframe to fit content (no scrollbar)
-  try {
-    const frame = document.getElementById('siteFrame');
-    const body = frame.contentDocument && frame.contentDocument.body;
-    if (body) {
-      const h = body.scrollHeight;
-      if (h && h > 100) frame.style.height = h + 'px';
-    }
-  } catch(e) {}
 });
 
 // Auto-start challenge on page load (user already clicked Start in modal)
