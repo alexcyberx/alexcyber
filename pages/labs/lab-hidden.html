@@ -777,32 +777,40 @@ async function submitFlag(flagVal) {
 
 /* ── LAB SESSION HELPERS ── */
 // Back button: Lab tab band karo, CTF page ka main tab modal khol le
-// localStorage use karo — sessionStorage alag tab mein share nahi hota
+// Lab se wapas main CTF page par jaana
 function labGoBack() {
-  try {
-    localStorage.setItem('acx_return_to_modal', _labChallengeId);
-    localStorage.setItem('acx_return_ts', Date.now().toString());
-  } catch(e) {}
-
-  // Strategy 1: window.opener available hai (lab opener tab hai) — focus karo
+  // Strategy 1: window.opener available (lab was opened via window.open from main tab)
+  // Directly call the opener's handler — no localStorage needed
   try {
     if (window.opener && !window.opener.closed) {
-      window.opener.focus();
+      if (typeof window.opener.acxLabReturn === 'function') {
+        window.opener.acxLabReturn(_labChallengeId);
+      } else {
+        window.opener.focus();
+      }
       window.close();
       return;
     }
   } catch(e) {}
 
-  // Strategy 2: window.close() try karo (works when tab was script-opened)
+  // Strategy 2: window.close() attempt (script-opened tab)
+  // Set localStorage signal BEFORE close so the still-open main tab's storage event fires
   try {
-    window.close();
+    localStorage.setItem('acx_return_to_modal', _labChallengeId);
+    localStorage.setItem('acx_return_ts', Date.now().toString());
   } catch(e) {}
+  try { window.close(); } catch(e) {}
 
-  // Strategy 3: window.close() fail hua — same tab mein main site pe jao
-  // acx_return_to_modal already set hai, consumePendingRedirect CTF page khol dega
+  // Strategy 3: Tab didn't close (mobile or user-opened tab)
+  // Use sessionStorage flag so the freshly-loaded page knows to go to CTF+modal
+  // Do NOT use acx_return_to_modal here — it causes stale modal on manual CTF click
   setTimeout(() => {
+    try {
+      sessionStorage.setItem('acx_back_to_ctf', _labChallengeId);
+      sessionStorage.setItem('acx_back_ts', Date.now().toString());
+    } catch(e) {}
     window.location.href = '/';
-  }, 300);
+  }, 350);
 }
 
 // Lab session invalidate karo (expire ya solve hone par)

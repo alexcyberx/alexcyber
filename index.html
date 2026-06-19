@@ -2330,69 +2330,101 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeCTFModal();
 });
 
-/* ── AUTO-OPEN MODAL: when user clicks Labs/back from lab tab ── */
-/* Lab alag tab mein hai, toh sessionStorage share nahi hota.
-   localStorage + 'storage' event se cross-tab communicate karo. */
+/* ════════════════════════════════════════════════════
+   AUTO-OPEN MODAL — lab se return pe modal reopen karo
+   Three channels, one handler:
+   A) window.opener.acxLabReturn()  — direct call (same-origin, opener tab)
+   B) localStorage 'storage' event  — cross-tab signal when tab closes
+   C) sessionStorage acx_back_to_ctf — same-tab redirect fallback (mobile)
+════════════════════════════════════════════════════ */
 (function autoOpenFromReturn() {
-  let opened = false;
+  let pendingReturnId = null; // set once, consumed once
+  let returnHandled = false;
 
-  function tryOpenModal(returnId) {
-    if (opened || !returnId) return;
+  // Core: CTF page show karo aur modal open karo
+  // Called only when we have a valid returnId and user is logged in
+  function doReturnToModal(returnId) {
+    if (returnHandled || !returnId) return;
+
     function tryOpen(attempts) {
-      if (opened) return;
+      if (returnHandled) return;
       const c = (window.CTF_CHALLENGES || []).find(x => x.id === returnId);
       const overlay = document.getElementById('ctfModalOverlay');
       const ctfPageEl = document.getElementById('ctfPage');
       const ctfPageActive = ctfPageEl && ctfPageEl.classList.contains('active');
-      if (c && overlay && ctfPageActive) {
-        opened = true;
-        setTimeout(() => openCTFModal(returnId), 200);
-      } else if (c && overlay && typeof showPage === 'function' && window._currentUser) {
-        // CTF page not active yet but user is logged in: navigate there
-        showPage('ctf', true);
+
+      if (!window._currentUser) {
+        // Auth not ready yet — wait
         if (attempts > 0) setTimeout(() => tryOpen(attempts - 1), 300);
-      } else if (!window._currentUser && attempts > 0) {
-        // Auth not resolved yet: keep waiting (initAuth is async)
-        setTimeout(() => tryOpen(attempts - 1), 400);
+        return;
+      }
+
+      if (c && overlay && ctfPageActive) {
+        returnHandled = true;
+        setTimeout(() => openCTFModal(returnId), 150);
+      } else if (c && overlay && typeof showPage === 'function') {
+        // Navigate to CTF page first
+        showPage('ctf');
+        if (attempts > 0) setTimeout(() => tryOpen(attempts - 1), 300);
       } else if (attempts > 0) {
         setTimeout(() => tryOpen(attempts - 1), 300);
       }
     }
-    // Listen for CTF page shown event (fired by consumePendingRedirect)
-    document.addEventListener('acx:ctf-page-shown', () => tryOpen(15), { once: true });
-    // Also start polling after a short delay in case event already fired
-    setTimeout(() => tryOpen(20), 600);
+
+    // Listen for CTF page shown event too (belt + suspenders)
+    document.addEventListener('acx:ctf-page-shown', function handler() {
+      if (returnHandled) return;
+      returnHandled = true;
+      setTimeout(() => openCTFModal(returnId), 150);
+    }, { once: true });
+
+    tryOpen(15);
   }
 
-  // Case 1: Lab tab ne localStorage mein signal daala — storage event se pakdo
+  // ── Channel A: Direct opener call ──
+  // Lab tab calls window.opener.acxLabReturn(id) directly
+  window.acxLabReturn = function(returnId) {
+    if (!returnId || returnHandled) return;
+    window.focus();
+    doReturnToModal(returnId);
+  };
+
+  // ── Channel B: Cross-tab localStorage signal ──
+  // Lab tab sets acx_return_to_modal then closes — storage event fires in THIS tab
   window.addEventListener('storage', function(e) {
-    if (e.key === 'acx_return_to_modal' && e.newValue) {
-      const returnId = e.newValue;
-      // Stale signal ignore karo (5 second se purana)
-      try {
-        const ts = parseInt(localStorage.getItem('acx_return_ts') || '0');
-        if (Date.now() - ts > 5000) return;
-      } catch(ex) {}
-      try { localStorage.removeItem('acx_return_to_modal'); localStorage.removeItem('acx_return_ts'); } catch(ex) {}
-      tryOpenModal(returnId);
-    }
+    if (e.key !== 'acx_return_to_modal' || !e.newValue) return;
+    const returnId = e.newValue;
+    try {
+      const ts = parseInt(localStorage.getItem('acx_return_ts') || '0');
+      if (Date.now() - ts > 6000) return; // stale signal
+    } catch(ex) {}
+    try { localStorage.removeItem('acx_return_to_modal'); localStorage.removeItem('acx_return_ts'); } catch(ex) {}
+    if (returnHandled) return;
+    doReturnToModal(returnId);
   });
 
-  // Case 2: Same-tab navigation fallback (sessionStorage)
-  const returnId = sessionStorage.getItem('ctf_return_id');
-  if (returnId) {
-    sessionStorage.removeItem('ctf_return_id');
-    tryOpenModal(returnId);
-  }
-
-  // Case 3: Page load par check karo — agar localStorage mein fresh signal hai
+  // ── Channel C: sessionStorage — same-tab redirect (mobile window.close() failed) ──
+  // Lab tab sets acx_back_to_ctf in sessionStorage then navigates to '/'
+  // This runs on fresh page load — initAuth will call consumePendingRedirect AFTER this
+  // So we just store the returnId; consumePendingRedirect will call doReturnToModal
   try {
-    const lsId = localStorage.getItem('acx_return_to_modal');
-    const ts = parseInt(localStorage.getItem('acx_return_ts') || '0');
-    if (lsId && (Date.now() - ts < 5000)) {
-      localStorage.removeItem('acx_return_to_modal');
-      localStorage.removeItem('acx_return_ts');
-      tryOpenModal(lsId);
+    const backId = sessionStorage.getItem('acx_back_to_ctf');
+    const backTs = parseInt(sessionStorage.getItem('acx_back_ts') || '0');
+    if (backId && (Date.now() - backTs < 10000)) {
+      sessionStorage.removeItem('acx_back_to_ctf');
+      sessionStorage.removeItem('acx_back_ts');
+      pendingReturnId = backId;
+      // Expose it so consumePendingRedirect can pick it up
+      window._acxPendingLabReturn = backId;
+    }
+  } catch(ex) {}
+
+  // Legacy: ctf_return_id sessionStorage (other labs)
+  try {
+    const legacyId = sessionStorage.getItem('ctf_return_id');
+    if (legacyId && !window._acxPendingLabReturn) {
+      sessionStorage.removeItem('ctf_return_id');
+      window._acxPendingLabReturn = legacyId;
     }
   } catch(ex) {}
 })();

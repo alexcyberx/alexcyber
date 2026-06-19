@@ -416,6 +416,21 @@ async function saveProfile() {
   } catch(e) {}
 
   const consumePendingRedirect = () => {
+    // Channel C (same-tab lab return): sessionStorage acx_back_to_ctf was set by lab tab
+    // autoOpenFromReturn IIFE already consumed it into window._acxPendingLabReturn
+    if (window._acxPendingLabReturn) {
+      const returnId = window._acxPendingLabReturn;
+      window._acxPendingLabReturn = null;
+      // Let acxLabReturn handle navigation + modal open (it knows CTF page state)
+      if (typeof window.acxLabReturn === 'function') {
+        window.acxLabReturn(returnId);
+      } else {
+        // Fallback: just go to CTF page
+        showPage('ctf');
+      }
+      return;
+    }
+
     if (window._pendingRedirect) {
       const redirect = window._pendingRedirect;
       window._pendingRedirect = null;
@@ -431,20 +446,6 @@ async function saveProfile() {
       window._initialPage = null;
       showPage(pg);
     } else {
-      // Check for lab-return signal before defaulting to home
-      // (handles same-tab navigate case when window.close() failed in lab tab)
-      try {
-        const lsId = localStorage.getItem('acx_return_to_modal');
-        const ts = parseInt(localStorage.getItem('acx_return_ts') || '0');
-        if (lsId && (Date.now() - ts < 8000)) {
-          // Signal is fresh: navigate to CTF page so autoOpenFromReturn can consume it
-          showPage('ctf');
-          if (document.getElementById('ctfPage') && document.getElementById('ctfPage').classList.contains('active')) {
-            document.dispatchEvent(new CustomEvent('acx:ctf-page-shown'));
-          }
-          return;
-        }
-      } catch(e) {}
       showPage('home');
     }
   };
