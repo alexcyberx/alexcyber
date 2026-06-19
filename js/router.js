@@ -81,10 +81,10 @@ window.addEventListener('popstate', function(e) {
 });
 
 function showPage(page, skipPush) {
-  // CTF page requires login - gate before rendering anything
-
-  if (page === 'ctf' && !window._currentUser) {
-    if (typeof showAuth === 'function') showAuth('login', 'ctf');
+  // Protected pages require login - gate before rendering anything
+  const _protectedPages = ['ctf', 'profile'];
+  if (_protectedPages.includes(page) && !window._currentUser) {
+    if (typeof showAuth === 'function') showAuth('login', page);
     return;
   }
 

@@ -276,8 +276,32 @@ async function doForgot() {
 /* ═══════════════════════════════════════════
    LOGOUT
 ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   CLEAR PROFILE FIELDS - call on logout / user switch
+   Prevents stale data from a previous session leaking into
+   the profile page when a different account logs in.
+═══════════════════════════════════════════ */
+function clearProfileFields() {
+  const fieldsToClear = [
+    'profileName', 'profileEmail', 'profileUsername', 'profileBio',
+    'profileNewPw', 'profileConfirmPw'
+  ];
+  fieldsToClear.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  // Clear display text too
+  const textsToClear = ['profileAvatarBig', 'profileDisplayName', 'profileDisplayEmail', 'profileMsg'];
+  textsToClear.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '';
+  });
+}
+
 async function doLogout() {
   if (_supabase) await _supabase.auth.signOut();
+  window._currentUser = null;
+  clearProfileFields();
   updateNavForUser(null);
   showPage('home');
 }
@@ -363,6 +387,10 @@ function updateNavForUser(user) {
     setText('profileDisplayEmail', user.email    || '');
     const fields = { profileName: user.name, profileEmail: user.email, profileUsername: user.username || '', profileBio: user.bio || '' };
     Object.entries(fields).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.value = val || ''; });
+  } else {
+    // User logged out — wipe all profile fields so no stale data shows
+    // if a different account logs in next on the same tab
+    if (typeof clearProfileFields === 'function') clearProfileFields();
   }
 }
 
@@ -520,7 +548,7 @@ async function saveProfile() {
       // Redirect to pending page if set (e.g. learn page after course click)
       consumePendingRedirect();
     }
-    if (event === 'SIGNED_OUT' && window._currentUser) { window._currentUser = null; updateNavForUser(null); }
+    if (event === 'SIGNED_OUT' && window._currentUser) { window._currentUser = null; clearProfileFields(); updateNavForUser(null); }
     if (event === 'USER_UPDATED' && session) { await loadUserProfile(session.user); }
   });
 })();
