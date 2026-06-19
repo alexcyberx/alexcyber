@@ -1243,8 +1243,8 @@ function declineCookies(){
 .ctf-hint-box.visible { display: block; }
 .ctf-hint-cost { font-size: 11px; color: var(--text-dim); }
 /* Launch button (Start) - small, inline, like original */
-.ctf-launch-btn { display:inline-flex; align-items:center; gap:8px; padding:9px 16px; background:var(--surface2); border:1px solid var(--border); border-radius:9px; color:var(--white); font-size:13px; font-weight:600; font-family:"Inter",sans-serif; cursor:pointer; text-decoration:none; margin-bottom:16px; transition:border-color 0.15s,background 0.15s; }
-.ctf-launch-btn:hover { border-color:rgba(255,255,255,0.3); background:var(--surface3,rgba(255,255,255,0.05)); }
+.ctf-launch-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; padding:12px 16px; background:#dc1414; border:none; border-radius:9px; color:#fff; font-size:13px; font-weight:700; font-family:"Inter",sans-serif; cursor:pointer; text-decoration:none; margin-bottom:16px; transition:background 0.15s; }
+.ctf-launch-btn:hover { background:#c01010; }
 .ctf-launch-icon { display:flex; align-items:center; justify-content:center; width:22px; height:22px; background:var(--white); border-radius:6px; flex-shrink:0; }
 .ctf-launch-icon svg path { fill:#07070f; }
 /* Restart button */
@@ -1440,9 +1440,9 @@ function declineCookies(){
       <div id="ctfStartWrap" style="margin-bottom:14px;">
         <a class="ctf-launch-btn" id="ctfLaunchBtn" href="#" onclick="return ctfLaunchClick(event)">
           <span class="ctf-launch-icon">
-            <svg width="11" height="11" viewBox="0 0 13 14" fill="none"><rect x="1" y="5" width="11" height="8" rx="1.5" stroke="#07070f" stroke-width="1.5"/><path d="M4 5V4a2.5 2.5 0 015 0v1" stroke="#07070f" stroke-width="1.5" stroke-linecap="round"/><circle cx="6.5" cy="9" r="1" fill="#07070f"/></svg>
+            <svg width="13" height="13" viewBox="0 0 13 14" fill="none"><rect x="1" y="5" width="11" height="8" rx="1.5" stroke="#fff" stroke-width="1.5"/><path d="M4 5V4a2.5 2.5 0 015 0v1" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="6.5" cy="9" r="1" fill="#fff"/></svg>
           </span>
-          <span id="ctfLaunchLabel">Start</span>
+          <span id="ctfLaunchLabel">Start Instance</span>
         </a>
 
       </div>
@@ -2031,9 +2031,18 @@ function openCTFModal(id) {
   const runningWrap = document.getElementById('ctfRunningWrap');
   const timerRow = document.getElementById('ctfTimerRow');
 
-  // Check karo ki lab active hai (sessionStorage se)
+  // Check karo ki lab active hai (localStorage se — refresh pe bhi survive karta hai)
   const labIsActive = (() => {
-    try { return sessionStorage.getItem('acx_lab_active_' + id) === '1'; } catch(e) { return false; }
+    try {
+      const d = JSON.parse(localStorage.getItem('acx_lab_active_' + id) || 'null');
+      if (!d) return false;
+      // Expiry check: agar 30 min se zyada ho gayi toh clear karo
+      if (Date.now() - d.startedAt > 30 * 60 * 1000) {
+        localStorage.removeItem('acx_lab_active_' + id);
+        return false;
+      }
+      return true;
+    } catch(e) { return false; }
   })();
   // Fallback: in-memory state (jab modal same page session mein close/reopen ho)
   const labState = ctfLabState && ctfLabState[id];
@@ -2045,12 +2054,22 @@ function openCTFModal(id) {
     if (runningWrap) runningWrap.style.display = 'block';
     if (timerRow) timerRow.classList.add('show');
     const tv = document.getElementById('ctfTimerVal');
-    // Timer value: in-memory se lena try karo, warna 30:00 default
-    const savedTimer = (labState && labState.timerVal) || '30:00';
+    // Timer value: localStorage se recover karo (refresh pe survive karta hai)
+    let savedSecs = 1800;
+    try {
+      const d = JSON.parse(localStorage.getItem('acx_lab_active_' + id) || 'null');
+      if (d && d.secsLeft > 0) {
+        // Actual elapsed time adjust karo
+        const elapsed = Math.floor((Date.now() - d.startedAt) / 1000);
+        savedSecs = Math.max(0, 1800 - elapsed);
+      }
+    } catch(e) {}
+    const mm = String(Math.floor(savedSecs/60)).padStart(2,'0');
+    const ss = String(savedSecs%60).padStart(2,'0');
+    const savedTimer = mm + ':' + ss;
     if (tv) tv.textContent = savedTimer;
     // Resume countdown
-    const parts = savedTimer.split(':');
-    let secs = parseInt(parts[0])*60 + parseInt(parts[1]);
+    let secs = savedSecs;
     if (secs > 0) {
       ctfTimerPoll = setInterval(() => {
         secs--;
@@ -2164,6 +2183,11 @@ async function ctfStartInstance(c) {
   // Naye tab mein kholo
   ctfActiveTab = window.open(labUrl, '_blank');
 
+  // localStorage mein lab active state save karo (refresh pe survive karta hai)
+  try {
+    localStorage.setItem('acx_lab_active_' + c.id, JSON.stringify({ startedAt: Date.now(), secsLeft: 1800 }));
+  } catch(e) {}
+
   // Start countdown timer
   let secs = 1800;
   if (ctfTimerPoll) clearInterval(ctfTimerPoll);
@@ -2176,7 +2200,16 @@ async function ctfStartInstance(c) {
       tv.textContent = m + ':' + s;
       tv.className = 'ctf-timer-val' + (secs <= 300 ? ' danger' : secs <= 600 ? ' warn' : '');
     }
-    if (secs <= 0) { clearInterval(ctfTimerPoll); ctfTimerPoll = null; }
+    // Timer bhi update karo localStorage mein
+    try {
+      const d = JSON.parse(localStorage.getItem('acx_lab_active_' + c.id) || 'null');
+      if (d) { d.secsLeft = secs; localStorage.setItem('acx_lab_active_' + c.id, JSON.stringify(d)); }
+    } catch(e) {}
+    if (secs <= 0) {
+      clearInterval(ctfTimerPoll); ctfTimerPoll = null;
+      // Timer expire — lab active state clear karo
+      try { localStorage.removeItem('acx_lab_active_' + c.id); } catch(e) {}
+    }
   }, 1000);
 }
 
@@ -2191,6 +2224,10 @@ function ctfRestartFromModal() {
   } else {
     ctfActiveTab = window.open(labUrl, '_blank');
   }
+  // Reset localStorage state on restart
+  try {
+    localStorage.setItem('acx_lab_active_' + c.id, JSON.stringify({ startedAt: Date.now(), secsLeft: 1800 }));
+  } catch(e) {}
   // Reset timer
   if (ctfTimerPoll) clearInterval(ctfTimerPoll);
   let secs = 1800;
@@ -2205,7 +2242,14 @@ function ctfRestartFromModal() {
       t.textContent = m + ':' + s;
       t.className = 'ctf-timer-val' + (secs <= 300 ? ' danger' : secs <= 600 ? ' warn' : '');
     }
-    if (secs <= 0) { clearInterval(ctfTimerPoll); ctfTimerPoll = null; }
+    try {
+      const d = JSON.parse(localStorage.getItem('acx_lab_active_' + c.id) || 'null');
+      if (d) { d.secsLeft = secs; localStorage.setItem('acx_lab_active_' + c.id, JSON.stringify(d)); }
+    } catch(e) {}
+    if (secs <= 0) {
+      clearInterval(ctfTimerPoll); ctfTimerPoll = null;
+      try { localStorage.removeItem('acx_lab_active_' + c.id); } catch(e) {}
+    }
   }, 1000);
 }
 
