@@ -136,7 +136,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .view-source-btn:hover{background:rgba(99,179,237,0.15);}
 .lang-btn{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--white);padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
 .lang-btn:hover{background:rgba(255,255,255,0.08);}
-.site-frame{width:100%;height:calc(100vh - 140px);min-height:600px;border:none;background:#fff;display:block;}
+.site-frame{width:100%;height:500px;border:none;background:#fff;display:block;overflow:hidden;}
 
 .source-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;display:none;}
 .source-panel.visible{display:block;}
@@ -185,7 +185,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .log-status.warn{color:var(--orange);}
 .log-time{color:#2a2a44;text-align:right;}
 
-@media(max-width:780px){.lab-wrap{grid-template-columns:1fr;}.topbar-title{display:none;}.site-frame{height:220px;}}
+@media(max-width:780px){.lab-wrap{grid-template-columns:1fr;}.topbar-title{display:none;}.site-frame{height:auto;min-height:300px;}}
 </style>
 </head>
 <body id="labBody">
@@ -217,7 +217,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 
 <div class="topbar">
   <div class="topbar-left">
-    <a class="back-link" href="/" onclick="sessionStorage.setItem('ctf_return_id','web-01');sessionStorage.setItem('acx_pending_redirect','ctf')">
+    <a class="back-link" href="#" onclick="sessionStorage.setItem('ctf_return_id','web-01');sessionStorage.setItem('acx_pending_redirect','ctf');window.location.href='/'">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Labs
     </a>
@@ -314,7 +314,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
           </button>
         </div>
       </div>
-      <iframe class="site-frame" id="siteFrame" src="" sandbox="allow-same-origin allow-scripts"></iframe>
+      <iframe class="site-frame" id="siteFrame" src="" sandbox="allow-same-origin allow-scripts" scrolling="no"></iframe>
     </div>
 
 
@@ -335,19 +335,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
       </div>
     </div>
 
-    <!-- Submit panel — real UI on lab page -->
-    <div class="submit-panel" id="labSubmitPanel">
-      <div class="card-head" style="border-bottom:1px solid var(--border);padding:11px 16px;display:flex;align-items:center;gap:8px;">
-        <div class="card-head-dot"></div><span class="card-head-title">Submit Flag</span>
-      </div>
-      <div class="submit-body">
-        <div class="submit-row">
-          <input type="text" class="flag-input" id="labFlagInput" placeholder="ACX{your_flag_here}" autocomplete="off" onkeydown="if(event.key==='Enter')submitFlag(this.value)">
-          <button class="submit-btn" id="labSubmitBtn" onclick="submitFlag(document.getElementById('labFlagInput').value)">Submit</button>
-        </div>
-        <div class="submit-result" id="labSubmitResult"></div>
-      </div>
-    </div>
+    <!-- Submit Flag panel removed — lives in the modal pop-up only -->
 
     <div class="req-log">
       <div class="req-log-head"><span class="req-log-title">Request Log</span><button class="req-log-clear" onclick="clearLog()">Clear</button></div>
@@ -745,12 +733,21 @@ async function submitFlag(flagVal) {
   }
 }
 
-// flagInput moved to lab page submit panel
+// flagInput lives in modal submit panel — lab page submit panel removed
 
 document.getElementById('siteFrame').addEventListener('load', () => {
   if (!_labAccessGranted) return;
   completeObj('obj1');
   addLog('GET', '/api/lab/hidden/page', '200', 'ok');
+  // Auto-resize iframe to fit content (no scrollbar)
+  try {
+    const frame = document.getElementById('siteFrame');
+    const body = frame.contentDocument && frame.contentDocument.body;
+    if (body) {
+      const h = body.scrollHeight;
+      if (h && h > 100) frame.style.height = h + 'px';
+    }
+  } catch(e) {}
 });
 
 // Auto-start challenge on page load (user already clicked Start in modal)
