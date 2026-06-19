@@ -192,6 +192,10 @@ function showPage(page, skipPush) {
   // Init CTF page
   if (page === 'ctf') {
     if (typeof initCTFPage === 'function') initCTFPage();
+    // Notify autoOpenFromReturn listener that CTF page is now active
+    setTimeout(() => {
+      document.dispatchEvent(new CustomEvent('acx:ctf-page-shown'));
+    }, 50);
   }
 
   // Init sidebar state for cyber attacks learn page

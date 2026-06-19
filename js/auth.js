@@ -422,19 +422,29 @@ async function saveProfile() {
       try { sessionStorage.removeItem('acx_pending_redirect'); } catch(e) {}
       showPage(redirect);
       if (redirect === 'ctf') {
-        // Let listeners (e.g. the lab-return auto-open-modal logic) know the
-        // CTF page has actually been shown (login-gated showPage may have
-        // silently redirected instead — only fire once the page is really up).
         if (document.getElementById('ctfPage') && document.getElementById('ctfPage').classList.contains('active')) {
           document.dispatchEvent(new CustomEvent('acx:ctf-page-shown'));
         }
       }
     } else if (window._initialPage && window._initialPage !== 'home') {
-      // URL-based routing: show the page the user navigated to directly
       const pg = window._initialPage;
       window._initialPage = null;
       showPage(pg);
     } else {
+      // Check for lab-return signal before defaulting to home
+      // (handles same-tab navigate case when window.close() failed in lab tab)
+      try {
+        const lsId = localStorage.getItem('acx_return_to_modal');
+        const ts = parseInt(localStorage.getItem('acx_return_ts') || '0');
+        if (lsId && (Date.now() - ts < 8000)) {
+          // Signal is fresh: navigate to CTF page so autoOpenFromReturn can consume it
+          showPage('ctf');
+          if (document.getElementById('ctfPage') && document.getElementById('ctfPage').classList.contains('active')) {
+            document.dispatchEvent(new CustomEvent('acx:ctf-page-shown'));
+          }
+          return;
+        }
+      } catch(e) {}
       showPage('home');
     }
   };

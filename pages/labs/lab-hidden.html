@@ -783,14 +783,26 @@ function labGoBack() {
     localStorage.setItem('acx_return_to_modal', _labChallengeId);
     localStorage.setItem('acx_return_ts', Date.now().toString());
   } catch(e) {}
-  // Lab tab band karo (ya home pe navigate karo agar tab close nahi ho sakta)
+
+  // Strategy 1: window.opener available hai (lab opener tab hai) — focus karo
+  try {
+    if (window.opener && !window.opener.closed) {
+      window.opener.focus();
+      window.close();
+      return;
+    }
+  } catch(e) {}
+
+  // Strategy 2: window.close() try karo (works when tab was script-opened)
   try {
     window.close();
-    // Agar window.close() kaam nahi kiya (browser block kare), home par jao
-    setTimeout(() => { window.location.href = '/'; }, 300);
-  } catch(e) {
+  } catch(e) {}
+
+  // Strategy 3: window.close() fail hua — same tab mein main site pe jao
+  // acx_return_to_modal already set hai, consumePendingRedirect CTF page khol dega
+  setTimeout(() => {
     window.location.href = '/';
-  }
+  }, 300);
 }
 
 // Lab session invalidate karo (expire ya solve hone par)

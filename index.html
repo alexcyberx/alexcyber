@@ -2348,14 +2348,20 @@ document.addEventListener('keydown', function(e) {
         opened = true;
         setTimeout(() => openCTFModal(returnId), 200);
       } else if (c && overlay && typeof showPage === 'function' && window._currentUser) {
+        // CTF page not active yet but user is logged in: navigate there
         showPage('ctf', true);
         if (attempts > 0) setTimeout(() => tryOpen(attempts - 1), 300);
+      } else if (!window._currentUser && attempts > 0) {
+        // Auth not resolved yet: keep waiting (initAuth is async)
+        setTimeout(() => tryOpen(attempts - 1), 400);
       } else if (attempts > 0) {
         setTimeout(() => tryOpen(attempts - 1), 300);
       }
     }
+    // Listen for CTF page shown event (fired by consumePendingRedirect)
     document.addEventListener('acx:ctf-page-shown', () => tryOpen(15), { once: true });
-    setTimeout(() => tryOpen(15), 400);
+    // Also start polling after a short delay in case event already fired
+    setTimeout(() => tryOpen(20), 600);
   }
 
   // Case 1: Lab tab ne localStorage mein signal daala — storage event se pakdo
