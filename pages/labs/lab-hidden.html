@@ -152,21 +152,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .source-close:hover{color:var(--text);}
 .source-body{padding:14px;background:var(--code-bg);font-family:var(--mono);font-size:11.5px;line-height:1.8;color:var(--code-text);max-height:320px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;}
 
-.submit-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 2px rgba(20,20,30,0.03);}
-.submit-body{padding:16px;display:flex;flex-direction:column;gap:10px;}
-.submit-row{display:flex;gap:10px;}
-.flag-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:12.5px;color:var(--text);outline:none;transition:border-color 0.15s,background 0.15s;}
-.flag-input:focus{border-color:var(--blue);background:var(--surface);}
-.flag-input.flag-correct{border-color:var(--green)!important;background:var(--green-dim)!important;}
-.flag-input.flag-wrong{border-color:var(--accent)!important;animation:shake 0.3s;}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
-.flag-input::placeholder{color:var(--text-faint);}
-.submit-btn{background:var(--text);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:opacity 0.15s;white-space:nowrap;}
-.submit-btn:hover{opacity:0.85;}
-.submit-btn:disabled{opacity:0.45;cursor:not-allowed;}
-.submit-result{font-size:12.5px;padding:10px 12px;border-radius:6px;display:none;font-family:var(--sans);line-height:1.5;}
-.submit-result.ok{display:block;background:var(--green-dim);border:1px solid var(--green-border);color:var(--green);}
-.submit-result.err{display:block;background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent);}
 
 .flag-box{display:none;background:var(--green-dim);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
 .flag-box.show{display:block;}
@@ -334,16 +319,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
       <div class="source-body" id="sourceBody">Loading source...</div>
     </div>
 
-    <div class="submit-panel" id="submitPanel">
-      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Submit Flag</span></div>
-      <div class="submit-body">
-        <div class="submit-row">
-          <input type="text" class="flag-input" id="labFlagInput" placeholder="ACX{your_flag_here}" autocomplete="off" onkeydown="if(event.key==='Enter') submitFlag(this.value)">
-          <button class="submit-btn" id="labSubmitBtn" onclick="submitFlag(document.getElementById('labFlagInput').value)">Submit</button>
-        </div>
-        <div class="submit-result" id="labSubmitResult"></div>
-      </div>
-    </div>
 
     <div class="flag-box" id="flagBox">
       <div class="flag-head"><div class="flag-dot"></div><span class="flag-head-label">Flag Captured</span></div>
@@ -635,14 +610,6 @@ async function restartInstance() {
     document.getElementById('expiredOverlay').classList.remove('show');
     document.getElementById('flagBox').classList.remove('show');
 
-    // Reset submit UI
-    const inp = document.getElementById('labFlagInput');
-    const res2 = document.getElementById('labSubmitResult');
-    const sbtn = document.getElementById('labSubmitBtn');
-    if (inp) { inp.value = ''; inp.className = 'flag-input'; }
-    if (res2) { res2.textContent = ''; res2.className = 'submit-result'; }
-    if (sbtn) { sbtn.disabled = false; sbtn.textContent = 'Submit'; }
-
     // Reset objectives
     for (let i = 1; i <= 5; i++) {
       const el = document.getElementById('obj' + i);
@@ -713,79 +680,8 @@ function toggleSource() {
   else { panel.classList.remove('visible'); }
 }
 
-async function submitFlag(flagVal) {
-  if (!_labAccessGranted) return;
-  const flag = (flagVal || '').trim();
 
-  const resultEl = document.getElementById('labSubmitResult');
-  const submitBtn = document.getElementById('labSubmitBtn');
-  const inp = document.getElementById('labFlagInput');
-
-  if (!flag) {
-    if (resultEl) { resultEl.textContent = 'Flag field khali hai.'; resultEl.className = 'submit-result err'; }
-    return;
-  }
-
-  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Checking...'; }
-  if (resultEl) { resultEl.className = 'submit-result'; resultEl.textContent = ''; }
-
-  addLog('POST', '/api/lab/hidden/submit', '...', 'warn');
-
-  try {
-    const res = await fetch(`${BASE}/api/lab/hidden/submit`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Lab-Session': SESSION_ID },
-      body: JSON.stringify({ flag })
-    });
-
-    const data = await res.json();
-    addLog('POST', '/api/lab/hidden/submit', res.status, res.ok ? 'ok' : 'err');
-
-    if (res.ok && data.success) {
-      // obj3/obj4 are normally completed by real recon in loadSource(); these
-      // calls are a safety net for a student who found the parts via Burp/
-      // DevTools directly without clicking "View Source" in this UI.
-      completeObj('obj2'); completeObj('obj3'); completeObj('obj4'); completeObj('obj5');
-      if (resultEl) { resultEl.textContent = '✓ ' + data.message; resultEl.className = 'submit-result ok'; }
-      if (inp) inp.classList.add('flag-correct');
-      if (submitBtn) submitBtn.disabled = true;
-      document.getElementById('flagBox').classList.add('show');
-      document.getElementById('flagValue').textContent = data.flag;
-
-      // Real CTF: flag submit par instance band — refresh pe Access Denied
-      if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
-      invalidateLabSession();
-
-      // Save solved to localStorage so modal can sync.
-      // Namespaced by current user id — must match ctf.html's ctfSolvedStorageKey(),
-      // otherwise solves written here would land back in the old global bucket
-      // and reappear for every account again.
-      try {
-        const _uid = (window.opener && window.opener._currentUser?.id) || window._currentUser?.id || 'guest';
-        const _key = 'acx_ctf_solved_' + _uid;
-        const raw = localStorage.getItem(_key);
-        const solved = raw ? JSON.parse(raw) : {};
-        if (!solved['web-01']) {
-          solved['web-01'] = { xp: 100, solvedAt: new Date().toISOString() };
-          localStorage.setItem(_key, JSON.stringify(solved));
-        }
-      } catch(e) {}
-
-      if (!solvedShown) { solvedShown = true; showSolvedPopup(); }
-
-    } else {
-      if (resultEl) { resultEl.textContent = '[X] ' + (data.message || 'Wrong flag. Dobara try karo.'); resultEl.className = 'submit-result err'; }
-      if (inp) { inp.classList.add('flag-wrong'); setTimeout(() => inp && inp.classList.remove('flag-wrong'), 600); }
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
-    }
-  } catch(err) {
-    if (resultEl) { resultEl.textContent = 'Request failed: ' + err.message; resultEl.className = 'submit-result err'; }
-    addLog('POST', '/api/lab/hidden/submit', 'ERR', 'err');
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Submit'; }
-  }
-}
-
-// flagInput lives in modal submit panel — lab page submit panel removed
+// flagInput lives in CTF room modal — lab page submit panel removed
 
 /* ── LAB SESSION HELPERS ── */
 // Back button: Lab tab band karo, CTF page ka main tab modal khol le
