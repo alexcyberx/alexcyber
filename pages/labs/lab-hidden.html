@@ -23,13 +23,13 @@
 body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased;}
 
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;position:sticky;top:0;z-index:100;}
-.topbar-left{display:flex;align-items:center;gap:16px;}
+.topbar-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1;}
 .back-link{display:flex;align-items:center;gap:6px;color:var(--text-dim);font-size:13px;font-weight:500;text-decoration:none;cursor:pointer;transition:color 0.15s;}
 .back-link:hover{color:var(--text);}
 .topbar-sep{width:1px;height:16px;background:var(--border);}
 .topbar-id{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.5px;background:var(--accent-dim);padding:2px 8px;border-radius:4px;}
 .topbar-title{font-size:14px;font-weight:600;color:var(--text);}
-.topbar-right{display:flex;align-items:center;gap:14px;}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
 .diff-badge{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:4px 11px;border-radius:20px;background:var(--green-dim);border:1px solid var(--green-border);color:var(--green);}
 .timer-wrap{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;}
 .timer-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--text-faint);text-transform:uppercase;}
@@ -136,7 +136,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 
 .burp-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 2px rgba(20,20,30,0.03);}
 .target-panel-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border-soft);background:var(--surface2);}
-.target-url-bar{background:var(--code-bg);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:6px 12px;font-family:var(--mono);font-size:11px;color:var(--code-text);display:flex;align-items:center;gap:8px;flex:1;max-width:400px;}
+.target-url-bar{background:var(--code-bg);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:6px 12px;font-family:var(--mono);font-size:11px;color:var(--code-text);display:flex;align-items:center;gap:8px;flex:1;max-width:400px;min-width:0;overflow:hidden;}
 .target-badge{font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:3px;text-transform:uppercase;background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent);}
 .view-source-btn{display:flex;align-items:center;gap:6px;background:var(--blue-dim);border:1px solid var(--blue-border);color:var(--blue);padding:6px 13px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
 .view-source-btn:hover{background:#dbeafe;}
@@ -176,8 +176,84 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .log-status.err{color:var(--accent);}
 .log-status.warn{color:var(--orange);}
 .log-time{color:var(--text-faint);text-align:right;}
+/* ── RESPONSIVE SYSTEM ── */
 
-@media(max-width:780px){.lab-wrap{grid-template-columns:1fr;}.topbar-title{display:none;}.site-frame{height:220px;}}
+/* Tablet: 768px - 1024px */
+@media(max-width:1024px){
+  .lab-wrap{grid-template-columns:260px 1fr;gap:16px;padding:16px 16px 40px;}
+  .site-frame{height:calc(100vh - 160px);min-height:480px;}
+  .target-url-bar{max-width:260px;}
+  .topbar{padding:0 16px;}
+}
+
+/* Mobile / Small Tablet: ≤768px */
+@media(max-width:768px){
+  .topbar{padding:0 14px;height:52px;}
+  .topbar-title{display:none;}
+  .topbar-sep{display:none;}
+  .timer-label{display:none;}
+  .timer-val{font-size:13px;min-width:44px;}
+  .timer-wrap{padding:5px 10px;gap:6px;}
+  .diff-badge{display:none;}
+  .lang-btn span{display:none;}
+  .lang-btn{padding:6px 9px;}
+
+  .lab-wrap{grid-template-columns:1fr;padding:12px 12px 32px;gap:14px;max-width:100%;}
+
+  .right-col{order:-1;}
+  .left-col{order:1;}
+
+  .target-panel-head{flex-wrap:wrap;gap:8px;padding:10px 12px;}
+  .target-url-bar{max-width:100%;width:100%;font-size:10px;}
+  .target-url-bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  .site-frame{height:360px;min-height:300px;}
+
+  .card{margin-bottom:12px;}
+  .card-body{padding:13px;}
+  .code-block{font-size:10.5px;padding:11px 13px;overflow-x:auto;}
+
+  .log-entry{grid-template-columns:48px 1fr 52px;gap:6px;}
+  .log-time{display:none;}
+
+  .obj-item{font-size:12px;}
+
+  .solved-popup{width:90%;max-width:340px;padding:14px 16px;gap:10px;top:14px;}
+  .solved-title{font-size:13px;}
+  .solved-sub{font-size:11px;}
+
+  .expired-title{font-size:16px;}
+  .expired-desc{font-size:12.5px;}
+
+  .lock-overlay-inner{padding:28px 20px;}
+  .lock-title{font-size:14px;}
+  .lock-desc{font-size:12px;}
+
+  .source-body{font-size:10.5px;max-height:260px;}
+
+  .req-log-body{max-height:140px;}
+}
+
+/* Very small phones: ≤400px */
+@media(max-width:400px){
+  .topbar{padding:0 10px;height:48px;}
+  .back-link{font-size:12px;}
+  .topbar-id{font-size:10px;padding:2px 6px;}
+
+  .lab-wrap{padding:10px 10px 28px;gap:12px;}
+
+  .site-frame{height:300px;min-height:240px;}
+
+  .card-body{padding:11px 12px;}
+
+  .hint-tab-btn{font-size:11px;padding:7px 6px;}
+
+  .flag-value{font-size:13.5px;word-break:break-all;}
+
+  .req-log-body{max-height:120px;}
+  .log-entry{grid-template-columns:44px 1fr 44px;font-size:9.5px;}
+}
+
 </style>
 </head>
 <body id="labBody">
@@ -727,6 +803,28 @@ function invalidateLabSession() {
   try { sessionStorage.removeItem(_labActiveKey); } catch(e) {}
   try { sessionStorage.removeItem('acx_lab_hidden_session'); } catch(e) {}
 }
+
+// CTF page se "stop" message aaye to instance expire kar do
+// Yeh tab hota hai jab user doosra challenge start kare
+window.addEventListener('message', function(event) {
+  // Only accept messages from the opener (our CTF page)
+  if (event.source !== window.opener) return;
+  const msg = event.data;
+  if (!msg || msg.type !== 'ACX_LAB_STOP') return;
+  if (msg.challengeId !== _labChallengeId) return;
+
+  // Invalidate session — expired overlay show hogi
+  invalidateLabSession();
+  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+
+  // Show expired overlay with a custom message
+  const overlay = document.getElementById('expiredOverlay');
+  if (overlay) {
+    const desc = overlay.querySelector('.expired-desc');
+    if (desc) desc.textContent = 'Aapne doosra challenge start kar diya. Yeh instance band ho gaya.';
+    overlay.classList.add('show');
+  }
+});
 
 document.getElementById('siteFrame').addEventListener('load', () => {
   if (!_labAccessGranted) return;

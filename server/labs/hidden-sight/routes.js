@@ -54,6 +54,18 @@ router.post('/instance/restart', (req, res) => {
   res.json({ success: true, ...getInstanceStatus(sessionId) });
 });
 
+// POST /api/lab/hidden/instance/stop
+// Called when user starts a different challenge — stops this instance immediately
+router.post('/instance/stop', (req, res) => {
+  const sessionId = req.headers['x-lab-session'] || req.query.session || req.ip;
+  if (instances[sessionId]) {
+    // Expire by setting startedAt far in the past
+    instances[sessionId].startedAt = Date.now() - (INSTANCE_DURATION_SEC + 1) * 1000;
+  }
+  logAttempt('HIDDEN', req.ip, 'instance_stop', 'ok');
+  res.json({ success: true, running: false, remaining_sec: 0 });
+});
+
 // GET /api/lab/hidden/page
 // Returns the target site HTML with 3 base64 strings in comments — only one is real
 // Session resolution order: X-Lab-Session header (used by fetch() calls) ->
