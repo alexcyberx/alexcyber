@@ -425,5 +425,16 @@ async function submitFlag() {
 
 document.getElementById('flagInput').addEventListener('keydown', e => { if(e.key==='Enter') submitFlag(); });
 </script>
+
+// Auto-stop: jab CTF page se doosra challenge start ho
+window.addEventListener('message', function(e) {
+  if (e.source !== window.opener) return;
+  const msg = e.data;
+  if (!msg || msg.type !== 'ACX_LAB_STOP') return;
+  if (msg.challengeId !== 'for-02') return;
+  // Close this lab tab — user switched to another challenge
+  setTimeout(() => { try { window.close(); } catch(e) {} }, 200);
+});
+
 </body>
 </html>

@@ -1351,5 +1351,21 @@ function clearLog() {
     '<div style="color:#2a2a40;font-size:11px;font-family:var(--sans);">Cleared</div>';
 }
 </script>
+
+// Auto-stop: jab CTF page se doosra challenge start ho
+window.addEventListener('message', function(e) {
+  if (e.source !== window.opener) return;
+  const msg = e.data;
+  if (!msg || msg.type !== 'ACX_LAB_STOP') return;
+  if (msg.challengeId !== 'web-03') return;
+  const overlay = document.getElementById('expiredOverlay');
+  if (overlay) {
+    const desc = overlay.querySelector('.expired-desc, p, .expired-text');
+    if (desc) desc.textContent = 'Aapne doosra challenge start kar diya. Yeh instance band ho gaya.';
+    overlay.classList.add('show');
+  }
+  setTimeout(() => { try { window.close(); } catch(e) {} }, 1200);
+});
+
 </body>
 </html>

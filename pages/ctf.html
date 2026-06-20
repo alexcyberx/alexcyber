@@ -593,12 +593,16 @@ function ctfLaunchClick(e) {
 }
 
 // Stop previously running instance when user starts a different challenge
+// Labs jinke paas server-side instance management hai
+const INSTANCE_MANAGED_LABS = ['web-01'];
+
 async function ctfStopRunningInstance() {
   if (!ctfRunningChallengeId) return;
-  const prevApiId = ctfLabApiBase(CTF_CHALLENGES.find(x => x.id === ctfRunningChallengeId) || {});
+  const prevChallenge = CTF_CHALLENGES.find(x => x.id === ctfRunningChallengeId) || {};
+  const prevApiId = ctfLabApiBase(prevChallenge);
 
-  // 1. Server-side: expire the instance immediately
-  if (prevApiId) {
+  // 1. Server-side stop — sirf un labs ke liye jo instance track karte hain
+  if (prevApiId && INSTANCE_MANAGED_LABS.includes(ctfRunningChallengeId)) {
     try {
       await fetch(`/api/lab/${prevApiId}/instance/stop`, {
         method: 'POST',
@@ -607,16 +611,16 @@ async function ctfStopRunningInstance() {
     } catch (err) {}
   }
 
-  // 2. Client-side: kill the open lab tab (postMessage → tab shows expired overlay)
+  // 2. Client-side: postMessage bhejo lab tab ko → tab khud close ho jayega
   if (ctfActiveTab && !ctfActiveTab.closed) {
     try {
       ctfActiveTab.postMessage({ type: 'ACX_LAB_STOP', challengeId: ctfRunningChallengeId }, '*');
     } catch (err) {}
-    // Give the tab 400ms to show expired overlay, then close it
+    // 800ms dedo tab ko message receive + close karne ke liye
     setTimeout(() => {
       try { if (ctfActiveTab && !ctfActiveTab.closed) ctfActiveTab.close(); } catch(e) {}
       ctfActiveTab = null;
-    }, 400);
+    }, 800);
   } else {
     ctfActiveTab = null;
   }
@@ -681,11 +685,17 @@ function ctfOpenLabTab(e) {
     const token = 'tok_' + Math.random().toString(36).substring(2, 18);
     try { sessionStorage.setItem('acx_lab_token_' + labId, token); } catch(e) {}
     ctfActiveTab = window.open(c.lab_url + '?acx_token=' + encodeURIComponent(token), '_blank');
+    ctfRunningChallengeId = c.id;
   }
   return false;
 }
 
 async function ctfRestartInstance(c) {
+  // Stop any other running challenge first
+  if (ctfRunningChallengeId && ctfRunningChallengeId !== c.id) {
+    await ctfStopRunningInstance();
+  }
+
   const apiId = ctfLabApiBase(c);
   if (apiId) {
     try {
@@ -707,6 +717,7 @@ async function ctfRestartInstance(c) {
   } else {
     ctfActiveTab = window.open(labUrl, '_blank');
   }
+  ctfRunningChallengeId = c.id;
   ctfPollInstanceTimer(c);
 }
 
@@ -924,7 +935,8 @@ function openCTFModal(id) {
   const isSameRunning = (ctfRunningChallengeId === c.id);
   if (!isSameRunning) {
     // Different challenge modal opened — reset UI to Start state
-    ctfActiveTab = null;
+    // NOTE: Do NOT null ctfActiveTab here — ctfStopRunningInstance() needs it
+    // to send postMessage to the running lab tab before closing it.
     if (ctfTimerPoll) { clearInterval(ctfTimerPoll); ctfTimerPoll = null; }
   }
   const startWrap = document.getElementById('ctfStartWrap');
