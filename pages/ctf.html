@@ -953,13 +953,47 @@ async function submitCTFFlag() {
   btn.disabled = true;
   btn.textContent = 'Checking...';
 
-  // Slight delay for UX
-  await new Promise(r => setTimeout(r, 600));
+  // Lab-backed challenges (web-* with a live instance) must eventually be
+  // verified by the server — the flag must never be checked against the
+  // plaintext c.flag in this file, since that value ships to every visitor's
+  // browser and can be read straight out of page source. Right now only
+  // web-01 (Hidden in Plain Sight) has its backend submit endpoint wired up,
+  // so only that one routes through it. As each other lab's backend goes
+  // live, add its id here. Everything else keeps the local check for now —
+  // do not remove this allowlist until all lab backends are ready, or those
+  // challenges will break instead of falling back safely.
+  const BACKEND_READY_IDS = ['web-01'];
+  const apiId = ctfLabApiBase(c);
+  const useBackend = apiId && BACKEND_READY_IDS.includes(c.id);
+  let isCorrect = false;
+  let serverMessage = null;
 
-  if (flag === c.flag) {
+  if (useBackend) {
+    try {
+      const res = await fetch(`/api/lab/${apiId}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Lab-Session': ctfLabSession },
+        body: JSON.stringify({ flag })
+      });
+      const data = await res.json();
+      isCorrect = res.ok && !!data.success;
+      serverMessage = data.message || null;
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Submit';
+      showFlagMsg('error', 'Request failed: ' + err.message);
+      return;
+    }
+  } else {
+    // Slight delay for UX on non-lab challenges
+    await new Promise(r => setTimeout(r, 600));
+    isCorrect = (flag === c.flag);
+  }
+
+  if (isCorrect) {
     // ✅ CORRECT
     inp.classList.add('correct');
-    showFlagMsg('success', `🎉 Sahi hai! +${c.xp} XP earn kiya!`);
+    showFlagMsg('success', serverMessage ? `🎉 ${serverMessage}` : `🎉 Sahi hai! +${c.xp} XP earn kiya!`);
 
     // Save
     ctfSolved[c.id] = { xp: c.xp, solvedAt: new Date().toISOString() };
@@ -1000,8 +1034,59 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeCTFModal();
 });
 
+/* ── RETURN FROM LAB: three ways a lab tab signals "I'm going back" ──
+   These must match the keys/function name used in labGoBack() inside each
+   lab-*.html file (currently localStorage 'acx_return_to_modal' +
+   'acx_return_ts', sessionStorage 'acx_back_to_ctf' + 'acx_back_ts', and
+   window.opener.acxLabReturn). If a lab page's labGoBack() implementation
+   changes these names, this block must be updated to match or the user gets
+   stuck on a closed/blank tab when hitting "Labs" from inside a lab. */
+
+// Strategy 1: lab tab still has window.opener pointing here and calls this directly
+window.acxLabReturn = function(challengeId) {
+  if (!challengeId) return;
+  const c = CTF_CHALLENGES.find(x => x.id === challengeId);
+  if (!c) return;
+  openCTFModal(challengeId);
+  // The instance is still running server-side — show Restart/View Lab, not Start
+  ctfShowRunningState(c);
+  window.focus();
+};
+
+// Strategy 2: lab tab closed itself and wrote a localStorage signal (storage
+// event only fires in OTHER tabs, which is exactly this still-open CTF tab)
+window.addEventListener('storage', function(e) {
+  if (e.key === 'acx_return_to_modal' && e.newValue) {
+    const challengeId = e.newValue;
+    try { localStorage.removeItem('acx_return_to_modal'); } catch(err) {}
+    try { localStorage.removeItem('acx_return_ts'); } catch(err) {}
+    const c = CTF_CHALLENGES.find(x => x.id === challengeId);
+    if (!c) return;
+    openCTFModal(challengeId);
+    ctfShowRunningState(c);
+  }
+});
+
+// Puts the modal in "instance already running" mode instead of resetting to
+// Start — openCTFModal() always resets to Start state, so this runs right after
+function ctfShowRunningState(c) {
+  const apiId = ctfLabApiBase(c);
+  document.getElementById('ctfStartWrap').style.display = 'none';
+  document.getElementById('ctfRunningWrap').style.display = 'block';
+  document.getElementById('ctfTimerRow').classList.add('show');
+  if (!ctfSolved[c.id]) {
+    document.getElementById('ctfFlagSection').style.display = 'block';
+  }
+  document.getElementById('ctfLaunchLabel').textContent = 'Restart';
+  document.getElementById('ctfLaunchBtn').classList.add('restart-mode');
+  ctfActiveTab = null; // the old tab is closed/gone; ctfOpenLabTab will open a fresh one
+  if (apiId) ctfPollInstanceTimer(c);
+}
+
 /* ── AUTO-OPEN MODAL: when user comes back from a lab page ── */
-/* Lab pages set sessionStorage key 'ctf_return_id' before navigating back */
+/* Lab pages set sessionStorage key 'acx_back_to_ctf' before navigating back
+   (fallback path 3, used when window.close() doesn't work — mobile or a
+   manually-opened tab) */
 (function autoOpenFromReturn() {
   // Check URL hash first: ctf.html#challenge=web-01
   const hash = window.location.hash;
@@ -1016,14 +1101,34 @@ document.addEventListener('keydown', function(e) {
     });
     return;
   }
-  // Check sessionStorage for return from lab
-  const returnId = sessionStorage.getItem('ctf_return_id');
+  // Check sessionStorage for return from lab (Strategy 3 in labGoBack)
+  const returnId = sessionStorage.getItem('acx_back_to_ctf');
   if (returnId) {
-    sessionStorage.removeItem('ctf_return_id');
+    sessionStorage.removeItem('acx_back_to_ctf');
+    sessionStorage.removeItem('acx_back_ts');
     window.addEventListener('DOMContentLoaded', function() {
+      const c = CTF_CHALLENGES.find(x => x.id === returnId);
+      if (!c) return;
       openCTFModal(returnId);
+      ctfShowRunningState(c);
     });
   }
+
+  // Also check localStorage signal in case this tab loaded fresh right after
+  // the lab tab wrote it (race: lab tab closed before this listener attached)
+  try {
+    const pendingId = localStorage.getItem('acx_return_to_modal');
+    if (pendingId) {
+      localStorage.removeItem('acx_return_to_modal');
+      localStorage.removeItem('acx_return_ts');
+      window.addEventListener('DOMContentLoaded', function() {
+        const c = CTF_CHALLENGES.find(x => x.id === pendingId);
+        if (!c) return;
+        openCTFModal(pendingId);
+        ctfShowRunningState(c);
+      });
+    }
+  } catch(e) {}
 })();
 </script>
 </div>

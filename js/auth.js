@@ -560,6 +560,45 @@ async function saveProfile() {
       if (typeof ctfLabSession !== 'undefined') {
         window.ctfLabSession = 'sess_' + Math.random().toString(36).substring(2, 10);
       }
+
+      // ── FULL CTF/LAB STATE WIPE ──
+      // sessionStorage/localStorage are scoped to the BROWSER, not the
+      // account. Without this, switching accounts on the same browser
+      // (Account A logs out, Account B logs in) lets Account B inherit
+      // Account A's "lab still running" UI: the in-memory ctfActiveTab
+      // reference, the polling interval, and every acx_lab_* key written by
+      // the lab pages all survive a plain logout. This wipes all of it so
+      // each new login on this browser starts from a clean Start state.
+      window.ctfActiveTab = null;
+      if (typeof ctfTimerPoll !== 'undefined' && ctfTimerPoll) {
+        clearInterval(ctfTimerPoll);
+        window.ctfTimerPoll = null;
+      }
+      if (typeof ctfSolved !== 'undefined') window.ctfSolved = {};
+      if (typeof ctfCurrentChallenge !== 'undefined') window.ctfCurrentChallenge = null;
+      if (typeof closeCTFModal === 'function') { try { closeCTFModal(); } catch(e) {} }
+
+      try {
+        const keysToWipe = [];
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const k = sessionStorage.key(i);
+          if (k && (k.startsWith('acx_lab_') || k === 'acx_back_to_ctf' || k === 'acx_back_ts' || k === 'acx_pending_redirect')) {
+            keysToWipe.push(k);
+          }
+        }
+        keysToWipe.forEach(k => sessionStorage.removeItem(k));
+      } catch(e) {}
+
+      try {
+        const lKeysToWipe = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && (k.startsWith('acx_lab_') || k === 'acx_return_to_modal' || k === 'acx_return_ts')) {
+            lKeysToWipe.push(k);
+          }
+        }
+        lKeysToWipe.forEach(k => localStorage.removeItem(k));
+      } catch(e) {}
     }
     if (event === 'USER_UPDATED' && session) { await loadUserProfile(session.user); }
   });

@@ -8,10 +8,10 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#07070f;--surface:#0d0d1a;--surface2:#111120;
-  --border:rgba(255,255,255,0.06);--red:#dc1414;
-  --white:#f0f0f8;--dim:#505068;--green:#4ade80;
-  --green-dim:rgba(74,222,128,0.06);--blue:#63b3ed;--orange:#fb923c;
+  --bg:#ffffff;--surface:#f7f7fa;--surface2:#eeeef2;
+  --border:rgba(0,0,0,0.1);--red:#dc1414;
+  --white:#14141c;--dim:#6b6b80;--green:#16a34a;
+  --green-dim:rgba(22,163,74,0.08);--blue:#2563eb;--orange:#c2640a;
   --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
 }
 body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:100vh;}
@@ -304,7 +304,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
       <div class="target-panel-head">
         <div class="target-url-bar">
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#4a4a6a" stroke-width="1"/><path d="M5 1v4l2.5 2.5" stroke="#4a4a6a" stroke-width="1" stroke-linecap="round"/></svg>
-          <span>localhost:3000/api/lab/hidden/page</span>
+          <span id="targetUrlText">/api/lab/hidden/page</span>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
           <span class="target-badge">TARGET</span>
@@ -327,13 +327,23 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
       <div class="source-body" id="sourceBody">Loading source...</div>
     </div>
 
+    <div class="submit-panel" id="submitPanel">
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Submit Flag</span></div>
+      <div class="submit-body">
+        <div class="submit-row">
+          <input type="text" class="flag-input" id="labFlagInput" placeholder="ACX{your_flag_here}" autocomplete="off" onkeydown="if(event.key==='Enter') submitFlag(this.value)">
+          <button class="submit-btn" id="labSubmitBtn" onclick="submitFlag(document.getElementById('labFlagInput').value)">Submit</button>
+        </div>
+        <div class="submit-result" id="labSubmitResult"></div>
+      </div>
+    </div>
+
     <div class="flag-box" id="flagBox">
       <div class="flag-head"><div class="flag-dot"></div><span class="flag-head-label">Flag Captured</span></div>
       <div class="flag-body">
         <div class="flag-value" id="flagValue"></div>
         <div class="flag-note">Flag found across HTML source, HTTP header, and a JS file. Developers leave traces in places browsers never show users.</div>
       </div>
-    </div>
     </div>
 
     <div class="req-log">
@@ -415,7 +425,7 @@ const _labAccessGranted = (function validateLabAccess() {
   // Case 3: Direct URL / different tab → Access Denied
   window.addEventListener('DOMContentLoaded', function() {
     document.body.innerHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#07070f;font-family:'Inter',sans-serif;color:#fff;text-align:center;padding:24px;">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#ffffff;font-family:'Inter',sans-serif;color:#14141c;text-align:center;padding:24px;">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:20px;"><circle cx="24" cy="24" r="20" stroke="#dc1414" stroke-width="1.8"/><path d="M16 16l16 16M32 16L16 32" stroke="#dc1414" stroke-width="2" stroke-linecap="round"/></svg>
         <div style="font-size:20px;font-weight:700;margin-bottom:8px;">Access Denied</div>
         <div style="font-size:13px;color:#8888a0;margin-bottom:24px;max-width:340px;">Yeh lab sirf CTF platform ke through accessible hai.<br>Start button dabao aur tab lab khulegi.</div>
@@ -446,6 +456,8 @@ const BASE = window.location.origin;
 // server-side instance instead of the iframe silently falling back to
 // req.ip and tracking a completely different session.
 document.getElementById('siteFrame').src = `/api/lab/hidden/page?session=${encodeURIComponent(SESSION_ID)}`;
+const _targetUrlEl = document.getElementById('targetUrlText');
+if (_targetUrlEl) _targetUrlEl.textContent = window.location.host + '/api/lab/hidden/page';
 let sourceLoaded = false;
 let sourceVisible = false;
 let isRunning = false;
@@ -729,6 +741,7 @@ async function submitFlag(flagVal) {
       completeObj('obj2'); completeObj('obj3'); completeObj('obj4'); completeObj('obj5');
       if (resultEl) { resultEl.textContent = '✓ ' + data.message; resultEl.className = 'submit-result ok'; }
       if (inp) inp.classList.add('flag-correct');
+      if (submitBtn) submitBtn.disabled = true;
       document.getElementById('flagBox').classList.add('show');
       document.getElementById('flagValue').textContent = data.flag;
 
