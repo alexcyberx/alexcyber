@@ -9010,10 +9010,12 @@ Strong:
   }
 }
 
-// Expose to global scope so router.js can call reliably after lazy load
-window.loadChapter = loadChapter;
-// Mark as loaded
-window._chapters1Loaded = true;
+// Make loadChapter globally accessible after script loads
+if (window.loadChapter) {
+  window.loadChapter._real = loadChapter;
+} else {
+  window.loadChapter = loadChapter;
+}
 
 // Chapter loads only when user navigates to learn page (via showPage)
 

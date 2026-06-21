@@ -18,15 +18,14 @@ const cyberAttackChapters = [
   { title: "Attack Defense & Prevention",           prev: "Brute Force & Password Attacks", next: null                               },
 ];
 
-let currentCyberChapter = 0;
+// currentCyberChapter is declared in router.js - use that global
+// Fallback if somehow not defined (shouldn't happen)
+if (typeof currentCyberChapter === 'undefined') { window.currentCyberChapter = 0; }
 
-// Mark chapters2.js as loaded so the safe wrapper in index.html knows
-window._chapters2Loaded = true;
-
-function _loadCyberChapterReal(index) {
+function loadCyberChapter(index) {
+  // Update both local and router.js global
   currentCyberChapter = index;
-  // Also update global reference so router.js can read it
-  window._currentCyberChapterIndex = index;
+  if (typeof window !== 'undefined') window._cyberChIdx = index;
 
   // Scroll content area to top on chapter change
   const _cm = document.getElementById('cyberLearnMain');
@@ -1094,8 +1093,14 @@ User connects to fake bank, credentials stolen</code></pre>
   }
 }
 
-// Expose to global scope so the safe wrapper (index.html) and router.js can call it
-window._loadCyberChapterReal = _loadCyberChapterReal;
-// Also override the global loadCyberChapter so future onclick calls work directly
-window.loadCyberChapter = _loadCyberChapterReal;
+// Wire up the shim defined in index.html so all future calls hit real function
+if (window.loadCyberChapter) {
+  window.loadCyberChapter._real = loadCyberChapter;
+} else {
+  window.loadCyberChapter = loadCyberChapter;
+}
+// Also sync currentCyberChapter back to router's global
+if (typeof currentCyberChapter !== 'undefined') {
+  // router.js global stays in sync via assignment in loadCyberChapter()
+}
 

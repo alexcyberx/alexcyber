@@ -1236,31 +1236,45 @@ function handleCourse2Click() {
 }
 
 /* ═══════════════════════════════════════════
-   SAFE WRAPPER for loadCyberChapter
-   Sidebar onclick calls this BEFORE chapters2.js is loaded.
-   This wrapper ensures chapters2.js loads first, then calls the real function.
-   Also keeps currentCyberChapter in sync globally.
+   SAFE SHIMS for lazy-loaded chapter functions
+   Sidebar onclicks fire before chapters.js / chapters2.js are loaded.
+   These shims queue calls and replay them once scripts are ready.
 ═══════════════════════════════════════════ */
-window._cyberChapterPending = null;
-function loadCyberChapter(index) {
-  // If real function already loaded, call directly
-  if (window._chapters2Loaded && typeof window._loadCyberChapterReal === 'function') {
-    window._loadCyberChapterReal(index);
-    return;
-  }
-  // Store pending index and load the script
-  window._cyberChapterPending = index;
-  loadScriptOnce('js/chapters2.js').then(function() {
-    // After load, real function is now chapters2.js's loadCyberChapter
-    // But since we replaced window.loadCyberChapter, we call internal directly
-    if (typeof window._loadCyberChapterReal === 'function') {
-      window._loadCyberChapterReal(window._cyberChapterPending !== null ? window._cyberChapterPending : 0);
-      window._cyberChapterPending = null;
+(function() {
+  // ── loadChapter shim (Network Forensics - chapters.js) ──
+  var _q1 = null;
+  window.loadChapter = function(index) {
+    if (window.loadChapter._real) {
+      window.loadChapter._real(index);
+    } else {
+      _q1 = index;
+      loadScriptOnce('js/chapters.js').then(function() {
+        if (window.loadChapter._real && _q1 !== null) {
+          window.loadChapter._real(_q1);
+          _q1 = null;
+        }
+      });
     }
-  }).catch(function(e) {
-    console.warn('[ACX] chapters2.js load failed', e);
-  });
-}
+  };
+  window.loadChapter._real = null; // set by chapters.js after load
+
+  // ── loadCyberChapter shim (Cyber Attacks - chapters2.js) ──
+  var _q2 = null;
+  window.loadCyberChapter = function(index) {
+    if (window.loadCyberChapter._real) {
+      window.loadCyberChapter._real(index);
+    } else {
+      _q2 = index;
+      loadScriptOnce('js/chapters2.js').then(function() {
+        if (window.loadCyberChapter._real && _q2 !== null) {
+          window.loadCyberChapter._real(_q2);
+          _q2 = null;
+        }
+      });
+    }
+  };
+  window.loadCyberChapter._real = null; // set by chapters2.js after load
+})();
 </script>
 <!-- COOKIE CONSENT BANNER -->
 <div id="cookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#111118;border-top:1px solid rgba(255,255,255,0.08);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">

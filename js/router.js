@@ -32,6 +32,7 @@ const chapters = [
 ];
 
 let currentChapter = 0;
+let currentCyberChapter = 0; // Tracks active cyber attacks chapter index
 
 /* ═══════════════════════════
    URL → PAGE MAP
@@ -186,13 +187,12 @@ function showPage(page, skipPush) {
       document.getElementById('learnMain').classList.remove('full');
       sidebarOpen = true;
     }
-    // Always load chapter to ensure translation is applied
+    // Load chapters.js then call loadChapter
     loadScriptOnce('js/chapters.js').then(function() {
-      if (typeof window.loadChapter === 'function') {
-        window.loadChapter(currentChapter);
-      } else if (typeof loadChapter === 'function') {
-        loadChapter(currentChapter);
-      }
+      var fn = window.loadChapter && window.loadChapter._real
+               ? window.loadChapter._real
+               : (window.loadChapter || null);
+      if (fn) fn(currentChapter);
     });
   }
 
@@ -209,13 +209,12 @@ function showPage(page, skipPush) {
       cyberSidebarOpen = true;
     }
     loadScriptOnce('js/chapters2.js').then(function() {
-      // Use global index (set by _loadCyberChapterReal) or fallback to 0
-      var idx = (window._currentCyberChapterIndex !== undefined) ? window._currentCyberChapterIndex : 0;
-      if (typeof window._loadCyberChapterReal === 'function') {
-        window._loadCyberChapterReal(idx);
-      } else if (typeof loadCyberChapter === 'function') {
-        loadCyberChapter(idx);
-      }
+      var fn = window.loadCyberChapter && window.loadCyberChapter._real
+               ? window.loadCyberChapter._real
+               : (window.loadCyberChapter || null);
+      // Use whichever index is most recent: router's own or window shared
+      var idx = (window._cyberChIdx !== undefined) ? window._cyberChIdx : currentCyberChapter;
+      if (fn) fn(idx);
     });
   }
 }
