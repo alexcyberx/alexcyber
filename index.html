@@ -42,6 +42,8 @@
 }
 </script>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/variables.css">
@@ -49,8 +51,8 @@
   <link rel="stylesheet" href="css/home.css">
   <link rel="stylesheet" href="css/learn.css">
   <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/profile.css">
   <link rel="stylesheet" href="css/modal.css">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -64,7 +66,7 @@
 
   <div class="nav-center" id="homeNavCenter">
     <button class="nav-link" onclick="showPage('home'); scrollToSection('home')">Home</button>
-    <button class="nav-link" onclick="showPage('learn')">Tutorials</button>
+    <button class="nav-link" onclick="goToTutorials()">Tutorials</button>
     <button class="nav-link" onclick="showPage('tools')">Tools</button>
     <button class="nav-link" onclick="showPage('ctf')">
       CTF
@@ -165,7 +167,7 @@
 <div class="mobile-menu" id="mobileMenu">
 
   <button class="m-nav" onclick="showPage('home'); toggleMenu()" data-i18n="nav.home">Home</button>
-  <button class="m-nav" onclick="showPage('learn'); toggleMenu()" data-i18n="nav.tutorials">Tutorials</button>
+  <button class="m-nav" onclick="goToTutorials(); toggleMenu()" data-i18n="nav.tutorials">Tutorials</button>
   <button class="m-nav" onclick="showPage('tools'); toggleMenu()">Tools</button>
   <button class="m-nav" onclick="showPage('ctf'); toggleMenu()">
     CTF Challenges
@@ -845,60 +847,242 @@
 
 <!-- ═══════════ PROFILE PAGE ═══════════ -->
 <div id="profilePage" class="page">
-  <div class="profile-wrap">
-    <div class="profile-card">
-      <div class="profile-banner">
-        <div class="profile-banner-overlay"></div>
-        <!-- Back button -->
-        <button onclick="showPage('home')" style="position:absolute;top:16px;left:16px;z-index:10;display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:7px 14px;color:#ccc;font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.6)'" onmouseout="this.style.background='rgba(0,0,0,0.4)'">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Back
-        </button>
-        <div class="profile-avatar-wrap">
-          <div class="profile-avatar" id="profileAvatarBig">A</div>
-        </div>
-      </div>
-      <div class="profile-body">
-        <div class="profile-name" id="profileDisplayName">Alex User</div>
-        <div class="profile-email-tag" id="profileDisplayEmail">user@example.com</div>
+  <div class="pf-shell">
 
-        <div class="profile-section-title">Personal Information</div>
-        <div class="profile-field">
-          <label class="profile-label">Full Name</label>
-          <input class="profile-input" id="profileName" type="text" placeholder="Your full name"/>
+    <!-- ── TOP BANNER ── -->
+    <div class="pf-banner">
+      <div class="pf-banner-glow"></div>
+      <button class="pf-back-btn" onclick="showPage('home')">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back
+      </button>
+      <div class="pf-identity">
+        <div class="pf-avatar" id="profileAvatarBig">A</div>
+        <div class="pf-identity-text">
+          <div class="pf-display-name" id="profileDisplayName">—</div>
+          <div class="pf-display-meta">
+            <span id="profileDisplayEmail" class="pf-email"></span>
+            <span class="pf-meta-sep">·</span>
+            <span class="pf-username-tag" id="pfUsernameTag">@—</span>
+          </div>
+          <div class="pf-bio-display" id="pfBioDisplay"></div>
         </div>
-        <div class="profile-field">
-          <label class="profile-label">Email Address</label>
-          <input class="profile-input" id="profileEmail" type="email" disabled/>
-        </div>
-        <div class="profile-field">
-          <label class="profile-label">Username</label>
-          <input class="profile-input" id="profileUsername" type="text" placeholder="Your username"/>
-        </div>
-        <div class="profile-field">
-          <label class="profile-label">Bio</label>
-          <input class="profile-input" id="profileBio" type="text" placeholder="Tell us a little about yourself..."/>
-        </div>
-
-        <div class="profile-divider"></div>
-        <div class="profile-section-title">Change Password</div>
-        <div class="profile-field">
-          <label class="profile-label">New Password</label>
-          <input class="profile-input" id="profileNewPw" type="password" placeholder="New password (optional)"/>
-        </div>
-        <div class="profile-field">
-          <label class="profile-label">Confirm New Password</label>
-          <input class="profile-input" id="profileConfirmPw" type="password" placeholder="Re-enter new password"/>
-        </div>
-
-        <div class="profile-divider"></div>
-        <div class="profile-msg" id="profileMsg"></div>
-        <button class="profile-save-btn" onclick="saveProfile()">Save Changes</button>
-        <button class="profile-logout-btn" onclick="doLogout()">Sign Out</button>
       </div>
     </div>
-  </div>
+
+    <!-- ── MAIN GRID ── -->
+    <div class="pf-grid">
+
+      <!-- LEFT COL -->
+      <div class="pf-col-left">
+
+        <!-- XP / Level / Rank hero card -->
+        <div class="pf-hero-card">
+          <div class="pf-hero-item">
+            <div class="pf-hero-val" id="pfXP">—</div>
+            <div class="pf-hero-label">Total XP</div>
+          </div>
+          <div class="pf-hero-divider"></div>
+          <div class="pf-hero-item">
+            <div class="pf-hero-val" id="pfLevel">—</div>
+            <div class="pf-hero-label">Level</div>
+          </div>
+          <div class="pf-hero-divider"></div>
+          <div class="pf-hero-item">
+            <div class="pf-hero-val pf-rank-val" id="pfRank">—</div>
+            <div class="pf-hero-label">Global Rank</div>
+          </div>
+        </div>
+
+        <!-- XP progress to next level -->
+        <div class="pf-xp-bar-wrap">
+          <div class="pf-xp-bar-labels">
+            <span id="pfXpBarLabel">Level progress</span>
+            <span id="pfXpBarPct">—</span>
+          </div>
+          <div class="pf-xp-track"><div class="pf-xp-fill" id="pfXpFill" style="width:0%"></div></div>
+        </div>
+
+        <!-- Stats grid -->
+        <div class="pf-stats-grid">
+          <div class="pf-stat-card">
+            <div class="pf-stat-icon pf-stat-icon--green">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="pf-stat-val" id="pfSolved">—</div>
+            <div class="pf-stat-label">Solved</div>
+          </div>
+          <div class="pf-stat-card">
+            <div class="pf-stat-icon pf-stat-icon--dim">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M8 5v3.5l2.5 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div class="pf-stat-val" id="pfRemaining">—</div>
+            <div class="pf-stat-label">Remaining</div>
+          </div>
+          <div class="pf-stat-card">
+            <div class="pf-stat-icon pf-stat-icon--gold">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l1.5 4h4l-3.2 2.4 1.2 4L8 9.5l-3.5 2.4 1.2-4L2.5 5.5h4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="pf-stat-val" id="pfBadges">—</div>
+            <div class="pf-stat-label">Badges</div>
+          </div>
+          <div class="pf-stat-card">
+            <div class="pf-stat-icon pf-stat-icon--red">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2C5 2 2.5 4.5 2.5 7.5c0 1.8.9 3.3 2.2 4.3L8 14l3.3-2.2c1.3-1 2.2-2.5 2.2-4.3C13.5 4.5 11 2 8 2z" stroke="currentColor" stroke-width="1.3"/><path d="M8 5.5v2l1.5 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            </div>
+            <div class="pf-stat-val" id="pfFirstBloods">—</div>
+            <div class="pf-stat-label">First Bloods</div>
+          </div>
+        </div>
+
+        <!-- Daily streak -->
+        <div class="pf-card">
+          <div class="pf-card-title">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 12c-2.8 0-5-1.8-5-4.5 0-1.8 1-3 2-4 .2 1.2.8 2 1.5 2.5C5.5 4.5 6.5 2 7 1c.5 2 2.5 3 2.5 5 .7-.5 1.2-1.3 1.5-2.5 1 1 2 2.2 2 4C13 10.2 9.8 12 7 12z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+            Daily Streak
+          </div>
+          <div class="pf-streak-row">
+            <div class="pf-streak-val" id="pfStreakCurrent">—</div>
+            <div class="pf-streak-unit">day streak</div>
+            <div class="pf-streak-best">Best: <span id="pfStreakLongest">—</span></div>
+          </div>
+          <div class="pf-streak-dots" id="pfStreakDots"></div>
+        </div>
+
+        <!-- Daily challenge -->
+        <div class="pf-card" id="pfDailyChallengeCard">
+          <div class="pf-card-title">
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3.5l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Daily Challenge
+          </div>
+          <div class="pf-daily" id="pfDailyInner">
+            <div class="pf-daily-loading">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="pf-quick-actions">
+          <button class="pf-action-btn" onclick="showPage('ctf')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="2" width="11" height="10" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h4M7 5v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Start Challenge
+          </button>
+          <button class="pf-action-btn" onclick="pfShowTab('leaderboard')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 11V7M5.5 11V4M9 11V6M12.5 11V2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Leaderboard
+          </button>
+          <button class="pf-action-btn" onclick="pfShowTab('settings')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.9 2.9l1.1 1.1M10 10l1.1 1.1M2.9 11.1L4 10M10 4l1.1-1.1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Settings
+          </button>
+        </div>
+
+      </div><!-- /left col -->
+
+      <!-- RIGHT COL -->
+      <div class="pf-col-right">
+
+        <!-- Tab nav -->
+        <div class="pf-tabs">
+          <button class="pf-tab active" data-tab="activity" onclick="pfShowTab('activity')">Activity</button>
+          <button class="pf-tab" data-tab="badges" onclick="pfShowTab('badges')">Badges</button>
+          <button class="pf-tab" data-tab="leaderboard" onclick="pfShowTab('leaderboard')">Leaderboard</button>
+          <button class="pf-tab" data-tab="notifications" onclick="pfShowTab('notifications')">
+            Notifications
+            <span class="pf-notif-dot" id="pfNotifDot" style="display:none"></span>
+          </button>
+          <button class="pf-tab" data-tab="settings" onclick="pfShowTab('settings')">Settings</button>
+        </div>
+
+        <!-- ── ACTIVITY TAB ── -->
+        <div class="pf-tab-panel active" id="pfTab-activity">
+          <div class="pf-section-label">Recent Solves</div>
+          <div id="pfRecentSolves" class="pf-activity-list">
+            <div class="pf-empty">Loading…</div>
+          </div>
+        </div>
+
+        <!-- ── BADGES TAB ── -->
+        <div class="pf-tab-panel" id="pfTab-badges">
+          <div class="pf-section-label">Earned Badges</div>
+          <div id="pfBadgeGrid" class="pf-badge-grid">
+            <div class="pf-empty">Loading…</div>
+          </div>
+          <div class="pf-section-label" style="margin-top:24px">Locked Badges</div>
+          <div id="pfBadgeGridLocked" class="pf-badge-grid pf-badge-grid--locked">
+            <div class="pf-empty">Loading…</div>
+          </div>
+        </div>
+
+        <!-- ── LEADERBOARD TAB ── -->
+        <div class="pf-tab-panel" id="pfTab-leaderboard">
+          <div class="pf-lb-header">
+            <div class="pf-section-label" style="margin:0">Top Players</div>
+            <button class="pf-lb-refresh" onclick="pfLoadLeaderboard(true)" title="Refresh">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M12 7A5 5 0 112.5 4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M2.5 2v2.5H5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div id="pfLeaderboard" class="pf-lb-list">
+            <div class="pf-empty">Click refresh to load.</div>
+          </div>
+        </div>
+
+        <!-- ── NOTIFICATIONS TAB ── -->
+        <div class="pf-tab-panel" id="pfTab-notifications">
+          <div class="pf-notif-header">
+            <div class="pf-section-label" style="margin:0">Notifications</div>
+            <button class="pf-lb-refresh" onclick="pfMarkNotifsRead()" title="Mark all read">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 7l4 4 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <div id="pfNotifList" class="pf-notif-list">
+            <div class="pf-empty">Loading…</div>
+          </div>
+        </div>
+
+        <!-- ── SETTINGS TAB ── -->
+        <div class="pf-tab-panel" id="pfTab-settings">
+
+          <div class="pf-section-label">Personal Information</div>
+          <div class="pf-field">
+            <label class="pf-label">Full Name</label>
+            <input class="pf-input" id="profileName" type="text" placeholder="Your full name" maxlength="60"/>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Email Address</label>
+            <input class="pf-input" id="profileEmail" type="email" disabled/>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Username</label>
+            <input class="pf-input" id="profileUsername" type="text" placeholder="Your username" maxlength="30"/>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Bio</label>
+            <input class="pf-input" id="profileBio" type="text" placeholder="Tell us about yourself…" maxlength="200"/>
+          </div>
+
+          <div class="pf-divider"></div>
+          <div class="pf-section-label">Change Password</div>
+          <div class="pf-field">
+            <label class="pf-label">New Password</label>
+            <input class="pf-input" id="profileNewPw" type="password" placeholder="New password (optional)"/>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Confirm New Password</label>
+            <input class="pf-input" id="profileConfirmPw" type="password" placeholder="Re-enter new password"/>
+          </div>
+
+          <div class="pf-divider"></div>
+          <div class="pf-msg" id="profileMsg"></div>
+          <button class="pf-save-btn" onclick="saveProfile()">Save Changes</button>
+          <button class="pf-logout-btn" onclick="doLogout()">Sign Out</button>
+
+        </div><!-- /settings tab -->
+
+      </div><!-- /right col -->
+    </div><!-- /grid -->
+  </div><!-- /shell -->
 </div>
+
 
 
 
@@ -961,21 +1145,38 @@
       doc.querySelectorAll('[onclick],[onerror],[onload],[onmouseover]').forEach(function(el){
         ['onclick','onerror','onload','onmouseover'].forEach(function(attr){ el.removeAttribute(attr); });
       });
-      var target = document.getElementById(page + 'Page');
+      var target = document.getElementById(page === 'ctf-room' ? 'ctfRoomPage' : page + 'Page');
       if (target) target.innerHTML = doc.body.innerHTML;
     })
     .catch(function(){});
 });
 </script>
 
-<script src="js/config.js"></script>
-<script src="js/i18n.js"></script>
-<script src="js/translate.js"></script>
-<script src="js/chapters.js"></script>
-<script src="js/chapters2.js"></script>
-<script src="js/router.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/search.js"></script>
+<script>
+// Lazy-load heavy course content files only when their page is actually opened.
+// Saves ~712KB of render-blocking JS on every page that isn't Learn/Learn2.
+window._loadedScripts = {};
+function loadScriptOnce(src) {
+  if (window._loadedScripts[src]) return window._loadedScripts[src];
+  window._loadedScripts[src] = new Promise(function(resolve, reject) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.body.appendChild(s);
+  });
+  return window._loadedScripts[src];
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="js/config.js" defer></script>
+<script src="js/i18n.js" defer></script>
+<script src="js/translate.js" defer></script>
+<script src="js/router.js" defer></script>
+<script src="js/auth.js" defer></script>
+<script src="js/search.js" defer></script>
+<script src="js/profile.js" defer></script>
 
 <script>
 /* ═══════════════════════════════════════════
@@ -1287,11 +1488,28 @@ function declineCookies(){
 
 /* Responsive */
 @media (max-width: 640px) {
+  .ctf-wrap { padding: 20px 14px 48px; }
   .ctf-grid { grid-template-columns: 1fr; }
-  .ctf-search input { width: 160px; }
-  .ctf-page-title { font-size: 26px; }
+  .ctf-search { margin-left: 0; width: 100%; }
+  .ctf-search input { width: 100%; }
+  .ctf-page-title { font-size: 24px; }
+  .ctf-page-sub { max-width: 100%; }
   .ctf-stats { gap: 8px; }
-  .ctf-stat-card { padding: 12px 14px; }
+  .ctf-stat-card { flex: 1 1 calc(50% - 8px); min-width: 0; padding: 12px 14px; }
+  .ctf-login-banner { flex-wrap: wrap; }
+  .ctf-login-banner button { width: 100%; }
+  .ctf-modal-overlay { padding: 12px; }
+  .ctf-modal { padding: 20px; max-height: 92vh; }
+  .ctf-modal-title { font-size: 20px; }
+  #ctfRunningWrap > div { flex-direction: column; }
+  .ctf-flag-row { flex-direction: column; }
+  .ctf-submit-btn { width: 100%; }
+}
+@media (max-width: 380px) {
+  .ctf-stat-card { flex: 1 1 100%; }
+  .ctf-filters { gap: 6px; }
+  .ctf-filter-btn, .ctf-diff-btn { padding: 6px 10px; font-size: 11px; }
+  .ctf-modal { padding: 16px; border-radius: 14px; }
 }
 </style>
 

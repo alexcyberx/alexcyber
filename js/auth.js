@@ -385,6 +385,8 @@ function updateNavForUser(user) {
     setText('profileAvatarBig',    initial);
     setText('profileDisplayName',  user.name     || 'User');
     setText('profileDisplayEmail', user.email    || '');
+    setText('pfUsernameTag',       user.username ? '@' + user.username : '');
+    setText('pfBioDisplay',        user.bio      || '');
     const fields = { profileName: user.name, profileEmail: user.email, profileUsername: user.username || '', profileBio: user.bio || '' };
     Object.entries(fields).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.value = val || ''; });
   } else {
@@ -453,7 +455,16 @@ async function saveProfile() {
    AUTH STATE LISTENER - auto detect login/logout
 ═══════════════════════════════════════════ */
 (async function initAuth() {
-  if (!_supabase) { console.warn('[ACX] Supabase not configured'); return; }
+  if (!_supabase) {
+    console.warn('[ACX] Supabase not configured');
+    // Still show the URL-requested page so the site isn't blank —
+    // login-only features just won't work until Supabase is reachable.
+    const pg = window._initialPage || 'home';
+    window._initialPage = null;
+    const protectedPages = ['ctf', 'profile'];
+    showPage(protectedPages.includes(pg) ? 'home' : pg);
+    return;
+  }
 
   // Restore pending redirect from sessionStorage (survives full-page OAuth redirects)
   try {
@@ -509,12 +520,16 @@ async function saveProfile() {
   // Handle Google OAuth redirect / password reset redirect
   const hash = window.location.hash;
   if (hash.includes('access_token') || hash.includes('error')) {
-    const { data } = await _supabase.auth.getSession();
-    if (data.session) {
-      await loadUserProfile(data.session.user);
-      history.replaceState(null, '', window.location.pathname + window.location.search);
-      consumePendingRedirect();
-      return;
+    try {
+      const { data } = await _supabase.auth.getSession();
+      if (data.session) {
+        await loadUserProfile(data.session.user);
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+        consumePendingRedirect();
+        return;
+      }
+    } catch (e) {
+      console.warn('[ACX] getSession failed during OAuth redirect handling', e);
     }
   }
 
@@ -524,20 +539,29 @@ async function saveProfile() {
   }
 
   // Check existing session on page load
-  const { data: { session } } = await _supabase.auth.getSession();
-  if (session) {
-    await loadUserProfile(session.user);
-    consumePendingRedirect();
-  } else {
-    // No session — route to URL-requested page (if not protected)
+  try {
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (session) {
+      await loadUserProfile(session.user);
+      consumePendingRedirect();
+    } else {
+      // No session — route to URL-requested page (if not protected)
+      const pg = window._initialPage || 'home';
+      window._initialPage = null;
+      const protectedPages = ['ctf', 'profile'];
+      if (protectedPages.includes(pg)) {
+        showPage('home');
+      } else {
+        showPage(pg);
+      }
+    }
+  } catch (e) {
+    // Network/Supabase failure — don't leave the page blank.
+    console.warn('[ACX] getSession failed, falling back to URL routing', e);
     const pg = window._initialPage || 'home';
     window._initialPage = null;
     const protectedPages = ['ctf', 'profile'];
-    if (protectedPages.includes(pg)) {
-      showPage('home');
-    } else {
-      showPage(pg);
-    }
+    showPage(protectedPages.includes(pg) ? 'home' : pg);
   }
 
   // Listen for auth changes (login, logout, token refresh)

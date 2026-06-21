@@ -1,0 +1,610 @@
+/* ═══════════════════════════════════════════
+   PROFILE PAGE  — pf-* namespace
+   Appended to css/auth.css  (or a new css/profile.css)
+   Variables: uses existing --red, --dark, --surface,
+   --surface2, --border, --text, --text-dim, --white,
+   --nav-h from variables.css
+═══════════════════════════════════════════ */
+
+/* ── Shell & Layout ── */
+#profilePage { display:none; }
+#profilePage.active { display:block; }
+
+.pf-shell {
+  min-height: calc(100vh - var(--nav-h));
+  padding-top: var(--nav-h);
+  max-width: 1060px;
+  margin: 0 auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 60px;
+}
+
+/* ── Banner ── */
+.pf-banner {
+  position: relative;
+  height: 140px;
+  border-radius: 16px;
+  margin-top: 24px;
+  background: linear-gradient(135deg, #150303 0%, #0d0d12 55%, #080814 100%);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 28px 20px;
+}
+.pf-banner-glow {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 20% 60%, rgba(220,20,20,0.18) 0%, transparent 55%);
+  pointer-events: none;
+}
+.pf-back-btn {
+  position: absolute; top: 16px; left: 16px;
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; color: #aaa;
+  cursor: pointer;
+  transition: background 0.2s;
+  z-index: 2;
+}
+.pf-back-btn:hover { background: rgba(0,0,0,0.65); }
+
+.pf-identity {
+  display: flex; align-items: flex-end; gap: 18px;
+  position: relative; z-index: 2;
+}
+.pf-avatar {
+  width: 68px; height: 68px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--red) 0%, #7a0000 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 26px; font-weight: 700; color: #fff;
+  border: 3px solid #0d0d12;
+  box-shadow: 0 4px 20px rgba(220,20,20,0.28);
+  flex-shrink: 0;
+}
+.pf-identity-text { padding-bottom: 2px; }
+.pf-display-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px; font-weight: 700; color: var(--white);
+  line-height: 1.2;
+}
+.pf-display-meta {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text-dim);
+  margin-top: 2px;
+}
+.pf-email { color: var(--text-dim); }
+.pf-username-tag { color: var(--red); font-weight: 500; }
+.pf-meta-sep { color: #333; }
+.pf-bio-display {
+  font-size: 11px; color: var(--text-dim);
+  margin-top: 4px; max-width: 400px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ── Main Grid ── */
+.pf-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+@media (max-width: 760px) {
+  .pf-grid { grid-template-columns: 1fr; }
+  .pf-banner { height: 160px; }
+  .pf-identity { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
+
+/* ── Hero XP Card ── */
+.pf-hero-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.pf-hero-item { text-align: center; flex: 1; }
+.pf-hero-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 26px; font-weight: 700; color: var(--white);
+  line-height: 1;
+}
+.pf-rank-val { color: var(--red); }
+.pf-hero-label {
+  font-size: 10px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-top: 4px;
+}
+.pf-hero-divider {
+  width: 1px; height: 36px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* ── XP Bar ── */
+.pf-xp-bar-wrap {
+  margin-bottom: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.pf-xp-bar-labels {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  margin-bottom: 8px;
+}
+.pf-xp-track {
+  height: 5px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.pf-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--red), #ff4444);
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+/* ── Stats Grid (2×2) ── */
+.pf-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.pf-stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 12px;
+  text-align: center;
+}
+.pf-stat-icon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+}
+.pf-stat-icon--green  { background: rgba(16,185,129,0.12); color: #10b981; }
+.pf-stat-icon--dim    { background: rgba(255,255,255,0.04); color: var(--text-dim); }
+.pf-stat-icon--gold   { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.pf-stat-icon--red    { background: rgba(220,20,20,0.12);  color: var(--red); }
+.pf-stat-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 22px; font-weight: 700; color: var(--white);
+  line-height: 1;
+}
+.pf-stat-label {
+  font-size: 10px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  margin-top: 4px;
+}
+
+/* ── Generic Card ── */
+.pf-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.pf-card-title {
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 11px; font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 12px;
+}
+
+/* ── Streak ── */
+.pf-streak-row {
+  display: flex; align-items: baseline; gap: 8px;
+  margin-bottom: 12px;
+}
+.pf-streak-val {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 32px; font-weight: 700;
+  color: #ef4444;
+  line-height: 1;
+}
+.pf-streak-unit { font-size: 12px; color: var(--text-dim); }
+.pf-streak-best {
+  margin-left: auto;
+  font-size: 11px; color: var(--text-dim);
+}
+.pf-streak-dots {
+  display: flex; gap: 5px;
+}
+.pf-streak-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  transition: background 0.3s;
+}
+.pf-streak-dot.on { background: #ef4444; }
+
+/* ── Daily Challenge ── */
+.pf-daily-loading { font-size: 12px; color: var(--text-dim); }
+.pf-daily-cat {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 6px;
+}
+.pf-daily-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 16px; font-weight: 700; color: var(--white);
+  margin-bottom: 8px; line-height: 1.3;
+}
+.pf-daily-meta {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text-dim);
+  margin-bottom: 14px;
+}
+.pf-daily-diff {
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  padding: 2px 7px; border-radius: 5px;
+}
+.pf-daily-diff--easy   { color: #10b981; background: rgba(16,185,129,0.1); }
+.pf-daily-diff--medium { color: #f59e0b; background: rgba(245,158,11,0.1); }
+.pf-daily-diff--hard   { color: #ef4444; background: rgba(239,68,68,0.1);  }
+.pf-daily-btn {
+  display: block; width: 100%;
+  padding: 9px;
+  background: var(--red);
+  border: none; border-radius: 9px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 700; color: #fff;
+  cursor: pointer; letter-spacing: 0.4px;
+  transition: background 0.2s;
+}
+.pf-daily-btn:hover { background: #e01010; }
+
+/* ── Quick Actions ── */
+.pf-quick-actions {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 14px;
+}
+.pf-action-btn {
+  display: flex; align-items: center; gap: 9px;
+  padding: 11px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  text-align: left;
+}
+.pf-action-btn:hover {
+  border-color: var(--border-hover);
+  background: #131318;
+  color: var(--white);
+}
+
+/* ── Right Col: Tabs ── */
+.pf-tabs {
+  display: flex; gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pf-tabs::-webkit-scrollbar { display: none; }
+.pf-tab {
+  flex: 1; min-width: 80px;
+  padding: 8px 10px;
+  background: transparent;
+  border: none; border-radius: 9px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; color: var(--text-dim);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  position: relative;
+}
+.pf-tab.active {
+  background: #1a1a22;
+  color: var(--white);
+}
+.pf-tab:hover:not(.active) { color: var(--text); }
+.pf-notif-dot {
+  position: absolute; top: 6px; right: 6px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+}
+
+.pf-tab-panel { display: none; }
+.pf-tab-panel.active { display: block; }
+
+/* ── Section Label ── */
+.pf-section-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px; font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+/* ── Activity List ── */
+.pf-activity-list { display: flex; flex-direction: column; gap: 1px; }
+.pf-activity-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  margin-bottom: 6px;
+  transition: border-color 0.2s;
+}
+.pf-activity-row:hover { border-color: var(--border-hover); }
+.pf-activity-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pf-activity-info { flex: 1; min-width: 0; }
+.pf-activity-title {
+  font-size: 13px; color: var(--white);
+  font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pf-activity-meta {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: var(--text-dim);
+  margin-top: 3px;
+}
+.pf-activity-pts {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 700;
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+/* ── Badge Grid ── */
+.pf-badge-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.pf-badge-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 10px;
+  text-align: center;
+  transition: border-color 0.2s, transform 0.15s;
+  cursor: default;
+}
+.pf-badge-card.earned:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+.pf-badge-card.locked { opacity: 0.45; }
+.pf-badge-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+}
+.pf-badge-icon--locked { background: rgba(255,255,255,0.04); }
+.pf-badge-name {
+  font-size: 11px; font-weight: 600; color: var(--white);
+  line-height: 1.3;
+}
+.pf-badge-name--locked { color: var(--text-dim); }
+.pf-badge-date {
+  font-size: 9px; color: var(--text-dim);
+  margin-top: 3px;
+}
+.pf-badge-rule {
+  font-size: 9px; color: var(--text-dim);
+  margin-top: 3px;
+}
+
+/* ── Leaderboard ── */
+.pf-lb-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.pf-lb-refresh {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  display: flex; align-items: center;
+}
+.pf-lb-refresh:hover { border-color: var(--border-hover); color: var(--white); }
+
+.pf-lb-list { display: flex; flex-direction: column; gap: 6px; }
+.pf-lb-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  transition: border-color 0.15s;
+}
+.pf-lb-row:hover { border-color: var(--border-hover); }
+.pf-lb-row--me {
+  border-color: rgba(220,20,20,0.3);
+  background: rgba(220,20,20,0.04);
+}
+.pf-lb-rank {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px; font-weight: 700;
+  color: var(--text-dim);
+  min-width: 28px;
+  text-align: center;
+}
+.pf-lb-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a1a28, #111118);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px; font-weight: 700; color: var(--text);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.pf-lb-info { flex: 1; min-width: 0; }
+.pf-lb-name {
+  font-size: 13px; color: var(--white);
+  font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pf-lb-you {
+  font-size: 9px; font-weight: 600;
+  color: var(--red);
+  background: rgba(220,20,20,0.1);
+  padding: 1px 5px; border-radius: 4px;
+  vertical-align: middle; margin-left: 5px;
+}
+.pf-lb-sub { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+.pf-lb-xp {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px; font-weight: 700; color: var(--white);
+  flex-shrink: 0;
+}
+
+/* ── Notifications ── */
+.pf-notif-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.pf-notif-list { display: flex; flex-direction: column; gap: 6px; }
+.pf-notif-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  position: relative;
+}
+.pf-notif-row--unread { border-color: rgba(220,20,20,0.2); }
+.pf-notif-type-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+.pf-notif-type-dot--badge        { background: #f59e0b; }
+.pf-notif-type-dot--challenge    { background: #3b82f6; }
+.pf-notif-type-dot--event        { background: #10b981; }
+.pf-notif-type-dot--announcement { background: var(--red); }
+.pf-notif-body { flex: 1; min-width: 0; }
+.pf-notif-title { font-size: 13px; color: var(--white); font-weight: 500; }
+.pf-notif-text  { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
+.pf-notif-time  { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+.pf-notif-unread-pip {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+/* ── Settings Tab ── */
+.pf-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+.pf-field { margin-bottom: 14px; }
+.pf-label {
+  display: block;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 10px; font-weight: 600;
+  color: #555; letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.pf-input {
+  width: 100%;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; color: var(--white);
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.pf-input::placeholder { color: #3a3a4a; }
+.pf-input:focus  { border-color: rgba(220,20,20,0.35); }
+.pf-input:disabled { color: #444; cursor: not-allowed; }
+.pf-msg {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; color: #60c060;
+  text-align: center;
+  margin-bottom: 10px;
+  min-height: 18px;
+}
+.pf-save-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--red);
+  border: none; border-radius: 10px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px; font-weight: 700; color: #fff;
+  cursor: pointer; letter-spacing: 0.5px;
+  transition: background 0.2s;
+  margin-bottom: 10px;
+}
+.pf-save-btn:hover { background: #e81818; }
+.pf-logout-btn {
+  width: 100%;
+  padding: 12px;
+  background: rgba(220,20,20,0.07);
+  border: 1px solid rgba(220,20,20,0.18);
+  border-radius: 10px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px; font-weight: 700; color: #e06060;
+  cursor: pointer; letter-spacing: 0.5px;
+  transition: all 0.2s;
+}
+.pf-logout-btn:hover { background: rgba(220,20,20,0.13); }
+
+/* ── Empty States ── */
+.pf-empty {
+  font-size: 13px; color: var(--text-dim);
+  padding: 24px 0; text-align: center;
+}
+.pf-inline-link {
+  background: none; border: none;
+  color: var(--red); font-size: 13px;
+  cursor: pointer; padding: 0;
+  text-decoration: underline;
+}
+
+/* ── Responsive tweaks ── */
+@media (max-width: 480px) {
+  .pf-tabs { gap: 1px; }
+  .pf-tab  { font-size: 11px; padding: 8px 8px; }
+  .pf-badge-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+  .pf-hero-val   { font-size: 22px; }
+}

@@ -161,11 +161,28 @@
 
 /* Responsive */
 @media (max-width: 640px) {
+  .ctf-wrap { padding: 20px 14px 48px; }
   .ctf-grid { grid-template-columns: 1fr; }
-  .ctf-search input { width: 160px; }
-  .ctf-page-title { font-size: 26px; }
+  .ctf-search { margin-left: 0; width: 100%; }
+  .ctf-search input { width: 100%; }
+  .ctf-page-title { font-size: 24px; }
+  .ctf-page-sub { max-width: 100%; }
   .ctf-stats { gap: 8px; }
-  .ctf-stat-card { padding: 12px 14px; }
+  .ctf-stat-card { flex: 1 1 calc(50% - 8px); min-width: 0; padding: 12px 14px; }
+  .ctf-login-banner { flex-wrap: wrap; }
+  .ctf-login-banner button { width: 100%; }
+  .ctf-modal-overlay { padding: 12px; }
+  .ctf-modal { padding: 20px; max-height: 92vh; }
+  .ctf-modal-title { font-size: 20px; }
+  #ctfRunningWrap > div { flex-direction: column; }
+  .ctf-flag-row { flex-direction: column; }
+  .ctf-submit-btn { width: 100%; }
+}
+@media (max-width: 380px) {
+  .ctf-stat-card { flex: 1 1 100%; }
+  .ctf-filters { gap: 6px; }
+  .ctf-filter-btn, .ctf-diff-btn { padding: 6px 10px; font-size: 11px; }
+  .ctf-modal { padding: 16px; border-radius: 14px; }
 }
 </style>
 

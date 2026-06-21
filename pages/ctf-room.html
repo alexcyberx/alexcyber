@@ -151,12 +151,28 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .room-hero { flex-direction: column; }
+  .room-wrap { padding: 20px 14px 48px; }
+  .room-hero { flex-direction: column; padding: 20px; }
   .room-hero-right { width: 100%; }
+  .room-title { font-size: 22px; }
+  .room-actions { width: 100%; }
+  .room-join-btn, .room-leave-btn { flex: 1; justify-content: center; }
   .room-tab { padding: 10px 12px; font-size: 12px; }
   .room-sb-head, .room-sb-row { grid-template-columns: 36px 1fr 60px 60px; }
   .room-sb-head > *:last-child, .room-sb-row > *:last-child { display: none; }
   .room-lab-iframe { height: 420px; }
+  .room-flag-area { flex-direction: column; }
+  .room-flag-submit { width: 100%; }
+  .room-lab-bar { flex-wrap: wrap; gap: 8px; }
+  .room-lab-actions { width: 100%; }
+  .room-lab-action-btn { flex: 1; }
+}
+@media (max-width: 400px) {
+  .room-sb-head, .room-sb-row { grid-template-columns: 30px 1fr 50px; }
+  .room-sb-head > *:nth-last-child(2), .room-sb-row > *:nth-last-child(2) { display: none; }
+  .room-challenge-header { padding: 12px 14px; gap: 10px; }
+  .room-challenge-pts { font-size: 14px; }
+  .room-lab-iframe { height: 340px; }
 }
 </style>
 

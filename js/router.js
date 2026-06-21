@@ -186,7 +186,9 @@ function showPage(page, skipPush) {
       sidebarOpen = true;
     }
     // Always load chapter to ensure translation is applied
-    loadChapter(currentChapter);
+    loadScriptOnce('js/chapters.js').then(function() {
+      loadChapter(currentChapter);
+    });
   }
 
   // Init CTF page
@@ -201,7 +203,9 @@ function showPage(page, skipPush) {
       document.getElementById('cyberLearnMain').classList.remove('full');
       cyberSidebarOpen = true;
     }
-    loadCyberChapter(currentCyberChapter);
+    loadScriptOnce('js/chapters2.js').then(function() {
+      loadCyberChapter(currentCyberChapter);
+    });
   }
 }
 
@@ -210,6 +214,17 @@ function scrollToSection(id) {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   }, 50);
+}
+
+// "Tutorials" nav links should land on the course-selection section
+// (Choose Your Path), not jump straight into a specific course's chapters.
+function goToTutorials() {
+  if (currentPage !== 'home') {
+    showPage('home');
+    setTimeout(() => scrollToSection('tutorials'), 100);
+  } else {
+    scrollToSection('tutorials');
+  }
 }
 
 /* ═══════════════════════════
