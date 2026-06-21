@@ -163,7 +163,7 @@
 .ht-p { color: #ff1a1a; font-weight: 700; margin-right: 6px; }
 .ht-c { color: #e2e8f0; font-weight: 500; }
 .ht-out { color: #6b7280; padding-left: 16px; display: block; font-size: 12px; }
-.ht-red { color: #f87171; padding-left: 16px; display: block; font-size: 12px; }
+.ht-red { color: #ff1a1a; padding-left: 16px; display: block; font-size: 12px; }
 .ht-green { color: #4ade80; padding-left: 16px; display: block; font-size: 12px; }
 .ht-cursor2 {
   display: inline-block; width: 7px; height: 13px;
@@ -419,7 +419,7 @@ footer {
 .ht-dim { color: #484858; }
 .ht-white { color: #c8c8d0; }
 .ht-green-b { color: #ff4d4d; font-weight: 600; }
-.ht-red-b   { color: #f87171; font-weight: 600; }
+.ht-red-b   { color: #ff1a1a; font-weight: 600; }
 .ht-blink {
   color: #ff1a1a;
   animation: blink 1s step-end infinite;
@@ -739,7 +739,7 @@ footer {
 .ht-col-right .ht-c { color: #e2e8f0; font-weight: 500; }
 .ht-col-right .ht-dim { color: #484858; }
 .ht-col-right .ht-white { color: #c8c8d0; }
-.ht-col-right .ht-red-b { color: #f87171; font-weight: 600; }
+.ht-col-right .ht-red-b { color: #ff1a1a; font-weight: 600; }
 
 @media (max-width: 640px) {
   .ht-body-split {
