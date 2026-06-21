@@ -229,21 +229,45 @@
             <div class="hero-terminal">
         <div class="ht-bar">
           <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
-          <span class="ht-title">root@alexcyberx ~ #</span>
+          <span class="ht-title">root@alexcyberx ~ $</span>
         </div>
-        <div class="ht-body ht-body-single">
+        <div class="ht-body ht-body-split">
+          <div class="ht-col-left">
           <div class="ht-line"><span class="ht-p">$</span> <span class="ht-c">sudo su</span></div>
           <div class="ht-line ht-indent"><span class="ht-dim">[sudo] password for alex: </span><span class="ht-blink">_</span></div>
-          <div class="ht-line ht-indent"><span class="ht-green-b">root access granted.</span></div>
-          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">#</span> <span class="ht-c">rm -rf /</span></div>
+          <div class="ht-line ht-indent"><span class="ht-red-b">root access granted.</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-c">rm -rf /</span></div>
           <div class="ht-line ht-indent"><span class="ht-dim">removing /bin... </span><span class="ht-red-b">done</span></div>
           <div class="ht-line ht-indent"><span class="ht-dim">removing /etc... </span><span class="ht-red-b">done</span></div>
           <div class="ht-line ht-indent"><span class="ht-dim">removing /home/alex/life-savings...</span></div>
           <div class="ht-line ht-indent"><span class="ht-red-b">permission denied.</span> <span class="ht-dim">(nice try)</span></div>
-          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">#</span> <span class="ht-c">cat /etc/motd</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-c">cat /etc/motd</span></div>
           <div class="ht-line ht-indent"><span class="ht-white">you just nuked the server.</span></div>
           <div class="ht-line ht-indent"><span class="ht-white">hope it wasn't production.</span></div>
-          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">#</span> <span class="ht-cursor2"></span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-c">echo 'gg'</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">gg</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-c">reboot</span></div>
+          <div class="ht-line ht-indent"><span class="ht-red-b">system halted.</span> <span class="ht-dim">(it's still production)</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-cursor2"></span></div>
+          </div>
+          <div class="ht-col-right">
+          <div class="ht-line"><span class="ht-pr">$</span> <span class="ht-c">nmap -sV target.com</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">Starting Nmap scan...</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">22/tcp open ssh</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">80/tcp open http</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-c">hydra -l admin -P rockyou.txt ssh://target.com</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">Hydra v9.4 starting...</span></div>
+          <div class="ht-line ht-indent"><span class="ht-red-b">login: admin pass: p@ss123</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-c">sqlmap -u target.com/login --dbs</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">Backend DBMS: MySQL</span></div>
+          <div class="ht-line ht-indent"><span class="ht-red-b">DBs: users_db, admin_panel</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-c">gobuster dir -u target.com -w common.txt</span></div>
+          <div class="ht-line ht-indent"><span class="ht-red-b">/admin /backup /config</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-c">whoami</span></div>
+          <div class="ht-line ht-indent"><span class="ht-white">root</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">target fully owned.</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-cursor2"></span></div>
+          </div>
         </div>
       </div>
       <div class="hero-tags">

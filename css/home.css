@@ -148,7 +148,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 340px;
+  min-height: 400px;
 }
 .ht-bar {
   padding: 10px 14px;
@@ -160,7 +160,7 @@
 }
 .ht-title { font-size: 10px; font-weight: 500; color: var(--text-dim); letter-spacing: 0.5px; margin-left: 8px; }
 .ht-body { padding: 18px 20px; font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace; font-size: 13px; line-height: 1.9; flex: 1; }
-.ht-p { color: var(--red); font-weight: 700; margin-right: 6px; }
+.ht-p { color: #ff1a1a; font-weight: 700; margin-right: 6px; }
 .ht-c { color: #e2e8f0; font-weight: 500; }
 .ht-out { color: #6b7280; padding-left: 16px; display: block; font-size: 12px; }
 .ht-red { color: #f87171; padding-left: 16px; display: block; font-size: 12px; }
@@ -401,10 +401,10 @@ footer {
 
 /* ── Single-column hero terminal (v30) ── */
 .ht-body-single {
-  padding: 18px 22px;
+  padding: 22px 26px;
   font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-  font-size: 12.5px;
-  line-height: 1;
+  font-size: 13.5px;
+  line-height: 1.15;
 }
 .ht-line {
   display: flex;
@@ -415,13 +415,13 @@ footer {
 .ht-indent {
   padding-left: 16px;
 }
-.ht-pr  { color: #dc1414; font-weight: 700; flex-shrink: 0; }
+.ht-pr  { color: #ff1a1a; font-weight: 700; flex-shrink: 0; }
 .ht-dim { color: #484858; }
 .ht-white { color: #c8c8d0; }
-.ht-green-b { color: #4ade80; font-weight: 600; }
+.ht-green-b { color: #ff4d4d; font-weight: 600; }
 .ht-red-b   { color: #f87171; font-weight: 600; }
 .ht-blink {
-  color: #dc1414;
+  color: #ff1a1a;
   animation: blink 1s step-end infinite;
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
@@ -721,19 +721,32 @@ footer {
   padding: 0 !important;
 }
 .ht-col-left {
-  padding: 14px 16px;
-  border-right: 1px solid rgba(255,255,255,0.07);
+  padding: 18px 18px;
+  border-right: 1px solid var(--border);
+  font-size: 12px;
 }
 .ht-col-right {
-  padding: 14px 16px;
-  font-family: 'Courier New', 'Roboto Mono', monospace;
-  font-size: 11px;
-  line-height: 1.85;
+  padding: 18px 18px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.15;
   overflow: hidden;
-  background: #080810;
+  background: transparent;
 }
-.ht-col-right .ht-p { color: #dc1414; }
-.ht-col-right .ht-c { color: #e2e8f0; }
-.ht-col-right .ht-out { color: #6b7280; display: block; padding-left: 14px; }
-.ht-col-right .ht-green { color: #4ade80; display: block; padding-left: 14px; }
-.ht-col-right .ht-red { color: #f87171; display: block; padding-left: 14px; }
+.ht-col-right .ht-line { display: flex; align-items: baseline; gap: 7px; margin-bottom: 5px; }
+.ht-col-right .ht-indent { padding-left: 16px; }
+.ht-col-right .ht-pr { color: #ff1a1a; font-weight: 700; flex-shrink: 0; }
+.ht-col-right .ht-c { color: #e2e8f0; font-weight: 500; }
+.ht-col-right .ht-dim { color: #484858; }
+.ht-col-right .ht-white { color: #c8c8d0; }
+.ht-col-right .ht-red-b { color: #f87171; font-weight: 600; }
+
+@media (max-width: 640px) {
+  .ht-body-split {
+    grid-template-columns: 1fr;
+  }
+  .ht-col-left {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
