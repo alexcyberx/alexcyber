@@ -2,6 +2,11 @@
 function loadChapter(index) {
   currentChapter = index;
 
+  // Scroll to top on chapter change
+  const _lm = document.getElementById('learnMain');
+  if (_lm) _lm.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
   // Update page title with chapter name
   const chapterInfo = chapters[index];
   if (chapterInfo) {

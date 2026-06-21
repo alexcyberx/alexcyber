@@ -61,6 +61,7 @@ function getPageFromPath(path) {
   const clean = path.replace(/\/$/, '');
   if (PATH_TO_PAGE[clean]) return PATH_TO_PAGE[clean];
   // tutorials sub-paths
+  if (clean === '/tutorials/cyber-attacks-fundamentals') return 'learn2';
   if (clean.startsWith('/tutorials/')) return 'learn';
   // rooms/lab sub-paths → handled separately (lab access gate)
   if (clean.startsWith('/rooms/')) return 'ctf';

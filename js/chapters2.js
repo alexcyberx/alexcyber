@@ -23,6 +23,11 @@ let currentCyberChapter = 0;
 function loadCyberChapter(index) {
   currentCyberChapter = index;
 
+  // Scroll content area to top on chapter change
+  const _cm = document.getElementById('cyberLearnMain');
+  if (_cm) _cm.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
   const chapterInfo = cyberAttackChapters[index];
   if (chapterInfo) {
     document.title = chapterInfo.title + ', AlexCyberX Cyber Attacks Course';

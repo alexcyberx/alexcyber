@@ -226,37 +226,24 @@
 
     </div>
     <div class="hero-right">
-      <div class="hero-terminal">
+            <div class="hero-terminal">
         <div class="ht-bar">
           <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
-          <span class="ht-title">terminal alexcyberx</span>
+          <span class="ht-title">root@alexcyberx ~ #</span>
         </div>
-        <div class="ht-body ht-body-split">
-          <!-- Left: nmap commands -->
-          <div class="ht-col-left">
-            <div><span class="ht-p">$</span> <span class="ht-c">nmap -sV target.com</span></div>
-            <span class="ht-out">Starting Nmap scan...</span>
-            <span class="ht-out">PORT     STATE  SERVICE</span>
-            <span class="ht-red">22/tcp   open   ssh</span>
-            <span class="ht-red">80/tcp   open   http</span>
-            <span class="ht-red">443/tcp  open   https</span>
-            <div style="margin-top:8px"><span class="ht-p">$</span> <span class="ht-c">wireshark -i eth0</span></div>
-            <span class="ht-out">Capturing packets...</span>
-            <span class="ht-green">&#10003; 1247 packets captured</span>
-            <div style="margin-top:8px"><span class="ht-p">$</span> <span class="ht-cursor2"></span></div>
-          </div>
-          <!-- Right: Kali commands -->
-          <div class="ht-col-right">
-            <div><span class="ht-p">$</span> <span class="ht-c">hydra -l admin -P rockyou.txt ssh://target.com</span></div>
-            <span class="ht-out">Hydra v9.4 starting...</span>
-            <span class="ht-green">&#10003; login: admin  pass: p@ss123</span>
-            <div style="margin-top:8px"><span class="ht-p">$</span> <span class="ht-c">sqlmap -u "target.com/login" --dbs</span></div>
-            <span class="ht-out">Backend DBMS: MySQL</span>
-            <span class="ht-red">DBs: users_db, admin_panel</span>
-            <div style="margin-top:8px"><span class="ht-p">$</span> <span class="ht-c">gobuster dir -u target.com -w common.txt</span></div>
-            <span class="ht-red">/admin  /backup  /config</span>
-            <div style="margin-top:8px"><span class="ht-p">$</span> <span class="ht-cursor2"></span></div>
-          </div>
+        <div class="ht-body ht-body-single">
+          <div class="ht-line"><span class="ht-p">$</span> <span class="ht-c">sudo su</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">[sudo] password for alex: </span><span class="ht-blink">_</span></div>
+          <div class="ht-line ht-indent"><span class="ht-green-b">root access granted.</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">#</span> <span class="ht-c">rm -rf /</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">removing /bin... </span><span class="ht-red-b">done</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">removing /etc... </span><span class="ht-red-b">done</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">removing /home/alex/life-savings...</span></div>
+          <div class="ht-line ht-indent"><span class="ht-red-b">permission denied.</span> <span class="ht-dim">(nice try)</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">#</span> <span class="ht-c">cat /etc/motd</span></div>
+          <div class="ht-line ht-indent"><span class="ht-white">you just nuked the server.</span></div>
+          <div class="ht-line ht-indent"><span class="ht-white">hope it wasn't production.</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">#</span> <span class="ht-cursor2"></span></div>
         </div>
       </div>
       <div class="hero-tags">
@@ -1308,7 +1295,7 @@ function declineCookies(){
 </div>
 <style>
 /* ── CTF PAGE STYLES ── */
-.ctf-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
+.ctf-wrap { max-width: 1100px; margin: 0 auto; padding: calc(var(--nav-h) + 32px) 20px 60px; }
 
 /* ── USERNAME SETUP VIEW ── */
 .ctf-setup-view { max-width: 540px; margin: 60px auto; text-align: center; }
@@ -1488,7 +1475,7 @@ function declineCookies(){
 
 /* Responsive */
 @media (max-width: 640px) {
-  .ctf-wrap { padding: 20px 14px 48px; }
+  .ctf-wrap { padding: calc(var(--nav-h) + 20px) 14px 48px; }
   .ctf-grid { grid-template-columns: 1fr; }
   .ctf-search { margin-left: 0; width: 100%; }
   .ctf-search input { width: 100%; }
