@@ -1234,6 +1234,33 @@ function handleCourseClick() {
 function handleCourse2Click() {
   showPage('learn2');
 }
+
+/* ═══════════════════════════════════════════
+   SAFE WRAPPER for loadCyberChapter
+   Sidebar onclick calls this BEFORE chapters2.js is loaded.
+   This wrapper ensures chapters2.js loads first, then calls the real function.
+   Also keeps currentCyberChapter in sync globally.
+═══════════════════════════════════════════ */
+window._cyberChapterPending = null;
+function loadCyberChapter(index) {
+  // If real function already loaded, call directly
+  if (window._chapters2Loaded && typeof window._loadCyberChapterReal === 'function') {
+    window._loadCyberChapterReal(index);
+    return;
+  }
+  // Store pending index and load the script
+  window._cyberChapterPending = index;
+  loadScriptOnce('js/chapters2.js').then(function() {
+    // After load, real function is now chapters2.js's loadCyberChapter
+    // But since we replaced window.loadCyberChapter, we call internal directly
+    if (typeof window._loadCyberChapterReal === 'function') {
+      window._loadCyberChapterReal(window._cyberChapterPending !== null ? window._cyberChapterPending : 0);
+      window._cyberChapterPending = null;
+    }
+  }).catch(function(e) {
+    console.warn('[ACX] chapters2.js load failed', e);
+  });
+}
 </script>
 <!-- COOKIE CONSENT BANNER -->
 <div id="cookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#111118;border-top:1px solid rgba(255,255,255,0.08);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">

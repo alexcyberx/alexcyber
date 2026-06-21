@@ -20,8 +20,13 @@ const cyberAttackChapters = [
 
 let currentCyberChapter = 0;
 
-function loadCyberChapter(index) {
+// Mark chapters2.js as loaded so the safe wrapper in index.html knows
+window._chapters2Loaded = true;
+
+function _loadCyberChapterReal(index) {
   currentCyberChapter = index;
+  // Also update global reference so router.js can read it
+  window._currentCyberChapterIndex = index;
 
   // Scroll content area to top on chapter change
   const _cm = document.getElementById('cyberLearnMain');
@@ -275,7 +280,7 @@ function loadCyberChapter(index) {
 
       <h2>2. MITM Attack Interactive Diagram</h2>
       <div style="border:1px solid rgba(220,20,20,0.2);border-radius:14px;overflow:hidden;margin:0 0 28px;background:#0f0f13;">
-        <iframe class="acx-diagram-frame" data-diagram="mitm-attack" src="diagrams/mitm-attack.html" scrolling="no" style="width:100%;height:800px;border:none;display:block;overflow:hidden;" loading="lazy" title="MITM Attack Interactive Diagram"></iframe>
+        <iframe class="acx-diagram-frame" data-diagram="mitm-attack" src="/diagrams/mitm-attack.html" scrolling="no" style="width:100%;height:800px;border:none;display:block;overflow:hidden;" loading="lazy" title="MITM Attack Interactive Diagram"></iframe>
       </div>
 
       <h2>3. MITM Attack Types</h2>
@@ -388,7 +393,7 @@ But attacker reads everything in between</code></pre>
 
       <h2>3. DoS / DDoS Interactive Diagram</h2>
       <div style="border:1px solid rgba(220,20,20,0.2);border-radius:14px;overflow:hidden;margin:0 0 28px;background:#080810;">
-        <iframe class="acx-diagram-frame" data-diagram="dos-attack" src="diagrams/dos-attack.html" scrolling="no" style="width:100%;height:900px;border:none;display:block;overflow:hidden;" loading="lazy" title="DoS Attack Interactive Diagram"></iframe>
+        <iframe class="acx-diagram-frame" data-diagram="dos-attack" src="/diagrams/dos-attack.html" scrolling="no" style="width:100%;height:900px;border:none;display:block;overflow:hidden;" loading="lazy" title="DoS Attack Interactive Diagram"></iframe>
       </div>
 
       <h2>4. DoS/DDoS Attack Types</h2>
@@ -552,7 +557,7 @@ Result: Admin account bina password ke access ho jaata hai</code></pre>
 
       <h2>7. Attack Simulation: Interactive Diagram</h2>
       <p style="margin-bottom:16px;">Neeche diagram mein dekho kaise SQL Injection step-by-step kaam karta hai. Attacker kaise query inject karta hai aur database expose hoti hai.</p>
-        <iframe class="acx-diagram-frame" data-diagram="sql-injection" src="diagrams/sql-injection.html" scrolling="no" style="width:100%;height:820px;border:none;display:block;overflow:hidden;" loading="lazy" title="SQL Injection Attack Simulation"></iframe>
+        <iframe class="acx-diagram-frame" data-diagram="sql-injection" src="/diagrams/sql-injection.html" scrolling="no" style="width:100%;height:820px;border:none;display:block;overflow:hidden;" loading="lazy" title="SQL Injection Attack Simulation"></iframe>
 
     `;
   }
@@ -647,7 +652,7 @@ User connects to fake bank, credentials stolen</code></pre>
 
       <h2>3. DNS Spoofing Interactive Diagram</h2>
       <div style="border:1px solid rgba(220,20,20,0.2);border-radius:14px;overflow:hidden;margin:0 0 28px;background:#080810;">
-        <iframe class="acx-diagram-frame" data-diagram="dns-spoofing" src="diagrams/dns-spoofing.html" scrolling="no" style="width:100%;height:750px;border:none;display:block;overflow:hidden;" loading="lazy" title="DNS Spoofing Interactive Diagram"></iframe>
+        <iframe class="acx-diagram-frame" data-diagram="dns-spoofing" src="/diagrams/dns-spoofing.html" scrolling="no" style="width:100%;height:750px;border:none;display:block;overflow:hidden;" loading="lazy" title="DNS Spoofing Interactive Diagram"></iframe>
       </div>
 
       <h2>4. Cache Poisoning: Technical Details</h2>
@@ -783,7 +788,7 @@ User connects to fake bank, credentials stolen</code></pre>
 
       <h2>2. TLS Handshake Interactive Diagram</h2>
       <div style="border:1px solid rgba(220,20,20,0.2);border-radius:14px;overflow:hidden;margin:0 0 28px;background:#080810;">
-        <iframe class="acx-diagram-frame" data-diagram="tls-handshake" src="diagrams/tls-handshake.html" style="width:100%;height:980px;border:none;display:block;" loading="lazy" title="TLS Handshake Interactive Diagram"></iframe>
+        <iframe class="acx-diagram-frame" data-diagram="tls-handshake" src="/diagrams/tls-handshake.html" style="width:100%;height:980px;border:none;display:block;" loading="lazy" title="TLS Handshake Interactive Diagram"></iframe>
       </div>
 
       <h2>3. TLS Handshake Steps</h2>
@@ -1088,3 +1093,9 @@ User connects to fake bank, credentials stolen</code></pre>
     cyberSidebarOpen = false;
   }
 }
+
+// Expose to global scope so the safe wrapper (index.html) and router.js can call it
+window._loadCyberChapterReal = _loadCyberChapterReal;
+// Also override the global loadCyberChapter so future onclick calls work directly
+window.loadCyberChapter = _loadCyberChapterReal;
+

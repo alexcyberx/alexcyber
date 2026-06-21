@@ -188,7 +188,11 @@ function showPage(page, skipPush) {
     }
     // Always load chapter to ensure translation is applied
     loadScriptOnce('js/chapters.js').then(function() {
-      loadChapter(currentChapter);
+      if (typeof window.loadChapter === 'function') {
+        window.loadChapter(currentChapter);
+      } else if (typeof loadChapter === 'function') {
+        loadChapter(currentChapter);
+      }
     });
   }
 
@@ -205,7 +209,13 @@ function showPage(page, skipPush) {
       cyberSidebarOpen = true;
     }
     loadScriptOnce('js/chapters2.js').then(function() {
-      loadCyberChapter(currentCyberChapter);
+      // Use global index (set by _loadCyberChapterReal) or fallback to 0
+      var idx = (window._currentCyberChapterIndex !== undefined) ? window._currentCyberChapterIndex : 0;
+      if (typeof window._loadCyberChapterReal === 'function') {
+        window._loadCyberChapterReal(idx);
+      } else if (typeof loadCyberChapter === 'function') {
+        loadCyberChapter(idx);
+      }
     });
   }
 }

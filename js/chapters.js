@@ -9010,6 +9010,11 @@ Strong:
   }
 }
 
+// Expose to global scope so router.js can call reliably after lazy load
+window.loadChapter = loadChapter;
+// Mark as loaded
+window._chapters1Loaded = true;
+
 // Chapter loads only when user navigates to learn page (via showPage)
 
 
