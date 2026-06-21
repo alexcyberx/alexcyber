@@ -46,13 +46,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/variables.css">
-  <link rel="stylesheet" href="css/nav.css">
-  <link rel="stylesheet" href="css/home.css">
-  <link rel="stylesheet" href="css/learn.css">
-  <link rel="stylesheet" href="css/auth.css">
-  <link rel="stylesheet" href="css/profile.css">
-  <link rel="stylesheet" href="css/modal.css">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="/css/learn.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/profile.css">
+  <link rel="stylesheet" href="/css/modal.css">
 </head>
 <body>
 
@@ -1157,13 +1157,13 @@ function loadScriptOnce(src) {
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<script src="js/config.js" defer></script>
-<script src="js/i18n.js" defer></script>
-<script src="js/translate.js" defer></script>
-<script src="js/router.js" defer></script>
-<script src="js/auth.js" defer></script>
-<script src="js/search.js" defer></script>
-<script src="js/profile.js" defer></script>
+<script src="/js/config.js" defer></script>
+<script src="/js/i18n.js" defer></script>
+<script src="/js/translate.js" defer></script>
+<script src="/js/router.js" defer></script>
+<script src="/js/auth.js" defer></script>
+<script src="/js/search.js" defer></script>
+<script src="/js/profile.js" defer></script>
 
 <script>
 /* ═══════════════════════════════════════════
@@ -1248,7 +1248,7 @@ function handleCourse2Click() {
       window.loadChapter._real(index);
     } else {
       _q1 = index;
-      loadScriptOnce('js/chapters.js').then(function() {
+      loadScriptOnce('/js/chapters.js').then(function() {
         if (window.loadChapter._real && _q1 !== null) {
           window.loadChapter._real(_q1);
           _q1 = null;
@@ -1265,7 +1265,7 @@ function handleCourse2Click() {
       window.loadCyberChapter._real(index);
     } else {
       _q2 = index;
-      loadScriptOnce('js/chapters2.js').then(function() {
+      loadScriptOnce('/js/chapters2.js').then(function() {
         if (window.loadCyberChapter._real && _q2 !== null) {
           window.loadCyberChapter._real(_q2);
           _q2 = null;

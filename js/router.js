@@ -188,7 +188,7 @@ function showPage(page, skipPush) {
       sidebarOpen = true;
     }
     // Load chapters.js then call loadChapter
-    loadScriptOnce('js/chapters.js').then(function() {
+    loadScriptOnce('/js/chapters.js').then(function() {
       var fn = window.loadChapter && window.loadChapter._real
                ? window.loadChapter._real
                : (window.loadChapter || null);
@@ -208,7 +208,7 @@ function showPage(page, skipPush) {
       document.getElementById('cyberLearnMain').classList.remove('full');
       cyberSidebarOpen = true;
     }
-    loadScriptOnce('js/chapters2.js').then(function() {
+    loadScriptOnce('/js/chapters2.js').then(function() {
       var fn = window.loadCyberChapter && window.loadCyberChapter._real
                ? window.loadCyberChapter._real
                : (window.loadCyberChapter || null);
