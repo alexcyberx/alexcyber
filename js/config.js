@@ -17,3 +17,4 @@ const _supabase = (typeof supabase !== 'undefined' && SUPABASE_URL !== 'YOUR_SUP
     })
   : null;
 
+window._supabase = _supabase;
