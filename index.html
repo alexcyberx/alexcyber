@@ -1784,8 +1784,9 @@ async function loadCTFChallenges() {
   if (!window._supabase) return;
 
   const { data, error } = await window._supabase
-    .from('ctf_challenges_public')
-    .select('*')
+    .from('ctf_challenges')
+    .select('id,slug,room_id,status,title,category,difficulty,solve_count,points,xp_reward,description,hints,lab_url,lab_api_path,instance_managed,icon,icon_class,scenario,author,tags,objectives,created_at')
+    .eq('status','active')
     .order('created_at', { ascending: true });
 
   if (error || !data) {
