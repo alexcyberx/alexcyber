@@ -1780,10 +1780,12 @@ let ctfChallenges = window.CTF_CHALLENGES = [];
 let _ctfChallengesLoaded = false;
 
 async function loadCTFChallenges() {
-  if (_ctfChallengesLoaded) return; // already fetched, don't re-fetch
+  if (_ctfChallengesLoaded) return;
   if (!window._supabase) return;
 
-  const SAFE_COLS = 'id,slug,room_id,status,title,category,difficulty,solve_count,points,xp_reward,description,hints,lab_url,lab_api_path,instance_managed,icon,icon_class,scenario,author,tags,objectives,created_at';
+  // slug column excluded — PostgREST schema cache issue se bachne ke liye
+  // id (UUID) use hoga — sab kaam karta hai
+  const SAFE_COLS = 'id,room_id,status,title,category,difficulty,solve_count,points,xp_reward,description,hints,lab_url,lab_api_path,instance_managed,icon,icon_class,scenario,author,tags,objectives,created_at';
 
   const { data, error } = await window._supabase
     .from('ctf_challenges')
@@ -1796,10 +1798,9 @@ async function loadCTFChallenges() {
     return;
   }
 
-  // Supabase field names → existing JS field names (backwards compat)
   ctfChallenges = window.CTF_CHALLENGES = data.map(c => ({
-    id:           c.slug,          // existing code uses string slug as id
-    dbId:         c.id,            // UUID for RPC calls
+    id:           c.id,            // UUID as id
+    dbId:         c.id,            // same UUID for RPC calls
     cat:          c.category.charAt(0).toUpperCase() + c.category.slice(1),
     icon:         c.icon || '',
     iconClass:    c.icon_class || '',
