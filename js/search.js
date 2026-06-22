@@ -1,47 +1,54 @@
 /* ═══════════════════════════════════════════
    COURSE SEARCH - AlexCyberX
+   SEARCH_DATA is built dynamically from the existing
+   content arrays (chapters, cyberAttackChapters, ctfChallenges)
+   so any new chapter / challenge added later shows up in
+   search automatically — no manual edits needed here.
 ═══════════════════════════════════════════ */
 
-const SEARCH_DATA = [
-  { type:'course',  title:'Network Forensics',              sub:'Course • 20 Chapters', page:'learn',  chapterIndex:null, tags:['network','forensics','pcap','wireshark','packet','traffic','malware','nmap'] },
-  { type:'course',  title:'Cyber Attacks Fundamentals',     sub:'Course • 11 Chapters', page:'learn2', chapterIndex:null, tags:['cyber','attacks','hacking','exploit','vulnerability','phishing','sql','xss'] },
-  { type:'chapter', title:'Network Forensics Introduction', sub:'Network Forensics • Ch 1',  page:'learn',  chapterIndex:0,  tags:['intro','forensics','overview'] },
-  { type:'chapter', title:'Networking Fundamentals',        sub:'Network Forensics • Ch 2',  page:'learn',  chapterIndex:1,  tags:['networking','basics','tcp','ip','fundamentals'] },
-  { type:'chapter', title:'OSI & TCP/IP Deep Analysis',     sub:'Network Forensics • Ch 3',  page:'learn',  chapterIndex:2,  tags:['osi','tcp','ip','model','layers'] },
-  { type:'chapter', title:'Packet Analysis Basics',         sub:'Network Forensics • Ch 4',  page:'learn',  chapterIndex:3,  tags:['packet','analysis','capture','basics'] },
-  { type:'chapter', title:'Wireshark Mastery',              sub:'Network Forensics • Ch 5',  page:'learn',  chapterIndex:4,  tags:['wireshark','filter','capture','pcap'] },
-  { type:'chapter', title:'TCP/UDP/ICMP Investigation',     sub:'Network Forensics • Ch 6',  page:'learn',  chapterIndex:5,  tags:['tcp','udp','icmp','investigation','protocol'] },
-  { type:'chapter', title:'DNS & HTTP Forensics',           sub:'Network Forensics • Ch 7',  page:'learn',  chapterIndex:6,  tags:['dns','http','forensics','web'] },
-  { type:'chapter', title:'HTTPS/TLS Analysis',             sub:'Network Forensics • Ch 8',  page:'learn',  chapterIndex:7,  tags:['https','tls','ssl','encryption','certificate'] },
-  { type:'chapter', title:'Email Forensics',                sub:'Network Forensics • Ch 9',  page:'learn',  chapterIndex:8,  tags:['email','smtp','imap','phishing','forensics'] },
-  { type:'chapter', title:'PCAP Investigation Workflow',    sub:'Network Forensics • Ch 10', page:'learn',  chapterIndex:9,  tags:['pcap','workflow','investigation'] },
-  { type:'chapter', title:'Malware Traffic Analysis',       sub:'Network Forensics • Ch 11', page:'learn',  chapterIndex:10, tags:['malware','traffic','c2','botnet','analysis'] },
-  { type:'chapter', title:'Intrusion Detection',            sub:'Network Forensics • Ch 12', page:'learn',  chapterIndex:11, tags:['ids','ips','intrusion','detection','snort'] },
-  { type:'chapter', title:'Log Correlation',                sub:'Network Forensics • Ch 13', page:'learn',  chapterIndex:12, tags:['log','correlation','siem','events'] },
-  { type:'chapter', title:'Threat Hunting',                 sub:'Network Forensics • Ch 14', page:'learn',  chapterIndex:13, tags:['threat','hunting','ioc','indicator'] },
-  { type:'chapter', title:'Memory + Network Correlation',   sub:'Network Forensics • Ch 15', page:'learn',  chapterIndex:14, tags:['memory','network','correlation'] },
-  { type:'chapter', title:'Wireless Network Forensics',     sub:'Network Forensics • Ch 16', page:'learn',  chapterIndex:15, tags:['wireless','wifi','wpa','forensics'] },
-  { type:'chapter', title:'Cloud Network Forensics',        sub:'Network Forensics • Ch 17', page:'learn',  chapterIndex:16, tags:['cloud','aws','azure','forensics'] },
-  { type:'chapter', title:'SIEM & Enterprise Investigation',sub:'Network Forensics • Ch 18', page:'learn',  chapterIndex:17, tags:['siem','enterprise','splunk'] },
-  { type:'chapter', title:'Real Incident Case Studies',     sub:'Network Forensics • Ch 19', page:'learn',  chapterIndex:18, tags:['incident','case','study','response'] },
-  { type:'chapter', title:'Career Reality & Roles',         sub:'Network Forensics • Ch 20', page:'learn',  chapterIndex:19, tags:['career','roles','jobs','analyst','soc'] },
-  { type:'chapter', title:'Home Lab From Scratch',          sub:'Network Forensics • Ch 21', page:'learn',  chapterIndex:20, tags:['home','lab','setup','kali','virtualbox'] },
-  { type:'chapter', title:'Wireshark & PCAP Mastery',       sub:'Network Forensics • Ch 22', page:'learn',  chapterIndex:21, tags:['wireshark','pcap','mastery','advanced'] },
-  { type:'chapter', title:'Threat Hunting Mastery',         sub:'Network Forensics • Ch 23', page:'learn',  chapterIndex:22, tags:['threat','hunting','advanced','mastery'] },
-  { type:'chapter', title:'DFIR & Incident Response',       sub:'Network Forensics • Ch 24', page:'learn',  chapterIndex:23, tags:['dfir','incident','response','digital'] },
-  { type:'chapter', title:'Certifications & Career Plan',   sub:'Network Forensics • Ch 25', page:'learn',  chapterIndex:24, tags:['certifications','career','ceh','oscp','cissp'] },
-  { type:'chapter', title:'Cyber Attacks Introduction',     sub:'Cyber Attacks • Ch 1',  page:'learn2', chapterIndex:0,  tags:['intro','cyber','attacks','overview'] },
-  { type:'chapter', title:'Social Engineering & Phishing',  sub:'Cyber Attacks • Ch 2',  page:'learn2', chapterIndex:1,  tags:['social','engineering','phishing','email','fraud'] },
-  { type:'chapter', title:'MITM Attack',                    sub:'Cyber Attacks • Ch 3',  page:'learn2', chapterIndex:2,  tags:['mitm','man','middle','arp','spoofing'] },
-  { type:'chapter', title:'DoS & DDoS Attacks',             sub:'Cyber Attacks • Ch 4',  page:'learn2', chapterIndex:3,  tags:['dos','ddos','denial','service','flood','botnet'] },
-  { type:'chapter', title:'SQL Injection',                  sub:'Cyber Attacks • Ch 5',  page:'learn2', chapterIndex:4,  tags:['sql','injection','sqli','database','query','bypass'] },
-  { type:'chapter', title:'XSS Attack',                     sub:'Cyber Attacks • Ch 6',  page:'learn2', chapterIndex:5,  tags:['xss','cross','site','scripting','javascript','cookie'] },
-  { type:'chapter', title:'DNS Spoofing & Poisoning',       sub:'Cyber Attacks • Ch 7',  page:'learn2', chapterIndex:6,  tags:['dns','spoofing','poisoning','cache'] },
-  { type:'chapter', title:'Ransomware & Malware',           sub:'Cyber Attacks • Ch 8',  page:'learn2', chapterIndex:7,  tags:['ransomware','malware','virus','trojan','encrypt'] },
-  { type:'chapter', title:'TLS & Encryption Attacks',       sub:'Cyber Attacks • Ch 9',  page:'learn2', chapterIndex:8,  tags:['tls','ssl','encryption','certificate','downgrade'] },
-  { type:'chapter', title:'Brute Force & Password Attacks', sub:'Cyber Attacks • Ch 10', page:'learn2', chapterIndex:9,  tags:['brute','force','password','crack','dictionary','hash'] },
-  { type:'chapter', title:'Attack Defense & Prevention',    sub:'Cyber Attacks • Ch 11', page:'learn2', chapterIndex:10, tags:['defense','prevention','firewall','waf','patch'] },
-];
+function buildSearchData() {
+  const data = [];
+
+  // Courses (static — only 2 courses exist; add a line here if a 3rd course is created)
+  data.push({ type:'course', title:'Network Forensics', sub:`Course • ${(typeof chapters !== 'undefined' ? chapters.length : 25)} Chapters`, page:'learn', chapterIndex:null, tags:['network','forensics','pcap','wireshark','packet','traffic','malware','nmap'] });
+  data.push({ type:'course', title:'Cyber Attacks Fundamentals', sub:`Course • ${(typeof cyberAttackChapters !== 'undefined' ? cyberAttackChapters.length : 11)} Chapters`, page:'learn2', chapterIndex:null, tags:['cyber','attacks','hacking','exploit','vulnerability','phishing','sql','xss'] });
+
+  // Network Forensics chapters — pulled live from router.js's `chapters` array
+  if (typeof chapters !== 'undefined') {
+    chapters.forEach((ch, i) => {
+      data.push({ type:'chapter', title: ch.title, sub: `Network Forensics • Ch ${i + 1}`, page:'learn', chapterIndex: i, tags: ch.title.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean) });
+    });
+  }
+
+  // Cyber Attacks Fundamentals chapters — pulled live from chapters2.js's `cyberAttackChapters` array
+  if (typeof cyberAttackChapters !== 'undefined') {
+    cyberAttackChapters.forEach((ch, i) => {
+      data.push({ type:'chapter', title: ch.title, sub: `Cyber Attacks • Ch ${i + 1}`, page:'learn2', chapterIndex: i, tags: ch.title.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean) });
+    });
+  }
+
+  // CTF challenges — pulled live from the ctfChallenges array, so new rooms/challenges
+  // added in the future appear in nav search automatically
+  if (typeof ctfChallenges !== 'undefined') {
+    ctfChallenges.forEach(c => {
+      data.push({
+        type: 'ctf',
+        title: c.title,
+        sub: `CTF • ${c.cat}${c.diff ? ' • ' + c.diff : ''}`,
+        page: 'ctf',
+        chapterIndex: null,
+        ctfId: c.id,
+        tags: [c.cat, c.diff, ...(c.tags || [])].filter(Boolean).map(t => String(t).toLowerCase())
+      });
+    });
+  }
+
+  return data;
+}
+
+// Built once on load. If chapters/challenges arrays load after this script (defer ordering),
+// it's rebuilt lazily the first time a search actually runs (see _runSearch below).
+let SEARCH_DATA = buildSearchData();
 
 let _searchSelectedIndex = -1;
 let _lastSearchResults    = [];
@@ -70,8 +77,15 @@ function toggleNavSearch() {
 }
 
 /* ─── Core search logic (shared by nav + mobile) ─── */
+let _searchDataReady = false;
 function _runSearch(q) {
   if (!q) return [];
+  // Rebuild once more on first use — covers the case where ctfChallenges/chapters
+  // (defined in scripts loaded after this one) weren't ready when this file first ran.
+  if (!_searchDataReady) {
+    SEARCH_DATA = buildSearchData();
+    _searchDataReady = true;
+  }
   return SEARCH_DATA.filter(item =>
     item.title.toLowerCase().includes(q) ||
     item.sub.toLowerCase().includes(q)   ||
@@ -86,10 +100,12 @@ function _renderResults(results, q, dropdownEl) {
     return;
   }
   dropdownEl.innerHTML = results.map((item, i) => {
-    const isCourse = item.type === 'course';
-    const iconSvg  = isCourse
+    const iconSvg = item.type === 'course'
       ? `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2" stroke="#dc1414" stroke-width="1.2"/><path d="M4 6.5h5M4 4.5h3" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/></svg>`
+      : item.type === 'ctf'
+      ? `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 1.5v10M2 1.5h7l-1.2 2.2L9 6H2" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
       : `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 10l4-8 4 8" stroke="#555" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 7h5" stroke="#555" stroke-width="1.2" stroke-linecap="round"/></svg>`;
+    const badgeLabel = item.type === 'course' ? 'Course' : item.type === 'ctf' ? 'CTF' : 'Chapter';
     const hiTitle = escapeHtml(item.title).replace(
       new RegExp(escapeHtml(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi'),
       m => `<span class="search-highlight">${m}</span>`
@@ -100,7 +116,7 @@ function _renderResults(results, q, dropdownEl) {
         <div class="sri-title">${hiTitle}</div>
         <div class="sri-sub">${escapeHtml(item.sub)}</div>
       </div>
-      <span class="sri-badge ${item.type}">${isCourse ? 'Course' : 'Chapter'}</span>
+      <span class="sri-badge ${item.type}">${badgeLabel}</span>
     </div>`;
   }).join('');
   dropdownEl.style.display = '';
@@ -151,6 +167,8 @@ function selectSearchResult(index, isMobile) {
     showPage('learn');  setTimeout(() => loadChapter(item.chapterIndex), 80);
   } else if (item.page === 'learn2' && item.chapterIndex !== null) {
     showPage('learn2'); setTimeout(() => loadCyberChapter(item.chapterIndex), 80);
+  } else if (item.page === 'ctf' && item.ctfId) {
+    showPage('ctf'); setTimeout(() => { if (typeof openCTFModal === 'function') openCTFModal(item.ctfId); }, 150);
   } else {
     showPage(item.page);
   }

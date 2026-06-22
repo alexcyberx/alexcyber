@@ -376,9 +376,9 @@ async function openCTFRoom(roomId) {
     _roomSolvedSet = new Set((solves||[]).map(s => s.challenge_id));
   }
 
-  // Load challenges
+  // Load challenges from PUBLIC VIEW — flag column excluded by design
   const { data: challenges } = await _supabase
-    .from('ctf_challenges')
+    .from('ctf_challenges_public')
     .select('*')
     .eq('room_id', roomId)
     .eq('status', 'active')
@@ -613,32 +613,32 @@ async function submitRoomFlag(challengeId) {
   const c = _roomChallenges.find(x => x.id === challengeId);
   if (!c) return;
 
-  // Get correct flag from DB
-  const { data: ch } = await _supabase
-    .from('ctf_challenges').select('flag').eq('id', challengeId).single();
+  // Server-side flag check via RPC — flag never exposed to client
+  const { data: rpcData, error: rpcErr } = await _supabase.rpc('submit_ctf_flag', {
+    p_challenge_id: challengeId,
+    p_flag: flag
+  });
 
-  const correct = ch?.flag === flag;
+  if (rpcErr) {
+    if(msgEl){msgEl.textContent='Server error. Try again.';msgEl.className='room-flag-msg error';}
+    return;
+  }
 
-  await _supabase.from('ctf_solves').upsert({
-    user_id: window._currentUser.id, challenge_id: challengeId,
-    flag_submitted: flag, correct, points_earned: correct ? c.points : 0,
-    solved_at: new Date().toISOString()
-  }, { onConflict: 'user_id,challenge_id' });
+  const result = rpcData?.[0] || rpcData || {};
+  const correct = result.correct || result.already_solved;
 
   if (correct) {
     _roomSolvedSet.add(challengeId);
     c.solve_count++;
-    if(msgEl){msgEl.textContent='🎉 Correct! +'+c.points+' XP'; msgEl.className='room-flag-msg success';}
+    const alreadySolved = result.already_solved;
+    const msg = alreadySolved ? '✓ Already solved!' : '🎉 Correct! +'+c.points+' XP';
+    if(msgEl){msgEl.textContent=msg; msgEl.className='room-flag-msg success';}
     if(input){input.disabled=true;}
 
-    // XP
-    await _supabase.rpc('add_xp',{
-      p_user_id: window._currentUser.id, p_amount: c.points,
-      p_reason: 'CTF Room: '+c.title, p_source: 'ctf'
-    });
+    // XP: submit_ctf_flag RPC already awarded XP — no duplicate add_xp call needed
+    // (add_xp was here before, removed to avoid double-award)
 
     updateProgress();
-    // Refresh challenge item
     const item = document.getElementById('rc_'+challengeId);
     if(item){ item.classList.add('completed'); }
     const numEl = item?.querySelector('.room-challenge-num');

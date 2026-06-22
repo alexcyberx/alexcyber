@@ -2425,11 +2425,12 @@ tbody td {
         <select class="select-filter" id="ctfCategoryFilter" onchange="filterCTF()">
           <option value="">All Categories</option>
           <option value="web">Web</option>
-          <option value="network">Network</option>
-          <option value="crypto">Crypto</option>
           <option value="forensics">Forensics</option>
+          <option value="crypto">Crypto</option>
           <option value="osint">OSINT</option>
-          <option value="binary">Binary Exploitation</option>
+          <option value="pwn">Pwn</option>
+          <option value="reversing">Reversing</option>
+          <option value="misc">Misc</option>
         </select>
         <select class="select-filter" id="ctfDifficultyFilter" onchange="filterCTF()">
           <option value="">All Difficulties</option>
@@ -3914,11 +3915,12 @@ tbody td {
         <label>Category</label>
         <select class="select-filter" id="ctfCategory" style="width:100%;padding:8px;">
           <option value="web">Web</option>
-          <option value="network">Network</option>
-          <option value="crypto">Crypto</option>
           <option value="forensics">Forensics</option>
+          <option value="crypto">Crypto</option>
           <option value="osint">OSINT</option>
-          <option value="binary">Binary Exploitation</option>
+          <option value="pwn">Pwn</option>
+          <option value="reversing">Reversing</option>
+          <option value="misc">Misc</option>
         </select>
       </div>
       <div class="modal-field">
@@ -4107,23 +4109,59 @@ let leaderboardUsers = [
   { id:8, name:'Sunita Patel', level:3,  xp:720,  ctfSolves:2,  badgeCount:1, weeklyXp:0,   monthlyXp:60  },
 ];
 
-/* ── CTF Challenges & Scoreboard ── */
-let ctfChallenges = [
-  { id:1, title:'Hidden in Plain Sight', desc:'Find the flag hidden inside an image file using steganography.', category:'forensics', difficulty:'easy',   flag:'flag{stegano_master}', points:50,  hints:['Check the metadata','Try strings on the file'], status:'active', solves:84 },
-  { id:2, title:'SQL Sleuth',           desc:'Exploit a vulnerable login form to extract the admin flag.',      category:'web',       difficulty:'medium', flag:'flag{union_select_win}', points:100, hints:['Try a UNION-based injection'], status:'active', solves:47 },
-  { id:3, title:'Packet Hunter',        desc:'Analyze the provided PCAP to find the exfiltrated credentials.',  category:'network',   difficulty:'medium', flag:'flag{follow_the_stream}', points:100, hints:['Follow the TCP stream in Wireshark'], status:'active', solves:39 },
-  { id:4, title:'Crack the Cipher',     desc:'Decrypt the message encrypted with a weak custom cipher.',        category:'crypto',    difficulty:'hard',   flag:'flag{xor_was_not_enough}', points:200, hints:['Look for repeating XOR patterns'], status:'active', solves:12 },
-  { id:5, title:'OSINT Trail',         desc:'Track down the username across social platforms to find the flag.', category:'osint',     difficulty:'easy',   flag:'flag{open_source_intel}', points:50,  hints:['Reverse image search the avatar'], status:'draft', solves:0 },
-  { id:6, title:'Buffer Breaker',       desc:'Exploit a simple buffer overflow to read the flag file.',         category:'binary',    difficulty:'hard',   flag:'flag{stack_smash_pro}', points:200, hints:['Check the buffer size vs input size'], status:'active', solves:6 },
-];
+/* ── CTF Challenges & Scoreboard — Supabase se load hoga ── */
+let ctfChallenges = [];  // populated by loadCTFData()
+let ctfScoreboard = [];  // populated by loadCTFScoreboard()
+let _ctfLoaded = false;
 
-let ctfScoreboard = [
-  { rank:1, user:'Deepak Nair',  solves:20, points:2450, lastSolve:'12m ago' },
-  { rank:2, user:'Vikram Rao',   solves:22, points:2380, lastSolve:'40m ago' },
-  { rank:3, user:'Rahul Sharma', solves:18, points:1980, lastSolve:'1h ago'  },
-  { rank:4, user:'Priya Singh',  solves:14, points:1420, lastSolve:'3h ago'  },
-  { rank:5, user:'Neha Joshi',   solves:11, points:1080, lastSolve:'5h ago'  },
-];
+async function loadCTFData() {
+  if (!_supabase) return;
+  // Admin base table se fetch karo (flag column included — sirf admin dekh sakta hai)
+  const { data, error } = await _supabase
+    .from('ctf_challenges')
+    .select('*')
+    .order('created_at', { ascending: true });
+  if (error) { toast('CTF load failed: ' + error.message, 'error'); return; }
+  // Normalize field names (DB uses snake_case, old JS used camelCase)
+  ctfChallenges = (data || []).map(c => ({
+    ...c,
+    desc:    c.description,
+    solves:  c.solve_count || 0,
+    hints:   c.hints || [],
+    lab_url: c.lab_url || '',
+  }));
+  _ctfLoaded = true;
+}
+
+async function loadCTFScoreboard() {
+  if (!_supabase) return;
+  const { data, error } = await _supabase
+    .from('ctf_solves')
+    .select('user_id, points_earned, solved_at, profiles(username, full_name)')
+    .eq('correct', true)
+    .order('solved_at', { ascending: false });
+  if (error || !data) return;
+
+  // Aggregate by user
+  const map = {};
+  data.forEach(row => {
+    const uid = row.user_id;
+    const name = row.profiles?.username || row.profiles?.full_name || uid.slice(0,8);
+    if (!map[uid]) map[uid] = { user: name, solves: 0, points: 0, lastSolve: row.solved_at };
+    map[uid].solves++;
+    map[uid].points += (row.points_earned || 0);
+  });
+  ctfScoreboard = Object.values(map)
+    .sort((a, b) => b.points - a.points || b.solves - a.solves)
+    .slice(0, 20)
+    .map((s, i) => ({
+      rank: i + 1,
+      user: s.user,
+      solves: s.solves,
+      points: s.points,
+      lastSolve: s.lastSolve ? new Date(s.lastSolve).toLocaleString('en-IN', { dateStyle:'short', timeStyle:'short' }) : '—'
+    }));
+}
 
 /* ── Progress Tracking & Certificates ── */
 let userProgress = [
@@ -4205,6 +4243,8 @@ function nav(id) {
   document.querySelectorAll('.sidebar-item').forEach(s => {
     if (s.getAttribute('onclick') && s.getAttribute('onclick').includes(`'${id}'`)) s.classList.add('active');
   });
+  // Reset CTF cache when leaving so re-entry always fetches fresh data
+  if (activeSection === 'ctf' && id !== 'ctf') _ctfLoaded = false;
   activeSection = id;
   renderSection(id);
 }
@@ -4915,16 +4955,27 @@ function updateLabPreview() {
   }
 }
 
-function renderCTF() {
-  const totalSolves = ctfChallenges.reduce((a,c)=>a+c.solves,0);
+async function renderCTF() {
+  // Loading state
+  const grid = document.getElementById('ctfGrid');
+  if (grid && !_ctfLoaded) grid.innerHTML = '<div style="color:var(--text-dim);font-size:12px;padding:20px;">Loading challenges...</div>';
+
+  await loadCTFData();
+  await loadCTFScoreboard();
+  renderCTFStats();
+  renderCTFGrid();
+  renderCTFScoreboard();
+}
+
+function renderCTFStats() {
+  const totalSolves = ctfChallenges.reduce((a,c)=>a+(c.solves||c.solve_count||0),0);
   const activeCount = ctfChallenges.filter(c=>c.status==='active').length;
   document.getElementById('ctfTotal').textContent = ctfChallenges.length;
   document.getElementById('ctfActiveCount').textContent = `${activeCount} active`;
   document.getElementById('ctfSolves').textContent = totalSolves.toLocaleString();
-  const xpAwarded = ctfChallenges.reduce((a,c)=>a + c.solves*c.points, 0);
+  // XP = sum of solve_count × xp_reward per challenge
+  const xpAwarded = ctfChallenges.reduce((a,c)=>a + (c.solve_count||c.solves||0)*(c.xp_reward||c.points||0), 0);
   document.getElementById('ctfXPAwarded').textContent = xpAwarded.toLocaleString();
-  renderCTFGrid();
-  renderCTFScoreboard();
 }
 
 function filterCTF(text) {
@@ -4956,7 +5007,7 @@ function renderCTFGrid() {
       <div style="font-size:12px;color:var(--text-dim);line-height:1.5;margin-bottom:10px;">${(c.desc||'').slice(0,120)}${(c.desc||'').length>120?'…':''}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:var(--text-dim);">
-          <span>${c.points} pts · ${c.solves} solves</span>
+          <span>${c.points} pts · ${c.solves || c.solve_count || 0} solves</span>
           ${labUrl ? `<span style="background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:#60a5fa;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;">LAB</span>` : ''}
           <span class="badge ${c.status==='active'?'active':c.status==='draft'?'inactive':'banned'}">${c.status}</span>
         </div>
@@ -4977,7 +5028,7 @@ function renderCTFGrid() {
 }
 
 function categoryLabel(c) {
-  const map = { web:'Web', network:'Network', crypto:'Crypto', forensics:'Forensics', osint:'OSINT', binary:'Binary Exploitation' };
+  const map = { web:'Web', forensics:'Forensics', crypto:'Crypto', osint:'OSINT', pwn:'Pwn', reversing:'Reversing', misc:'Misc' };
   return map[c] || c;
 }
 
@@ -5055,6 +5106,7 @@ async function saveCTF() {
   const difficulty = document.getElementById('ctfDifficulty').value;
   const flag       = document.getElementById('ctfFlag').value.trim();
   const points     = parseInt(document.getElementById('ctfPoints').value) || 50;
+  const xp_reward  = Math.round(points * 1.5); // XP = 1.5× points (same ratio as existing challenges)
   const hints      = document.getElementById('ctfHints').value.split('\n').map(h=>h.trim()).filter(Boolean);
   const status     = document.getElementById('ctfStatus').value;
   const lab_type   = document.getElementById('ctfLabType')?.value || '';
@@ -5063,15 +5115,34 @@ async function saveCTF() {
 
   if (!title || !flag) { toast('Title and flag are required', 'error'); return; }
 
+  // Slug: auto-generate from title if creating (e.g. "Hidden in Plain Sight" → "hidden-in-plain-sight")
+  const slug = editingCTFId
+    ? (ctfChallenges.find(x=>String(x.id)===String(editingCTFId))?.slug || null)
+    : title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
+
+  const payload = {
+    title,
+    description: desc,
+    category,
+    difficulty,
+    flag,
+    points,
+    xp_reward,
+    hints,
+    status,
+    lab_url:      lab_url || null,
+    lab_api_path: null, // only set manually for server-backed labs
+    instance_managed: false,
+  };
+
   if (!_supabase) {
-    // Local mode fallback
     if (editingCTFId) {
       const c = ctfChallenges.find(x=>String(x.id)===String(editingCTFId));
-      if(c) Object.assign(c, { title, desc, category, difficulty, flag, points, hints, status, lab_type, lab_url });
+      if(c) Object.assign(c, { ...payload, desc });
       toast(title + ' updated');
     } else {
-      ctfChallenges.unshift({ id: Date.now(), title, desc, category, difficulty, flag, points, hints, status, lab_type, lab_url, solves:0 });
-      toast(title + ' challenge created');
+      ctfChallenges.unshift({ id: 'local-' + Date.now(), slug, ...payload, desc, solves:0, solve_count:0 });
+      toast(title + ' challenge created (local only — no Supabase)');
     }
     closeModal('ctfModal');
     renderCTFStats();
@@ -5079,23 +5150,21 @@ async function saveCTF() {
     return;
   }
 
-  const payload = { title, description: desc, category, difficulty, flag, points, hints, status, lab_type, lab_url };
-
   if (editingCTFId) {
     const { error } = await _supabase
       .from('ctf_challenges').update(payload).eq('id', editingCTFId);
     if (error) { toast('Update failed: ' + error.message, 'error'); return; }
     const c = ctfChallenges.find(x=>String(x.id)===String(editingCTFId));
-    if (c) Object.assign(c, { title, desc, description: desc, category, difficulty, flag, points, hints, status, lab_type, lab_url });
-    toast(title + ' updated');
+    if (c) Object.assign(c, { ...payload, desc });
+    toast(title + ' updated ✓');
   } else {
     const { data, error } = await _supabase
       .from('ctf_challenges')
-      .insert({ ...payload, solve_count: 0 })
+      .insert({ ...payload, slug, solve_count: 0 })
       .select().single();
     if (error) { toast('Create failed: ' + error.message, 'error'); return; }
-    ctfChallenges.unshift({ id: data.id, title, desc, description: desc, category, difficulty, flag, points, hints, status, lab_type, lab_url, solves: 0 });
-    toast(title + ' challenge created!');
+    ctfChallenges.unshift({ ...data, desc: data.description, solves: 0 });
+    toast(title + ' created ✓');
   }
   closeModal('ctfModal');
   renderCTFStats();

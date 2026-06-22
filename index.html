@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Tells browsers this site is intentionally dark-themed already, so browser-level
+     "force dark mode" features (Samsung Internet, some Android Chrome builds) skip
+     auto-recoloring instead of overriding our red/black palette -->
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0a0f">
+<style>:root{color-scheme:dark;}</style>
 <!-- Security headers -->
 <!-- Security headers are set via Netlify HTTP headers (netlify.toml) -->
 <!-- X-Frame-Options, Referrer-Policy etc. must be HTTP headers, not meta tags -->
@@ -1301,18 +1307,20 @@ function handleCourse2Click() {
 </div>
 <script>
 (function(){
-  if(!localStorage.getItem('acx_cookie_consent')){
-    var b = document.getElementById('cookieBanner');
-    if(b){ b.style.display='flex'; }
-  }
+  try {
+    if(localStorage.getItem('acx_cookie_consent') !== 'accepted' && localStorage.getItem('acx_cookie_consent') !== 'declined'){
+      var b = document.getElementById('cookieBanner');
+      if(b){ b.style.display='flex'; }
+    }
+  } catch(e) { /* localStorage unavailable (private mode etc) - skip banner */ }
 })();
 function acceptCookies(){
-  localStorage.setItem('acx_cookie_consent','accepted');
+  try { localStorage.setItem('acx_cookie_consent','accepted'); } catch(e){}
   var b = document.getElementById('cookieBanner');
   if(b) b.style.display='none';
 }
 function declineCookies(){
-  localStorage.setItem('acx_cookie_consent','declined');
+  try { localStorage.setItem('acx_cookie_consent','declined'); } catch(e){}
   var b = document.getElementById('cookieBanner');
   if(b) b.style.display='none';
 }
@@ -1659,7 +1667,7 @@ function declineCookies(){
 
     <div class="ctf-search">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#6a6a7a" stroke-width="1.2"/><path d="M9 9l2.5 2.5" stroke="#6a6a7a" stroke-width="1.2" stroke-linecap="round"/></svg>
-      <input type="text" id="ctfSearchInput" placeholder="Search challenges..." oninput="ctfRender()">
+      <input type="text" id="ctfSearchInput" placeholder="Search challenges..." oninput="ctfRender()" onkeyup="ctfRender()" autocomplete="off">
     </div>
   </div>
 
@@ -1765,8 +1773,55 @@ const CTF_ICONS = {
   Misc: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#9ca3af" stroke-width="1.4"/><circle cx="10" cy="10" r="4" stroke="#9ca3af" stroke-width="1.4"/><circle cx="10" cy="10" r="1" fill="#9ca3af"/></svg>'
 };
 
-const ctfChallenges = window.CTF_CHALLENGES = [
-  // ── WEB ──
+/* ── CTF CHALLENGES: Supabase se load hoga ──
+   Hardcoded array hata diya gaya — admin panel se manage hota hai ab.
+   ctf_challenges_public view use karo (flag column expose nahi hota). */
+let ctfChallenges = window.CTF_CHALLENGES = [];
+let _ctfChallengesLoaded = false;
+
+async function loadCTFChallenges() {
+  if (_ctfChallengesLoaded) return; // already fetched, don't re-fetch
+  if (!window._supabase) return;
+
+  const { data, error } = await window._supabase
+    .from('ctf_challenges_public')
+    .select('*')
+    .order('created_at', { ascending: true });
+
+  if (error || !data) {
+    console.error('[CTF] Challenge load failed:', error);
+    return;
+  }
+
+  // Supabase field names → existing JS field names (backwards compat)
+  ctfChallenges = window.CTF_CHALLENGES = data.map(c => ({
+    id:           c.slug,          // existing code uses string slug as id
+    dbId:         c.id,            // UUID for RPC calls
+    cat:          c.category.charAt(0).toUpperCase() + c.category.slice(1),
+    icon:         c.icon || '',
+    iconClass:    c.icon_class || '',
+    title:        c.title,
+    desc:         c.description,
+    scenario:     c.scenario,
+    author:       c.author,
+    tags:         c.tags || [],
+    objectives:   c.objectives || [],
+    diff:         c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1),
+    pts:          c.points,
+    xp:           c.xp_reward,
+    hint:         c.hints?.[0] || null,
+    labUrl:       c.lab_url,
+    labApiPath:   c.lab_api_path,
+    hasLabFlow:   c.instance_managed || false,
+    room_id:      c.room_id || null,
+    solvers:      c.solve_count || 0
+  }));
+  _ctfChallengesLoaded = true;
+}
+
+// ── DUMMY PLACEHOLDER (agar Supabase down ho) ──
+// Iske baad original array tha — ab empty hai, Supabase se aayega.
+const _CTF_UNUSED = [
   {
     id: 'web-01', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
     title: 'Hidden in Plain Sight',
@@ -1975,7 +2030,7 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     hint: '`ls -la` se permissions dekho. `chmod`, `sudo`, ya `find / -name flag.txt` try karo.',
     solvers: 198
   }
-];
+]; // _CTF_UNUSED — sirf reference ke liye rakha, runtime mein use nahi hota
 
 /* ── STATE ── */
 let ctfActiveFilter = { cat: 'all', diff: null };
@@ -1984,23 +2039,19 @@ let ctfCurrentChallenge = null;
 let ctfHintVisible = false;
 
 /* ── INIT ── */
-function initCTFPage() {
+async function initCTFPage() {
   const user = window._currentUser;
 
   const setupView = document.getElementById('ctfSetupView');
   const mainView  = document.getElementById('ctfMainView');
 
-
   if (!user) {
-    // Not logged in - shouldn't normally reach here (gated in router.js),
-    // but show setup view's container hidden and bail safely.
     if (setupView) setupView.style.display = 'none';
     if (mainView)  mainView.style.display  = 'none';
     return;
   }
 
   if (!user.username || !user.username.trim()) {
-    // Show username setup view
     if (setupView) setupView.style.display = 'block';
     if (mainView)  mainView.style.display  = 'none';
     const emailEl = document.getElementById('ctfSetupEmail');
@@ -2012,11 +2063,18 @@ function initCTFPage() {
     return;
   }
 
-  // Username already set - show main CTF page
+  // Username set hai — main CTF page dikhao
   if (setupView) setupView.style.display = 'none';
   if (mainView)  mainView.style.display  = 'block';
 
+  // Loading state
+  const grid = document.getElementById('ctfGrid');
+  if (grid && !_ctfChallengesLoaded) {
+    grid.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text-dim);font-size:13px;">Challenges load ho rahe hain...</div>';
+  }
+
   loadCTFSolvedFromStorage();
+  await loadCTFChallenges();   // Supabase se fetch karo
   ctfRender();
   updateCTFStats();
 
@@ -2117,39 +2175,33 @@ function saveCTFSolvedToStorage() {
   } catch(e) {}
 }
 
-/* Supabase mein save karo agar user logged in ho */
-async function saveSolvedToSupabase(challengeId, xp) {
+/* Supabase mein save — ab submit_ctf_flag() RPC hi sab handle karta hai
+   (ctf_solves insert + XP award dono). Yeh function sirf localStorage
+   se solved state sync karta hai jab user fresh login kare. */
+async function syncSolvedFromSupabase() {
   if (!window._supabase || !window._currentUser) return;
   try {
-    const { data: existing } = await window._supabase
+    const { data } = await window._supabase
       .from('ctf_solves')
-      .select('id')
+      .select('challenge_id, points_earned')
       .eq('user_id', window._currentUser.id)
-      .eq('challenge_id', challengeId)
-      .maybeSingle();
-    if (existing) return; // already saved
+      .eq('correct', true);
 
-    await window._supabase.from('ctf_solves').insert({
-      user_id: window._currentUser.id,
-      challenge_id: challengeId,
-      xp_earned: xp,
-      solved_at: new Date().toISOString()
+    if (!data) return;
+    // challenges_public view mein id = UUID, slug = old string id
+    const slugMap = {};
+    ctfChallenges.forEach(c => { slugMap[c.dbId] = c.id; });
+
+    data.forEach(row => {
+      const slug = slugMap[row.challenge_id];
+      if (slug && !ctfSolved[slug]) {
+        ctfSolved[slug] = { xp: row.points_earned, solvedAt: null };
+      }
     });
-
-    // XP table update
-    const { data: xpRow } = await window._supabase
-      .from('user_xp')
-      .select('xp')
-      .eq('user_id', window._currentUser.id)
-      .maybeSingle();
-
-    const currentXP = xpRow?.xp || 0;
-    await window._supabase.from('user_xp').upsert({
-      user_id: window._currentUser.id,
-      xp: currentXP + xp,
-      updated_at: new Date().toISOString()
-    }, { onConflict: 'user_id' });
-  } catch(e) { console.warn('CTF Supabase save failed:', e); }
+    saveCTFSolvedToStorage();
+    updateCTFStats();
+    ctfRender();
+  } catch(e) { console.warn('[CTF] Sync failed:', e); }
 }
 
 /* ── FILTERS ── */
@@ -2176,14 +2228,23 @@ function ctfRender() {
   const grid = document.getElementById('ctfGrid');
   if (!grid) return;
 
-  const query = (document.getElementById('ctfSearchInput')?.value || '').toLowerCase().trim();
+  let filtered;
+  try {
+    const query = (document.getElementById('ctfSearchInput')?.value || '').toLowerCase().trim();
 
-  const filtered = ctfChallenges.filter(c => {
-    if (ctfActiveFilter.cat !== 'all' && c.cat !== ctfActiveFilter.cat) return false;
-    if (ctfActiveFilter.diff && c.diff !== ctfActiveFilter.diff) return false;
-    if (query && !c.title.toLowerCase().includes(query) && !c.desc.toLowerCase().includes(query) && !c.cat.toLowerCase().includes(query)) return false;
-    return true;
-  });
+    filtered = ctfChallenges.filter(c => {
+      if (ctfActiveFilter.cat !== 'all' && c.cat !== ctfActiveFilter.cat) return false;
+      if (ctfActiveFilter.diff && c.diff !== ctfActiveFilter.diff) return false;
+      if (query) {
+        const haystack = ((c.title || '') + ' ' + (c.desc || '') + ' ' + (c.cat || '') + ' ' + (c.tags ? c.tags.join(' ') : '')).toLowerCase();
+        if (!haystack.includes(query)) return false;
+      }
+      return true;
+    });
+  } catch (err) {
+    console.error('ctfRender filter error:', err);
+    filtered = ctfChallenges; // fail-safe: show everything instead of wiping the grid
+  }
 
   if (!filtered.length) {
     grid.innerHTML = `
@@ -2545,10 +2606,10 @@ async function submitCTFFlag() {
   // Slight delay for UX
   await new Promise(r => setTimeout(r, 600));
 
-  // Real CTF rule: challenges backed by a live server lab (hasLabFlow) must be
-  // validated server-side. Client-side comparison is only used for local/static
-  // challenges that have no backend instance to check against.
+  // Real CTF rule: challenges with a live lab backend get validated by that server.
+  // Everything else now goes through submit_ctf_flag() RPC — flag never leaves DB.
   let isCorrect = false;
+  let earnedXP = c.xp;
   if (c.hasLabFlow && c.labApiPath) {
     try {
       const sessionId = (function() {
@@ -2569,20 +2630,44 @@ async function submitCTFFlag() {
       });
       const data = await res.json().catch(() => ({}));
       isCorrect = !!(res.ok && data.success);
+      // Lab backend ne validate kiya — ab Supabase mein bhi record karo via RPC
+      if (isCorrect && window._supabase && c.dbId) {
+        await window._supabase.rpc('submit_ctf_flag', {
+          p_challenge_id: c.dbId, p_flag: flag
+        }).catch(() => {}); // non-fatal, lab already confirmed
+      }
     } catch (e) {
       showFlagMsg('error', '[!] Server se connect nahi ho paaya. Dobara try karein.');
       btn.disabled = false;
       btn.textContent = 'Submit';
       return;
     }
+  } else if (window._supabase && c.dbId) {
+    // Supabase RPC — server-side check, flag client ko kabhi nahi milta
+    const { data: rpcData, error: rpcErr } = await window._supabase.rpc('submit_ctf_flag', {
+      p_challenge_id: c.dbId,
+      p_flag: flag
+    });
+    if (rpcErr) {
+      console.warn('[CTF] RPC error:', rpcErr);
+      showFlagMsg('error', '[!] Server error. Dobara try karein.');
+      btn.disabled = false;
+      btn.textContent = 'Submit';
+      return;
+    }
+    const result = rpcData?.[0] || rpcData || {};
+    isCorrect = result.correct || result.already_solved;
+    earnedXP  = result.already_solved ? c.xp : (result.points_earned || c.xp);
   } else {
+    // Fallback: Supabase unavailable (dev mode)
+    console.warn('[CTF] Supabase unavailable — client-side check (dev only)');
     isCorrect = (flag === c.flag);
   }
 
   if (isCorrect) {
     // ✅ CORRECT
     inp.classList.add('correct');
-    showFlagMsg('success', ` Sahi hai! +${c.xp} XP earn kiya!`);
+    showFlagMsg('success', ` Sahi hai! +${earnedXP} XP earn kiya!`);
     // Close lab tab automatically (real CTF ki tarah)
     if (ctfActiveTab && !ctfActiveTab.closed) {
       try { ctfActiveTab.close(); } catch(e) {}
@@ -2593,10 +2678,10 @@ async function submitCTFFlag() {
     // Invalidate lab token
     try { sessionStorage.removeItem('acx_lab_token_' + c.id); } catch(e) {}
 
-    // Save
-    ctfSolved[c.id] = { xp: c.xp, solvedAt: new Date().toISOString() };
+    // LocalStorage mein save karo (RPC ne DB already update kar diya)
+    ctfSolved[c.id] = { xp: earnedXP, solvedAt: new Date().toISOString() };
     saveCTFSolvedToStorage();
-    await saveSolvedToSupabase(c.id, c.xp);
+    // (saveSolvedToSupabase call removed — submit_ctf_flag RPC handles it)
 
     // Update UI
     updateCTFStats();
