@@ -1783,10 +1783,12 @@ async function loadCTFChallenges() {
   if (_ctfChallengesLoaded) return; // already fetched, don't re-fetch
   if (!window._supabase) return;
 
+  const SAFE_COLS = 'id,slug,room_id,status,title,category,difficulty,solve_count,points,xp_reward,description,hints,lab_url,lab_api_path,instance_managed,icon,icon_class,scenario,author,tags,objectives,created_at';
+
   const { data, error } = await window._supabase
     .from('ctf_challenges')
-    .select('id,slug,room_id,status,title,category,difficulty,solve_count,points,xp_reward,description,hints,lab_url,lab_api_path,instance_managed,icon,icon_class,scenario,author,tags,objectives,created_at')
-    .eq('status','active')
+    .select(SAFE_COLS)
+    .eq('status', 'active')
     .order('created_at', { ascending: true });
 
   if (error || !data) {

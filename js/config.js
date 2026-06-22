@@ -17,4 +17,6 @@ const _supabase = (typeof supabase !== 'undefined' && SUPABASE_URL !== 'YOUR_SUP
     })
   : null;
 
+// Global reference — index.html aur pages/*.html mein window._supabase use hota hai
 window._supabase = _supabase;
+

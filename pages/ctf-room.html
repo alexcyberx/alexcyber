@@ -376,10 +376,10 @@ async function openCTFRoom(roomId) {
     _roomSolvedSet = new Set((solves||[]).map(s => s.challenge_id));
   }
 
-  // Load challenges from PUBLIC VIEW — flag column excluded by design
+  // Load challenges — flag column deliberately excluded
   const { data: challenges } = await _supabase
-    .from('ctf_challenges_public')
-    .select('*')
+    .from('ctf_challenges')
+    .select('id,slug,room_id,status,title,category,difficulty,solve_count,points,xp_reward,description,hints,lab_url,instance_managed,icon,icon_class')
     .eq('room_id', roomId)
     .eq('status', 'active')
     .order('points', { ascending: true });
