@@ -4117,7 +4117,7 @@ let _ctfLoaded = false;
 async function loadCTFData() {
   if (!_supabase) { console.warn('[Admin] _supabase null'); return; }
   _ctfLoaded = false; // always fresh fetch
-  const COLS = 'id,room_id,status,title,description,category,difficulty,flag,points,xp_reward,hints,lab_url,lab_api_path,instance_managed,icon,icon_class,solve_count,scenario,author,tags,objectives,created_at';
+  const COLS = 'id,room_id,status,title,description,category,difficulty,points,xp_reward,hints,lab_url,instance_managed,icon,icon_class,solve_count,created_at';
   const { data, error } = await _supabase
     .from('ctf_challenges')
     .select(COLS)
@@ -4137,16 +4137,15 @@ async function loadCTFScoreboard() {
   if (!_supabase) return;
   const { data, error } = await _supabase
     .from('ctf_solves')
-    .select('user_id, points_earned, solved_at')
-    .eq('correct', true)
-    .order('solved_at', { ascending: false });
+    .select('user_id, points_earned, correct')
+    .eq('correct', true);
   if (error || !data) return;
 
   // Aggregate by user
   const map = {};
   data.forEach(row => {
     const uid = row.user_id;
-    if (!map[uid]) map[uid] = { user: uid.slice(0,8), solves: 0, points: 0, lastSolve: row.solved_at };
+    if (!map[uid]) map[uid] = { user: uid.slice(0,8), solves: 0, points: 0, lastSolve: '—' };
     map[uid].solves++;
     map[uid].points += (row.points_earned || 0);
   });
@@ -4171,7 +4170,7 @@ async function loadCTFScoreboard() {
       user: s.user,
       solves: s.solves,
       points: s.points,
-      lastSolve: s.lastSolve ? new Date(s.lastSolve).toLocaleString('en-IN', { dateStyle:'short', timeStyle:'short' }) : '—'
+      lastSolve: s.lastSolve
     }));
 }
 
