@@ -4115,22 +4115,22 @@ let ctfScoreboard = [];  // populated by loadCTFScoreboard()
 let _ctfLoaded = false;
 
 async function loadCTFData() {
-  if (!_supabase) return;
-  // Admin base table se fetch karo (flag column included — sirf admin dekh sakta hai)
+  if (!_supabase) { console.warn('[Admin] _supabase null'); return; }
+  _ctfLoaded = false; // always fresh fetch
+  const COLS = 'id,room_id,status,title,description,category,difficulty,flag,points,xp_reward,hints,lab_url,lab_api_path,instance_managed,icon,icon_class,solve_count,scenario,author,tags,objectives,created_at';
   const { data, error } = await _supabase
     .from('ctf_challenges')
-    .select('*')
+    .select(COLS)
     .order('created_at', { ascending: true });
-  if (error) { toast('CTF load failed: ' + error.message, 'error'); return; }
-  // Normalize field names (DB uses snake_case, old JS used camelCase)
+  if (error) { console.error('[Admin] CTF load error:', error); toast('CTF load failed: ' + error.message, 'error'); return; }
   ctfChallenges = (data || []).map(c => ({
     ...c,
-    desc:    c.description,
-    solves:  c.solve_count || 0,
-    hints:   c.hints || [],
-    lab_url: c.lab_url || '',
+    desc:   c.description,
+    solves: c.solve_count || 0,
+    hints:  c.hints || [],
   }));
   _ctfLoaded = true;
+  console.log('[Admin] CTF loaded:', ctfChallenges.length, 'challenges');
 }
 
 async function loadCTFScoreboard() {
