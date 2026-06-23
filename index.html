@@ -1773,59 +1773,11 @@ const CTF_ICONS = {
   Misc: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#9ca3af" stroke-width="1.4"/><circle cx="10" cy="10" r="4" stroke="#9ca3af" stroke-width="1.4"/><circle cx="10" cy="10" r="1" fill="#9ca3af"/></svg>'
 };
 
-/* ── CTF CHALLENGES: Supabase se load hoga ──
-   Hardcoded array hata diya gaya — admin panel se manage hota hai ab.
-   ctf_challenges_public view use karo (flag column expose nahi hota). */
-let ctfChallenges = window.CTF_CHALLENGES = [];
-let _ctfChallengesLoaded = false;
-
-async function loadCTFChallenges() {
-  if (_ctfChallengesLoaded) return;
-  if (!window._supabase) return;
-
-  // slug column excluded — PostgREST schema cache issue se bachne ke liye
-  // id (UUID) use hoga — sab kaam karta hai
-  const SAFE_COLS = 'id,room_id,status,title,category,difficulty,solve_count,points,xp_reward,description,hints,lab_url,lab_api_path,instance_managed,icon,icon_class,scenario,author,tags,objectives,created_at';
-
-  const { data, error } = await window._supabase
-    .from('ctf_challenges')
-    .select(SAFE_COLS)
-    .eq('status', 'active')
-    .order('created_at', { ascending: true });
-
-  if (error || !data) {
-    console.error('[CTF] Challenge load failed:', error);
-    return;
-  }
-
-  ctfChallenges = window.CTF_CHALLENGES = data.map(c => ({
-    id:           c.id,            // UUID as id
-    dbId:         c.id,            // same UUID for RPC calls
-    cat:          c.category.charAt(0).toUpperCase() + c.category.slice(1),
-    icon:         c.icon || '',
-    iconClass:    c.icon_class || '',
-    title:        c.title,
-    desc:         c.description,
-    scenario:     c.scenario,
-    author:       c.author,
-    tags:         c.tags || [],
-    objectives:   c.objectives || [],
-    diff:         c.difficulty.charAt(0).toUpperCase() + c.difficulty.slice(1),
-    pts:          c.points,
-    xp:           c.xp_reward,
-    hint:         c.hints?.[0] || null,
-    labUrl:       c.lab_url,
-    labApiPath:   c.lab_api_path,
-    hasLabFlow:   c.instance_managed || false,
-    room_id:      c.room_id || null,
-    solvers:      c.solve_count || 0
-  }));
-  _ctfChallengesLoaded = true;
-}
-
-// ── DUMMY PLACEHOLDER (agar Supabase down ho) ──
-// Iske baad original array tha — ab empty hai, Supabase se aayega.
-const _CTF_UNUSED = [
+// CTF Challenges — hardcoded (working approach)
+// Flag check: server-side via submit_ctf_flag() RPC — c.flag kabhi client pe expose nahi hota
+// Supabase mein bhi same data hai (admin panel se manage ke liye)
+const ctfChallenges = window.CTF_CHALLENGES = [
+  // ── WEB ──
   {
     id: 'web-01', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
     title: 'Hidden in Plain Sight',
@@ -2034,7 +1986,21 @@ const _CTF_UNUSED = [
     hint: '`ls -la` se permissions dekho. `chmod`, `sudo`, ya `find / -name flag.txt` try karo.',
     solvers: 198
   }
-]; // _CTF_UNUSED — sirf reference ke liye rakha, runtime mein use nahi hota
+];
+
+// dbId map: slug → Supabase UUID (RPC call ke liye)
+// Yeh runtime pe Supabase se lazy-load hoga
+let _ctfSlugToUuid = {};
+async function loadCTFUuids() {
+  if (!window._supabase || Object.keys(_ctfSlugToUuid).length > 0) return;
+  try {
+    const { data } = await window._supabase
+      .from('ctf_challenges')
+      .select('id, slug');
+    if (data) data.forEach(r => { if (r.slug) _ctfSlugToUuid[r.slug] = r.id; });
+  } catch(e) {}
+}
+function getChallengeUuid(slug) { return _ctfSlugToUuid[slug] || null; }
 
 /* ── STATE ── */
 let ctfActiveFilter = { cat: 'all', diff: null };
@@ -2043,7 +2009,7 @@ let ctfCurrentChallenge = null;
 let ctfHintVisible = false;
 
 /* ── INIT ── */
-async function initCTFPage() {
+function initCTFPage() {
   const user = window._currentUser;
 
   const setupView = document.getElementById('ctfSetupView');
@@ -2067,22 +2033,16 @@ async function initCTFPage() {
     return;
   }
 
-  // Username set hai — main CTF page dikhao
   if (setupView) setupView.style.display = 'none';
   if (mainView)  mainView.style.display  = 'block';
 
-  // Loading state
-  const grid = document.getElementById('ctfGrid');
-  if (grid && !_ctfChallengesLoaded) {
-    grid.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text-dim);font-size:13px;">Challenges load ho rahe hain...</div>';
-  }
-
   loadCTFSolvedFromStorage();
-  await loadCTFChallenges();   // Supabase se fetch karo
   ctfRender();
   updateCTFStats();
 
-  // Apply saved language translation if not Hinglish/English
+  // UUID map preload karo (flag RPC ke liye) — background mein, non-blocking
+  loadCTFUuids();
+
   if (typeof selectedLang !== 'undefined' && selectedLang !== 'hl' && selectedLang !== 'en') {
     if (typeof applyCTFTranslation === 'function') applyCTFTranslation(selectedLang);
   }
@@ -2646,22 +2606,29 @@ async function submitCTFFlag() {
       btn.textContent = 'Submit';
       return;
     }
-  } else if (window._supabase && c.dbId) {
-    // Supabase RPC — server-side check, flag client ko kabhi nahi milta
-    const { data: rpcData, error: rpcErr } = await window._supabase.rpc('submit_ctf_flag', {
-      p_challenge_id: c.dbId,
-      p_flag: flag
-    });
-    if (rpcErr) {
-      console.warn('[CTF] RPC error:', rpcErr);
-      showFlagMsg('error', '[!] Server error. Dobara try karein.');
-      btn.disabled = false;
-      btn.textContent = 'Submit';
-      return;
+  } else if (window._supabase) {
+    // Supabase UUID dhundo slug se
+    const uuid = getChallengeUuid(c.id) || c.dbId || null;
+    if (uuid) {
+      const { data: rpcData, error: rpcErr } = await window._supabase.rpc('submit_ctf_flag', {
+        p_challenge_id: uuid,
+        p_flag: flag
+      });
+      if (rpcErr) {
+        console.warn('[CTF] RPC error:', rpcErr);
+        showFlagMsg('error', '[!] Server error. Dobara try karein.');
+        btn.disabled = false;
+        btn.textContent = 'Submit';
+        return;
+      }
+      const result = rpcData?.[0] || rpcData || {};
+      isCorrect = result.correct || result.already_solved;
+      earnedXP  = result.already_solved ? c.xp : (result.points_earned || c.xp);
+    } else {
+      // UUID nahi mila — client-side fallback (dev only)
+      console.warn('[CTF] UUID not found, client-side check (dev only)');
+      isCorrect = (flag === c.flag);
     }
-    const result = rpcData?.[0] || rpcData || {};
-    isCorrect = result.correct || result.already_solved;
-    earnedXP  = result.already_solved ? c.xp : (result.points_earned || c.xp);
   } else {
     // Fallback: Supabase unavailable (dev mode)
     console.warn('[CTF] Supabase unavailable — client-side check (dev only)');
