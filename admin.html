@@ -4137,7 +4137,7 @@ async function loadCTFScoreboard() {
   if (!_supabase) return;
   const { data, error } = await _supabase
     .from('ctf_solves')
-    .select('user_id, points_earned, solved_at, profiles(username, full_name)')
+    .select('user_id, points_earned, solved_at')
     .eq('correct', true)
     .order('solved_at', { ascending: false });
   if (error || !data) return;
@@ -4146,11 +4146,23 @@ async function loadCTFScoreboard() {
   const map = {};
   data.forEach(row => {
     const uid = row.user_id;
-    const name = row.profiles?.username || row.profiles?.full_name || uid.slice(0,8);
-    if (!map[uid]) map[uid] = { user: name, solves: 0, points: 0, lastSolve: row.solved_at };
+    if (!map[uid]) map[uid] = { user: uid.slice(0,8), solves: 0, points: 0, lastSolve: row.solved_at };
     map[uid].solves++;
     map[uid].points += (row.points_earned || 0);
   });
+
+  // Fetch usernames separately
+  const uids = Object.keys(map);
+  if (uids.length > 0) {
+    const { data: profiles } = await _supabase
+      .from('profiles')
+      .select('id, username, full_name')
+      .in('id', uids);
+    if (profiles) profiles.forEach(p => {
+      if (map[p.id]) map[p.id].user = p.username || p.full_name || map[p.id].user;
+    });
+  }
+
   ctfScoreboard = Object.values(map)
     .sort((a, b) => b.points - a.points || b.solves - a.solves)
     .slice(0, 20)
@@ -4258,7 +4270,7 @@ function renderSection(id) {
   if (id === 'security')      renderSecurity();
   if (id === 'notifications') renderNotifications();
   if (id === 'gamification') renderGamification();
-  if (id === 'ctf')          renderCTF();
+  if (id === 'ctf')          renderCTF().catch(e => console.error('[Admin CTF]', e));
   if (id === 'progress')     renderProgress();
   if (id === 'resources')    renderResources();
   if (id === 'cybertools')   renderCyberTools();
