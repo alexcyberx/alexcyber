@@ -6706,6 +6706,8 @@ const _supabase = (typeof supabase !== 'undefined' &&
     })
   : null;
 
+window._supabase = _supabase;
+
 // ════════════════════════════════════════
 // AUTH — Supabase Login Gate
 // ════════════════════════════════════════
