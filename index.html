@@ -2211,10 +2211,9 @@ function ctfRender() {
   try {
     const query = (document.getElementById('ctfSearchInput')?.value || '').toLowerCase().trim();
 
-    // Load disabled status from admin localStorage overrides
-    const _disabledSlugs = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
+    const _disabledIds = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
     filtered = ctfChallenges.filter(c => {
-      if (_disabledSlugs.includes(c.id)) return false; // admin disabled
+      if (_disabledIds.includes(c.id)) return false;
       if (ctfActiveFilter.cat !== 'all' && c.cat !== ctfActiveFilter.cat) return false;
       if (ctfActiveFilter.diff && c.diff !== ctfActiveFilter.diff) return false;
       if (query) {

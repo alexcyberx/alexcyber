@@ -3999,7 +3999,6 @@ tbody td {
         <label>Status</label>
         <select class="select-filter" id="ctfStatus" style="width:100%;padding:8px;">
           <option value="active">Active</option>
-          <option value="disabled">Disabled</option>
           <option value="draft">Draft</option>
           <option value="disabled">Disabled</option>
         </select>
@@ -5000,20 +4999,19 @@ const CTF_LOCAL_SEED = [
 
 /* ── Merge DB challenges with local seed (DB wins on conflicts) ── */
 function ctfMergeWithSeed(dbData) {
-  // Always use local seed as source of truth — DB only provides solve_count
+  // Local seed is always source of truth; DB provides solve_count only
   const dbMap = {};
-  if (dbData) dbData.forEach(d => { dbMap[d.slug] = d; });
-  // Load admin status overrides from localStorage
-  const disabledSlugs = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
+  if (dbData) dbData.forEach(d => { if (d.slug) dbMap[d.slug] = d; });
+  const disabled = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
   return CTF_LOCAL_SEED.map(c => ({
     ...c,
-    id:        dbMap[c.slug]?.id || 'seed-' + c.slug,
-    desc:      c.description,
-    solves:    dbMap[c.slug]?.solve_count || c.solve_count || 0,
-    hints:     c.hints || [],
-    status:    disabledSlugs.includes(c.slug) ? 'disabled' : (c.status || 'active'),
-    _isLocal:  !dbMap[c.slug],
-    _dbId:     dbMap[c.slug]?.id || null,
+    id:       dbMap[c.slug]?.id || 'seed-' + c.slug,
+    desc:     c.description,
+    solves:   dbMap[c.slug]?.solve_count || c.solve_count || 0,
+    hints:    c.hints || [],
+    status:   disabled.includes(c.slug) ? 'disabled' : 'active',
+    _isLocal: !dbMap[c.slug],
+    _dbId:    dbMap[c.slug]?.id || null,
   }));
 }
 
@@ -5034,17 +5032,18 @@ async function renderCTF() {
 
 async function loadCTFData() {
   _ctfLoaded = false;
-  // Load local seed immediately so UI doesn't hang
+  // Show local seed immediately — no waiting
   ctfChallenges = ctfMergeWithSeed([]);
   _ctfLoaded = true;
-  renderCTFStats(); renderCTFGrid(); renderCTFCategoryBreakdown();
-  // Then fetch DB stats in background
+  // Fetch DB solve counts in background
   if (_supabase) {
-    const dbData = await fetchDBData();
-    if (dbData.length > 0) {
-      ctfChallenges = ctfMergeWithSeed(dbData);
-      renderCTFStats(); renderCTFGrid(); renderCTFCategoryBreakdown();
-    }
+    try {
+      const { data } = await _supabase.from('ctf_challenges').select('id,slug,solve_count');
+      if (data && data.length > 0) {
+        ctfChallenges = ctfMergeWithSeed(data);
+        renderCTFStats(); renderCTFGrid(); renderCTFCategoryBreakdown();
+      }
+    } catch(e) {}
   }
   console.log('[Admin] CTF loaded:', ctfChallenges.length, 'challenges');
 }
@@ -5066,21 +5065,18 @@ async function ctfSyncToSupabase() {
     description:      c.description,
     category:         c.category,
     difficulty:       c.difficulty,
+    flag:             c.flag,
     points:           c.points,
     xp_reward:        c.xp_reward,
     hints:            c.hints,
     status:           c.status,
     lab_url:          c.lab_url || null,
+    lab_api_path:     null,
+    instance_managed: false,
+    solve_count:      0,
   }));
-  const { data: inserted, error } = await _supabase.from('ctf_challenges').insert(rows).select('id,slug');
+  const { error } = await _supabase.from('ctf_challenges').insert(rows);
   if (error) { toast('Sync failed: ' + error.message, 'error'); return; }
-  // Set flags via rpc (bypasses schema cache issue)
-  if (inserted) {
-    for (const row of inserted) {
-      const seed = CTF_LOCAL_SEED.find(c => c.slug === row.slug);
-      if (seed?.flag) await _supabase.rpc('admin_set_flag', { p_id: row.id, p_flag: seed.flag }).catch(()=>{});
-    }
-  }
   toast('✓ All ' + CTF_LOCAL_SEED.length + ' challenges synced to database!');
   await renderCTF();
 }
@@ -5192,9 +5188,8 @@ async function ctfPushSingle(slug) {
   if (!_supabase) { toast('Supabase not configured', 'error'); return; }
   const seed = CTF_LOCAL_SEED.find(c => c.slug === slug);
   if (!seed) return;
-  const row = { slug:seed.slug, title:seed.title, description:seed.description, category:seed.category, difficulty:seed.difficulty, points:seed.points, xp_reward:seed.xp_reward, hints:seed.hints, status:seed.status, lab_url:seed.lab_url||null };
-  const { data: pushed, error } = await _supabase.from('ctf_challenges').insert(row).select('id').single();
-  if (pushed?.id && seed.flag) await _supabase.rpc('admin_set_flag', { p_id: pushed.id, p_flag: seed.flag }).catch(()=>{});
+  const row = { slug:seed.slug, title:seed.title, description:seed.description, category:seed.category, difficulty:seed.difficulty, flag:seed.flag, points:seed.points, xp_reward:seed.xp_reward, hints:seed.hints, status:seed.status, lab_url:seed.lab_url||null, lab_api_path:null, instance_managed:false, solve_count:0 };
+  const { error } = await _supabase.from('ctf_challenges').insert(row);
   if (error) { toast('Push failed: ' + error.message, 'error'); return; }
   toast(seed.title + ' pushed to DB ✓');
   await renderCTF();
@@ -5268,38 +5263,15 @@ function openEditCTF(id) {
   document.getElementById('ctfFlag').value     = c.flag || '';
   document.getElementById('ctfPoints').value   = c.points;
   document.getElementById('ctfHints').value    = (c.hints||[]).join('\n');
-  // Read status from localStorage override (survives refresh)
-  const _dSlugs = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
-  const _effectiveStatus = _dSlugs.includes(c.slug) ? 'disabled' : (c.status || 'active');
-  document.getElementById('ctfStatus').value   = _effectiveStatus;
+  // Read effective status from localStorage (persists across refreshes)
+  const _disabled = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
+  document.getElementById('ctfStatus').value = _disabled.includes(c.slug) ? 'disabled' : (c.status || 'active');
   const lt = document.getElementById('ctfLabType');
   if (lt) lt.value = c.lab_type || '';
   const cu = document.getElementById('ctfCustomLabUrl');
   if (cu) cu.value = c.lab_url || '';
   updateLabPreview();
   openModal('ctfModal');
-}
-
-async function toggleCTFStatus(slug) {
-  const seed = CTF_LOCAL_SEED.find(c => c.slug === slug);
-  if (!seed) return;
-  seed.status = seed.status === 'active' ? 'disabled' : 'active';
-  // Also update in DB if connected
-  if (_supabase) {
-    const c = ctfChallenges.find(x => x.slug === slug);
-    if (c?._dbId) await _supabase.from('ctf_challenges').update({ status: seed.status }).eq('id', c._dbId).catch(()=>{});
-  }
-  ctfChallenges = ctfMergeWithSeed(await fetchDBData());
-  renderCTFStats(); renderCTFGrid(); renderCTFCategoryBreakdown();
-  toast(seed.title + ' ' + (seed.status === 'active' ? 'enabled' : 'disabled'));
-}
-
-async function fetchDBData() {
-  if (!_supabase) return [];
-  try {
-    const { data } = await _supabase.from('ctf_challenges').select('id,slug,solve_count,status');
-    return data || [];
-  } catch(e) { return []; }
 }
 
 async function saveCTF() {
@@ -5320,51 +5292,35 @@ async function saveCTF() {
   if (!flag)   { toast('Flag is required (e.g. ACX{...})', 'error'); return; }
   if (!flag.match(/ACX\{.+\}/)) { if (!confirm('Flag format looks unusual (expected ACX{...}). Continue?')) return; }
 
-  const _editingChallenge = editingCTFId ? ctfChallenges.find(x=>String(x.id)===String(editingCTFId)) : null;
-  const slug = _editingChallenge?.slug
-    || title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
+  // Get slug — never null
+  const _editC = editingCTFId ? ctfChallenges.find(x => String(x.id) === String(editingCTFId)) : null;
+  const slug = _editC?.slug || title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
 
-  // flag sent separately via RPC to avoid schema-cache issues with the flag column
-  const dbPayload = { title, description: desc, category, difficulty, points, xp_reward, hints, status, lab_url: lab_url||null };
-
-  // Always persist status to localStorage regardless of Supabase
-  const _dSlugsNow = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
+  // ── STEP 1: Save status to localStorage immediately (survives refresh) ──
+  const _dis = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
   if (status === 'disabled') {
-    if (!_dSlugsNow.includes(slug)) _dSlugsNow.push(slug);
+    if (!_dis.includes(slug)) _dis.push(slug);
   } else {
-    const _di = _dSlugsNow.indexOf(slug);
-    if (_di >= 0) _dSlugsNow.splice(_di, 1);
+    const _i = _dis.indexOf(slug); if (_i >= 0) _dis.splice(_i, 1);
   }
-  localStorage.setItem('acx_ctf_disabled', JSON.stringify(_dSlugsNow));
+  localStorage.setItem('acx_ctf_disabled', JSON.stringify(_dis));
 
-  if (!_supabase) {
-    if (editingCTFId) {
-      const c = ctfChallenges.find(x=>String(x.id)===String(editingCTFId));
-      if (c) Object.assign(c, { ...dbPayload, flag, desc });
-      toast(title + ' updated (local only)');
-    } else {
-      ctfChallenges.unshift({ id:'local-'+Date.now(), slug, ...dbPayload, flag, desc, solves:0, solve_count:0 });
-      toast(title + ' created (local only — Supabase not connected)');
-    }
-    closeModal('ctfModal');
-    renderCTFStats(); renderCTFGrid(); renderCTFCategoryBreakdown();
-    return;
-  }
-
-  // Update local seed directly — this is the source of truth
-  const seedIdx = CTF_LOCAL_SEED.findIndex(c => c.slug === slug);
-  if (seedIdx >= 0) {
-    CTF_LOCAL_SEED[seedIdx] = { ...CTF_LOCAL_SEED[seedIdx], title, description: desc, category, difficulty, flag, points, xp_reward, hints, status, lab_url: lab_url||null };
+  // ── STEP 2: Update CTF_LOCAL_SEED in memory ──
+  const _si = CTF_LOCAL_SEED.findIndex(c => c.slug === slug);
+  if (_si >= 0) {
+    CTF_LOCAL_SEED[_si] = { ...CTF_LOCAL_SEED[_si], title, description: desc, category, difficulty, flag, points, xp_reward, hints, status, lab_url: lab_url||null };
   } else {
     CTF_LOCAL_SEED.push({ slug, title, description: desc, category, difficulty, flag, points, xp_reward, hints, status, lab_url: lab_url||null, solve_count:0 });
   }
-  // Try DB update too but don't fail
-  if (_supabase && editingCTFId && !String(editingCTFId).startsWith('seed-')) {
-    await _supabase.from('ctf_challenges').update({ status }).eq('id', editingCTFId).catch(()=>{});
+
+  // ── STEP 3: Refresh UI from updated seed ──
+  ctfChallenges = ctfMergeWithSeed([]);
+  toast(title + ' updated');
+
+  // ── STEP 4: Try Supabase status sync in background (ignore errors) ──
+  if (_supabase && _editC?._dbId) {
+    _supabase.from('ctf_challenges').update({ status }).eq('id', _editC._dbId).catch(()=>{});
   }
-  const dbData = await fetchDBData();
-  ctfChallenges = ctfMergeWithSeed(dbData);
-  toast(title + (seedIdx >= 0 ? ' updated ✓' : ' added ✓'));
   closeModal('ctfModal');
   renderCTFStats(); renderCTFGrid(); renderCTFCategoryBreakdown();
   // Hide banner if challenges now exist in DB
