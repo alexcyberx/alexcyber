@@ -868,8 +868,12 @@ function ctfRender() {
   if (!grid) return;
 
   const query = (document.getElementById('ctfSearchInput')?.value || '').toLowerCase().trim();
+  // Read disabled slugs from localStorage (set by admin panel)
+  const _ctfDisabled = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
 
   const filtered = CTF_CHALLENGES.filter(c => {
+    // Hide challenges disabled from admin panel
+    if (_ctfDisabled.includes(c.id)) return false;
     if (ctfActiveFilter.cat !== 'all' && c.cat !== ctfActiveFilter.cat) return false;
     if (ctfActiveFilter.diff && c.diff !== ctfActiveFilter.diff) return false;
     if (query && !c.title.toLowerCase().includes(query) && !c.desc.toLowerCase().includes(query) && !c.cat.toLowerCase().includes(query)) return false;
@@ -913,8 +917,10 @@ function ctfRender() {
 function updateCTFStats() {
   const solvedIds = Object.keys(ctfSolved);
   const totalXP = solvedIds.reduce((sum, id) => sum + (ctfSolved[id]?.xp || 0), 0);
+  const _ctfDisabled = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
+  const activeCount = CTF_CHALLENGES.filter(c => !_ctfDisabled.includes(c.id)).length;
   const el = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
-  el('ctfTotalCount', CTF_CHALLENGES.length);
+  el('ctfTotalCount', activeCount);
   el('ctfSolvedCount', solvedIds.length);
   el('ctfTotalXP', totalXP);
 }
@@ -1148,6 +1154,11 @@ window.addEventListener('storage', function(e) {
     if (!c) return;
     openCTFModal(challengeId);
     ctfShowRunningState(c);
+  }
+  // Re-render CTF grid when admin panel changes disabled challenge list
+  if (e.key === 'acx_ctf_disabled') {
+    ctfRender();
+    updateCTFStats();
   }
 });
 

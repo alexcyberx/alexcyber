@@ -5009,6 +5009,8 @@ function ctfMergeWithSeed(dbData) {
     desc:     c.description,
     solves:   dbMap[c.slug]?.solve_count || c.solve_count || 0,
     hints:    c.hints || [],
+    // acx_ctf_disabled localStorage is the authoritative status store (survives page refresh).
+    // If slug is in disabled list → 'disabled'; otherwise 'active'.
     status:   disabled.includes(c.slug) ? 'disabled' : 'active',
     _isLocal: !dbMap[c.slug],
     _dbId:    dbMap[c.slug]?.id || null,
@@ -5234,6 +5236,9 @@ function ctfAutoPoints() {
 
 function openAddCTF() {
   editingCTFId = null;
+  // Clear stored slug so saveCTF generates a fresh slug from title
+  const modal = document.getElementById('ctfModal');
+  if (modal) modal.dataset.editSlug = '';
   document.getElementById('ctfModalTitle').textContent = 'Create Challenge';
   document.getElementById('ctfTitle').value = '';
   document.getElementById('ctfDesc').value = '';
@@ -5255,6 +5260,8 @@ function openEditCTF(id) {
   const c = ctfChallenges.find(x=>String(x.id)===String(id));
   if (!c) return;
   editingCTFId = c._isLocal ? null : id; // local → treat as new
+  // Store slug always (needed for local challenges to update correct _disabled key)
+  document.getElementById('ctfModal').dataset.editSlug = c.slug || '';
   document.getElementById('ctfModalTitle').textContent = c._isLocal ? 'Create from Seed' : 'Edit Challenge';
   document.getElementById('ctfTitle').value    = c.title;
   document.getElementById('ctfDesc').value     = c.desc || c.description || '';
@@ -5293,8 +5300,11 @@ async function saveCTF() {
   if (!flag.match(/ACX\{.+\}/)) { if (!confirm('Flag format looks unusual (expected ACX{...}). Continue?')) return; }
 
   // Get slug — never null
+  // For local seed challenges, editingCTFId is null so _editC is null.
+  // We stored the real slug (e.g. 'web-01') in data-edit-slug on the modal.
   const _editC = editingCTFId ? ctfChallenges.find(x => String(x.id) === String(editingCTFId)) : null;
-  const slug = _editC?.slug || title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
+  const _storedSlug = document.getElementById('ctfModal')?.dataset.editSlug || '';
+  const slug = _editC?.slug || _storedSlug || title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
 
   // ── STEP 1: Save status to localStorage immediately (survives refresh) ──
   const _dis = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
