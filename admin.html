@@ -2390,6 +2390,21 @@ tbody td {
         <p>Create and manage Capture-The-Flag challenges, flags, hints and live scoreboard.</p>
       </div>
 
+      <!-- Sync banner (shown when DB empty but local challenges exist) -->
+      <div id="ctfSyncBanner" style="display:none;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <svg width="16" height="16" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="7" r="6" stroke="#f59e0b" stroke-width="1.3"/></svg>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#f59e0b;">Database empty — 20 local challenges available</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">Sync all hardcoded challenges to Supabase to make them live on the CTF page.</div>
+          </div>
+        </div>
+        <button class="btn" style="background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.4);color:#f59e0b;white-space:nowrap;" onclick="ctfSyncToSupabase()">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6c0-2.2 1.8-4 4-4a4 4 0 013.46 2M10 6c0 2.2-1.8 4-4 4a4 4 0 01-3.46-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.5 4H10V2.5M3.5 8H2v1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sync All to Database
+        </button>
+      </div>
+
       <div class="grid-3">
         <div class="stat-card">
           <div class="stat-icon blue">
@@ -2417,10 +2432,13 @@ tbody td {
         </div>
       </div>
 
+      <!-- Category breakdown pills -->
+      <div id="ctfCategoryBreakdown" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;"></div>
+
       <div class="toolbar">
         <div class="search-input">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="#6a6a7a" stroke-width="1.3"/><path d="M8.5 8.5L11 11" stroke="#6a6a7a" stroke-width="1.3" stroke-linecap="round"/></svg>
-          <input type="text" placeholder="Search challenges…" oninput="filterCTF(this.value)">
+          <input type="text" id="ctfSearchInput" placeholder="Search challenges…" oninput="filterCTF(this.value)">
         </div>
         <select class="select-filter" id="ctfCategoryFilter" onchange="filterCTF()">
           <option value="">All Categories</option>
@@ -2438,6 +2456,16 @@ tbody td {
           <option value="medium">Medium</option>
           <option value="hard">Hard</option>
         </select>
+        <select class="select-filter" id="ctfStatusFilter" onchange="filterCTF()">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="draft">Draft</option>
+          <option value="disabled">Disabled</option>
+        </select>
+        <button class="btn" onclick="ctfSyncToSupabase()" title="Sync local challenges to Supabase" style="color:var(--yellow);border-color:rgba(245,158,11,0.3);">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6c0-2.2 1.8-4 4-4a4 4 0 013.46 2M10 6c0 2.2-1.8 4-4 4a4 4 0 01-3.46-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.5 4H10V2.5M3.5 8H2v1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sync
+        </button>
         <button class="btn primary" onclick="openAddCTF()">
           <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
           Create Challenge
@@ -2450,7 +2478,12 @@ tbody td {
       <div class="card" style="padding:0;margin-top:16px;">
         <div class="card-header" style="padding:16px 18px 16px;">
           <div class="card-title">Live Scoreboard</div>
-          <span class="badge active">● Live</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span id="ctfScoreboardStatus" class="badge active">● Live</span>
+            <button class="btn icon-only" title="Refresh Scoreboard" onclick="refreshCTFScoreboard()">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6c0-2.2 1.8-4 4-4a4 4 0 013.46 2M10 6c0 2.2-1.8 4-4 4a4 4 0 01-3.46-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.5 4H10V2.5M3.5 8H2v1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
         </div>
         <div class="table-wrap">
           <table>
@@ -4109,67 +4142,12 @@ let leaderboardUsers = [
   { id:8, name:'Sunita Patel', level:3,  xp:720,  ctfSolves:2,  badgeCount:1, weeklyXp:0,   monthlyXp:60  },
 ];
 
-/* ── CTF Challenges & Scoreboard — Supabase se load hoga ── */
+/* ── CTF Challenges & Scoreboard ── */
 let ctfChallenges = [];  // populated by loadCTFData()
 let ctfScoreboard = [];  // populated by loadCTFScoreboard()
 let _ctfLoaded = false;
 
-async function loadCTFData() {
-  if (!_supabase) { console.warn('[Admin] _supabase null'); return; }
-  _ctfLoaded = false;
-  // select('*') use karo — PostgREST apne cache se jo bhi jaanta hai woh return karega
-  // explicitly column list karne se 400 aata hai agar koi column cache mein nahi hai
-  const { data, error } = await _supabase
-    .from('ctf_challenges')
-    .select('*')
-    .order('created_at', { ascending: true });
-  if (error) { console.error('[Admin] CTF load error:', error); toast('CTF load failed: ' + error.message, 'error'); return; }
-  ctfChallenges = (data || []).map(c => ({
-    ...c,
-    desc:   c.description || '',
-    solves: c.solve_count || 0,
-    hints:  c.hints || [],
-    points: c.points || 0,
-    status: c.status || 'active',
-  }));
-  _ctfLoaded = true;
-  console.log('[Admin] CTF loaded:', ctfChallenges.length, 'challenges');
-}
-
-async function loadCTFScoreboard() {
-  if (!_supabase) return;
-  // select('*') — same reason
-  const { data, error } = await _supabase
-    .from('ctf_solves')
-    .select('*');
-  if (error || !data) { console.warn('[Admin] ctf_solves error:', error); return; }
-
-  const map = {};
-  data.forEach(row => {
-    if (row.correct === false) return; // skip wrong attempts if column exists
-    const uid = row.user_id;
-    if (!uid) return;
-    if (!map[uid]) map[uid] = { user: uid.slice(0,8), solves: 0, points: 0 };
-    map[uid].solves++;
-    map[uid].points += (row.points_earned || 0);
-  });
-
-  const uids = Object.keys(map);
-  if (uids.length > 0) {
-    const { data: profiles } = await _supabase
-      .from('profiles')
-      .select('id, username, full_name')
-      .in('id', uids);
-    if (profiles) profiles.forEach(p => {
-      if (map[p.id]) map[p.id].user = p.username || p.full_name || map[p.id].user;
-    });
-  }
-
-  ctfScoreboard = Object.values(map)
-    .sort((a, b) => b.points - a.points || b.solves - a.solves)
-    .slice(0, 20)
-    .map((s, i) => ({ rank: i+1, user: s.user, solves: s.solves, points: s.points, lastSolve: '—' }));
-}
+// loadCTFData, loadCTFScoreboard, and all CTF functions defined below (after CTF_LOCAL_SEED)
 /* ── Progress Tracking & Certificates ── */
 let userProgress = [
   { user:'Rahul Sharma', course:'Network Forensics', progress:100, timeSpent:'6h 20m', quizAvg:92, lastActivity:'2h ago',  resume:'Completed' },
@@ -4962,16 +4940,158 @@ function updateLabPreview() {
   }
 }
 
+/* ── Load real solve scoreboard from Supabase ── */
+async function loadCTFScoreboard() {
+  if (!_supabase) { ctfScoreboard = []; return; }
+  const { data, error } = await _supabase.from('ctf_solves').select('*');
+  if (error || !data) { console.warn('[Admin] ctf_solves error:', error); ctfScoreboard = []; return; }
+  const map = {};
+  data.forEach(row => {
+    if (row.correct === false) return;
+    const uid = row.user_id;
+    if (!uid) return;
+    if (!map[uid]) map[uid] = { user: uid.slice(0,8), solves:0, points:0, lastTs: '' };
+    map[uid].solves++;
+    map[uid].points += (row.points_earned || 0);
+    if (!map[uid].lastTs || (row.created_at > map[uid].lastTs)) map[uid].lastTs = row.created_at || '';
+  });
+  const uids = Object.keys(map);
+  if (uids.length > 0) {
+    const { data: profiles } = await _supabase.from('profiles').select('id, username, full_name').in('id', uids);
+    if (profiles) profiles.forEach(p => { if (map[p.id]) map[p.id].user = p.username || p.full_name || map[p.id].user; });
+  }
+  ctfScoreboard = Object.values(map)
+    .sort((a,b) => b.points - a.points || b.solves - a.solves)
+    .slice(0,20)
+    .map((s,i) => ({
+      rank: i+1, user: s.user, solves: s.solves, points: s.points,
+      lastSolve: s.lastTs ? new Date(s.lastTs).toLocaleDateString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—'
+    }));
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LOCAL SEED — same 20 challenges as ctf.html CTF_CHALLENGES
+   Used as fallback when Supabase table is empty, and for Sync.
+───────────────────────────────────────────────────────────── */
+const CTF_LOCAL_SEED = [
+  { slug:'web-01', title:'Hidden in Plain Sight',     category:'web',       difficulty:'easy',   points:50,  xp_reward:100,  flag:'ACX{html_comments_are_not_safe}',          hints:['Browser mein Ctrl+U (View Source) dabao aur HTML comments <!-- --> dhundo.'], description:'Ek website hai jiske source code mein kuch chupa hua hai. Page ka source carefully dekho — developers kabhi kabhi comments mein bahut kuch chhor dete hain.', lab_url:'/pages/labs/lab-hidden.html',   solve_count:142, status:'active' },
+  { slug:'web-02', title:'Cookie Monster',             category:'web',       difficulty:'medium', points:150, xp_reward:250,  flag:'ACX{cookies_can_be_tampered}',             hints:['Browser DevTools (F12) → Application → Cookies. `isAdmin` cookie ki value dekho.'], description:'Authentication bypass karna hai. Application cookies ka use karti hai session manage karne ke liye — kya in cookies mein kuch manipulate kiya ja sakta hai?', lab_url:'/pages/labs/lab-cookie.html',   solve_count:67,  status:'active' },
+  { slug:'web-03', title:'SQL Injection 101',          category:'web',       difficulty:'medium', points:200, xp_reward:350,  flag:'ACX{sql1_bypassed_auth_layer}',            hints:["Username field mein `' OR '1'='1' --` try karo. Single quote se SQL error trigger hoga."], description:'Login form mein SQL injection vulnerability hai. Database se admin password extract karo. Burp Suite se POST /login intercept karo aur username field mein payload inject karo.', lab_url:'/pages/labs/lab-sqli.html',    solve_count:89,  status:'active' },
+  { slug:'web-04', title:'robots.txt Secret',          category:'web',       difficulty:'easy',   points:50,  xp_reward:80,   flag:'ACX{robots_txt_not_a_security_measure}',   hints:['/robots.txt URL open karo aur Disallow entries dekho.'], description:'Website ke robots.txt file mein koi restricted path chhupa hua hai jo search engines ko index karne se rokta hai. Woh path visit karo.', lab_url:'/pages/labs/lab-robots.html',  solve_count:210, status:'active' },
+  { slug:'web-05', title:'Stored XSS — EchoBoard',    category:'web',       difficulty:'medium', points:200, xp_reward:350,  flag:'ACX{st0red_xss_p4yload_exec}',             hints:['POST /comment mein message field mein script tag ya event handler inject karo. Phir GET /comments se payload trigger karo.'], description:'EchoBoard message board mein stored XSS vulnerability hai. Comment field unsanitized hai — payload inject karo jo victim browser pe execute ho.', lab_url:'/pages/labs/lab-xss.html',     solve_count:0,   status:'active' },
+  { slug:'for-01', title:'Packet Detective',           category:'forensics', difficulty:'medium', points:200, xp_reward:350,  flag:'ACX{wireshark_follow_http_stream}',         hints:['Wireshark mein HTTP packet select karo → Right click → Follow → HTTP Stream.'], description:'Ek PCAP file di gayi hai jisme suspicious traffic hai. Network packets analyze karo aur hidden data dhundo. HTTP traffic carefully dekho.', lab_url:'/pages/labs/lab-packet.html',  solve_count:54,  status:'active' },
+  { slug:'for-02', title:'Metadata Matters',           category:'forensics', difficulty:'easy',   points:75,  xp_reward:120,  flag:'ACX{exif_data_reveals_secrets}',           hints:['`exiftool image.jpg` command chalao ya online EXIF viewer use karo.'], description:'Ek image file di gayi hai. Lagta hai normal image hai lekin iske metadata mein kuch chhua hua hai. ExifTool ya strings command use karo.', lab_url:'/pages/labs/lab-metadata.html', solve_count:178, status:'active' },
+  { slug:'for-03', title:'Log Hunter',                 category:'forensics', difficulty:'hard',   points:350, xp_reward:600,  flag:'ACX{log_analysis_uncovers_attack}',         hints:['`grep` se 404 errors aur unusual user agents dhundo. `awk` se IPs count karo.'], description:'Server access logs diye gaye hain. Attacker ne kaunsa IP address use kiya aur kaunse path pe attack kiya? Logs parse karo aur attack pattern identify karo.', lab_url:null, solve_count:28, status:'active' },
+  { slug:'cry-01', title:"Caesar's Secret",            category:'crypto',    difficulty:'easy',   points:50,  xp_reward:80,   flag:'ACX{caesar_cipher_is_easy}',               hints:['ROT13 ya Caesar cipher tool use karo. Shift 13 try karo.'], description:'Yeh ciphertext decode karo: "NJY{pnvzhy_pvfcure_vf_rnfl}". Ek classic substitution cipher hai — Roman emperor ne bhi use kiya tha.', lab_url:null, solve_count:195, status:'active' },
+  { slug:'cry-02', title:'Base64 Bonanza',             category:'crypto',    difficulty:'easy',   points:50,  xp_reward:80,   flag:'ACX{base64_is_not_encryption}',            hints:["Base64 decode karo. Python mein: `import base64; base64.b64decode(\"...\")`.decode()"], description:'Yeh string decode karo: "QUNYR3tiYXNlNjRfaXNfbm90X2VuY3J5cHRpb259". Dekho koi pattern milta hai ya nahi.', lab_url:null, solve_count:231, status:'active' },
+  { slug:'cry-03', title:'RSA Weak Keys',              category:'crypto',    difficulty:'hard',   points:400, xp_reward:700,  flag:'ACX{rsa_small_primes_are_vulnerable}',     hints:['p aur q dhundo jinka product N=3233 ho. Factor: 61 × 53. Phir d = e⁻¹ mod φ(N).'], description:'Small primes se generate ki gayi RSA key di gayi hai. N = 3233, e = 17. Ciphertext = 2790. Private key recover karo aur message decrypt karo.', lab_url:null, solve_count:19, status:'active' },
+  { slug:'osi-01', title:'Google Dorking',             category:'osint',     difficulty:'easy',   points:50,  xp_reward:75,   flag:'ACX{Pawan_Tanwar_AlexCyberX}',             hints:['alexcyberx.com ka "About" section ya YouTube channel description dekho.'], description:'AlexCyberX ke creator ka full name dhundo jo publicly available hai. Website, social media, ya YouTube channel check karo.', lab_url:null, solve_count:289, status:'active' },
+  { slug:'osi-02', title:'Wayback Machine',            category:'osint',     difficulty:'medium', points:150, xp_reward:250,  flag:'ACX{internet_never_forgets}',              hints:['web.archive.org pe URL enter karo aur purane snapshots dekho.'], description:'Ek website ne apna content delete kar diya lekin internet poori tarah bhoolti nahi. web.archive.org use karke deleted content dhundo.', lab_url:null, solve_count:73, status:'active' },
+  { slug:'osi-03', title:'Geolocation Challenge',      category:'osint',     difficulty:'hard',   points:300, xp_reward:500,  flag:'ACX{Jhalawar_India}',                       hints:['Image mein Rajasthani architecture aur Hindi signboards dhundo.'], description:'Di gayi image mein ek location hai. Clues use karo — buildings, signs, landscape — aur exact city identify karo. Format: ACX{City_Country}', lab_url:null, solve_count:41, status:'active' },
+  { slug:'pwn-01', title:'Buffer Overflow 101',        category:'pwn',       difficulty:'hard',   points:400, xp_reward:700,  flag:'ACX{buffer_overflow_pwned}',               hints:["gdb use karo buffer size dhundne ke liye. Pattern create karo: `python3 -c \"print('A'*100)\"`. EIP/RIP offset dhundo."], description:'Ek vulnerable C program diya gaya hai jo `gets()` function use karta hai. Stack overflow karke return address overwrite karo aur win() function call karo.', lab_url:null, solve_count:15, status:'active' },
+  { slug:'pwn-02', title:'Format String Bug',          category:'pwn',       difficulty:'hard',   points:450, xp_reward:800,  flag:'ACX{format_string_leaks_memory}',          hints:['`%x %x %x %x` input deke stack values leak karo. `%s` use karke string read karo.'], description:'Yeh program user input ko directly printf mein pass karta hai. Format string vulnerability exploit karke stack se flag read karo.', lab_url:null, solve_count:9, status:'active' },
+  { slug:'rev-01', title:'Strings Hunt',               category:'reversing', difficulty:'easy',   points:75,  xp_reward:120,  flag:'ACX{strings_command_is_powerful}',         hints:['`strings binary_file | grep ACX` command chalao.'], description:'Ek compiled binary diya gaya hai. Reverse engineer karo aur hidden flag dhundo. Sirf `strings` command se kaam chalega.', lab_url:null, solve_count:156, status:'active' },
+  { slug:'rev-02', title:'XOR Decoder',                category:'reversing', difficulty:'medium', points:200, xp_reward:350,  flag:'ACX{xor_is_reversible}',                   hints:['Python: `bytes([b ^ 0x42 for b in encrypted]).decode()`. XOR apni reverse operation hai.'], description:'Flag ko XOR se encrypt kiya gaya hai key = 0x42 se. Encrypted bytes: [0x03, 0x07, 0x13, 0x26, 0x20, 0x07, 0x36, 0x07, 0x25]. Decode karo.', lab_url:null, solve_count:62, status:'active' },
+  { slug:'mis-01', title:'QR Code Mystery',            category:'misc',      difficulty:'medium', points:150, xp_reward:250,  flag:'ACX{qr_codes_hide_secrets}',               hints:['zbarimg ya online QR decoder use karo. Image pe adjustments try karo (brightness/contrast).'], description:'Ek QR code image di gayi hai jo normal QR scanners se scan nahi hoti. Image ko carefully dekho — kuch modified hai. QR decoder tools try karo.', lab_url:null, solve_count:83, status:'active' },
+  { slug:'mis-02', title:'Steganography Intro',        category:'misc',      difficulty:'medium', points:175, xp_reward:300,  flag:'ACX{stego_hides_data_in_plain_sight}',     hints:['steghide ya zsteg tool use karo. `steghide extract -sf image.jpg` try karo.'], description:'Ek innocent-looking image mein data chhupa hua hai. Steganography tools use karo aur hidden message extract karo.', lab_url:null, solve_count:71, status:'active' },
+  { slug:'mis-03', title:'Linux Basics',               category:'misc',      difficulty:'easy',   points:50,  xp_reward:75,   flag:'ACX{linux_permissions_matter}',            hints:['`ls -la` se permissions dekho. `chmod`, `sudo`, ya `find / -name flag.txt` try karo.'], description:'Ek Linux server pe ek file hai `/home/ctf/flag.txt` lekin permission se protected hai. Correct command dhundo aur file read karo. Flag format: ACX{...}', lab_url:null, solve_count:198, status:'active' },
+];
+
+/* ── Merge DB challenges with local seed (DB wins on conflicts) ── */
+function ctfMergeWithSeed(dbData) {
+  if (dbData && dbData.length > 0) return dbData; // DB has data — use it
+  // DB empty → fall back to local seed (show in UI, no DB IDs)
+  return CTF_LOCAL_SEED.map((c, i) => ({
+    ...c,
+    id: 'seed-' + c.slug,
+    desc: c.description,
+    solves: c.solve_count || 0,
+    hints: c.hints || [],
+    _isLocal: true,
+  }));
+}
+
 async function renderCTF() {
-  // Loading state
   const grid = document.getElementById('ctfGrid');
   if (grid && !_ctfLoaded) grid.innerHTML = '<div style="color:var(--text-dim);font-size:12px;padding:20px;">Loading challenges...</div>';
-
   await loadCTFData();
   await loadCTFScoreboard();
   renderCTFStats();
   renderCTFGrid();
   renderCTFScoreboard();
+  renderCTFCategoryBreakdown();
+  // Show sync banner if all local (no real DB records)
+  const allLocal = ctfChallenges.length > 0 && ctfChallenges.every(c => c._isLocal);
+  const banner = document.getElementById('ctfSyncBanner');
+  if (banner) banner.style.display = allLocal ? 'flex' : 'none';
+}
+
+async function loadCTFData() {
+  _ctfLoaded = false;
+  if (!_supabase) {
+    ctfChallenges = ctfMergeWithSeed([]);
+    _ctfLoaded = true;
+    return;
+  }
+  const { data, error } = await _supabase
+    .from('ctf_challenges')
+    .select('*')
+    .order('created_at', { ascending: true });
+  if (error) { console.error('[Admin] CTF load error:', error); toast('CTF load failed: ' + error.message, 'error'); ctfChallenges = ctfMergeWithSeed([]); _ctfLoaded = true; return; }
+  const merged = ctfMergeWithSeed(data);
+  ctfChallenges = merged.map(c => ({
+    ...c,
+    desc:   c.description || c.desc || '',
+    solves: c.solve_count || c.solves || 0,
+    hints:  c.hints || [],
+    points: c.points || 0,
+    status: c.status || 'active',
+  }));
+  _ctfLoaded = true;
+  console.log('[Admin] CTF loaded:', ctfChallenges.length, 'challenges');
+}
+
+/* ── Sync all local seed challenges to Supabase ── */
+async function ctfSyncToSupabase() {
+  if (!_supabase) { toast('Supabase not configured', 'error'); return; }
+  // Only sync if DB truly empty
+  const { data: existing } = await _supabase.from('ctf_challenges').select('id').limit(1);
+  if (existing && existing.length > 0) {
+    toast('Database already has challenges — use Edit to modify them', 'error');
+    return;
+  }
+  if (!confirm(`Push all ${CTF_LOCAL_SEED.length} local challenges to Supabase?\n\nThis will create them as real DB records and they will appear live on the CTF page.`)) return;
+  toast('Syncing ' + CTF_LOCAL_SEED.length + ' challenges…');
+  const rows = CTF_LOCAL_SEED.map(c => ({
+    slug:             c.slug,
+    title:            c.title,
+    description:      c.description,
+    category:         c.category,
+    difficulty:       c.difficulty,
+    flag:             c.flag,
+    points:           c.points,
+    xp_reward:        c.xp_reward,
+    hints:            c.hints,
+    status:           c.status,
+    lab_url:          c.lab_url || null,
+    lab_api_path:     null,
+    instance_managed: false,
+    solve_count:      0,
+  }));
+  const { error } = await _supabase.from('ctf_challenges').insert(rows);
+  if (error) { toast('Sync failed: ' + error.message, 'error'); return; }
+  toast('✓ All ' + CTF_LOCAL_SEED.length + ' challenges synced to database!');
+  await renderCTF();
+}
+
+/* ── Refresh scoreboard only ── */
+async function refreshCTFScoreboard() {
+  const btn = event?.currentTarget;
+  if (btn) btn.style.opacity = '0.4';
+  await loadCTFScoreboard();
+  renderCTFScoreboard();
+  if (btn) btn.style.opacity = '1';
+  toast('Scoreboard refreshed');
 }
 
 function renderCTFStats() {
@@ -4980,9 +5100,20 @@ function renderCTFStats() {
   document.getElementById('ctfTotal').textContent = ctfChallenges.length;
   document.getElementById('ctfActiveCount').textContent = `${activeCount} active`;
   document.getElementById('ctfSolves').textContent = totalSolves.toLocaleString();
-  // XP = sum of solve_count × xp_reward per challenge
   const xpAwarded = ctfChallenges.reduce((a,c)=>a + (c.solve_count||c.solves||0)*(c.xp_reward||c.points||0), 0);
   document.getElementById('ctfXPAwarded').textContent = xpAwarded.toLocaleString();
+}
+
+function renderCTFCategoryBreakdown() {
+  const el = document.getElementById('ctfCategoryBreakdown');
+  if (!el) return;
+  const cats = {};
+  ctfChallenges.forEach(c => { cats[c.category] = (cats[c.category]||0)+1; });
+  const colors = { web:'#3b82f6', forensics:'#22c55e', crypto:'#a855f7', osint:'#f59e0b', pwn:'#ef4444', reversing:'#06b6d4', misc:'#6b7280' };
+  el.innerHTML = Object.entries(cats).map(([cat, count]) => {
+    const col = colors[cat] || '#6b7280';
+    return `<span style="font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:${col}18;border:1px solid ${col}30;color:${col};cursor:pointer;" onclick="document.getElementById('ctfCategoryFilter').value='${cat}';filterCTF();">${categoryLabel(cat)} <span style="opacity:0.7;">${count}</span></span>`;
+  }).join('');
 }
 
 function filterCTF(text) {
@@ -4991,47 +5122,80 @@ function filterCTF(text) {
 }
 
 function renderCTFGrid() {
-  const cat  = document.getElementById('ctfCategoryFilter')?.value || '';
-  const diff = document.getElementById('ctfDifficultyFilter')?.value || '';
+  const cat    = document.getElementById('ctfCategoryFilter')?.value || '';
+  const diff   = document.getElementById('ctfDifficultyFilter')?.value || '';
+  const status = document.getElementById('ctfStatusFilter')?.value || '';
   const list = ctfChallenges.filter(c =>
-    (!cat || c.category===cat) &&
-    (!diff || c.difficulty===diff) &&
-    (!ctfFilterText || c.title.toLowerCase().includes(ctfFilterText))
+    (!cat    || c.category  === cat)  &&
+    (!diff   || c.difficulty === diff) &&
+    (!status || c.status    === status) &&
+    (!ctfFilterText || (c.title||'').toLowerCase().includes(ctfFilterText) || (c.desc||'').toLowerCase().includes(ctfFilterText))
   );
   const el = document.getElementById('ctfGrid');
-  if (!list.length) { el.innerHTML = `<div style="color:var(--text-dim);font-size:12px;padding:20px;">No challenges match your filters.</div>`; return; }
+  if (!list.length) {
+    el.innerHTML = `<div style="color:var(--text-dim);font-size:12px;padding:20px 0;">No challenges match your filters.</div>`;
+    return;
+  }
+  const diffColor = { easy:'#22c55e', medium:'#f59e0b', hard:'#ef4444', insane:'#a855f7' };
+  const catColor  = { web:'#3b82f6', forensics:'#22c55e', crypto:'#a855f7', osint:'#f59e0b', pwn:'#ef4444', reversing:'#06b6d4', misc:'#6b7280' };
   el.innerHTML = list.map(c => {
-    const labUrl = c.lab_url || getLabUrl(c.lab_type,'');
+    const labUrl  = c.lab_url || getLabUrl(c.lab_type,'');
+    const dc = diffColor[c.difficulty] || '#6b7280';
+    const cc = catColor[c.category]   || '#6b7280';
+    const solveCount = c.solves || c.solve_count || 0;
+    const isLocal = c._isLocal;
     return `
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:10px;transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--border-hover)'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="background:var(--surface);border:1px solid ${isLocal?'rgba(245,158,11,0.18)':'var(--border)'};border-radius:12px;padding:16px 18px;margin-bottom:10px;transition:border-color 0.15s,box-shadow 0.15s;position:relative;overflow:hidden;"
+         onmouseover="this.style.borderColor='${isLocal?'rgba(245,158,11,0.4)':'var(--border-h)'}';this.style.boxShadow='0 2px 12px rgba(0,0,0,0.2)'"
+         onmouseout="this.style.borderColor='${isLocal?'rgba(245,158,11,0.18)':'var(--border)'  }';this.style.boxShadow='none'">
+      ${isLocal ? `<div style="position:absolute;top:0;right:0;background:rgba(245,158,11,0.15);border-bottom-left-radius:8px;padding:2px 8px;font-size:9px;font-weight:700;color:#f59e0b;letter-spacing:0.5px;">LOCAL</div>` : ''}
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px;">
         <div style="flex:1;min-width:0;">
-          <div style="font-size:14px;font-weight:600;color:var(--white);margin-bottom:3px;">${c.title}</div>
-          <div style="font-size:11px;color:var(--text-dim);">${categoryLabel(c.category)}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+            <div style="font-size:14px;font-weight:600;color:var(--white);">${c.title}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${cc}15;border:1px solid ${cc}25;color:${cc};">${categoryLabel(c.category)}</span>
+          </div>
         </div>
-        <span class="badge diff-${c.difficulty}" style="flex-shrink:0;">${c.difficulty}</span>
+        <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;background:${dc}15;border:1px solid ${dc}25;color:${dc};white-space:nowrap;flex-shrink:0;">${(c.difficulty||'').toUpperCase()}</span>
       </div>
-      <div style="font-size:12px;color:var(--text-dim);line-height:1.5;margin-bottom:10px;">${(c.desc||'').slice(0,120)}${(c.desc||'').length>120?'…':''}</div>
+      <div style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:12px;">${(c.desc||'').slice(0,130)}${(c.desc||'').length>130?'…':''}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-        <div style="display:flex;align-items:center;gap:10px;font-size:11px;color:var(--text-dim);">
-          <span>${c.points} pts · ${c.solves || c.solve_count || 0} solves</span>
-          ${labUrl ? `<span style="background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:#60a5fa;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;">LAB</span>` : ''}
-          <span class="badge ${c.status==='active'?'active':c.status==='draft'?'inactive':'banned'}">${c.status}</span>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <span style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--red);">${c.points}<span style="font-size:10px;font-weight:500;color:var(--text-dim);margin-left:2px;">pts</span></span>
+          <span style="font-size:10px;color:var(--text-dim);padding:2px 6px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;">${solveCount} solve${solveCount!==1?'s':''}</span>
+          ${labUrl ? `<span style="background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:#60a5fa;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600;">LAB</span>` : ''}
+          <span style="font-size:10px;padding:2px 7px;border-radius:5px;${c.status==='active'?'background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:#22c55e;':c.status==='draft'?'background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:#f59e0b;':'background:rgba(107,114,128,0.1);border:1px solid rgba(107,114,128,0.2);color:#6b7280;'}">${c.status||'active'}</span>
         </div>
         <div class="action-btns">
           ${labUrl ? `<a href="${labUrl}" target="_blank" class="btn icon-only" title="Preview Lab" style="color:#60a5fa;">
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M1 6s2-4 5-4 5 4 5 4-2 4-5 4-5-4-5-4z" stroke="currentColor" stroke-width="1.2"/><circle cx="6" cy="6" r="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
           </a>` : ''}
-          <button class="btn icon-only" title="Edit" onclick="openEditCTF('${c.id}')">
+          <button class="btn icon-only" title="${isLocal?'Edit (will create in DB)':'Edit'}" onclick="openEditCTF('${c.id}')">
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5l2 2L4 10H2v-2L8.5 1.5z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-          <button class="btn icon-only red" title="Delete" onclick="deleteCTF('${c.id}')">
+          ${!isLocal ? `<button class="btn icon-only red" title="Delete" onclick="deleteCTF('${c.id}')">
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M4 3V2h4v1M3 3l.5 7h5L9 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
+          </button>` : `<button class="btn icon-only" title="Push to DB" style="color:#f59e0b;" onclick="ctfPushSingle('${c.slug}')">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 9V3M3 6l3-3 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>`}
         </div>
       </div>
     </div>`;
   }).join('');
+}
+
+/* ── Push single local challenge to DB ── */
+async function ctfPushSingle(slug) {
+  if (!_supabase) { toast('Supabase not configured', 'error'); return; }
+  const seed = CTF_LOCAL_SEED.find(c => c.slug === slug);
+  if (!seed) return;
+  const row = { slug:seed.slug, title:seed.title, description:seed.description, category:seed.category, difficulty:seed.difficulty, flag:seed.flag, points:seed.points, xp_reward:seed.xp_reward, hints:seed.hints, status:seed.status, lab_url:seed.lab_url||null, lab_api_path:null, instance_managed:false, solve_count:0 };
+  const { error } = await _supabase.from('ctf_challenges').insert(row);
+  if (error) { toast('Push failed: ' + error.message, 'error'); return; }
+  toast(seed.title + ' pushed to DB ✓');
+  await renderCTF();
 }
 
 function categoryLabel(c) {
@@ -5041,6 +5205,11 @@ function categoryLabel(c) {
 
 function renderCTFScoreboard() {
   const tbody = document.getElementById('ctfScoreboardTbody');
+  if (!tbody) return;
+  if (!ctfScoreboard.length) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-dim);font-size:12px;padding:20px;">No solves recorded yet — first solve will appear here.</td></tr>`;
+    return;
+  }
   tbody.innerHTML = ctfScoreboard.map((s,i) => {
     const rankClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
     return `
@@ -5048,21 +5217,21 @@ function renderCTFScoreboard() {
       <td><span class="rank-pill ${rankClass}">${s.rank}</span></td>
       <td>
         <div class="user-cell">
-          <div class="user-avatar">${s.user[0]}</div>
+          <div class="user-avatar">${(s.user||'?')[0].toUpperCase()}</div>
           <div class="user-name">${s.user}</div>
         </div>
       </td>
       <td>${s.solves}</td>
-      <td>${s.points.toLocaleString()}</td>
-      <td>${s.lastSolve}</td>
+      <td><span style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--yellow);">${s.points.toLocaleString()}</span></td>
+      <td style="color:var(--text-dim);font-size:11px;">${s.lastSolve}</td>
     </tr>`;
   }).join('');
 }
 
 function ctfAutoPoints() {
-  if (editingCTFId) return; // don't override on edit
+  if (editingCTFId) return;
   const diff = document.getElementById('ctfDifficulty').value;
-  const points = diff==='easy' ? 50 : diff==='medium' ? 100 : 200;
+  const points = diff==='easy' ? 50 : diff==='medium' ? 150 : diff==='hard' ? 300 : 500;
   document.getElementById('ctfPoints').value = points;
 }
 
@@ -5088,16 +5257,16 @@ function openAddCTF() {
 function openEditCTF(id) {
   const c = ctfChallenges.find(x=>String(x.id)===String(id));
   if (!c) return;
-  editingCTFId = id;
-  document.getElementById('ctfModalTitle').textContent = 'Edit Challenge';
-  document.getElementById('ctfTitle').value = c.title;
-  document.getElementById('ctfDesc').value = c.desc || c.description || '';
+  editingCTFId = c._isLocal ? null : id; // local → treat as new
+  document.getElementById('ctfModalTitle').textContent = c._isLocal ? 'Create from Seed' : 'Edit Challenge';
+  document.getElementById('ctfTitle').value    = c.title;
+  document.getElementById('ctfDesc').value     = c.desc || c.description || '';
   document.getElementById('ctfCategory').value = c.category;
   document.getElementById('ctfDifficulty').value = c.difficulty;
-  document.getElementById('ctfFlag').value = c.flag || '';
-  document.getElementById('ctfPoints').value = c.points;
-  document.getElementById('ctfHints').value = (c.hints||[]).join('\n');
-  document.getElementById('ctfStatus').value = c.status;
+  document.getElementById('ctfFlag').value     = c.flag || '';
+  document.getElementById('ctfPoints').value   = c.points;
+  document.getElementById('ctfHints').value    = (c.hints||[]).join('\n');
+  document.getElementById('ctfStatus').value   = c.status || 'active';
   const lt = document.getElementById('ctfLabType');
   if (lt) lt.value = c.lab_type || '';
   const cu = document.getElementById('ctfCustomLabUrl');
@@ -5113,82 +5282,67 @@ async function saveCTF() {
   const difficulty = document.getElementById('ctfDifficulty').value;
   const flag       = document.getElementById('ctfFlag').value.trim();
   const points     = parseInt(document.getElementById('ctfPoints').value) || 50;
-  const xp_reward  = Math.round(points * 1.5); // XP = 1.5× points (same ratio as existing challenges)
+  const xp_reward  = Math.round(points * 1.5);
   const hints      = document.getElementById('ctfHints').value.split('\n').map(h=>h.trim()).filter(Boolean);
   const status     = document.getElementById('ctfStatus').value;
   const lab_type   = document.getElementById('ctfLabType')?.value || '';
   const customUrl  = document.getElementById('ctfCustomLabUrl')?.value.trim() || '';
   const lab_url    = lab_type === 'custom' ? customUrl : getLabUrl(lab_type, '');
 
-  if (!title || !flag) { toast('Title and flag are required', 'error'); return; }
+  if (!title)  { toast('Challenge title is required', 'error'); return; }
+  if (!flag)   { toast('Flag is required (e.g. ACX{...})', 'error'); return; }
+  if (!flag.match(/ACX\{.+\}/)) { if (!confirm('Flag format looks unusual (expected ACX{...}). Continue?')) return; }
 
-  // Slug: auto-generate from title if creating (e.g. "Hidden in Plain Sight" → "hidden-in-plain-sight")
   const slug = editingCTFId
     ? (ctfChallenges.find(x=>String(x.id)===String(editingCTFId))?.slug || null)
     : title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
 
-  const payload = {
-    title,
-    description: desc,
-    category,
-    difficulty,
-    flag,
-    points,
-    xp_reward,
-    hints,
-    status,
-    lab_url:      lab_url || null,
-    lab_api_path: null, // only set manually for server-backed labs
-    instance_managed: false,
-  };
+  const payload = { title, description: desc, category, difficulty, flag, points, xp_reward, hints, status, lab_url: lab_url||null, lab_api_path: null, instance_managed: false };
 
   if (!_supabase) {
     if (editingCTFId) {
       const c = ctfChallenges.find(x=>String(x.id)===String(editingCTFId));
-      if(c) Object.assign(c, { ...payload, desc });
-      toast(title + ' updated');
+      if (c) Object.assign(c, { ...payload, desc });
+      toast(title + ' updated (local only)');
     } else {
-      ctfChallenges.unshift({ id: 'local-' + Date.now(), slug, ...payload, desc, solves:0, solve_count:0 });
-      toast(title + ' challenge created (local only — no Supabase)');
+      ctfChallenges.unshift({ id:'local-'+Date.now(), slug, ...payload, desc, solves:0, solve_count:0 });
+      toast(title + ' created (local only — Supabase not connected)');
     }
     closeModal('ctfModal');
-    renderCTFStats();
-    renderCTFGrid();
+    renderCTFStats(); renderCTFGrid(); renderCTFCategoryBreakdown();
     return;
   }
 
   if (editingCTFId) {
-    const { error } = await _supabase
-      .from('ctf_challenges').update(payload).eq('id', editingCTFId);
+    const { error } = await _supabase.from('ctf_challenges').update(payload).eq('id', editingCTFId);
     if (error) { toast('Update failed: ' + error.message, 'error'); return; }
     const c = ctfChallenges.find(x=>String(x.id)===String(editingCTFId));
     if (c) Object.assign(c, { ...payload, desc });
     toast(title + ' updated ✓');
   } else {
-    const { data, error } = await _supabase
-      .from('ctf_challenges')
-      .insert({ ...payload, slug, solve_count: 0 })
-      .select().single();
+    const { data, error } = await _supabase.from('ctf_challenges').insert({ ...payload, slug, solve_count:0 }).select().single();
     if (error) { toast('Create failed: ' + error.message, 'error'); return; }
-    ctfChallenges.unshift({ ...data, desc: data.description, solves: 0 });
+    ctfChallenges.unshift({ ...data, desc: data.description, solves:0 });
     toast(title + ' created ✓');
   }
   closeModal('ctfModal');
-  renderCTFStats();
-  renderCTFGrid();
+  renderCTFStats(); renderCTFGrid(); renderCTFCategoryBreakdown();
+  // Hide banner if challenges now exist in DB
+  const banner = document.getElementById('ctfSyncBanner');
+  if (banner) banner.style.display = 'none';
 }
 
 async function deleteCTF(id) {
   const c = ctfChallenges.find(x=>String(x.id)===String(id));
-  if (!confirm('Delete "' + (c?.title||'this challenge') + '"?')) return;
+  if (c?._isLocal) { toast('Local seed challenges cannot be deleted — use Sync to push them first', 'error'); return; }
+  if (!confirm('Delete "' + (c?.title||'this challenge') + '"?\n\nThis cannot be undone.')) return;
   if (_supabase) {
     const { error } = await _supabase.from('ctf_challenges').delete().eq('id', id);
-    if (error) { toast('Delete failed', 'error'); return; }
+    if (error) { toast('Delete failed: ' + error.message, 'error'); return; }
   }
   ctfChallenges = ctfChallenges.filter(x=>String(x.id)!==String(id));
-  renderCTFStats();
-  renderCTFGrid();
-  toast((c?.title||'Challenge') + ' deleted', 'error');
+  renderCTFStats(); renderCTFGrid(); renderCTFCategoryBreakdown();
+  toast((c?.title||'Challenge') + ' deleted');
 }
 
 /* ════════════════════════════════════════════════════
