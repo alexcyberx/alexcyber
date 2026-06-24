@@ -5,6 +5,7 @@ const { flagLimiter }  = require('../../middleware/rateLimit');
 const { logAttempt }   = require('../../middleware/logger');
 
 const FLAG  = process.env.FLAG_HIDDEN || 'ACX{c0mm3nts_4r3_n0t_s3cr3t}';
+const FLAG_ALT = 'ACX{html_comments_are_not_safe}'; // legacy alias, also accept
 const PART1_B64  = 'UEFSVDE6QUNYe2MwbW0zbnRzXw=='; // decodes to PART1:ACX{c0mm3nts_
 const FAKE1_B64  = 'Q29ycFgtQnVpbGQtdjIuNC4xLWludGVybmFs'; // decodes to CorpX-Build-v2.4.1-internal
 const FAKE2_B64  = 'c2Vzc2lvbl9iYWNrdXBfa2V5X0RPX05PVF9TSEFSRQ=='; // decodes to session_backup_key_DO_NOT_SHARE
@@ -209,7 +210,7 @@ router.post('/submit', flagLimiter, async (req, res) => {
 
   if (!flag) return res.status(400).json({ error: 'No flag provided' });
 
-  const correct = flag.trim() === FLAG;
+  const correct = flag.trim() === FLAG || flag.trim() === FLAG_ALT;
   logAttempt('HIDDEN', ip, flag.trim(), correct ? 'correct' : 'wrong');
 
   try {

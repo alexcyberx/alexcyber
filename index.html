@@ -2635,6 +2635,11 @@ async function submitCTFFlag() {
       });
       const data = await res.json().catch(() => ({}));
       isCorrect = !!(res.ok && data.success);
+      // Fallback: if server says wrong but client-side flag matches, accept it
+      // (handles case where server has stale/old flag after redeploy)
+      if (!isCorrect && c.flag && flag.trim() === c.flag.trim()) {
+        isCorrect = true;
+      }
       // Lab backend ne validate kiya — ab Supabase mein bhi record karo via RPC
       if (isCorrect && window._supabase && c.dbId) {
         await window._supabase.rpc('submit_ctf_flag', {
