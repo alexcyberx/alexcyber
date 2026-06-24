@@ -4999,22 +4999,25 @@ const CTF_LOCAL_SEED = [
 
 /* ── Merge DB challenges with local seed (DB wins on conflicts) ── */
 function ctfMergeWithSeed(dbData) {
-  // Local seed is always source of truth; DB provides solve_count only
+  // Local seed is always source of truth; DB provides solve_count + status
   const dbMap = {};
   if (dbData) dbData.forEach(d => { if (d.slug) dbMap[d.slug] = d; });
   const disabled = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
-  return CTF_LOCAL_SEED.map(c => ({
-    ...c,
-    id:       dbMap[c.slug]?.id || 'seed-' + c.slug,
-    desc:     c.description,
-    solves:   dbMap[c.slug]?.solve_count || c.solve_count || 0,
-    hints:    c.hints || [],
-    // acx_ctf_disabled localStorage is the authoritative status store (survives page refresh).
-    // If slug is in disabled list → 'disabled'; otherwise 'active'.
-    status:   disabled.includes(c.slug) ? 'disabled' : 'active',
-    _isLocal: !dbMap[c.slug],
-    _dbId:    dbMap[c.slug]?.id || null,
-  }));
+  return CTF_LOCAL_SEED.map(c => {
+    // DB status takes priority (cross-device), localStorage is fallback
+    const dbStatus = dbMap[c.slug]?.status;
+    const effectiveStatus = dbStatus || (disabled.includes(c.slug) ? 'disabled' : 'active');
+    return {
+      ...c,
+      id:       dbMap[c.slug]?.id || 'seed-' + c.slug,
+      desc:     c.description,
+      solves:   dbMap[c.slug]?.solve_count || c.solve_count || 0,
+      hints:    c.hints || [],
+      status:   effectiveStatus,
+      _isLocal: !dbMap[c.slug],
+      _dbId:    dbMap[c.slug]?.id || null,
+    };
+  });
 }
 
 async function renderCTF() {
@@ -5037,11 +5040,20 @@ async function loadCTFData() {
   // Show local seed immediately — no waiting
   ctfChallenges = ctfMergeWithSeed([]);
   _ctfLoaded = true;
-  // Fetch DB solve counts in background
+  // Fetch DB solve counts + status in background
   if (_supabase) {
     try {
-      const { data } = await _supabase.from('ctf_challenges').select('id,slug,solve_count');
+      const { data } = await _supabase.from('ctf_challenges').select('id,slug,solve_count,status');
       if (data && data.length > 0) {
+        // Sync DB status back to localStorage so admin grid shows correctly
+        const _dis = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
+        data.forEach(r => {
+          if (!r.slug) return;
+          const idx = _dis.indexOf(r.slug);
+          if (r.status === 'disabled' && idx < 0) _dis.push(r.slug);
+          else if (r.status !== 'disabled' && idx >= 0) _dis.splice(idx, 1);
+        });
+        localStorage.setItem('acx_ctf_disabled', JSON.stringify(_dis));
         ctfChallenges = ctfMergeWithSeed(data);
         renderCTFStats(); renderCTFGrid(); renderCTFCategoryBreakdown();
       }
@@ -5327,9 +5339,18 @@ async function saveCTF() {
   ctfChallenges = ctfMergeWithSeed([]);
   toast(title + ' updated');
 
-  // ── STEP 4: Try Supabase status sync in background (ignore errors) ──
-  if (_supabase && _editC?._dbId) {
-    _supabase.from('ctf_challenges').update({ status }).eq('id', _editC._dbId).catch(()=>{});
+  // ── STEP 4: Supabase status sync (works for DB records AND local seed challenges) ──
+  if (_supabase) {
+    if (_editC?._dbId) {
+      // DB challenge — update by UUID
+      _supabase.from('ctf_challenges').update({ status }).eq('id', _editC._dbId).catch(()=>{});
+    } else {
+      // Local seed challenge — upsert by slug so status persists cross-device
+      _supabase.from('ctf_challenges').upsert(
+        { slug, title, description: desc, category, difficulty, flag, points, xp_reward: Math.round(points*1.5), status, lab_url: lab_url||null, instance_managed: false },
+        { onConflict: 'slug', ignoreDuplicates: false }
+      ).catch(()=>{});
+    }
   }
   closeModal('ctfModal');
   renderCTFStats(); renderCTFGrid(); renderCTFCategoryBreakdown();

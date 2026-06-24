@@ -1994,24 +1994,36 @@ let _ctfSlugToUuid = {};
 async function loadCTFUuids() {
   if (!window._supabase || Object.keys(_ctfSlugToUuid).length > 0) return;
   try {
-    // select('*') — slug PostgREST cache mein nahi hai, so we map by title instead
+    // Fetch id, title, slug, status from Supabase
     const { data } = await window._supabase
       .from('ctf_challenges')
-      .select('id, title');
+      .select('id, title, slug, status');
     if (data) {
-      // Map title → UUID (fallback since slug not in cache)
+      // Build slug→UUID map and sync disabled status to localStorage
+      const _dis = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
       data.forEach(r => {
-        // Also try to match by id string patterns (web-01 etc not available, use title)
+        const slug = r.slug;
+        if (slug) {
+          const idx = _dis.indexOf(slug);
+          if (r.status === 'disabled' && idx < 0) _dis.push(slug);
+          else if (r.status !== 'disabled' && idx >= 0) _dis.splice(idx, 1);
+        }
+      });
+      localStorage.setItem('acx_ctf_disabled', JSON.stringify(_dis));
+
+      // Map title → UUID (fallback since slug not always in cache)
+      data.forEach(r => {
         _ctfSlugToUuid[r.title] = r.id;
       });
       // Also build a map so getChallengeUuid works with c.id (which is the slug like 'web-01')
-      // We match challenges by title from hardcoded array
       if (window.CTF_CHALLENGES) {
         window.CTF_CHALLENGES.forEach(c => {
-          const match = data.find(r => r.title === c.title);
+          const match = data.find(r => r.title === c.title || r.slug === c.id);
           if (match) _ctfSlugToUuid[c.id] = match.id;
         });
       }
+      // Re-render CTF grid now that we have updated disabled list from DB
+      ctfRender();
     }
   } catch(e) { console.warn('[CTF] UUID load failed:', e); }
 }
