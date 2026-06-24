@@ -1221,7 +1221,7 @@ async function handleContactSubmit() {
   if (msg.length > 1000) { setStatus('Message 1000 characters se zyada nahi ho sakta.', false); return; }
 
   // XSS check - no HTML tags
-  if (/<[^>]*>/.test(name + msg)) { setStatus('Special characters allowed nahi hain.', false); return; }
+  if (/<[^>]*>/.test(name + msg)) { setStatus('Special characters are not allowed.', false); return; }
 
   // Save to Supabase
   const btn = document.querySelector('.btn-send');
@@ -1236,7 +1236,7 @@ async function handleContactSubmit() {
       created_at: new Date().toISOString()
     });
     if (error) {
-      setStatus('Message nahi bheja ja saka. Dobara try karo.', false);
+      setStatus('Message could not be sent. Please try again.', false);
       if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
       return;
     }
@@ -1738,7 +1738,7 @@ function declineCookies(){
 
     <!-- Flag submission -->
     <div class="ctf-flag-section" id="ctfFlagSection" style="display:none;">
-      <div class="ctf-flag-label">Flag Submit Karein</div>
+      <div class="ctf-flag-label">Submit Your Flag</div>
       <div class="ctf-flag-row">
         <input type="text" class="ctf-flag-input" id="ctfFlagInput" placeholder="ACX{your_flag_here}" autocomplete="off" onkeydown="if(event.key==='Enter')submitCTFFlag()">
         <button class="ctf-submit-btn" id="ctfSubmitBtn" onclick="submitCTFFlag()">Submit</button>
@@ -2257,8 +2257,8 @@ function ctfRender() {
         <div class="ctf-empty-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#444" stroke-width="1.5"/><path d="M21 21l-4.35-4.35" stroke="#444" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
-        <h3>Koi challenge nahi mila</h3>
-        <p>Filter change karo ya search query modify karo.</p>
+        <h3>No challenges found</h3>
+        <p>Try changing the filter or search query.</p>
       </div>`;
     return;
   }
@@ -2595,7 +2595,7 @@ async function submitCTFFlag() {
   const c = ctfCurrentChallenge;
 
   if (!window._currentUser) {
-    showFlagMsg('error', '[!] Flag submit karne ke liye pehle login karein.');
+    showFlagMsg('error', '[!] Please login to submit a flag.');
     return;
   }
 
@@ -2603,7 +2603,7 @@ async function submitCTFFlag() {
   const btn = document.getElementById('ctfSubmitBtn');
   const flag = inp.value.trim();
 
-  if (!flag) { showFlagMsg('error', 'Flag enter karein.'); return; }
+  if (!flag) { showFlagMsg('error', 'Please enter the flag.'); return; }
 
   btn.disabled = true;
   btn.textContent = 'Checking...';
@@ -2642,7 +2642,7 @@ async function submitCTFFlag() {
         }).catch(() => {}); // non-fatal, lab already confirmed
       }
     } catch (e) {
-      showFlagMsg('error', '[!] Server se connect nahi ho paaya. Dobara try karein.');
+      showFlagMsg('error', '[!] Could not connect to server. Please try again.');
       btn.disabled = false;
       btn.textContent = 'Submit';
       return;
@@ -2657,7 +2657,7 @@ async function submitCTFFlag() {
       });
       if (rpcErr) {
         console.warn('[CTF] RPC error:', rpcErr);
-        showFlagMsg('error', '[!] Server error. Dobara try karein.');
+        showFlagMsg('error', '[!] Server error. Please try again.');
         btn.disabled = false;
         btn.textContent = 'Submit';
         return;
@@ -2679,7 +2679,7 @@ async function submitCTFFlag() {
   if (isCorrect) {
     // ✅ CORRECT
     inp.classList.add('correct');
-    showFlagMsg('success', ` Sahi hai! +${earnedXP} XP earn kiya!`);
+    showFlagMsg('success', `✓ Correct! +${earnedXP} XP earned!`);
     // Close lab tab automatically (real CTF ki tarah)
     if (ctfActiveTab && !ctfActiveTab.closed) {
       try { ctfActiveTab.close(); } catch(e) {}
@@ -2711,7 +2711,7 @@ async function submitCTFFlag() {
     // [X] WRONG
     inp.classList.add('wrong');
     setTimeout(() => inp.classList.remove('wrong'), 500);
-    showFlagMsg('error', '[X] Galat flag. Dobara try karo!');
+    showFlagMsg('error', '[X] Incorrect flag. Please try again!');
     btn.disabled = false;
     btn.textContent = 'Submit';
   }
