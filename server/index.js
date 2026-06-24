@@ -31,6 +31,28 @@ app.use('/api/lab/robots', require('./labs/web04-robots/routes'));
 app.use('/api/lab/packet', require('./labs/for01-packet/routes'));
 app.use('/api/lab/metadata', require('./labs/for02-metadata/routes'));
 
+/* ── CTF Disabled Challenges API ──
+   In-memory store (resets on redeploy, but Supabase sync handles persistence).
+   GET  /api/ctf/disabled        → { disabled: ['web-01', ...] }
+   POST /api/ctf/disabled        → body: { slug, status: 'disabled'|'active' }
+*/
+let _ctfDisabledSlugs = [];
+
+app.get('/api/ctf/disabled', (req, res) => {
+  res.json({ disabled: _ctfDisabledSlugs });
+});
+
+app.post('/api/ctf/disabled', (req, res) => {
+  const { slug, status } = req.body;
+  if (!slug) return res.status(400).json({ error: 'slug required' });
+  if (status === 'disabled') {
+    if (!_ctfDisabledSlugs.includes(slug)) _ctfDisabledSlugs.push(slug);
+  } else {
+    _ctfDisabledSlugs = _ctfDisabledSlugs.filter(s => s !== slug);
+  }
+  res.json({ ok: true, disabled: _ctfDisabledSlugs });
+});
+
 // Root
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));

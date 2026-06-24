@@ -2064,8 +2064,20 @@ function initCTFPage() {
   if (mainView)  mainView.style.display  = 'block';
 
   loadCTFSolvedFromStorage();
-  ctfRender();
-  updateCTFStats();
+
+  // Fetch disabled slugs from server first, then render
+  fetch('/api/ctf/disabled')
+    .then(r => r.json())
+    .then(data => {
+      if (data && Array.isArray(data.disabled)) {
+        localStorage.setItem('acx_ctf_disabled', JSON.stringify(data.disabled));
+      }
+    })
+    .catch(() => {})
+    .finally(() => {
+      ctfRender();
+      updateCTFStats();
+    });
 
   // UUID map preload karo (flag RPC ke liye) — background mein, non-blocking
   loadCTFUuids();
@@ -2779,6 +2791,12 @@ document.addEventListener('keydown', function(e) {
   // ── Channel B: Cross-tab localStorage signal ──
   // Lab tab sets acx_return_to_modal then closes — storage event fires in THIS tab
   window.addEventListener('storage', function(e) {
+    // Re-render CTF grid when disabled list changes (same-browser cross-tab sync)
+    if (e.key === 'acx_ctf_disabled') {
+      ctfRender();
+      updateCTFStats();
+      return;
+    }
     if (e.key !== 'acx_return_to_modal' || !e.newValue) return;
     const returnId = e.newValue;
     try {

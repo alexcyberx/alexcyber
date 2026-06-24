@@ -5339,17 +5339,20 @@ async function saveCTF() {
   ctfChallenges = ctfMergeWithSeed([]);
   toast(title + ' updated');
 
-  // ── STEP 4: Supabase status sync (works for DB records AND local seed challenges) ──
+  // ── STEP 4: Persist to server API (cross-device, works without slug column) ──
+  fetch('/api/ctf/disabled', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slug, status })
+  }).catch(() => {});
+
+  // Also try Supabase status sync by title match (belt + suspenders)
   if (_supabase) {
     if (_editC?._dbId) {
-      // DB challenge — update by UUID
       _supabase.from('ctf_challenges').update({ status }).eq('id', _editC._dbId).catch(()=>{});
     } else {
-      // Local seed challenge — upsert by slug so status persists cross-device
-      _supabase.from('ctf_challenges').upsert(
-        { slug, title, description: desc, category, difficulty, flag, points, xp_reward: Math.round(points*1.5), status, lab_url: lab_url||null, instance_managed: false },
-        { onConflict: 'slug', ignoreDuplicates: false }
-      ).catch(()=>{});
+      // Match by title since slug column may not exist
+      _supabase.from('ctf_challenges').update({ status }).eq('title', title).catch(()=>{});
     }
   }
   closeModal('ctfModal');
