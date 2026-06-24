@@ -4116,18 +4116,21 @@ let _ctfLoaded = false;
 
 async function loadCTFData() {
   if (!_supabase) { console.warn('[Admin] _supabase null'); return; }
-  _ctfLoaded = false; // always fresh fetch
-  const COLS = 'id,room_id,status,title,description,category,difficulty,points,xp_reward,hints,lab_url,instance_managed,icon,icon_class,solve_count,created_at';
+  _ctfLoaded = false;
+  // select('*') use karo — PostgREST apne cache se jo bhi jaanta hai woh return karega
+  // explicitly column list karne se 400 aata hai agar koi column cache mein nahi hai
   const { data, error } = await _supabase
     .from('ctf_challenges')
-    .select(COLS)
+    .select('*')
     .order('created_at', { ascending: true });
   if (error) { console.error('[Admin] CTF load error:', error); toast('CTF load failed: ' + error.message, 'error'); return; }
   ctfChallenges = (data || []).map(c => ({
     ...c,
-    desc:   c.description,
+    desc:   c.description || '',
     solves: c.solve_count || 0,
     hints:  c.hints || [],
+    points: c.points || 0,
+    status: c.status || 'active',
   }));
   _ctfLoaded = true;
   console.log('[Admin] CTF loaded:', ctfChallenges.length, 'challenges');
@@ -4135,22 +4138,22 @@ async function loadCTFData() {
 
 async function loadCTFScoreboard() {
   if (!_supabase) return;
+  // select('*') — same reason
   const { data, error } = await _supabase
     .from('ctf_solves')
-    .select('user_id, points_earned, correct')
-    .eq('correct', true);
-  if (error || !data) return;
+    .select('*');
+  if (error || !data) { console.warn('[Admin] ctf_solves error:', error); return; }
 
-  // Aggregate by user
   const map = {};
   data.forEach(row => {
+    if (row.correct === false) return; // skip wrong attempts if column exists
     const uid = row.user_id;
-    if (!map[uid]) map[uid] = { user: uid.slice(0,8), solves: 0, points: 0, lastSolve: '—' };
+    if (!uid) return;
+    if (!map[uid]) map[uid] = { user: uid.slice(0,8), solves: 0, points: 0 };
     map[uid].solves++;
     map[uid].points += (row.points_earned || 0);
   });
 
-  // Fetch usernames separately
   const uids = Object.keys(map);
   if (uids.length > 0) {
     const { data: profiles } = await _supabase
@@ -4165,15 +4168,8 @@ async function loadCTFScoreboard() {
   ctfScoreboard = Object.values(map)
     .sort((a, b) => b.points - a.points || b.solves - a.solves)
     .slice(0, 20)
-    .map((s, i) => ({
-      rank: i + 1,
-      user: s.user,
-      solves: s.solves,
-      points: s.points,
-      lastSolve: s.lastSolve
-    }));
+    .map((s, i) => ({ rank: i+1, user: s.user, solves: s.solves, points: s.points, lastSolve: '—' }));
 }
-
 /* ── Progress Tracking & Certificates ── */
 let userProgress = [
   { user:'Rahul Sharma', course:'Network Forensics', progress:100, timeSpent:'6h 20m', quizAvg:92, lastActivity:'2h ago',  resume:'Completed' },

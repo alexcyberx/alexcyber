@@ -1994,13 +1994,28 @@ let _ctfSlugToUuid = {};
 async function loadCTFUuids() {
   if (!window._supabase || Object.keys(_ctfSlugToUuid).length > 0) return;
   try {
+    // select('*') — slug PostgREST cache mein nahi hai, so we map by title instead
     const { data } = await window._supabase
       .from('ctf_challenges')
-      .select('id, slug');
-    if (data) data.forEach(r => { if (r.slug) _ctfSlugToUuid[r.slug] = r.id; });
-  } catch(e) {}
+      .select('id, title');
+    if (data) {
+      // Map title → UUID (fallback since slug not in cache)
+      data.forEach(r => {
+        // Also try to match by id string patterns (web-01 etc not available, use title)
+        _ctfSlugToUuid[r.title] = r.id;
+      });
+      // Also build a map so getChallengeUuid works with c.id (which is the slug like 'web-01')
+      // We match challenges by title from hardcoded array
+      if (window.CTF_CHALLENGES) {
+        window.CTF_CHALLENGES.forEach(c => {
+          const match = data.find(r => r.title === c.title);
+          if (match) _ctfSlugToUuid[c.id] = match.id;
+        });
+      }
+    }
+  } catch(e) { console.warn('[CTF] UUID load failed:', e); }
 }
-function getChallengeUuid(slug) { return _ctfSlugToUuid[slug] || null; }
+function getChallengeUuid(slugOrId) { return _ctfSlugToUuid[slugOrId] || null; }
 
 /* ── STATE ── */
 let ctfActiveFilter = { cat: 'all', diff: null };
