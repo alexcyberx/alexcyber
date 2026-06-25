@@ -1,221 +1,322 @@
-const express   = require('express');
-const router    = express.Router();
-const crypto    = require('crypto');
+const express  = require('express');
+const router   = express.Router();
 const { flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt }  = require('../../middleware/logger');
 
-const FLAG   = process.env.FLAG_COOKIE || 'ACX{c00k13s_4r3_n0t_s3cur3}';
-const SECRET = 'corpx2024'; // Weak secret — hidden in portal JS as hex: 636f72707832303234
+const FLAG = process.env.FLAG_COOKIE || 'ACX{c00k13s_4r3_n0t_s3cur3}';
+const INSTANCE_DURATION_SEC = 30 * 60;
+const instances = {};
 
-function makeCookie(data) {
-  const payload = Buffer.from(JSON.stringify(data)).toString('base64');
-  const sig = crypto.createHash('md5').update(payload + SECRET).digest('hex').substring(0, 8);
-  return `${payload}.${sig}`;
+function getOrCreate(sid) {
+  if (!instances[sid]) instances[sid] = { startedAt: Date.now(), solved: false };
+  return instances[sid];
+}
+function resetInst(sid) {
+  instances[sid] = { startedAt: Date.now(), solved: false };
+  return instances[sid];
+}
+function instStatus(sid) {
+  const inst = getOrCreate(sid);
+  const elapsed = Math.floor((Date.now() - inst.startedAt) / 1000);
+  const remaining = Math.max(0, INSTANCE_DURATION_SEC - elapsed);
+  return { running: remaining > 0, remaining_sec: remaining, solved: inst.solved };
+}
+function sid(req) { return req.headers['x-lab-session'] || req.query.session || req.ip; }
+
+// ── INSTANCE ENDPOINTS ──────────────────────────────────────────
+router.get('/instance/status', (req, res) => res.json(instStatus(sid(req))));
+
+router.post('/instance/restart', (req, res) => {
+  resetInst(sid(req));
+  logAttempt('COOKIE', req.ip, 'instance_restart', 'ok');
+  res.json({ success: true, ...instStatus(sid(req)) });
+});
+
+router.post('/instance/stop', (req, res) => {
+  const s = sid(req);
+  if (instances[s]) instances[s].startedAt = Date.now() - (INSTANCE_DURATION_SEC + 1) * 1000;
+  logAttempt('COOKIE', req.ip, 'instance_stop', 'ok');
+  res.json({ success: true, running: false, remaining_sec: 0 });
+});
+
+// ── COOKIE HELPERS ───────────────────────────────────────────────
+// session_token = base64({"user":"employee","lvl":1})   → tamper to admin + lvl 3
+// access_lvl    = "1"                                    → tamper to "3"
+// user_pref     = base64("theme=dark&lang=en")          → red herring
+
+function makeSessionToken(user, lvl) {
+  return Buffer.from(JSON.stringify({ user, lvl })).toString('base64');
 }
 
-function verifyCookie(cookie) {
-  if (!cookie) return { data: null, err: 'missing' };
+function parseSessionToken(token) {
   try {
-    const lastDot = cookie.lastIndexOf('.');
-    if (lastDot === -1) return { data: null, err: 'malformed' };
-    const payload = cookie.substring(0, lastDot);
-    const sig     = cookie.substring(lastDot + 1);
-    const expected = crypto.createHash('md5').update(payload + SECRET).digest('hex').substring(0, 8);
-    if (sig !== expected) return { data: null, err: 'invalid_signature' };
-    const data = JSON.parse(Buffer.from(payload, 'base64').toString('utf8'));
-    return { data, err: null };
-  } catch (e) {
-    return { data: null, err: 'malformed' };
-  }
+    const decoded = Buffer.from(token, 'base64').toString('utf8');
+    return JSON.parse(decoded);
+  } catch (e) { return null; }
 }
 
-// GET /api/lab/cookie/page — login page HTML
+// ── LOGIN PAGE ───────────────────────────────────────────────────
 router.get('/page', (req, res) => {
+  const s = sid(req);
+  getOrCreate(s);
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>CorpX — Staff Login</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NovaCorp Employee Portal</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:#1a1a2e;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;}
-  .box{background:#fff;border-radius:8px;padding:40px;width:340px;}
-  h2{color:#1a1a2e;font-size:20px;margin-bottom:24px;text-align:center;}
-  label{font-size:12px;color:#4a5568;font-weight:600;display:block;margin-bottom:4px;}
-  input{width:100%;border:1px solid #e2e8f0;border-radius:4px;padding:9px 12px;font-size:13px;margin-bottom:14px;outline:none;}
-  input:focus{border-color:#3b82f6;}
-  button{width:100%;background:#1a1a2e;color:#fff;border:none;border-radius:4px;padding:10px;font-size:14px;cursor:pointer;}
-  button:hover{background:#16213e;}
-  .note{font-size:11px;color:#a0aec0;text-align:center;margin-top:14px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0f1117;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;}
+.topbar{background:#161b27;border-bottom:1px solid #1e2535;padding:0 32px;height:52px;display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:28px;height:28px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:6px;display:flex;align-items:center;justify-content:center;}
+.logo-text{font-size:15px;font-weight:700;color:#f1f5f9;letter-spacing:0.3px;}
+.logo-sub{font-size:11px;color:#64748b;margin-left:4px;font-weight:400;}
+.secure-badge{font-size:10px;font-weight:700;letter-spacing:0.8px;color:#22c55e;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);padding:3px 9px;border-radius:4px;text-transform:uppercase;}
+.main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+.login-card{background:#161b27;border:1px solid #1e2535;border-radius:12px;width:100%;max-width:400px;overflow:hidden;}
+.card-header{background:#1a2033;padding:24px 28px 20px;border-bottom:1px solid #1e2535;}
+.card-title{font-size:18px;font-weight:700;color:#f1f5f9;margin-bottom:4px;}
+.card-sub{font-size:12px;color:#64748b;}
+.card-body{padding:24px 28px;}
+.form-group{margin-bottom:16px;}
+label{display:block;font-size:11px;font-weight:600;color:#94a3b8;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:7px;}
+input{width:100%;background:#0f1117;border:1px solid #1e2535;border-radius:7px;padding:10px 13px;font-size:13px;color:#f1f5f9;outline:none;font-family:inherit;transition:border-color 0.15s;}
+input:focus{border-color:#3b82f6;}
+input::placeholder{color:#374151;}
+.login-btn{width:100%;background:#3b82f6;color:#fff;border:none;border-radius:7px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s;margin-top:4px;}
+.login-btn:hover{background:#2563eb;}
+.login-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.notice{font-size:11px;color:#374151;text-align:center;margin-top:16px;line-height:1.6;}
+.err-box{display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:7px;padding:10px 13px;font-size:12px;color:#f87171;margin-bottom:14px;}
+.footer{background:#161b27;border-top:1px solid #1e2535;padding:12px 32px;text-align:center;font-size:11px;color:#374151;}
 </style>
 </head>
 <body>
-<div class="box">
-  <h2>CorpX Staff Portal</h2>
-  <form id="loginForm">
-    <label>Username</label>
-    <input type="text" id="username" value="john" />
-    <label>Password</label>
-    <input type="password" id="password" value="password123" />
-    <button type="submit">Login</button>
-  </form>
-  <p class="note">Internal use only. Unauthorized access is prohibited.</p>
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="6" width="10" height="7" rx="1.5" stroke="#fff" stroke-width="1.2"/><path d="M4.5 6V4a2.5 2.5 0 015 0v2" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>
+    </div>
+    <span class="logo-text">NovaCorp<span class="logo-sub">Employee Portal</span></span>
+  </div>
+  <span class="secure-badge">Secure</span>
 </div>
+<div class="main">
+  <div class="login-card">
+    <div class="card-header">
+      <div class="card-title">Employee Sign In</div>
+      <div class="card-sub">Access your NovaCorp workspace</div>
+    </div>
+    <div class="card-body">
+      <div class="err-box" id="errBox"></div>
+      <div class="form-group">
+        <label>Employee ID</label>
+        <input type="text" id="uname" value="employee" placeholder="Enter employee ID" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="pass" value="nova123" placeholder="Enter password">
+      </div>
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+      <p class="notice">Authorized personnel only. All activity is monitored and logged.</p>
+    </div>
+  </div>
+</div>
+<div class="footer">NovaCorp Systems v3.1.0 — Unauthorized access is strictly prohibited</div>
 <script>
-document.getElementById('loginForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const res = await fetch('/api/lab/cookie/login', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      username: document.getElementById('username').value,
-      password: document.getElementById('password').value
-    })
-  });
-  const data = await res.json();
-  if (data.cookie) {
-    document.cookie = 'session=' + data.cookie + '; path=/';
-    window.location.href = '/api/lab/cookie/dashboard';
-  } else {
-    alert('Login failed: ' + (data.error || 'unknown error'));
+async function doLogin() {
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('errBox');
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+  err.style.display = 'none';
+  try {
+    const res = await fetch('/api/lab/cookie/login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ username: document.getElementById('uname').value, password: document.getElementById('pass').value })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.cookie = 'session_token=' + data.session_token + '; path=/';
+      document.cookie = 'access_lvl=' + data.access_lvl + '; path=/';
+      document.cookie = 'user_pref=' + data.user_pref + '; path=/';
+      window.location.href = '/api/lab/cookie/dashboard';
+    } else {
+      err.textContent = data.error || 'Login failed. Please try again.';
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    }
+  } catch(e) {
+    err.textContent = 'Connection error. Please try again.';
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
   }
-});
+}
+document.addEventListener('keydown', function(e){ if(e.key === 'Enter') doLogin(); });
 </script>
 </body>
 </html>`);
 });
 
-// POST /api/lab/cookie/login
+// ── LOGIN API ────────────────────────────────────────────────────
 router.post('/login', (req, res) => {
   const { username, password } = req.body;
-  const users = {
-    john:  { password: 'password123', role: 'user'  },
-    admin: { password: 'adm1n$ecret', role: 'admin' }
-  };
-
-  const user = users[username];
-  if (!user || user.password !== password) {
-    return res.status(401).json({ error: 'Invalid credentials' });
+  if (username === 'employee' && password === 'nova123') {
+    logAttempt('COOKIE', req.ip, 'login:employee', 'ok');
+    return res.json({
+      success: true,
+      session_token: makeSessionToken('employee', 1),   // base64({"user":"employee","lvl":1})
+      access_lvl: '1',
+      user_pref: Buffer.from('theme=dark&lang=en').toString('base64'), // red herring
+    });
   }
-
-  const cookie = makeCookie({ user: username, role: user.role, exp: 9999999999 });
-  logAttempt('COOKIE', req.ip, `login:${username}`, 'ok');
-
-  res.json({
-    success: true,
-    cookie,
-    message: `Welcome ${username}. Session created.`,
-    // Intentional info leak
-    debug: {
-      cookie_format: 'base64(json).md5sig',
-      your_role: user.role
-    }
-  });
+  logAttempt('COOKIE', req.ip, `login:${username}`, 'fail');
+  res.status(401).json({ error: 'Invalid credentials' });
 });
 
-// GET /api/lab/cookie/dashboard
+// ── DASHBOARD ────────────────────────────────────────────────────
 router.get('/dashboard', (req, res) => {
   const cookieHeader = req.headers.cookie || '';
-  const sessionMatch = cookieHeader.match(/session=([^;]+)/);
-  const rawCookie = sessionMatch ? sessionMatch[1] : null;
+  const get = (name) => { const m = cookieHeader.match(new RegExp(name + '=([^;]+)')); return m ? m[1] : null; };
 
-  const { data, err } = verifyCookie(rawCookie);
+  const rawToken = get('session_token');
+  const rawLvl   = get('access_lvl');
 
-  if (err || !data) {
-    return res.setHeader('Content-Type', 'text/html') && res.status(401).send(`<!DOCTYPE html>
-<html><head><title>CorpX</title><style>body{background:#1a1a2e;color:#fff;font-family:Arial;display:flex;align-items:center;justify-content:center;min-height:100vh;}</style></head>
-<body><div style="text-align:center"><h2>Session Invalid</h2><p style="color:#a0aec0;margin-top:8px;">Error: ${err}. Please login again.</p><a href="/api/lab/cookie/page" style="color:#60a5fa;display:block;margin-top:16px;">Back to Login</a></div></body></html>`);
+  const tokenData = rawToken ? parseSessionToken(rawToken) : null;
+  const isAdmin   = tokenData && tokenData.user === 'admin' && Number(tokenData.lvl) === 3 && rawLvl === '3';
+  const isLoggedIn = !!tokenData;
+
+  const userName = tokenData?.user || 'unknown';
+  const lvl      = tokenData?.lvl || 0;
+
+  if (!isLoggedIn) {
+    return res.status(401).setHeader('Content-Type', 'text/html') && res.send(`<!DOCTYPE html>
+<html><head><title>NovaCorp</title><style>body{background:#0f1117;color:#f1f5f9;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;}</style></head>
+<body><div style="text-align:center"><p style="color:#64748b;margin-bottom:16px;">Session not found. Please log in.</p><a href="/api/lab/cookie/page" style="color:#3b82f6;">Back to Login</a></div></body></html>`);
   }
-
-  const isAdmin = data.role === 'admin';
 
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>CorpX — Dashboard</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NovaCorp Dashboard</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:#f5f5f5;font-family:Arial,sans-serif;}
-  header{background:#1a1a2e;color:#fff;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;}
-  header h1{font-size:18px;}
-  .role-badge{font-size:11px;padding:3px 10px;border-radius:10px;background:${isAdmin ? '#22c55e' : '#3b82f6'};color:#fff;font-weight:600;}
-  .main{padding:32px;}
-  .welcome{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:24px;margin-bottom:20px;}
-  .welcome h2{font-size:18px;color:#1a1a2e;margin-bottom:6px;}
-  .welcome p{font-size:13px;color:#718096;}
-  .admin-panel{background:#fff;border:2px solid #22c55e;border-radius:8px;padding:24px;}
-  .admin-panel h3{color:#15803d;font-size:16px;margin-bottom:12px;}
-  .flag-reveal{background:#f0fdf4;border:1px solid #86efac;border-radius:6px;padding:16px;font-family:monospace;font-size:14px;color:#15803d;font-weight:700;margin-top:12px;}
-  .locked{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:24px;text-align:center;}
-  .locked h3{color:#4a5568;font-size:15px;margin-bottom:8px;}
-  .locked p{font-size:12px;color:#a0aec0;}
-  .lock-icon{font-size:32px;margin-bottom:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0f1117;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;}
+.topbar{background:#161b27;border-bottom:1px solid #1e2535;padding:0 32px;height:52px;display:flex;align-items:center;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:28px;height:28px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:6px;display:flex;align-items:center;justify-content:center;}
+.logo-text{font-size:15px;font-weight:700;color:#f1f5f9;}
+.user-row{display:flex;align-items:center;gap:10px;}
+.user-name{font-size:12px;color:#94a3b8;}
+.role-chip{font-size:10px;font-weight:700;padding:3px 10px;border-radius:4px;text-transform:uppercase;letter-spacing:0.5px;background:${isAdmin ? 'rgba(34,197,94,0.15)' : 'rgba(59,130,246,0.15)'};color:${isAdmin ? '#22c55e' : '#60a5fa'};border:1px solid ${isAdmin ? 'rgba(34,197,94,0.3)' : 'rgba(59,130,246,0.3)'};}
+.main{max-width:900px;margin:0 auto;padding:32px 24px;}
+.welcome-card{background:#161b27;border:1px solid #1e2535;border-radius:10px;padding:24px;margin-bottom:20px;}
+.welcome-title{font-size:17px;font-weight:700;color:#f1f5f9;margin-bottom:6px;}
+.welcome-sub{font-size:13px;color:#64748b;line-height:1.6;}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.info-card{background:#161b27;border:1px solid #1e2535;border-radius:10px;padding:16px;}
+.info-label{font-size:10px;font-weight:600;color:#64748b;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px;}
+.info-val{font-size:14px;font-weight:700;color:#f1f5f9;font-family:'Courier New',monospace;}
+.info-val.dim{color:#64748b;}
+.clearance-bar{background:#161b27;border:1px solid #1e2535;border-radius:10px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+.clearance-label{font-size:11px;font-weight:600;color:#64748b;letter-spacing:0.8px;text-transform:uppercase;}
+.clearance-val{font-size:13px;font-weight:700;color:${Number(lvl) >= 3 ? '#22c55e' : '#f59e0b'};font-family:'Courier New',monospace;}
+.admin-section{background:#161b27;border:2px solid ${isAdmin ? '#22c55e' : '#1e2535'};border-radius:10px;overflow:hidden;}
+.admin-header{padding:16px 20px;border-bottom:1px solid ${isAdmin ? 'rgba(34,197,94,0.2)' : '#1e2535'};display:flex;align-items:center;gap:10px;}
+.admin-title{font-size:13px;font-weight:700;color:${isAdmin ? '#22c55e' : '#94a3b8'};letter-spacing:0.3px;}
+.admin-body{padding:20px;}
+.lock-box{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;gap:12px;}
+.lock-title{font-size:14px;font-weight:600;color:#94a3b8;}
+.lock-sub{font-size:12px;color:#374151;line-height:1.6;max-width:300px;}
+.deny-msg{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:7px;padding:12px 16px;font-size:12px;color:#f87171;font-family:'Courier New',monospace;margin-bottom:14px;}
+.flag-box{background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);border-radius:7px;padding:16px;font-family:'Courier New',monospace;font-size:15px;font-weight:700;color:#22c55e;letter-spacing:0.5px;word-break:break-all;}
+.flag-label{font-size:10px;font-weight:600;color:#16a34a;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px;}
+footer{border-top:1px solid #1e2535;padding:14px 32px;text-align:center;font-size:11px;color:#1e2535;margin-top:40px;}
+@media(max-width:600px){.info-grid{grid-template-columns:1fr 1fr;}.clearance-bar{flex-direction:column;align-items:flex-start;gap:6px;}}
 </style>
 </head>
 <body>
-<header>
-  <h1>CorpX Dashboard</h1>
-  <div style="display:flex;align-items:center;gap:12px;">
-    <span style="font-size:13px;color:#94a3b8;">Logged in as <strong style="color:#fff">${data.user}</strong></span>
-    <span class="role-badge">${data.role.toUpperCase()}</span>
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="6" width="10" height="7" rx="1.5" stroke="#fff" stroke-width="1.2"/><path d="M4.5 6V4a2.5 2.5 0 015 0v2" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>
+    </div>
+    <span class="logo-text">NovaCorp</span>
   </div>
-</header>
-<div class="main">
-  <div class="welcome">
-    <h2>Welcome, ${data.user}</h2>
-    <p>Your current access level is <strong>${data.role}</strong>. ${isAdmin ? 'You have full administrative access.' : 'Standard user access only. Admin panel is restricted.'}</p>
+  <div class="user-row">
+    <span class="user-name">${userName}</span>
+    <span class="role-chip">${isAdmin ? 'Admin' : 'Employee'}</span>
   </div>
-  ${isAdmin ? `
-  <div class="admin-panel">
-    <h3>Admin Panel — Restricted Access</h3>
-    <p style="font-size:13px;color:#4a5568;margin-bottom:8px;">Internal system credentials and audit logs.</p>
-    <div class="flag-reveal">${FLAG}</div>
-  </div>` : `
-  <div class="locked">
-    <div class="lock-icon">&#128274;</div>
-    <h3>Admin Panel</h3>
-    <p>This section is restricted to administrators only.<br>Your current role does not have access.</p>
-  </div>`}
 </div>
+<div class="main">
+  <div class="welcome-card">
+    <div class="welcome-title">Welcome back, ${userName}</div>
+    <div class="welcome-sub">NovaCorp Employee Portal v3.1.0. Your session is active. All access attempts are logged and monitored by the security team.</div>
+  </div>
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-label">User</div>
+      <div class="info-val">${userName}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">Clearance</div>
+      <div class="info-val">LEVEL-${lvl}</div>
+    </div>
+    <div class="info-card">
+      <div class="info-label">Access Level</div>
+      <div class="info-val ${Number(rawLvl) < 3 ? 'dim' : ''}">${rawLvl || '?'}</div>
+    </div>
+  </div>
+  <div class="clearance-bar">
+    <span class="clearance-label">Security Clearance</span>
+    <span class="clearance-val">LEVEL-${Number(lvl) >= 3 ? '3 (ADMIN)' : lvl + ' (STANDARD)'}</span>
+  </div>
+  <div class="admin-section">
+    <div class="admin-header">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="6" width="10" height="7" rx="1.5" stroke="${isAdmin ? '#22c55e' : '#64748b'}" stroke-width="1.2"/><path d="M4.5 6V4a2.5 2.5 0 015 0v2" stroke="${isAdmin ? '#22c55e' : '#64748b'}" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span class="admin-title">Admin Control Panel</span>
+    </div>
+    <div class="admin-body">
+      ${isAdmin ? `
+      <div class="flag-label">Access Granted</div>
+      <div class="flag-box">${FLAG}</div>
+      ` : `
+      <div class="lock-box">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="5" y="14" width="22" height="15" rx="3" stroke="#374151" stroke-width="1.6"/><path d="M10 14v-4a6 6 0 0112 0v4" stroke="#374151" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <div class="lock-title">Restricted Access</div>
+        ${(tokenData && (tokenData.user === 'admin' || Number(tokenData.lvl) === 3) || rawLvl === '3') ? `<div class="deny-msg">SECURITY ALERT: Token mismatch detected. Incident has been logged.</div>` : ''}
+        <div class="lock-sub">This panel requires full administrative clearance. Your current credentials do not meet the required security level.</div>
+      </div>
+      `}
+    </div>
+  </div>
+</div>
+<footer>NovaCorp Systems v3.1.0</footer>
 </body>
 </html>`);
 });
 
-// GET /api/lab/cookie/static/app.js
-// Weak secret hidden as hex in a JS comment
-router.get('/static/app.js', (req, res) => {
-  res.setHeader('Content-Type', 'application/javascript');
-  res.send(`// CorpX Portal App — v1.3.0
-// Build: 2024-11-12
-
-(function() {
-  'use strict';
-
-  var CONFIG = {
-    api_base:    '/api',
-    timeout:     5000,
-    retry_count: 3
-  };
-
-  // session integrity check
-  // sig_key: 0x${SECRET.split('').map(c => c.charCodeAt(0).toString(16)).join('')}
-  // algo: md5(payload+key)[0:8]
-
-  function checkSession() {
-    var cookies = document.cookie.split(';');
-    for (var i = 0; i < cookies.length; i++) {
-      var c = cookies[i].trim();
-      if (c.startsWith('session=')) return c.substring(8);
-    }
-    return null;
+// ── SUBMIT ───────────────────────────────────────────────────────
+router.post('/submit', flagLimiter, (req, res) => {
+  const { flag } = req.body;
+  const s = sid(req);
+  if (!flag) return res.status(400).json({ error: 'No flag provided' });
+  const correct = flag.trim() === FLAG;
+  logAttempt('COOKIE', req.ip, flag.trim(), correct ? 'correct' : 'wrong');
+  if (correct) {
+    getOrCreate(s).solved = true;
+    return res.json({ success: true, flag: FLAG, message: 'Session cookies trusted blindly. Classic auth bypass.' });
   }
-
-  window._corpx = { checkSession: checkSession, cfg: CONFIG };
-})();
-`);
+  res.status(401).json({ success: false, message: 'Incorrect flag.' });
 });
 
 module.exports = router;

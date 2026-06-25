@@ -1803,21 +1803,25 @@ const ctfChallenges = window.CTF_CHALLENGES = [
   {
     id: 'web-02', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
     title: 'Cookie Monster',
-    desc: 'Authentication bypass karna hai. Application cookies ka use karti hai session manage karne ke liye. Kya in cookies mein kuch manipulate kiya ja sakta hai?',
+    desc: 'NovaCorp Employee Portal blindly trusts its session cookies. A leaked employee account has been found. Can you escalate your privileges and access the Admin Control Panel?',
     diff: 'Medium', pts: 150, xp: 250,
-    flag: 'ACX{cookies_can_be_tampered}',
-    hint: 'Browser DevTools (F12) → Application → Cookies. `isAdmin` cookie ki value dekho aur true kar do.',
-    labUrl: null,
+    flag: 'ACX{c00k13s_4r3_n0t_s3cur3}',
+    hints: ['Check DevTools Application tab and inspect all cookies set after login.', 'One cookie is Base64 encoded JSON. Decode it with atob() in browser console.', 'The server checks more than one cookie. Changing only one triggers a security alert.'],
+    labUrl: '/pages/labs/lab-cookie.html',
+    labApiPath: '/api/lab/cookie',
+    hasLabFlow: true,
     solvers: 67
   },
   {
     id: 'web-03', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
     title: 'SQL Injection 101',
-    desc: 'Login form mein SQL injection vulnerability hai. Database se admin password extract karo. Username field mein kuch interesting try karo.',
+    desc: 'VaultBank Employee Portal has a vulnerable search feature. Extract the flag from a hidden database table using UNION-based SQL injection.',
     diff: 'Medium', pts: 200, xp: 350,
-    flag: 'ACX{sqli_basic_bypass_success}',
-    hint: "Username: `' OR '1'='1' --` try karo.",
-    labUrl: 'pages/lab-sqli.html',
+    flag: 'ACX{un10n_s3l3ct_g0t_m3}',
+    hints: ['Add a single quote to the search field to trigger a SQL error and confirm the injection point.', 'Use ORDER BY to count columns, then UNION SELECT NULL to find which column accepts strings.', 'Query information_schema.tables to find hidden tables, then extract data from vault_secrets.'],
+    labUrl: '/pages/labs/lab-sqli101.html',
+    labApiPath: '/api/lab/sqli101',
+    hasLabFlow: true,
     solvers: 89
   },
   {

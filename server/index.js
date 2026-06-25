@@ -27,6 +27,7 @@ app.use('/api/lab/web01', require('./labs/web01-sqli/routes'));
 app.use('/api/lab/web02', require('./labs/web02-xss/routes'));
 app.use('/api/lab/hidden', require('./labs/hidden-sight/routes'));
 app.use('/api/lab/cookie', require('./labs/web02-cookie/routes'));
+app.use('/api/lab/sqli101', require('./labs/web03-sqli101/routes'));
 app.use('/api/lab/robots', require('./labs/web04-robots/routes'));
 app.use('/api/lab/packet', require('./labs/for01-packet/routes'));
 app.use('/api/lab/metadata', require('./labs/for02-metadata/routes'));
