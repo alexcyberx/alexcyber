@@ -65,6 +65,8 @@ body::after {
   grid-template-columns: var(--sidebar-w) 1fr;
   grid-template-rows: var(--topbar-h) 1fr;
   min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   position: relative; z-index:1;
 }
 
@@ -200,9 +202,11 @@ body::after {
   border-right: 1px solid var(--border);
   padding: 16px 0;
   overflow-y: auto;
+  grid-column: 1;
+  grid-row: 2;
+  height: calc(100vh - var(--topbar-h));
   position: sticky;
   top: var(--topbar-h);
-  height: calc(100vh - var(--topbar-h));
 }
 
 .sidebar-section {
@@ -261,13 +265,16 @@ body::after {
 ══════════════════════════════════════════ */
 .main {
   overflow-y: auto;
+  overflow-x: hidden;
   background: var(--dark);
+  min-height: 0;
 }
 
 .section {
   display: none;
   padding: 28px 28px;
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1400px;
 }
 .section.active { display: block; }
 
@@ -1191,8 +1198,10 @@ tbody td {
   .sidebar-item span, .sidebar-section, .sidebar-badge { display:none; }
   .sidebar-item { justify-content:center; padding:10px; margin:1px 4px; }
   .topbar-logo-text { display:none; }
+  .topbar-logo { width: 52px; justify-content: center; }
   .grid-2, .grid-3, .grid-4 { grid-template-columns:1fr 1fr; }
   .span-2 { grid-column:span 1; }
+  .section { padding: 20px 16px; }
 }
 @media (max-width: 640px) {
   /* Hide sidebar entirely on phones */
@@ -1200,8 +1209,10 @@ tbody td {
   .layout {
     grid-template-columns: 1fr;
     grid-template-rows: var(--topbar-h) 1fr;
+    height: auto;
+    overflow: visible;
   }
-  .main { grid-column: 1; }
+  .main { grid-column: 1; height: auto; overflow-y: visible; }
   .topbar { grid-column: 1; }
 
   /* Hamburger button */
@@ -1450,6 +1461,7 @@ tbody td {
 </div>
 <!-- ════════════ END LOGIN OVERLAY ════════════ -->
 
+<div class="layout">
   <!-- ════════════ TOPBAR ════════════ -->
   <header class="topbar">
     <div class="topbar-logo">
@@ -3714,7 +3726,7 @@ tbody td {
     <!-- ═══════════════════ END BACKUP & RESTORE ═══════════════════ -->
 
   </main>
-</div>
+</div><!-- /.layout -->
 
 <!-- ════════════ MODALS ════════════ -->
 
