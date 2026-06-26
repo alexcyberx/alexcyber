@@ -208,7 +208,6 @@ nav {
   position: relative;
   display: flex;
   align-items: center;
-  /* Always visible on all screen sizes — next to hamburger */
 }
 
 .nav-search-icon-btn {
@@ -230,7 +229,35 @@ nav {
   stroke: #ccc;
 }
 
-/* Expanded input — drops BELOW the navbar */
+/* Desktop: inline corner box — expands right from the icon */
+.nav-search-desktop-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 5px 10px;
+  animation: navSearchBoxIn 0.18s ease;
+  min-width: 220px;
+}
+@keyframes navSearchBoxIn {
+  from { opacity: 0; transform: scaleX(0.7); transform-origin: right; }
+  to   { opacity: 1; transform: scaleX(1); transform-origin: right; }
+}
+.nav-search-desktop-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e0e0e0;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  min-width: 0;
+}
+.nav-search-desktop-box input::placeholder { color: #555; }
+
+/* Mobile fullscreen bar — only on mobile */
 .nav-search-expanded {
   position: fixed;
   top: var(--nav-h);
@@ -250,7 +277,6 @@ nav {
   from { opacity: 0; transform: translateY(-8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 .nav-search-expanded input {
   flex: 1;
   background: transparent;
@@ -264,28 +290,61 @@ nav {
 }
 .nav-search-expanded input::placeholder { color: #444; }
 
-/* Search dropdown — below the expanded search bar */
+/* Search results dropdown — desktop: absolute below search icon wrap */
 .nav-search-wrap .search-results-dropdown {
-  position: fixed;
-  top: calc(var(--nav-h) + 48px);
-  left: 0;
+  position: absolute;
+  top: calc(100% + 8px);
   right: 0;
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  background: #111118;
+  left: auto;
+  width: 300px;
+  background: #0e0e14;
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
   overflow: hidden;
-  z-index: 897;
+  z-index: 997;
   box-shadow: 0 12px 32px rgba(0,0,0,0.7);
   max-height: 320px;
   overflow-y: auto;
 }
+@media (max-width: 768px) {
+  .nav-search-wrap .search-results-dropdown {
+    position: fixed;
+    top: calc(var(--nav-h) + 48px);
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    border-radius: 10px;
+  }
+}
 .nav-search-wrap .search-results-dropdown::-webkit-scrollbar { width: 4px; }
 .nav-search-wrap .search-results-dropdown::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
-/* Mobile: full-width search in mobile menu */
+/* Mobile: corner box ko fullscreen bar mein override karo */
+@media (max-width: 768px) {
+  .nav-search-desktop-box {
+    position: fixed;
+    top: var(--nav-h);
+    left: 0;
+    right: 0;
+    min-width: unset;
+    width: 100%;
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid rgba(220,20,20,0.35);
+    background: rgba(10,10,14,0.98);
+    backdrop-filter: blur(20px);
+    height: 48px;
+    padding: 0 16px;
+    gap: 10px;
+    z-index: 898;
+    animation: navSearchExpand 0.18s ease;
+  }
+  .nav-search-desktop-box input {
+    font-size: 14px;
+  }
+}
 .mobile-search-row {
   padding: 4px 4px 8px;
   display: flex;
