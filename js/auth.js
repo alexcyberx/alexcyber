@@ -347,9 +347,20 @@ async function loadUserProfile(authUser) {
 // inside the same tab/browser show correct solves without a manual refresh.
 function refreshCTFSolvedForCurrentUser() {
   try {
-    if (typeof loadCTFSolvedFromStorage === 'function') loadCTFSolvedFromStorage();
-    if (typeof ctfRender === 'function') ctfRender();
+    // FIX Bug 2: Pehle localStorage clear karo (purane user ka data na rahe)
+    // Phir Supabase se fresh data lo — yahi cross-device sync karta hai
+    ctfSolved = {};
     if (typeof updateCTFStats === 'function') updateCTFStats();
+    if (typeof ctfRender === 'function') ctfRender();
+    // Supabase se authoritative data fetch karo (async, non-blocking)
+    if (typeof syncSolvedFromSupabase === 'function') {
+      syncSolvedFromSupabase();
+    } else {
+      // Fallback: sirf localStorage (should not happen normally)
+      if (typeof loadCTFSolvedFromStorage === 'function') loadCTFSolvedFromStorage();
+      if (typeof ctfRender === 'function') ctfRender();
+      if (typeof updateCTFStats === 'function') updateCTFStats();
+    }
   } catch(e) {}
 }
 
@@ -617,7 +628,7 @@ async function saveProfile() {
         const lKeysToWipe = [];
         for (let i = 0; i < localStorage.length; i++) {
           const k = localStorage.key(i);
-          if (k && (k.startsWith('acx_lab_') || k === 'acx_return_to_modal' || k === 'acx_return_ts')) {
+          if (k && (k.startsWith('acx_lab_') || k === 'acx_return_to_modal' || k === 'acx_return_ts' || k === 'acx_ctf_solved' || k === 'acx_ctf_disabled')) {
             lKeysToWipe.push(k);
           }
         }

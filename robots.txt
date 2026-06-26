@@ -1,3 +1,6 @@
+# AlexCyberX - robots.txt
+# https://alexcyberx.com
+
 User-agent: *
 Allow: /
 Disallow: /admin
@@ -5,4 +8,33 @@ Disallow: /secret-panel
 Disallow: /flag-storage
 Disallow: /hidden/ACX{robots_txt_not_a_security_measure}
 
-# Note to self: move the flag out of here before launch
+# Sitemap
+Sitemap: https://alexcyberx.com/sitemap.xml
+
+# AI Crawlers - Allow full indexing for AEO/GEO/LLMO
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
