@@ -37,9 +37,13 @@ nav {
 .logo-text em { color: var(--red); font-style: normal; }
 
 .nav-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 2px;
+  pointer-events: auto;
 }
 
 .nav-link {
@@ -310,7 +314,7 @@ nav {
 .mobile-search-row input::placeholder { color: #444; }
 
 /* ═══════════════════════════════════════════
-   DESKTOP SEARCH (nav-right only, mobile untouched)
+   DESKTOP SEARCH — always-visible pill
 ═══════════════════════════════════════════ */
 .nav-search-desktop {
   position: relative;
@@ -318,23 +322,25 @@ nav {
   align-items: center;
 }
 
-.nav-search-desktop-box {
+.nav-search-pill {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  gap: 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 8px;
-  padding: 5px 10px;
-  width: 230px;
-  animation: deskSearchIn 0.15s ease;
-  transform-origin: right center;
+  padding: 5px 9px;
+  width: 32px;
+  overflow: hidden;
+  transition: width 0.22s ease, background 0.2s, border-color 0.2s;
+  cursor: text;
 }
-@keyframes deskSearchIn {
-  from { opacity: 0; width: 0; padding: 5px 0; }
-  to   { opacity: 1; width: 230px; padding: 5px 10px; }
+.nav-search-pill.expanded {
+  width: 200px;
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.14);
 }
-.nav-search-desktop-box input {
+.nav-search-pill input {
   flex: 1;
   background: transparent;
   border: none;
@@ -343,14 +349,22 @@ nav {
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   min-width: 0;
+  width: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: text;
 }
-.nav-search-desktop-box input::placeholder { color: #555; }
+.nav-search-pill.expanded input {
+  width: auto;
+  opacity: 1;
+}
+.nav-search-pill input::placeholder { color: #555; }
 
 .nav-search-desktop-results {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 300px;
+  width: 280px;
   background: #0d0d12;
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;

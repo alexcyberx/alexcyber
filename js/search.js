@@ -228,13 +228,19 @@ let _deskSearchOpen = false;
 let _deskSearchResults = [];
 let _deskSearchIdx = -1;
 
+function expandNavSearch() {
+  const pill = document.getElementById('navSearchPill');
+  if (pill) pill.classList.add('expanded');
+  _deskSearchOpen = true;
+}
+
 function toggleDesktopSearch() {
-  _deskSearchOpen = !_deskSearchOpen;
-  const box = document.getElementById('navSearchDesktopBox');
-  const dd  = document.getElementById('navSearchDesktopResults');
-  if (_deskSearchOpen) {
-    box.style.display = 'flex';
-    setTimeout(() => { const inp = document.getElementById('desktopSearchInput'); if(inp) inp.focus(); }, 50);
+  const pill = document.getElementById('navSearchPill');
+  const inp  = document.getElementById('desktopSearchInput');
+  if (!_deskSearchOpen) {
+    if (pill) pill.classList.add('expanded');
+    _deskSearchOpen = true;
+    setTimeout(() => { if(inp) inp.focus(); }, 50);
   } else {
     closeDesktopSearch();
   }
@@ -242,11 +248,11 @@ function toggleDesktopSearch() {
 
 function closeDesktopSearch() {
   _deskSearchOpen = false;
-  const box = document.getElementById('navSearchDesktopBox');
-  const dd  = document.getElementById('navSearchDesktopResults');
-  const inp = document.getElementById('desktopSearchInput');
-  if (box) box.style.display = 'none';
-  if (dd)  dd.style.display  = 'none';
+  const pill = document.getElementById('navSearchPill');
+  const dd   = document.getElementById('navSearchDesktopResults');
+  const inp  = document.getElementById('desktopSearchInput');
+  if (pill) pill.classList.remove('expanded');
+  if (dd)  dd.style.display = 'none';
   if (inp) inp.value = '';
   _deskSearchResults = [];
   _deskSearchIdx = -1;
