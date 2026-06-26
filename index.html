@@ -321,6 +321,7 @@
   </div>
 
   <div class="nav-right" id="homeNavRight">
+
     <button class="nav-btn ghost" id="langNavBtn" onclick="showLangModal()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 12px;" title="Change Language">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
         <circle cx="7" cy="7" r="6" stroke="#6a6a7a" stroke-width="1.2"/>
@@ -330,17 +331,30 @@
       </svg>
       <span style="font-size:11px;letter-spacing:0.3px;" id="langNavLabel">Language</span>
     </button>
-    <!-- Search icon — Language ke baad, desktop corner box -->
-    <div class="nav-search-wrap" id="navSearchWrap">
-      <button class="nav-search-icon-btn" id="navSearchToggle" onclick="toggleNavSearch()" title="Search">
+
+    <!-- Desktop-only search — inline expanding box -->
+    <div class="nav-search-desktop" id="navSearchDesktop">
+      <button class="nav-search-icon-btn" id="navSearchDesktopToggle" onclick="toggleDesktopSearch()" title="Search">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
           <circle cx="6.5" cy="6.5" r="5" stroke="#6a6a7a" stroke-width="1.4"/>
           <path d="M10.5 10.5L13.5 13.5" stroke="#6a6a7a" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </button>
-      <!-- Desktop: inline corner box (injected via JS on open) -->
-      <div class="search-results-dropdown" id="searchResultsDropdown" style="display:none;"></div>
+      <div class="nav-search-desktop-box" id="navSearchDesktopBox" style="display:none;">
+        <svg width="13" height="13" viewBox="0 0 15 15" fill="none" style="flex-shrink:0;">
+          <circle cx="6.5" cy="6.5" r="5" stroke="#666" stroke-width="1.4"/>
+          <path d="M10.5 10.5L13.5 13.5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input type="text" id="desktopSearchInput" placeholder="Search courses, chapters..." autocomplete="off"
+          oninput="handleDesktopSearch(this.value)"
+          onkeydown="handleDesktopSearchKey(event)" />
+        <button onclick="closeDesktopSearch()" style="background:none;border:none;cursor:pointer;padding:2px 4px;opacity:0.5;display:flex;align-items:center;">
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="#aaa" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="nav-search-desktop-results" id="navSearchDesktopResults" style="display:none;"></div>
     </div>
+
     <button class="nav-btn ghost" onclick="showAuth('login')" id="navLoginBtn" data-i18n="nav.login">Login</button>
     <button class="nav-btn fill" onclick="showAuth('signup')" id="navSignupBtn" data-i18n="nav.signup">Sign Up</button>
     <div class="nav-avatar" id="navAvatar" onclick="showPage('profile')" style="position:relative;">
@@ -360,34 +374,33 @@
     </div>
   </div>
 
-  <!-- Mobile right: search icon + hamburger (mobile only) -->
+  <!-- Mobile right: search icon first, then hamburger -->
   <div class="nav-mobile-right" id="navMobileRight">
-    <div class="nav-search-wrap nav-search-wrap-mobile">
-      <button class="nav-search-icon-btn" onclick="toggleNavSearch()" title="Search">
+    <div class="nav-search-wrap" id="navSearchWrap">
+      <button class="nav-search-icon-btn" id="navSearchToggle" onclick="toggleNavSearch()" title="Search">
         <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
           <circle cx="6.5" cy="6.5" r="5" stroke="#6a6a7a" stroke-width="1.4"/>
           <path d="M10.5 10.5L13.5 13.5" stroke="#6a6a7a" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
       </button>
+      <div class="nav-search-expanded" id="navSearchExpanded" style="display:none;">
+        <svg width="13" height="13" viewBox="0 0 15 15" fill="none" style="flex-shrink:0;margin-left:10px;">
+          <circle cx="6.5" cy="6.5" r="5" stroke="#555" stroke-width="1.4"/>
+          <path d="M10.5 10.5L13.5 13.5" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input type="text" id="heroSearchInput" placeholder="Search courses, chapters..." autocomplete="off"
+          oninput="handleCourseSearch(this.value)" onkeydown="handleSearchKeydown(event)" />
+        <button id="searchClearBtn" onclick="clearCourseSearch()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 8px;opacity:0.6;">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="#888" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="search-results-dropdown" id="searchResultsDropdown" style="display:none;"></div>
     </div>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()">
       <span></span><span></span><span></span>
     </button>
   </div>
 </nav>
-
-<!-- Search expanded — body level taaki mobile fixed positioning kaam kare -->
-<div class="nav-search-desktop-box" id="navSearchExpanded" style="display:none;">
-  <svg width="13" height="13" viewBox="0 0 15 15" fill="none" style="flex-shrink:0;">
-    <circle cx="6.5" cy="6.5" r="5" stroke="#888" stroke-width="1.4"/>
-    <path d="M10.5 10.5L13.5 13.5" stroke="#888" stroke-width="1.5" stroke-linecap="round"/>
-  </svg>
-  <input type="text" id="heroSearchInput" placeholder="Search courses, chapters..." autocomplete="off"
-    oninput="handleCourseSearch(this.value)" onkeydown="handleSearchKeydown(event)" />
-  <button id="searchClearBtn" onclick="clearCourseSearch()" style="display:none;background:none;border:none;cursor:pointer;padding:2px 6px;opacity:0.5;">
-    <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="#aaa" stroke-width="1.5" stroke-linecap="round"/></svg>
-  </button>
-</div>
 
 <!-- ═══════════ LEARN SUB-NAV (CodeWithHarry style) ═══════════ -->
 <div id="learnSubNav">

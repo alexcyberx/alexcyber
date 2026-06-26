@@ -59,32 +59,14 @@ function toggleNavSearch() {
   const expanded = document.getElementById('navSearchExpanded');
   const iconBtn  = document.getElementById('navSearchToggle');
   const dropdown = document.getElementById('searchResultsDropdown');
-  const isMobile = window.innerWidth <= 768;
   _navSearchOpen = !_navSearchOpen;
   if (_navSearchOpen) {
-    if (!isMobile) {
-      // Desktop: position box relative to search icon
-      const wrap = document.getElementById('navSearchWrap');
-      if (wrap) {
-        const rect = wrap.getBoundingClientRect();
-        expanded.style.position = 'fixed';
-        expanded.style.top = rect.bottom + 8 + 'px';
-        expanded.style.right = (window.innerWidth - rect.right) + 'px';
-        expanded.style.left = 'auto';
-        expanded.style.width = '260px';
-        expanded.style.borderRadius = '8px';
-        expanded.style.border = '1px solid rgba(255,255,255,0.1)';
-        expanded.style.background = 'rgba(14,14,20,0.98)';
-        expanded.style.backdropFilter = 'blur(20px)';
-        expanded.style.height = 'auto';
-        expanded.style.padding = '7px 12px';
-        expanded.style.zIndex = '997';
-      }
-    }
     expanded.style.display = 'flex';
+    iconBtn.style.display  = 'none';
     setTimeout(() => { const inp = document.getElementById('heroSearchInput'); if(inp) inp.focus(); }, 60);
   } else {
     expanded.style.display = 'none';
+    iconBtn.style.display  = 'flex';
     dropdown.style.display = 'none';
     const inp = document.getElementById('heroSearchInput');
     if (inp) inp.value = '';
@@ -161,20 +143,6 @@ function handleCourseSearch(val, source) {
   const cb  = document.getElementById('searchClearBtn');
   if (cb) cb.style.display = q ? 'flex' : 'none';
   if (!q) { dd.style.display = 'none'; _lastSearchResults = []; return; }
-  // Position dropdown below navSearchExpanded on desktop
-  if (window.innerWidth > 768) {
-    const box = document.getElementById('navSearchExpanded');
-    if (box) {
-      const r = box.getBoundingClientRect();
-      dd.style.position = 'fixed';
-      dd.style.top = (r.bottom + 6) + 'px';
-      dd.style.right = (window.innerWidth - r.right) + 'px';
-      dd.style.left = 'auto';
-      dd.style.width = r.width + 'px';
-      dd.style.margin = '0';
-      dd.style.zIndex = '998';
-    }
-  }
   _lastSearchResults = _runSearch(q);
   _searchSelectedIndex = -1;
   _renderResults(_lastSearchResults, q, dd);
@@ -253,4 +221,90 @@ document.addEventListener('click', function(e) {
   const mRow = document.getElementById('mobileSearchRow');
   const mDd  = document.getElementById('mobileSearchResultsDropdown');
   if (mRow && mDd && !mRow.contains(e.target)) mDd.style.display = 'none';
+});
+
+/* ─── Desktop nav search (separate from mobile — untouched) ─── */
+let _deskSearchOpen = false;
+let _deskSearchResults = [];
+let _deskSearchIdx = -1;
+
+function toggleDesktopSearch() {
+  _deskSearchOpen = !_deskSearchOpen;
+  const box = document.getElementById('navSearchDesktopBox');
+  const dd  = document.getElementById('navSearchDesktopResults');
+  if (_deskSearchOpen) {
+    box.style.display = 'flex';
+    setTimeout(() => { const inp = document.getElementById('desktopSearchInput'); if(inp) inp.focus(); }, 50);
+  } else {
+    closeDesktopSearch();
+  }
+}
+
+function closeDesktopSearch() {
+  _deskSearchOpen = false;
+  const box = document.getElementById('navSearchDesktopBox');
+  const dd  = document.getElementById('navSearchDesktopResults');
+  const inp = document.getElementById('desktopSearchInput');
+  if (box) box.style.display = 'none';
+  if (dd)  dd.style.display  = 'none';
+  if (inp) inp.value = '';
+  _deskSearchResults = [];
+  _deskSearchIdx = -1;
+}
+
+function handleDesktopSearch(val) {
+  const q  = val.trim().toLowerCase();
+  const dd = document.getElementById('navSearchDesktopResults');
+  if (!q) { dd.style.display = 'none'; _deskSearchResults = []; return; }
+  if (!_searchDataReady) { SEARCH_DATA = buildSearchData(); _searchDataReady = true; }
+  _deskSearchResults = SEARCH_DATA.filter(item =>
+    item.title.toLowerCase().includes(q) ||
+    item.sub.toLowerCase().includes(q)   ||
+    item.tags.some(t => t.includes(q))
+  ).slice(0, 8);
+  _deskSearchIdx = -1;
+  if (!_deskSearchResults.length) {
+    dd.innerHTML = `<div class="search-no-results">No results for "<strong style="color:#888">${escapeHtml(q)}</strong>"</div>`;
+    dd.style.display = '';
+    return;
+  }
+  dd.innerHTML = _deskSearchResults.map((item, i) => {
+    const badge = item.type === 'course' ? 'Course' : item.type === 'ctf' ? 'CTF' : 'Chapter';
+    const hi = escapeHtml(item.title).replace(
+      new RegExp(escapeHtml(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'gi'),
+      m => `<span class="search-highlight">${m}</span>`
+    );
+    return `<div class="search-result-item" onclick="selectDesktopResult(${i})">
+      <div class="sri-text"><div class="sri-title">${hi}</div><div class="sri-sub">${escapeHtml(item.sub)}</div></div>
+      <span class="sri-badge ${item.type}">${badge}</span>
+    </div>`;
+  }).join('');
+  dd.style.display = '';
+}
+
+function handleDesktopSearchKey(e) {
+  const dd = document.getElementById('navSearchDesktopResults');
+  const items = dd ? dd.querySelectorAll('.search-result-item') : [];
+  if (e.key === 'ArrowDown') { _deskSearchIdx = Math.min(_deskSearchIdx+1, items.length-1); _highlightDeskItem(items); e.preventDefault(); }
+  else if (e.key === 'ArrowUp') { _deskSearchIdx = Math.max(_deskSearchIdx-1, 0); _highlightDeskItem(items); e.preventDefault(); }
+  else if (e.key === 'Enter') { if (_deskSearchIdx >= 0) selectDesktopResult(_deskSearchIdx); }
+  else if (e.key === 'Escape') { closeDesktopSearch(); }
+}
+function _highlightDeskItem(items) {
+  items.forEach((el,i) => el.classList.toggle('active', i === _deskSearchIdx));
+}
+
+function selectDesktopResult(index) {
+  const item = _deskSearchResults[index];
+  if (!item) return;
+  closeDesktopSearch();
+  if (item.type === 'course')        { showPage('learn'); if(item.id) setTimeout(()=>selectCourse(item.id),100); }
+  else if (item.type === 'chapter')  { showPage('learn'); if(item.courseId && item.id) setTimeout(()=>{ selectCourse(item.courseId); selectChapter(item.id); },100); }
+  else if (item.type === 'ctf')      { showPage('ctf'); }
+}
+
+// Close desktop search on outside click
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('navSearchDesktop');
+  if (wrap && !wrap.contains(e.target) && _deskSearchOpen) closeDesktopSearch();
 });
