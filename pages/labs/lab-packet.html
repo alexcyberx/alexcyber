@@ -55,7 +55,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .hint-body.open{display:block;}
 .hint-body code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
 
-.right-col{display:flex;flex-direction:column;gap:0;width:100%;}
+.right-col{display:flex;flex-direction:column;gap:0;width:100%;position:relative;}
 
 /* File download card */
 .file-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
@@ -116,7 +116,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .lab-running .stop-btn{display:flex;}
 .timer-wrap.idle .timer-val{color:var(--dim);}
 .timer-wrap.running .timer-val{color:var(--green);}
-.right-col{display:flex;flex-direction:column;gap:0;width:100%;}
+.right-col{display:flex;flex-direction:column;gap:0;width:100%;position:relative;}
 .lock-overlay{position:absolute;inset:0;background:rgba(7,7,15,0.88);backdrop-filter:blur(3px);z-index:50;display:flex;align-items:center;justify-content:center;}
 .lab-running .lock-overlay{display:none;}
 .lock-overlay-inner{text-align:center;padding:40px;max-width:320px;}
@@ -125,6 +125,18 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .lock-desc{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:20px;}
 .lock-start-btn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
 .lock-start-btn:hover{background:#c01010;}
+
+.lock-overlay{position:absolute;inset:0;background:rgba(250,250,250,0.96);backdrop-filter:blur(6px);z-index:50;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+.lab-running .lock-overlay{display:none;}
+.lock-overlay-icon{width:52px;height:52px;border-radius:14px;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;}
+.lock-overlay-title{font-size:15px;font-weight:600;color:var(--text);}
+.lock-overlay-desc{font-size:12.5px;color:var(--text-dim);max-width:280px;text-align:center;line-height:1.6;}
+.lock-overlay-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.lock-overlay-btn:hover{background:#b91c1c;}
+
+.topbar-restart-btn{display:none;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:6px 13px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all 0.15s;}
+.topbar-restart-btn:hover{border-color:var(--accent);color:var(--accent);}
+.lab-running .topbar-restart-btn{display:flex;}
 </style>
 </head>
 <body id="labBody">
@@ -140,6 +152,10 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
     <span class="topbar-title">Packet Detective</span>
   </div>
   <div class="topbar-right">
+    <button class="topbar-restart-btn" onclick="restartInstance()" title="Restart Instance">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6a4 4 0 017-2.6M10 6a4 4 0 01-7 2.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M9 2v2.5H6.5M3 10V7.5h2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Restart
+      </button>
     <span class="diff-badge">Medium</span>
     <div class="timer-wrap idle">
       <span class="timer-label">Time</span>

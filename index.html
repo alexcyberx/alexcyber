@@ -2782,6 +2782,13 @@ function generateLabToken(challengeId) {
 }
 
 function getLabUrlWithToken(c) {
+  // For hasLabFlow challenges open the target site directly (labApiPath/page)
+  // instead of the lab wrapper page — session ID passed as query param
+  if (c.hasLabFlow && c.labApiPath) {
+    const sessionId = 'sess_' + Math.random().toString(36).substring(2, 10);
+    try { sessionStorage.setItem('acx_lab_direct_session_' + c.id, sessionId); } catch(e) {}
+    return c.labApiPath + '/page?session=' + encodeURIComponent(sessionId);
+  }
   const token = generateLabToken(c.id);
   const sep = c.labUrl.includes('?') ? '&' : '?';
   return c.labUrl + sep + 'acx_token=' + encodeURIComponent(token);
@@ -2807,11 +2814,22 @@ async function ctfStartInstance(c) {
   const timerVal = document.getElementById('ctfTimerVal');
   if (timerVal) timerVal.textContent = '30:00';
 
-  // Token-protected URL generate karo
-  const labUrl = getLabUrlWithToken(c);
-
-  // Naye tab mein kholo
-  ctfActiveTab = window.open(labUrl, '_blank');
+  // For hasLabFlow: ping server to start instance, then open target directly
+  if (c.hasLabFlow && c.labApiPath) {
+    const sessionId = 'sess_' + Math.random().toString(36).substring(2, 10);
+    try { sessionStorage.setItem('acx_lab_direct_session_' + c.id, sessionId); } catch(e) {}
+    // Start server instance
+    fetch(c.labApiPath + '/instance/restart', {
+      method: 'POST',
+      headers: { 'X-Lab-Session': sessionId }
+    }).catch(() => {});
+    // Open target page directly
+    const targetUrl = c.labApiPath + '/page?session=' + encodeURIComponent(sessionId);
+    ctfActiveTab = window.open(targetUrl, '_blank');
+  } else {
+    const labUrl = getLabUrlWithToken(c);
+    ctfActiveTab = window.open(labUrl, '_blank');
+  }
 
   // localStorage mein lab active state save karo (refresh pe survive karta hai)
   try {
@@ -2846,13 +2864,25 @@ async function ctfStartInstance(c) {
 function ctfRestartFromModal() {
   const c = ctfCurrentChallenge;
   if (!c) return;
-  // New token generate karo on restart
-  const labUrl = getLabUrlWithToken(c);
+
+  let targetUrl;
+  if (c.hasLabFlow && c.labApiPath) {
+    const sessionId = 'sess_' + Math.random().toString(36).substring(2, 10);
+    try { sessionStorage.setItem('acx_lab_direct_session_' + c.id, sessionId); } catch(e) {}
+    fetch(c.labApiPath + '/instance/restart', {
+      method: 'POST',
+      headers: { 'X-Lab-Session': sessionId }
+    }).catch(() => {});
+    targetUrl = c.labApiPath + '/page?session=' + encodeURIComponent(sessionId);
+  } else {
+    targetUrl = getLabUrlWithToken(c);
+  }
+
   if (ctfActiveTab && !ctfActiveTab.closed) {
-    ctfActiveTab.location.href = labUrl;
+    ctfActiveTab.location.href = targetUrl;
     ctfActiveTab.focus();
   } else {
-    ctfActiveTab = window.open(labUrl, '_blank');
+    ctfActiveTab = window.open(targetUrl, '_blank');
   }
   // Reset localStorage state on restart
   try {
@@ -2890,7 +2920,14 @@ function ctfOpenLabTab(e) {
   if (ctfActiveTab && !ctfActiveTab.closed) {
     ctfActiveTab.focus();
   } else {
-    ctfActiveTab = window.open(c.labUrl, '_blank');
+    // Open target directly for hasLabFlow challenges
+    if (c.hasLabFlow && c.labApiPath) {
+      const sid = (() => { try { return sessionStorage.getItem('acx_lab_direct_session_' + c.id); } catch(e) { return null; } })();
+      const url = c.labApiPath + '/page' + (sid ? '?session=' + encodeURIComponent(sid) : '');
+      ctfActiveTab = window.open(url, '_blank');
+    } else {
+      ctfActiveTab = window.open(c.labUrl, '_blank');
+    }
   }
   return false;
 }

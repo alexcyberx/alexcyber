@@ -72,7 +72,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .hint-panel code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,0.05);border-radius:3px;padding:1px 5px;color:var(--text);}
 .hint-cost{font-size:9.5px;color:var(--orange);font-weight:700;margin-bottom:8px;letter-spacing:0.5px;text-transform:uppercase;}
 
-.right-col{display:flex;flex-direction:column;gap:0;width:100%;}
+.right-col{display:flex;flex-direction:column;gap:0;width:100%;position:relative;}
 .lock-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center;}
 .lab-running .lock-overlay{display:none;}
 .lock-overlay-inner{text-align:center;padding:40px;max-width:320px;}
@@ -123,6 +123,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 @media(max-width:1024px){.lab-wrap{max-width:100%;margin:0;padding:0;display:block;}.site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}.topbar{padding:0 16px;}}
 @media(max-width:768px){.topbar{padding:0 14px;height:52px;}.topbar-title{display:none;}.topbar-sep{display:none;}.diff-badge{display:none;}.lang-btn span{display:none;}.lang-btn{padding:6px 9px;}.lab-wrap{max-width:100%;margin:0;padding:0;display:block;}.site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}.card{margin-bottom:12px;}.card-body{padding:13px;}.code-block{font-size:10.5px;padding:11px 13px;}.solved-popup{width:90%;max-width:340px;padding:14px 16px;top:14px;}.lock-overlay-inner{padding:28px 20px;}}
 @media(max-width:400px){.topbar{padding:0 10px;height:48px;}.lab-wrap{max-width:100%;margin:0;padding:0;display:block;}.site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}.card-body{padding:11px 12px;}.hint-tab-btn{font-size:11px;padding:7px 6px;}.flag-value{font-size:13.5px;word-break:break-all;}}
+
+.lock-overlay{position:absolute;inset:0;background:rgba(250,250,250,0.96);backdrop-filter:blur(6px);z-index:50;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+.lab-running .lock-overlay{display:none;}
+.lock-overlay-icon{width:52px;height:52px;border-radius:14px;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;}
+.lock-overlay-title{font-size:15px;font-weight:600;color:var(--text);}
+.lock-overlay-desc{font-size:12.5px;color:var(--text-dim);max-width:280px;text-align:center;line-height:1.6;}
+.lock-overlay-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.lock-overlay-btn:hover{background:#b91c1c;}
+
+.topbar-restart-btn{display:none;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:6px 13px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all 0.15s;}
+.topbar-restart-btn:hover{border-color:var(--accent);color:var(--accent);}
+.lab-running .topbar-restart-btn{display:flex;}
 </style>
 </head>
 <body id="labBody">
@@ -163,6 +175,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
     <span class="topbar-title">SQL Injection 101</span>
   </div>
   <div class="topbar-right">
+    <button class="topbar-restart-btn" onclick="restartInstance()" title="Restart Instance">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6a4 4 0 017-2.6M10 6a4 4 0 01-7 2.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M9 2v2.5H6.5M3 10V7.5h2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Restart
+      </button>
     <button class="lang-btn" onclick="showLangModal()" title="Change Language">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.1"/><path d="M1 6h10M6 1c1.6 1.4 1.6 8.6 0 10M6 1c-1.6 1.4-1.6 8.6 0 10" stroke="currentColor" stroke-width="1.1"/></svg>
       <span id="mLangLabel">English</span>
