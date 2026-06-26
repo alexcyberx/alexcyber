@@ -1,6 +1,5 @@
 const express = require('express');
 const router  = express.Router();
-const Database = require('better-sqlite3');
 const { flagLimiter }  = require('../../middleware/rateLimit');
 const { logAttempt }   = require('../../middleware/logger');
 
@@ -9,42 +8,26 @@ const INSTANCE_DURATION_SEC = 30 * 60;
 const instances = {};
 
 function sid(req) { return req.headers['x-lab-session'] || req.query.session || req.ip; }
-function getOrCreate(s) {
-  if (!instances[s]) instances[s] = { startedAt: Date.now(), solved: false, db: null };
-  if (!instances[s].db) instances[s].db = buildDb();
-  return instances[s];
-}
-function resetInst(s) {
-  if (instances[s]?.db) { try { instances[s].db.close(); } catch(e){} }
-  instances[s] = { startedAt: Date.now(), solved: false, db: buildDb() };
-  return instances[s];
-}
-function instStatus(s) {
-  const inst = getOrCreate(s);
-  const elapsed = Math.floor((Date.now() - inst.startedAt) / 1000);
-  const remaining = Math.max(0, INSTANCE_DURATION_SEC - elapsed);
-  return { running: remaining > 0, remaining_sec: remaining, solved: inst.solved };
+
+// sql.js lazy init — shared SQL engine, per-instance in-memory DB
+let _SQL = null;
+async function getSqlJs() {
+  if (_SQL) return _SQL;
+  _SQL = await require('sql.js')();
+  return _SQL;
 }
 
-function buildDb() {
-  const db = new Database(':memory:');
-  db.exec(`
-    CREATE TABLE employees (
-      id INTEGER PRIMARY KEY,
-      name TEXT,
-      department TEXT
-    );
+function buildDb(SQL) {
+  const db = new SQL.Database();
+  db.run(`
+    CREATE TABLE employees (id INTEGER PRIMARY KEY, name TEXT, department TEXT);
     INSERT INTO employees VALUES (1,'Alice Chen','Engineering');
     INSERT INTO employees VALUES (2,'Bob Martinez','Finance');
     INSERT INTO employees VALUES (3,'Carol Singh','Operations');
     INSERT INTO employees VALUES (4,'David Park','Security');
     INSERT INTO employees VALUES (5,'Eva Russo','Executive');
 
-    CREATE TABLE vault_secrets (
-      id INTEGER PRIMARY KEY,
-      secret_key TEXT,
-      data TEXT
-    );
+    CREATE TABLE vault_secrets (id INTEGER PRIMARY KEY, secret_key TEXT, data TEXT);
     INSERT INTO vault_secrets VALUES (1,'internal_build','vb-core-2024.11.3-internal');
     INSERT INTO vault_secrets VALUES (2,'db_version','SQLite 3.43.2');
     INSERT INTO vault_secrets VALUES (3,'flag','${FLAG}');
@@ -53,16 +36,40 @@ function buildDb() {
   return db;
 }
 
-// ── INSTANCE ENDPOINTS ────────────────────────────────────────────
-router.get('/instance/status', (req, res) => res.json(instStatus(sid(req))));
+async function getOrCreate(s) {
+  if (!instances[s]) {
+    const SQL = await getSqlJs();
+    instances[s] = { startedAt: Date.now(), solved: false, db: buildDb(SQL) };
+  }
+  return instances[s];
+}
 
-router.post('/instance/restart', (req, res) => {
-  resetInst(sid(req));
-  logAttempt('SQLI101', req.ip, 'instance_restart', 'ok');
-  res.json({ success: true, ...instStatus(sid(req)) });
+async function resetInst(s) {
+  if (instances[s]?.db) { try { instances[s].db.close(); } catch(e){} }
+  const SQL = await getSqlJs();
+  instances[s] = { startedAt: Date.now(), solved: false, db: buildDb(SQL) };
+  return instances[s];
+}
+
+function instStatus(inst) {
+  const elapsed = Math.floor((Date.now() - inst.startedAt) / 1000);
+  const remaining = Math.max(0, INSTANCE_DURATION_SEC - elapsed);
+  return { running: remaining > 0, remaining_sec: remaining, solved: inst.solved };
+}
+
+// ── INSTANCE ENDPOINTS ────────────────────────────────────────────
+router.get('/instance/status', async (req, res) => {
+  const inst = await getOrCreate(sid(req));
+  res.json(instStatus(inst));
 });
 
-router.post('/instance/stop', (req, res) => {
+router.post('/instance/restart', async (req, res) => {
+  const inst = await resetInst(sid(req));
+  logAttempt('SQLI101', req.ip, 'instance_restart', 'ok');
+  res.json({ success: true, ...instStatus(inst) });
+});
+
+router.post('/instance/stop', async (req, res) => {
   const s = sid(req);
   if (instances[s]) instances[s].startedAt = Date.now() - (INSTANCE_DURATION_SEC + 1) * 1000;
   logAttempt('SQLI101', req.ip, 'instance_stop', 'ok');
@@ -70,9 +77,9 @@ router.post('/instance/stop', (req, res) => {
 });
 
 // ── LOGIN PAGE ─────────────────────────────────────────────────────
-router.get('/page', (req, res) => {
+router.get('/page', async (req, res) => {
   const s = sid(req);
-  getOrCreate(s);
+  await getOrCreate(s);
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -101,13 +108,12 @@ label{display:block;font-size:11px;font-weight:600;color:#6b7fa3;letter-spacing:
 input{width:100%;background:#080e1c;border:1px solid #1a2340;border-radius:8px;padding:11px 14px;font-size:13px;color:#e8f0fe;outline:none;font-family:inherit;transition:border-color 0.15s;}
 input:focus{border-color:#22c55e;}
 input::placeholder{color:#2a3555;}
-.login-btn{width:100%;background:linear-gradient(135deg,#1a6b3c,#15593200);background:#1a6b3c;color:#fff;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.login-btn{width:100%;background:#1a6b3c;color:#fff;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background 0.15s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;}
 .login-btn:hover{background:#15803d;}
 .login-btn:disabled{opacity:0.5;cursor:not-allowed;}
 .notice{font-size:11px;color:#2a3555;text-align:center;margin-top:16px;line-height:1.6;}
 .err-box{display:none;background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.18);border-radius:8px;padding:10px 13px;font-size:12px;color:#f87171;margin-bottom:14px;}
-.footer{background:#0d1424;border-top:1px solid #1a2340;padding:12px 32px;text-align:center;font-size:11px;color:#1a2340;}
-.footer span{color:#2a3555;}
+.footer{background:#0d1424;border-top:1px solid #1a2340;padding:12px 32px;text-align:center;font-size:11px;color:#2a3555;}
 </style>
 </head>
 <body>
@@ -150,7 +156,7 @@ input::placeholder{color:#2a3555;}
     </div>
   </div>
 </div>
-<div class="footer"><span>VaultBank Employee Portal v4.2.1 — Unauthorized access is strictly prohibited and will be prosecuted</span></div>
+<div class="footer">VaultBank Employee Portal v4.2.1 — Unauthorized access is strictly prohibited</div>
 <script>
 async function doLogin() {
   const btn = document.getElementById('loginBtn');
@@ -165,7 +171,6 @@ async function doLogin() {
     });
     const data = await res.json();
     if (data.success) {
-      sessionStorage.setItem('vb_session', data.token);
       window.location.href = '/api/lab/sqli101/dashboard?session=' + encodeURIComponent(data.labSession || '');
     } else {
       err.innerHTML = data.error || 'Login failed.';
@@ -185,21 +190,21 @@ document.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 });
 
 // ── LOGIN API ──────────────────────────────────────────────────────
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const s = sid(req);
   if (username === 'john' && password === 'pass123') {
     logAttempt('SQLI101', req.ip, 'login:john', 'ok');
-    return res.json({ success: true, token: 'vb_' + Buffer.from(JSON.stringify({u:'john',r:'employee'})).toString('base64'), labSession: s });
+    return res.json({ success: true, labSession: s });
   }
   logAttempt('SQLI101', req.ip, `login:${username}`, 'fail');
   res.status(401).json({ success: false, error: 'Invalid credentials. Access denied.' });
 });
 
 // ── DASHBOARD ──────────────────────────────────────────────────────
-router.get('/dashboard', (req, res) => {
+router.get('/dashboard', async (req, res) => {
   const s = sid(req);
-  getOrCreate(s);
+  await getOrCreate(s);
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -232,7 +237,6 @@ body{background:#0a0f1e;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
 .results-count{font-size:11px;color:#2a3555;font-family:'Courier New',monospace;}
 .results-body{min-height:120px;}
 .result-row{display:grid;grid-template-columns:60px 1fr 1fr;gap:12px;padding:12px 18px;border-bottom:1px solid #0d1424;font-size:13px;color:#94a3b8;align-items:center;}
-.result-row:last-child{border-bottom:none;}
 .result-row.header{background:#080e1c;font-size:10px;font-weight:700;color:#4a5a7a;letter-spacing:0.8px;text-transform:uppercase;padding:9px 18px;}
 .result-id{font-family:'Courier New',monospace;color:#4a5a7a;}
 .result-name{color:#e8f0fe;font-weight:500;}
@@ -246,6 +250,7 @@ body{background:#0a0f1e;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
 .info-bar{background:#080e1c;border:1px solid #1a2340;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:11.5px;color:#4a5a7a;line-height:1.7;}
 .info-bar code{font-family:'Courier New',monospace;color:#22c55e;background:rgba(34,197,94,0.08);padding:1px 5px;border-radius:3px;font-size:11px;}
 .loading{display:flex;align-items:center;justify-content:center;padding:36px;gap:10px;color:#2a3555;font-size:13px;}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -257,15 +262,13 @@ body{background:#0a0f1e;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
     <span class="logo-text">Vault<span>Bank</span></span>
   </div>
   <div class="user-row">
-    <span class="user-chip">john — Employee</span>
+    <span class="user-chip">john</span>
     <span class="user-chip" style="color:#ef4444;border-color:#2a1a1a;">CLEARANCE: L1</span>
   </div>
 </div>
 <div class="main">
   <div class="section-title">Employee Directory Search</div>
-  <div class="info-bar">
-    Search the employee database by name. Example: <code>Alice</code> or <code>Bob</code>
-  </div>
+  <div class="info-bar">Search employee database by name. Example: <code>Alice</code> or <code>Bob</code></div>
   <div class="search-card">
     <div class="search-row">
       <input class="search-input" type="text" id="searchInput" placeholder="Enter employee name..." autocomplete="off">
@@ -290,6 +293,7 @@ body{background:#0a0f1e;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
 </div>
 <script>
 const LAB_SESSION = new URLSearchParams(window.location.search).get('session') || '';
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 async function doSearch() {
   const q = document.getElementById('searchInput').value;
@@ -306,22 +310,18 @@ async function doSearch() {
     const data = await res.json();
     if (data.error) {
       count.textContent = 'query error';
-      body.innerHTML = \`<div class="error-card">
-        <div class="error-label"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#ef4444" stroke-width="1"/><path d="M6 4v2.5M6 8.5v.5" stroke="#ef4444" stroke-width="1" stroke-linecap="round"/></svg>SQL Error</div>
-        <div class="error-msg">\${escHtml(data.error)}</div>
-        <div class="error-query">Query: \${escHtml(data.query || '')}</div>
-      </div>\`;
+      body.innerHTML = '<div class="error-card"><div class="error-label"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#ef4444" stroke-width="1"/><path d="M6 4v2.5M6 8.5v.5" stroke="#ef4444" stroke-width="1" stroke-linecap="round"/></svg>SQL Error</div><div class="error-msg">' + escHtml(data.error) + '</div><div class="error-query">Query: ' + escHtml(data.query||'') + '</div></div>';
       return;
     }
     const rows = data.rows || [];
     count.textContent = rows.length + ' row' + (rows.length !== 1 ? 's' : '') + ' returned';
     if (rows.length === 0) {
-      body.innerHTML = '<div class="empty-state"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="9" stroke="#1a2340" stroke-width="1.5"/><path d="M10 14h8M14 10v8" stroke="#1a2340" stroke-width="1.5" stroke-linecap="round"/></svg><div class="empty-text">No employees found matching that query</div></div>';
+      body.innerHTML = '<div class="empty-state"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="9" stroke="#1a2340" stroke-width="1.5"/></svg><div class="empty-text">No employees found</div></div>';
       return;
     }
     let html = '<div class="result-row header"><span>ID</span><span>Name</span><span>Department</span></div>';
     rows.forEach(r => {
-      html += \`<div class="result-row"><span class="result-id">\${escHtml(String(r[0]??''))}</span><span class="result-name">\${escHtml(String(r[1]??''))}</span><span class="result-dept">\${escHtml(String(r[2]??''))}</span></div>\`;
+      html += '<div class="result-row"><span class="result-id">' + escHtml(String(r[0]??'')) + '</span><span class="result-name">' + escHtml(String(r[1]??'')) + '</span><span class="result-dept">' + escHtml(String(r[2]??'')) + '</span></div>';
     });
     body.innerHTML = html;
   } catch(e) {
@@ -329,59 +329,56 @@ async function doSearch() {
     body.innerHTML = '<div class="empty-state"><div class="empty-text">Connection error. Please try again.</div></div>';
   }
 }
-
-function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 document.getElementById('searchInput').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
 </script>
-<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 </body>
 </html>`);
 });
 
 // ── SEARCH API (intentionally vulnerable) ─────────────────────────
-router.post('/search', (req, res) => {
+router.post('/search', async (req, res) => {
   const { q } = req.body;
   const s = sid(req);
-  const inst = getOrCreate(s);
+  const inst = await getOrCreate(s);
   const db = inst.db;
 
-  if (!q && q !== 0) return res.json({ rows: [], query: '' });
+  if (q === undefined || q === null) return res.json({ rows: [], query: '' });
 
-  // Intentionally injectable — DO NOT sanitize
   const query = `SELECT id, name, department FROM employees WHERE name = '${q}'`;
 
   try {
-    const stmt = db.prepare(query);
-    const rows = stmt.raw().all();
-    logAttempt('SQLI101', req.ip, query, 'ok');
+    const result = db.exec(query);
+    logAttempt('SQLI101', req.ip, query.substring(0, 120), 'ok');
+
+    let rows = [];
+    if (result.length > 0) {
+      rows = result[0].values;
+    }
 
     // Check if flag was extracted
-    const flagExtracted = rows.some(r => r.some(cell => String(cell||'').includes('ACX{')));
-    if (flagExtracted) {
+    const flat = rows.flat().map(c => String(c || ''));
+    if (flat.some(c => c.includes('ACX{'))) {
       inst.solved = true;
       logAttempt('SQLI101', req.ip, 'FLAG_EXTRACTED', 'correct');
     }
 
     res.json({ rows, query });
   } catch(err) {
-    logAttempt('SQLI101', req.ip, query, 'db_error');
-    res.status(500).json({
-      error: err.message,
-      query,
-      hint: 'SQLite 3.43.2'
-    });
+    logAttempt('SQLI101', req.ip, query.substring(0, 120), 'db_error');
+    res.status(500).json({ error: err.message, query, hint: 'SQLite 3.43.2' });
   }
 });
 
 // ── SUBMIT ─────────────────────────────────────────────────────────
-router.post('/submit', flagLimiter, (req, res) => {
+router.post('/submit', flagLimiter, async (req, res) => {
   const { flag } = req.body;
   const s = sid(req);
   if (!flag) return res.status(400).json({ error: 'No flag provided' });
   const correct = flag.trim() === FLAG;
   logAttempt('SQLI101', req.ip, flag.trim(), correct ? 'correct' : 'wrong');
   if (correct) {
-    getOrCreate(s).solved = true;
+    const inst = await getOrCreate(s);
+    inst.solved = true;
     return res.json({ success: true, flag: FLAG, message: 'UNION SELECT extracted from vault_secrets. Classic SQL injection.' });
   }
   res.status(401).json({ success: false, message: 'Incorrect flag.' });

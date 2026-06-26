@@ -3,189 +3,224 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Metadata Matters — AlexCyberX Lab</title>
+<title>Metadata Matters | AlexCyberX Lab</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#07070f;--surface:#0d0d1a;--surface2:#111120;
-  --border:rgba(255,255,255,0.06);--red:#dc1414;
-  --white:#f0f0f8;--dim:#505068;--green:#4ade80;
-  --green-dim:rgba(74,222,128,0.06);--blue:#63b3ed;--orange:#fb923c;
+  --bg:#fafafa;--surface:#ffffff;--surface2:#f4f4f6;
+  --border:#e4e4e9;--border-soft:#ececef;
+  --accent:#dc2626;--accent-dim:#fef2f2;--accent-border:#fecaca;
+  --text:#18181f;--text-dim:#6b6b78;--text-faint:#9999a6;
+  --green:#16a34a;--green-dim:#f0fdf4;--green-border:#bbf7d0;
+  --blue:#2563eb;--blue-dim:#eff6ff;--blue-border:#bfdbfe;
+  --orange:#d97706;--orange-dim:#fffbeb;--orange-border:#fde68a;
+  --purple:#7c3aed;--purple-dim:#f5f3ff;--purple-border:#ddd6fe;
+  --code-bg:#1e1e2a;--code-text:#c8c8d4;
   --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
 }
-body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:100vh;}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;position:sticky;top:0;z-index:100;}
-.topbar-left{display:flex;align-items:center;gap:16px;}
-.back-link{display:flex;align-items:center;gap:6px;color:var(--dim);font-size:12px;font-weight:500;text-decoration:none;cursor:pointer;transition:color 0.15s;}
-.back-link:hover{color:var(--white);}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;position:sticky;top:0;z-index:100;}
+.topbar-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1;}
+.back-link{display:flex;align-items:center;gap:6px;color:var(--text-dim);font-size:13px;font-weight:500;text-decoration:none;cursor:pointer;transition:color 0.15s;}
+.back-link:hover{color:var(--text);}
 .topbar-sep{width:1px;height:16px;background:var(--border);}
-.topbar-id{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--red);letter-spacing:0.5px;}
-.topbar-title{font-size:13px;font-weight:600;color:var(--white);}
-.topbar-right{display:flex;align-items:center;gap:14px;}
-.diff-badge{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 10px;border-radius:4px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green);}
-.timer-wrap{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;}
-.timer-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
-.timer-val{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--white);min-width:52px;text-align:center;}
-
-.lab-wrap{max-width:1140px;margin:0 auto;padding:28px 20px 60px;display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
-.card-head{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
-.card-head-dot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;}
-.card-head-title{font-size:10px;font-weight:700;letter-spacing:1.3px;color:var(--dim);text-transform:uppercase;}
+.topbar-id{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.5px;background:var(--accent-dim);padding:2px 8px;border-radius:4px;}
+.topbar-title{font-size:14px;font-weight:600;color:var(--text);}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.diff-badge{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:4px 11px;border-radius:20px;background:var(--green-dim);border:1px solid var(--green-border);color:var(--green);}
+.lang-btn{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 13px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.lang-btn:hover{background:#eaeaee;}
+.lab-wrap{max-width:1140px;margin:0 auto;padding:20px 20px 40px;display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,20,30,0.03);}
+.card-head{padding:12px 16px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;gap:8px;}
+.card-head-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+.card-head-title{font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--text-faint);text-transform:uppercase;}
 .card-body{padding:16px;}
-.scenario-text{font-size:12.5px;color:#8888a0;line-height:1.8;border-left:2px solid var(--red);padding-left:12px;}
-.scenario-text strong{color:var(--white);}
-.info-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;margin-top:14px;}
+.desc-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.meta-tag{font-size:10px;font-weight:700;letter-spacing:0.5px;padding:3px 10px;border-radius:12px;text-transform:uppercase;}
+.meta-tag.diff{background:var(--green-dim);color:var(--green);border:1px solid var(--green-border);}
+.meta-tag.cat{background:var(--purple-dim);color:var(--purple);border:1px solid var(--purple-border);}
+.meta-tag.edition{background:var(--blue-dim);color:var(--blue);}
+.author-line{font-size:10px;color:var(--text-faint);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px;font-weight:600;}
+.desc-text{font-size:13px;color:var(--text-dim);line-height:1.85;}
+.desc-text strong{color:var(--text);font-weight:600;}
+.desc-text p{margin-bottom:10px;}
+.desc-text p:last-child{margin-bottom:0;}
+.debug-line{font-family:var(--mono);font-size:9.5px;color:var(--text-faint);font-style:italic;margin:10px 0;}
+.info-label{font-size:10.5px;font-weight:600;letter-spacing:1px;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;margin-top:14px;}
 .info-label:first-child{margin-top:0;}
-.code-block{background:#050510;border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:13px 15px;font-family:var(--mono);font-size:11px;line-height:1.9;color:var(--dim);overflow-x:auto;}
-.kw{color:var(--blue);}.str{color:#68d391;}.cmt{color:#3a3a5a;font-style:italic;}.hi{color:var(--orange);}
-.obj-list{list-style:none;display:flex;flex-direction:column;gap:8px;}
-.obj-item{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:#8888a0;line-height:1.5;}
-.obj-num{width:20px;height:20px;border-radius:5px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--dim);flex-shrink:0;transition:all 0.3s;font-family:var(--mono);}
-.obj-item.done .obj-num{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.25);color:var(--red);}
-.obj-item.done .obj-text{color:var(--red);}
-.hint-item{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px;}
-.hint-btn{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;cursor:pointer;background:var(--surface2);border:none;width:100%;font-family:var(--sans);transition:background 0.15s;}
-.hint-btn:hover{background:rgba(255,255,255,0.025);}
-.hint-btn-left{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:500;color:var(--dim);}
-.hint-icon{width:22px;height:22px;border-radius:5px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.hint-pill{font-size:10px;font-weight:600;color:#fbbf24;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.14);border-radius:4px;padding:1px 7px;}
-.hint-body{display:none;padding:12px 13px;border-top:1px solid var(--border);font-size:12px;color:#8888a0;line-height:1.75;background:rgba(251,191,36,0.02);}
-.hint-body.open{display:block;}
-.hint-body code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
-
-.right-col{display:flex;flex-direction:column;gap:0;}
-
-.file-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
-.file-card-body{padding:20px;display:flex;align-items:center;gap:16px;}
-.file-icon-box{width:48px;height:48px;border-radius:10px;background:rgba(99,179,237,0.08);border:1px solid rgba(99,179,237,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.file-meta{flex:1;}
-.file-name{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--white);margin-bottom:4px;}
-.file-sub{font-size:11px;color:var(--dim);}
-.download-btn{display:flex;align-items:center;gap:8px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;white-space:nowrap;}
-.download-btn:hover{background:#c01010;}
-
-.preview-box{padding:0 20px 20px;}
-.preview-img{width:100%;max-width:280px;border-radius:8px;border:1px solid var(--border);display:block;}
-.preview-caption{font-size:10.5px;color:var(--dim);margin-top:8px;font-style:italic;}
-
-.tool-note{background:rgba(99,179,237,0.04);border:1px solid rgba(99,179,237,0.15);border-radius:10px;padding:14px 16px;margin-bottom:14px;display:flex;gap:12px;}
-.tool-note-icon{flex-shrink:0;margin-top:1px;}
-.tool-note-text{font-size:12px;color:#8888a0;line-height:1.7;}
-.tool-note-text strong{color:var(--blue);}
-.tool-note-text code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
-
-.warning-note{background:rgba(251,146,60,0.04);border:1px solid rgba(251,146,60,0.15);border-radius:10px;padding:14px 16px;margin-bottom:14px;display:flex;gap:12px;}
-.warning-note-text{font-size:12px;color:#8888a0;line-height:1.7;}
-.warning-note-text strong{color:var(--orange);}
-
-.tools-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
-.tools-body{padding:14px;display:flex;flex-direction:column;gap:10px;}
-.tool-option{display:flex;gap:12px;padding:12px;background:#050510;border:1px solid var(--border);border-radius:8px;}
-.tool-option-num{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--dim);flex-shrink:0;}
-.tool-option-content{flex:1;}
-.tool-option-title{font-size:12px;font-weight:600;color:var(--white);margin-bottom:4px;}
-.tool-option-desc{font-size:11.5px;color:var(--dim);line-height:1.6;}
-.tool-option-desc code{font-family:var(--mono);font-size:10.5px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
-
-.submit-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
-.submit-body{padding:14px;display:flex;flex-direction:column;gap:10px;}
-.submit-row{display:flex;gap:10px;}
-.flag-input{flex:1;background:#050510;border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:var(--mono);font-size:12px;color:var(--white);outline:none;transition:border-color 0.15s;}
-.flag-input:focus{border-color:rgba(220,20,20,0.4);}
-.flag-input::placeholder{color:var(--dim);}
-.submit-btn-main{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;white-space:nowrap;}
-.submit-btn-main:hover{background:#c01010;}
-.submit-result{display:none;font-size:12px;padding:9px 12px;border-radius:6px;font-family:var(--mono);line-height:1.5;}
-.submit-result.ok{display:block;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:var(--red);}
-.submit-result.err{display:block;background:rgba(220,20,20,0.06);border:1px solid rgba(220,20,20,0.2);color:var(--red);}
-
-.flag-box{display:none;background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.15);border-radius:12px;overflow:hidden;margin-bottom:14px;}
-.flag-box.show{display:block;}
-.flag-head{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid rgba(239,68,68,0.1);}
-.flag-dot{width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;animation:pulse 1.5s infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-.flag-head-label{font-size:10px;font-weight:700;letter-spacing:1.3px;color:var(--red);text-transform:uppercase;}
-.flag-body-inner{padding:16px;}
-.flag-value{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--red);letter-spacing:0.5px;margin-bottom:6px;}
-.flag-note{font-size:11px;color:rgba(239,68,68,0.5);line-height:1.5;}
-
-@media(max-width:780px){.lab-wrap{grid-template-columns:1fr;}.topbar-title{display:none;}.file-card-body{flex-direction:column;align-items:flex-start;}}
-
-.launch-btn{display:flex;align-items:center;gap:7px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
-.launch-btn:hover{background:#3dd673;}
-.stop-btn{display:none;align-items:center;gap:7px;background:rgba(220,20,20,0.1);color:var(--red);border:1px solid rgba(220,20,20,0.3);border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
-.stop-btn:hover{background:rgba(220,20,20,0.18);}
-.lab-running .launch-btn{display:none;}
-.lab-running .stop-btn{display:flex;}
-.timer-wrap.idle .timer-val{color:var(--dim);}
-.timer-wrap.running .timer-val{color:var(--red);}
-.right-col{position:relative;}
-.lock-overlay{position:absolute;inset:0;background:rgba(7,7,15,0.88);backdrop-filter:blur(3px);z-index:50;display:flex;align-items:center;justify-content:center;border-radius:12px;}
+.code-block{background:var(--code-bg);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:13px 15px;font-family:var(--mono);font-size:11.5px;line-height:1.9;color:var(--code-text);overflow-x:auto;}
+.kw{color:#7aa2f7;}.val{color:#9ece6a;}.cmt{color:#6b6b80;font-style:italic;}.hi{color:#e0af68;}
+.obj-list{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.obj-item{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;color:var(--text-dim);line-height:1.5;}
+.obj-num{width:20px;height:20px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text-faint);flex-shrink:0;transition:all 0.3s;font-family:var(--mono);}
+.obj-item.done .obj-num{background:var(--green-dim);border-color:var(--green-border);color:var(--green);}
+.obj-item.done .obj-text{color:var(--text);}
+.hint-tabs{display:flex;gap:8px;margin-bottom:10px;}
+.hint-tab-btn{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all 0.15s;}
+.hint-tab-btn:hover{border-color:var(--text-faint);color:var(--text);}
+.hint-tab-btn.active{background:var(--blue-dim);border-color:var(--blue-border);color:var(--blue);}
+.hint-tab-btn.used{background:var(--orange-dim);border-color:var(--orange-border);color:var(--orange);}
+.hint-panel{display:none;background:var(--orange-dim);border:1px solid var(--orange-border);border-radius:8px;padding:14px;font-size:12.5px;color:var(--text-dim);line-height:1.75;}
+.hint-panel.active{display:block;}
+.hint-panel code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,0.05);border-radius:3px;padding:1px 5px;color:var(--text);}
+.hint-cost{font-size:9.5px;color:var(--orange);font-weight:700;margin-bottom:8px;letter-spacing:0.5px;text-transform:uppercase;}
+.right-col{display:flex;flex-direction:column;gap:0;position:relative;}
+.lock-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center;border-radius:12px;}
 .lab-running .lock-overlay{display:none;}
 .lock-overlay-inner{text-align:center;padding:40px;max-width:320px;}
-.lock-icon-box{width:56px;height:56px;border-radius:14px;background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
-.lock-title{font-size:15px;font-weight:600;color:var(--white);margin-bottom:8px;}
-.lock-desc{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:20px;}
-.lock-start-btn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
-.lock-start-btn:hover{background:#c01010;}
+.lock-icon-box{width:56px;height:56px;border-radius:14px;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+.lock-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.lock-desc{font-size:12.5px;color:var(--text-dim);line-height:1.6;margin-bottom:20px;}
+.lock-start-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.lock-start-btn:hover{background:#b91c1c;}
+.expired-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.97);z-index:999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:18px;text-align:center;padding:24px;}
+.expired-overlay.show{display:flex;}
+.expired-icon-box{width:64px;height:64px;border-radius:16px;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;}
+.expired-title{font-size:18px;font-weight:700;color:var(--text);}
+.expired-desc{font-size:13px;color:var(--text-dim);max-width:340px;line-height:1.6;}
+.expired-restart-btn{display:flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:12px 28px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);}
+.expired-restart-btn:hover{background:#b91c1c;}
+.solved-popup{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-20px);background:linear-gradient(135deg,#10c876,#0ea968);color:#fff;padding:18px 24px;border-radius:12px;display:none;align-items:center;gap:14px;box-shadow:0 12px 40px rgba(16,200,118,0.3);z-index:1000;max-width:420px;opacity:0;transition:opacity 0.3s,transform 0.3s;}
+.solved-popup.show{display:flex;opacity:1;transform:translateX(-50%) translateY(0);}
+.solved-icon{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.solved-text{flex:1;}
+.solved-title{font-size:14px;font-weight:700;margin-bottom:2px;}
+.solved-sub{font-size:11.5px;opacity:0.9;}
+.solved-close{background:none;border:none;color:#fff;opacity:0.7;cursor:pointer;flex-shrink:0;padding:4px;}
+.solved-close:hover{opacity:1;}
+.burp-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 2px rgba(20,20,30,0.03);}
+.target-panel-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border-soft);background:var(--surface2);gap:8px;flex-wrap:wrap;}
+.target-url-bar{background:var(--code-bg);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:6px 12px;font-family:var(--mono);font-size:11px;color:var(--code-text);display:flex;align-items:center;gap:8px;flex:1;max-width:400px;min-width:0;overflow:hidden;}
+.target-badge{font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:3px;text-transform:uppercase;background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent);}
+.dl-btn{display:flex;align-items:center;gap:6px;background:#7c3aed;color:#fff;padding:6px 13px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;text-decoration:none;white-space:nowrap;border:none;}
+.dl-btn:hover{background:#6d28d9;}
+.site-frame{width:100%;height:calc(100vh - 140px);min-height:600px;border:none;background:#fff;display:block;}
+.flag-box{display:none;background:var(--green-dim);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.flag-box.show{display:block;}
+.flag-head{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--green-border);}
+.flag-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.flag-head-label{font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--green);text-transform:uppercase;}
+.flag-body{padding:16px;}
+.flag-value{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green);letter-spacing:0.5px;margin-bottom:6px;}
+.flag-note{font-size:11.5px;color:#15803d;line-height:1.5;opacity:0.8;}
+.req-log{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.req-log-head{padding:10px 14px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;}
+.req-log-title{font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--text-faint);text-transform:uppercase;}
+.req-log-clear{font-size:10.5px;color:var(--text-faint);cursor:pointer;background:none;border:none;font-family:var(--sans);transition:color 0.15s;}
+.req-log-clear:hover{color:var(--text);}
+.req-log-body{max-height:160px;overflow-y:auto;}
+.log-entry{display:grid;grid-template-columns:56px 1fr 70px 60px;gap:8px;padding:7px 14px;border-bottom:1px solid var(--border-soft);font-family:var(--mono);font-size:10.5px;color:var(--text-faint);}
+.log-method{color:var(--blue);font-weight:700;}
+.log-path{color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.log-status.ok{color:var(--green);}.log-status.err{color:var(--accent);}.log-status.warn{color:var(--orange);}
+.log-time{color:var(--text-faint);text-align:right;}
+@media(max-width:1024px){.lab-wrap{grid-template-columns:260px 1fr;gap:16px;padding:16px 16px 40px;}.site-frame{height:calc(100vh - 160px);min-height:480px;}.topbar{padding:0 16px;}}
+@media(max-width:768px){.topbar{padding:0 14px;height:52px;}.topbar-title{display:none;}.topbar-sep{display:none;}.diff-badge{display:none;}.lang-btn span{display:none;}.lang-btn{padding:6px 9px;}.lab-wrap{grid-template-columns:1fr;padding:12px 12px 32px;gap:14px;}.right-col{order:-1;}.left-col{order:1;}.target-panel-head{flex-wrap:wrap;gap:8px;}.target-url-bar{max-width:100%;width:100%;font-size:10px;}.site-frame{height:360px;min-height:300px;}.card{margin-bottom:12px;}.card-body{padding:13px;}.code-block{font-size:10.5px;padding:11px 13px;}.log-entry{grid-template-columns:48px 1fr 52px;}.log-time{display:none;}.solved-popup{width:90%;max-width:340px;padding:14px 16px;top:14px;}.lock-overlay-inner{padding:28px 20px;}}
+@media(max-width:400px){.topbar{padding:0 10px;height:48px;}.lab-wrap{padding:10px 10px 28px;gap:12px;}.site-frame{height:300px;min-height:240px;}.card-body{padding:11px 12px;}.hint-tab-btn{font-size:11px;padding:7px 6px;}.flag-value{font-size:13.5px;word-break:break-all;}}
 </style>
 </head>
 <body id="labBody">
 
+<div class="solved-popup" id="solvedPopup">
+  <div class="solved-icon">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9.5l3.5 3.5L14 5.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div class="solved-text">
+    <div class="solved-title">Challenge Solved.</div>
+    <div class="solved-sub">EXIF metadata exposed the flag across multiple fields.</div>
+  </div>
+  <button class="solved-close" onclick="closeSolvedPopup()">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3l-8 8" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </button>
+</div>
+
+<div class="expired-overlay" id="expiredOverlay">
+  <div class="expired-icon-box">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="#dc2626" stroke-width="1.6"/><path d="M15 8v7l5 3" stroke="#dc2626" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div class="expired-title">Instance Expired</div>
+  <div class="expired-desc">Your 30 minute instance has ended. Restart to continue.</div>
+  <button class="expired-restart-btn" onclick="restartInstance()">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5a4.5 4.5 0 018-2.8M11 6.5a4.5 4.5 0 01-8 2.8" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/><path d="M10 2v2.5H7.5M3 11v-2.5h2.5" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Restart Instance
+  </button>
+</div>
+
 <div class="topbar">
   <div class="topbar-left">
-    <a class="back-link" href="/pages/ctf.html#challenge=for-02" onclick="sessionStorage.setItem('ctf_return_id','for-02')">
+    <a class="back-link" href="#" onclick="labGoBack(); return false;">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Labs
     </a>
     <div class="topbar-sep"></div>
-    <span class="topbar-id">FOR-02</span>
+    <span class="topbar-id">FOR02</span>
     <span class="topbar-title">Metadata Matters</span>
   </div>
   <div class="topbar-right">
+    <button class="lang-btn" onclick="showLangModal()" title="Change Language">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.1"/><path d="M1 6h10M6 1c1.6 1.4 1.6 8.6 0 10M6 1c-1.6 1.4-1.6 8.6 0 10" stroke="currentColor" stroke-width="1.1"/></svg>
+      <span id="mLangLabel">English</span>
+    </button>
     <span class="diff-badge">Easy</span>
-    <div class="timer-wrap idle">
-      <span class="timer-label">Time</span>
-      <span class="timer-val" id="timerVal">00:00</span>
-    </div>
   </div>
-    <button class="launch-btn" id="launchBtn" onclick="startChallenge()">
-      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M3 2l6 3.5L3 9V2z" fill="#07070f"/></svg>
-      Start Challenge
-    </button>
-    <button class="stop-btn" id="stopBtn" onclick="stopChallenge()">
-      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="2.5" y="2.5" width="6" height="6" fill="#dc1414"/></svg>
-      Stop
-    </button>
 </div>
 
 <div class="lab-wrap">
   <div class="left-col">
 
     <div class="card">
-      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Scenario</span></div>
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Challenge</span></div>
+      <div class="card-body" id="labDescBox">
+        <div class="desc-meta-row">
+          <span class="meta-tag diff">Easy</span>
+          <span class="meta-tag cat">Forensics</span>
+          <span class="meta-tag edition">AlexCyberX Labs</span>
+        </div>
+        <div class="author-line">Author: AlexCyberX Security Team</div>
+        <div class="desc-text">
+          <p>Someone shared an image file on PixelDrop, an anonymous file sharing platform. The image itself looks completely normal.</p>
+          <p>But the file was flagged during a routine metadata review. Image files store far more than just pixels. <strong>EXIF metadata</strong> can contain camera info, GPS coordinates, software details, and custom fields.</p>
+          <p>Download the image and extract its EXIF metadata. The flag is hidden across multiple fields. You need to identify the right fields and assemble them in the correct order.</p>
+        </div>
+        <div class="debug-line">debug: [format: jpeg | exif: present | gps: stripped | fields: 9]</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Target</span></div>
       <div class="card-body">
-        <p class="scenario-text">
-          An employee submitted a photo as part of a routine <strong>IT asset inventory audit</strong>. The image itself shows nothing sensitive — just a labeled equipment photo.
-          <br><br>
-          During a security review, the file was flagged for containing more information than intended. Your task is to examine the file's <strong>metadata</strong>, not its visual content, to find what was leaked.
-          <br><br>
-          Be careful — not every metadata field is meaningful. Some are decoys.
-        </p>
+        <div class="info-label">File Download</div>
+        <div class="code-block">
+<span class="kw">GET</span>  <span class="val">/api/lab/metadata/page</span>
+<span class="cmt"># PixelDrop homepage</span>
+
+<span class="kw">GET</span>  <span class="val">/api/lab/metadata/share/nx7k2p</span>
+<span class="cmt"># Shared file page</span>
+
+<span class="kw">GET</span>  <span class="val">/api/lab/metadata/download/image</span>
+<span class="cmt"># Download asset_photo.jpg</span>
+        </div>
+        <div class="info-label">Recommended Tools</div>
+        <div class="code-block">
+<span class="hi">ExifTool</span>   <span class="cmt"># exiftool asset_photo.jpg</span>
+<span class="hi">exifinfo.net</span> <span class="cmt"># online EXIF viewer</span>
+<span class="hi">exif.tools</span>  <span class="cmt"># online alternative</span>
+        </div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Objectives</span></div>
       <div class="card-body">
-        <ul class="obj-list">
-          <li class="obj-item" id="obj1"><span class="obj-num">1</span><span class="obj-text">Download the image file</span></li>
-          <li class="obj-item" id="obj2"><span class="obj-num">2</span><span class="obj-text">Extract its full EXIF metadata using a real tool</span></li>
-          <li class="obj-item" id="obj3"><span class="obj-num">3</span><span class="obj-text">Identify which metadata fields are decoys</span></li>
-          <li class="obj-item" id="obj4"><span class="obj-num">4</span><span class="obj-text">Find the field containing encoded data</span></li>
-          <li class="obj-item" id="obj5"><span class="obj-num">5</span><span class="obj-text">Decode it and submit the flag</span></li>
+        <ul class="obj-list" id="labObjList">
+          <li class="obj-item" id="obj1"><span class="obj-num">1</span><span class="obj-text">Visit PixelDrop and find the shared file</span></li>
+          <li class="obj-item" id="obj2"><span class="obj-num">2</span><span class="obj-text">Download asset_photo.jpg</span></li>
+          <li class="obj-item" id="obj3"><span class="obj-num">3</span><span class="obj-text">Extract EXIF metadata using ExifTool or an online viewer</span></li>
+          <li class="obj-item" id="obj4"><span class="obj-num">4</span><span class="obj-text">Identify the fields that contain flag fragments</span></li>
+          <li class="obj-item" id="obj5"><span class="obj-num">5</span><span class="obj-text">Assemble the fragments in the correct order and submit the flag</span></li>
         </ul>
       </div>
     </div>
@@ -193,40 +228,23 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
     <div class="card">
       <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Hints</span></div>
       <div class="card-body">
-        <div class="hint-item">
-          <button class="hint-btn" onclick="toggleHint(this,1)">
-            <div class="hint-btn-left">
-              <div class="hint-icon"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="#fbbf24" stroke-width="1"/><path d="M5.5 3.5v.5M5.5 6v2" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-              Most images carry hidden data
-            </div>
-            <span class="hint-pill">H1</span>
-          </button>
-          <div class="hint-body" id="hb1">
-            JPEG files routinely embed Make, Model, DateTime, software version, lens info, and sometimes GPS coordinates. None of this is visible by simply opening the image. You need a metadata extraction tool, not an image viewer.
-          </div>
+        <div class="hint-tabs">
+          <button class="hint-tab-btn" id="hintTabBtn1" onclick="showHint(1)">1</button>
+          <button class="hint-tab-btn" id="hintTabBtn2" onclick="showHint(2)">2</button>
+          <button class="hint-tab-btn" id="hintTabBtn3" onclick="showHint(3)">3</button>
         </div>
-        <div class="hint-item">
-          <button class="hint-btn" onclick="toggleHint(this,2)">
-            <div class="hint-btn-left">
-              <div class="hint-icon"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="#fbbf24" stroke-width="1"/><path d="M5.5 3.5v.5M5.5 6v2" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-              The GPS coordinates are not the answer
-            </div>
-            <span class="hint-pill">H2</span>
-          </button>
-          <div class="hint-body" id="hb2">
-            There are GPS coordinates embedded in this file. They look real and resolve to an actual location on a map. They are not what this challenge is asking for. Keep looking at other fields, especially anything labeled Comment or similar, that holds a longer text string rather than a short value.
+        <div id="labHintsBox">
+          <div class="hint-panel" id="hintPanel1">
+            <div class="hint-cost">Hint cost: 5 XP</div>
+            Image files store hidden data called EXIF metadata. This includes fields like Artist, Copyright, Comment, Software, Make, Model, and GPS coordinates. Download the image and read all metadata fields carefully.
           </div>
-        </div>
-        <div class="hint-item">
-          <button class="hint-btn" onclick="toggleHint(this,3)">
-            <div class="hint-btn-left">
-              <div class="hint-icon"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="#fbbf24" stroke-width="1"/><path d="M5.5 3.5v.5M5.5 6v2" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-              Decoding the comment field
-            </div>
-            <span class="hint-pill">H3</span>
-          </button>
-          <div class="hint-body" id="hb3">
-            The encoded string uses only uppercase letters, digits 2 through 7, and ends in an equals sign for padding. This character set is the signature of Base32 encoding, not Base64. Use any Base32 decoder, or in Python: <code>import base64; base64.b32decode("STRING").decode()</code>
+          <div class="hint-panel" id="hintPanel2">
+            <div class="hint-cost">Hint cost: 10 XP</div>
+            Use <code>exiftool asset_photo.jpg</code> on your terminal, or upload the file to <code>exifinfo.net</code> online. Look through every field. The flag fragments start with <code>ACX{</code> and you need to find all parts.
+          </div>
+          <div class="hint-panel" id="hintPanel3">
+            <div class="hint-cost">Hint cost: 15 XP</div>
+            The flag is split across 4 fields. The first part starts with <code>ACX{</code> and the last part ends with <code>}</code>. The middle two parts need to be arranged so the full string makes a readable phrase. Try both orders and see which one forms a real sentence.
           </div>
         </div>
       </div>
@@ -239,202 +257,202 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
     <div class="lock-overlay" id="lockOverlay">
       <div class="lock-overlay-inner">
         <div class="lock-icon-box">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#dc1414" stroke-width="1.4"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#dc1414" stroke-width="1.4"/></svg>
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="4" y="11" width="18" height="13" rx="2.5" stroke="#dc2626" stroke-width="1.5"/><path d="M8 11V8a5 5 0 0110 0v3" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
-        <div class="lock-title">Challenge Locked</div>
-        <div class="lock-desc">Click start when you are ready. The timer begins the moment you start, and the interactive area unlocks.</div>
+        <div class="lock-title">Instance Not Running</div>
+        <div class="lock-desc" id="labLockDesc">Start the instance to launch PixelDrop and access the shared file.</div>
         <button class="lock-start-btn" onclick="startChallenge()">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M3.5 2l7 4.5-7 4.5V2z" fill="#fff"/></svg>
-          Start Challenge
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M3 2.5l7 4-7 4V2.5z" fill="#fff"/></svg>
+          Start Instance
         </button>
       </div>
     </div>
 
-
-    <div class="file-card">
-      <div class="file-card-body">
-        <div class="file-icon-box">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <rect x="3" y="3" width="16" height="16" rx="2" stroke="#63b3ed" stroke-width="1.3"/>
-            <circle cx="8" cy="8.5" r="1.6" stroke="#63b3ed" stroke-width="1.1"/>
-            <path d="M3 15l5-4.5 3 3 4-4 4 4.5" stroke="#63b3ed" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+    <div class="burp-panel">
+      <div class="target-panel-head">
+        <div class="target-url-bar">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#4a4a6a" stroke-width="1"/><path d="M5 1v4l2.5 2.5" stroke="#4a4a6a" stroke-width="1" stroke-linecap="round"/></svg>
+          <span id="targetUrlText">/api/lab/metadata/page</span>
         </div>
-        <div class="file-meta">
-          <div class="file-name" id="fileNameDisplay">asset_photo.jpg</div>
-          <div class="file-sub" id="fileSubDisplay">Loading file metadata...</div>
-        </div>
-        <button class="download-btn" onclick="downloadImage()">
-          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 6l3.5 3.5L10 6M2 11h9" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Download
-        </button>
-      </div>
-      <div class="preview-box">
-        <img class="preview-img" src="/api/lab/metadata/download" alt="Asset photo preview">
-        <div class="preview-caption">Visual preview — the image content itself is not the target. Focus on its metadata.</div>
-      </div>
-    </div>
-
-    <div class="tool-note">
-      <svg class="tool-note-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="#63b3ed" stroke-width="1.2"/><path d="M8 5v.5M8 7v4" stroke="#63b3ed" stroke-width="1.3" stroke-linecap="round"/></svg>
-      <div class="tool-note-text">
-        You need a real metadata extraction tool. This is not something a browser shows you by default.
-      </div>
-    </div>
-
-    <div class="tools-panel">
-      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Tool Options</span></div>
-      <div class="tools-body">
-        <div class="tool-option">
-          <div class="tool-option-num">1</div>
-          <div class="tool-option-content">
-            <div class="tool-option-title">ExifTool (recommended, command line)</div>
-            <div class="tool-option-desc">The industry standard. Install from <code>exiftool.org</code>, then run <code>exiftool asset_photo.jpg</code> to dump every field.</div>
-          </div>
-        </div>
-        <div class="tool-option">
-          <div class="tool-option-num">2</div>
-          <div class="tool-option-content">
-            <div class="tool-option-title">Python with piexif or Pillow</div>
-            <div class="tool-option-desc">If you have Python available, <code>from PIL import Image; Image.open("asset_photo.jpg")._getexif()</code> gives you raw tag access.</div>
-          </div>
-        </div>
-        <div class="tool-option">
-          <div class="tool-option-num">3</div>
-          <div class="tool-option-content">
-            <div class="tool-option-title">Online EXIF viewers</div>
-            <div class="tool-option-desc">Sites like <code>exif.tools</code> or <code>metapicz.com</code> let you upload and inspect metadata without installing anything.</div>
-          </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="target-badge">TARGET</span>
+          <a class="dl-btn" id="dlBtn" href="#" onclick="return false;">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5l3 3 3-3" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h10" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>
+            Download JPG
+          </a>
         </div>
       </div>
-    </div>
-
-    <div class="warning-note">
-      <svg class="tool-note-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l6.5 12h-13L8 1.5z" stroke="#fb923c" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 6v3M8 11v.5" stroke="#fb923c" stroke-width="1.3" stroke-linecap="round"/></svg>
-      <div class="warning-note-text">
-        If using an online tool, prefer ones that process files client-side or state a no-retention policy. This image contains no real personal data, but it is good practice in general.
-      </div>
-    </div>
+      <iframe class="site-frame" id="siteFrame" src="" sandbox="allow-same-origin allow-scripts allow-forms allow-downloads"></iframe>
     </div>
 
     <div class="flag-box" id="flagBox">
       <div class="flag-head"><div class="flag-dot"></div><span class="flag-head-label">Flag Captured</span></div>
-      <div class="flag-body-inner">
+      <div class="flag-body">
         <div class="flag-value" id="flagValue"></div>
-        <div class="flag-note">Always strip EXIF metadata before sharing images externally. GPS tags, software versions, and comment fields routinely leak more than intended.</div>
+        <div class="flag-note">EXIF metadata is often overlooked before sharing files publicly. Always strip metadata from files before external sharing.</div>
       </div>
+    </div>
+
+    <div class="req-log">
+      <div class="req-log-head"><span class="req-log-title">Request Log</span><button class="req-log-clear" onclick="clearLog()">Clear</button></div>
+      <div class="req-log-body" id="reqLogBody"></div>
     </div>
 
   </div>
 </div>
 
+<div id="langModal" style="position:fixed;inset:0;z-index:99999;background:rgba(6,6,8,0.95);backdrop-filter:blur(24px);display:none;align-items:center;justify-content:center;">
+  <div style="background:#0c0c0f;border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:28px 24px 22px;max-width:480px;width:92%;position:relative;">
+    <button onclick="hideLangModal()" style="position:absolute;top:12px;right:12px;width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1L1 9" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;"><div style="width:7px;height:7px;border-radius:50%;background:#dc1414;"></div><span style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#f4f4f5;">Alex <span style="color:#dc1414;">CyberX</span></span></div>
+    <div style="font-size:19px;font-weight:700;color:#f4f4f5;margin-bottom:5px;">Choose Your Language</div>
+    <div style="font-size:11px;color:#4a4a5a;margin-bottom:18px;">Website is language mein translate ho jaayegi.</div>
+    <div id="langGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px;"></div>
+    <button onclick="applyLanguage()" style="width:100%;padding:11px;background:#dc1414;border:none;color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="langApplyTxt">Continue</span>
+    </button>
+  </div>
+</div>
+
+<script src="/js/i18n.js"></script>
+<script src="/js/translate.js"></script>
 <script>
+const _labChallengeId = 'for-02';
+const _labActiveKey   = 'acx_lab_active_' + _labChallengeId;
+
+const _labAccessGranted = (function() {
+  const params      = new URLSearchParams(window.location.search);
+  const urlToken    = params.get('acx_token');
+  const storedToken = (() => { try { return sessionStorage.getItem('acx_lab_token_' + _labChallengeId); } catch(e) { return null; } })();
+  const isActive    = (() => { try { return sessionStorage.getItem(_labActiveKey) === '1'; } catch(e) { return false; } })();
+  if (urlToken && storedToken && urlToken === storedToken) {
+    try { sessionStorage.setItem(_labActiveKey,'1'); } catch(e) {}
+    try { sessionStorage.removeItem('acx_lab_token_'+_labChallengeId); } catch(e) {}
+    try { history.replaceState(null,'',window.location.pathname); } catch(e) {}
+    return true;
+  }
+  if (isActive) return true;
+  window.addEventListener('DOMContentLoaded', function() {
+    document.body.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#fafafa;font-family:'Inter',sans-serif;text-align:center;padding:24px;"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:20px;"><circle cx="24" cy="24" r="20" stroke="#dc2626" stroke-width="1.8"/><path d="M16 16l16 16M32 16L16 32" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg><div style="font-size:20px;font-weight:700;margin-bottom:8px;">Access Denied</div><div style="font-size:13px;color:#6b6b78;margin-bottom:24px;max-width:340px;">This lab is only accessible from the CTF platform.</div><a href="/" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:12px 28px;font-size:13px;font-weight:600;text-decoration:none;">Go to CTF Platform</a></div>`;
+  }, { once: true });
+  return false;
+})();
+
+const SESSION_ID = (function() {
+  try { let s=sessionStorage.getItem('acx_lab_meta_session'); if(!s){s='sess_'+Math.random().toString(36).substring(2,10);sessionStorage.setItem('acx_lab_meta_session',s);} return s; } catch(e) { return 'sess_'+Math.random().toString(36).substring(2,10); }
+})();
+
 const BASE = window.location.origin;
-let elapsed = 0;
+document.getElementById('siteFrame').src = `/api/lab/metadata/page?session=${encodeURIComponent(SESSION_ID)}`;
+const _urlEl = document.getElementById('targetUrlText');
+if (_urlEl) _urlEl.textContent = window.location.host + '/api/lab/metadata/page';
 
-let timerInterval = null;
-let isRunning = false;
+let isRunning=false, pollInterval=null, solvedShown=false;
+let currentPage='lab', currentChapter=0, currentCyberChapter=0;
 
-function updateTimerDisplay() {
-  const m = String(Math.floor(elapsed/60)).padStart(2,'0');
-  const s = String(elapsed%60).padStart(2,'0');
-  document.getElementById('timerVal').textContent = m+':'+s;
+const LAB_TRANSLATE_BOXES = ['labDescBox','labObjList','labLockDesc','labHintsBox'];
+let _labOriginals = null;
+function storeLabOriginals(){if(_labOriginals)return;_labOriginals={};LAB_TRANSLATE_BOXES.forEach(id=>{const el=document.getElementById(id);if(el)_labOriginals[id]=el.innerHTML;});}
+function restoreLabTranslation(){if(!_labOriginals)return;LAB_TRANSLATE_BOXES.forEach(id=>{const el=document.getElementById(id);if(el&&_labOriginals[id]!==undefined)el.innerHTML=_labOriginals[id];});}
+async function applyLabTranslation(lang){
+  if(lang==='hl'||lang==='en'){restoreLabTranslation();return;}
+  storeLabOriginals();
+  const langName=(typeof LANG_NAMES!=='undefined'&&LANG_NAMES[lang])||lang;
+  for(const id of LAB_TRANSLATE_BOXES){const el=document.getElementById(id);if(!el||_labOriginals[id]===undefined)continue;const t=await doTranslate(_labOriginals[id],lang,langName,'lab_meta_'+id+'_'+lang);injectTranslated(el,t);}
 }
 
-function startChallenge() {
-  if (isRunning) return;
-  isRunning = true;
+function ts(){return new Date().toTimeString().substring(0,8);}
+function completeObj(id){const el=document.getElementById(id);if(el&&!el.classList.contains('done'))el.classList.add('done');}
+function addLog(method,path,status,cls){const body=document.getElementById('reqLogBody');const e=document.createElement('div');e.className='log-entry';e.innerHTML=`<span class="log-method">${method}</span><span class="log-path">${path}</span><span class="log-status ${cls}">${status}</span><span class="log-time">${ts()}</span>`;body.prepend(e);}
+function clearLog(){document.getElementById('reqLogBody').innerHTML='';}
+
+function showHint(n){
+  for(let i=1;i<=3;i++){document.getElementById('hintPanel'+i).classList.remove('active');document.getElementById('hintTabBtn'+i).classList.remove('active');}
+  document.getElementById('hintPanel'+n).classList.add('active');
+  const btn=document.getElementById('hintTabBtn'+n);btn.classList.add('active');btn.classList.add('used');
+  addLog('LOCAL','hint #'+n+' viewed','opened','warn');
+}
+
+async function fetchInstanceStatus(){
+  try{const res=await fetch(`${BASE}/api/lab/metadata/instance/status`,{headers:{'X-Lab-Session':SESSION_ID}});return await res.json();}catch(e){return null;}
+}
+function applyInstanceStatus(data){
+  if(!data)return;
+  if(!data.running&&isRunning){stopChallenge();invalidateLabSession();document.getElementById('expiredOverlay').classList.add('show');}
+  if(data.solved&&!solvedShown){solvedShown=true;showSolvedPopup();}
+}
+function showSolvedPopup(){const p=document.getElementById('solvedPopup');p.classList.add('show');setTimeout(()=>p.classList.remove('show'),6000);}
+function closeSolvedPopup(){document.getElementById('solvedPopup').classList.remove('show');}
+function startPolling(){if(pollInterval)clearInterval(pollInterval);pollInterval=setInterval(async()=>{const d=await fetchInstanceStatus();applyInstanceStatus(d);},5000);}
+
+function startChallenge(){
+  if(isRunning)return;
+  isRunning=true;
   document.getElementById('labBody').classList.add('lab-running');
-  document.querySelector('.timer-wrap').classList.remove('idle');
-  document.querySelector('.timer-wrap').classList.add('running');
-  timerInterval = setInterval(() => { elapsed++; updateTimerDisplay(); }, 1000);
-  if (typeof addLog === 'function') addLog('LOCAL', 'challenge started', 'running', 'ok');
-}
-
-function stopChallenge() {
-  if (!isRunning) return;
-  isRunning = false;
-  document.getElementById('labBody').classList.remove('lab-running');
-  document.querySelector('.timer-wrap').classList.add('idle');
-  document.querySelector('.timer-wrap').classList.remove('running');
-  clearInterval(timerInterval);
-  if (typeof addLog === 'function') addLog('LOCAL', 'challenge paused', 'paused', 'warn');
-}
-
-
-
-
-function completeObj(id) {
-  const el = document.getElementById(id);
-  if (el && !el.classList.contains('done')) el.classList.add('done');
-}
-
-function toggleHint(btn, n) {
-  document.getElementById('hb'+n).classList.toggle('open');
-}
-
-async function loadInfo() {
-  try {
-    const res = await fetch(`${BASE}/api/lab/metadata/info`);
-    const data = await res.json();
-    document.getElementById('fileSubDisplay').textContent = `${data.size_bytes} bytes — JPEG with embedded EXIF`;
-  } catch(e) {
-    document.getElementById('fileSubDisplay').textContent = 'Image file';
-  }
-}
-loadInfo();
-
-function downloadImage() {
-  window.location.href = `${BASE}/api/lab/metadata/download`;
+  document.getElementById('expiredOverlay').classList.remove('show');
+  addLog('LOCAL','instance started','running','ok');
   completeObj('obj1');
-  setTimeout(() => {
-    completeObj('obj2');
-    completeObj('obj3');
-    completeObj('obj4');
-  }, 1500);
+  startPolling();
+  document.getElementById('siteFrame').src=`/api/lab/metadata/page?session=${encodeURIComponent(SESSION_ID)}&_=${Date.now()}`;
+  // Enable download button
+  const dlBtn = document.getElementById('dlBtn');
+  dlBtn.href = `/api/lab/metadata/download/image`;
+  dlBtn.removeAttribute('onclick');
+  dlBtn.setAttribute('download','asset_photo.jpg');
+}
+function stopChallenge(){if(!isRunning)return;isRunning=false;document.getElementById('labBody').classList.remove('lab-running');}
+
+async function restartInstance(){
+  const btn=document.querySelector('.expired-restart-btn');
+  if(btn){btn.disabled=true;btn.textContent='Restarting...';}
+  try{
+    const res=await fetch(`${BASE}/api/lab/metadata/instance/restart`,{method:'POST',headers:{'X-Lab-Session':SESSION_ID}});
+    if(!res.ok)throw new Error('Server returned '+res.status);
+    solvedShown=false;
+    document.getElementById('expiredOverlay').classList.remove('show');
+    document.getElementById('flagBox').classList.remove('show');
+    for(let i=1;i<=5;i++){const el=document.getElementById('obj'+i);if(el)el.classList.remove('done');}
+    addLog('POST','/api/lab/metadata/instance/restart',res.status,'ok');
+    if(!isRunning)startChallenge();
+    document.getElementById('siteFrame').src=`/api/lab/metadata/page?session=${encodeURIComponent(SESSION_ID)}&_=${Date.now()}`;
+  }catch(err){
+    const desc=document.querySelector('.expired-desc');
+    if(desc)desc.textContent='Restart failed. Please refresh the page.';
+  }finally{if(btn){btn.disabled=false;btn.textContent='Restart Instance';}}
 }
 
-async function submitFlag() {
-  const flag = document.getElementById('flagInput').value.trim();
-  const resultEl = document.getElementById('submitResult');
-  if (!flag) { resultEl.textContent = 'Flag field is empty.'; resultEl.className = 'submit-result err'; return; }
-
-  try {
-    const res = await fetch(`${BASE}/api/lab/metadata/submit`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ flag })
-    });
-    const data = await res.json();
-
-    if (res.ok && data.success) {
-      completeObj('obj5');
-      resultEl.textContent = data.message;
-      resultEl.className = 'submit-result ok';
-      document.getElementById('flagBox').classList.add('show');
-      document.getElementById('flagValue').textContent = data.flag;
-    } else {
-      resultEl.textContent = data.message;
-      resultEl.className = 'submit-result err';
-    }
-  } catch(err) {
-    resultEl.textContent = 'Request failed: ' + err.message;
-    resultEl.className = 'submit-result err';
-  }
+function labGoBack(){
+  try{if(window.opener&&!window.opener.closed){if(typeof window.opener.acxLabReturn==='function')window.opener.acxLabReturn(_labChallengeId);else window.opener.focus();window.close();return;}}catch(e){}
+  try{localStorage.setItem('acx_return_to_modal',_labChallengeId);localStorage.setItem('acx_return_ts',Date.now().toString());}catch(e){}
+  try{window.close();}catch(e){}
+  setTimeout(()=>{try{sessionStorage.setItem('acx_back_to_ctf',_labChallengeId);sessionStorage.setItem('acx_back_ts',Date.now().toString());}catch(e){}window.location.href='/';},350);
+}
+function invalidateLabSession(){
+  try{sessionStorage.removeItem(_labActiveKey);}catch(e){}
+  try{sessionStorage.removeItem('acx_lab_meta_session');}catch(e){}
 }
 
-document.getElementById('flagInput').addEventListener('keydown', e => { if(e.key==='Enter') submitFlag(); });
-</script>
-
-// Auto-stop: jab CTF page se doosra challenge start ho
-window.addEventListener('message', function(e) {
-  if (e.source !== window.opener) return;
-  const msg = e.data;
-  if (!msg || msg.type !== 'ACX_LAB_STOP') return;
-  if (msg.challengeId !== 'for-02') return;
-  // Close this lab tab — user switched to another challenge
-  setTimeout(() => { try { window.close(); } catch(e) {} }, 200);
+window.addEventListener('message',function(event){
+  if(event.source!==window.opener)return;
+  const msg=event.data;
+  if(!msg||msg.type!=='ACX_LAB_STOP'||msg.challengeId!==_labChallengeId)return;
+  invalidateLabSession();
+  if(pollInterval){clearInterval(pollInterval);pollInterval=null;}
+  const overlay=document.getElementById('expiredOverlay');
+  if(overlay){const desc=overlay.querySelector('.expired-desc');if(desc)desc.textContent='Another challenge was started. This instance has been stopped.';overlay.classList.add('show');}
 });
 
+document.getElementById('siteFrame').addEventListener('load',()=>{
+  if(!_labAccessGranted||!isRunning)return;
+  const src=document.getElementById('siteFrame').src||'';
+  if(src.includes('/share/')){completeObj('obj1');completeObj('obj2');addLog('GET','/api/lab/metadata/share/nx7k2p','200','ok');}
+  else if(src.includes('/page')){completeObj('obj1');addLog('GET','/api/lab/metadata/page','200','ok');}
+});
+
+if(_labAccessGranted){(async()=>{const d=await fetchInstanceStatus();applyInstanceStatus(d);})();}
+</script>
 </body>
 </html>

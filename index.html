@@ -1827,11 +1827,13 @@ const ctfChallenges = window.CTF_CHALLENGES = [
   {
     id: 'web-04', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
     title: 'robots.txt Secret',
-    desc: 'Website ke robots.txt file mein koi restricted path chhupa hua hai jo search engines ko index karne se rokta hai. Woh path visit karo.',
+    desc: 'NexaCloud has misconfigured its crawler directives. The robots.txt file reveals hidden internal paths. One of them leads to a vault that holds the flag.',
     diff: 'Easy', pts: 50, xp: 80,
-    flag: 'ACX{robots_txt_not_a_security_measure}',
-    hint: '/robots.txt URL open karo aur Disallow entries dekho.',
-    labUrl: 'robots.txt',
+    flag: 'ACX{r0b0ts_txt_l34ks_s3cr3ts}',
+    hints: ['Every website has a robots.txt at /robots.txt. Always check it during recon.', 'The Disallow entries list paths that are meant to stay hidden. Visit each one.', 'The vault needs a passcode. Check the page source of the homepage carefully.'],
+    labUrl: '/pages/labs/lab-robots.html',
+    labApiPath: '/api/lab/robots',
+    hasLabFlow: true,
     solvers: 210
   },
 
@@ -1848,10 +1850,13 @@ const ctfChallenges = window.CTF_CHALLENGES = [
   {
     id: 'for-02', cat: 'Forensics', icon: '🔍', iconClass: 'ctf-cat-forensics',
     title: 'Metadata Matters',
-    desc: 'Ek image file di gayi hai. Lagta hai normal image hai lekin iske metadata mein kuch chhua hua hai. ExifTool ya strings command use karo.',
+    desc: 'Someone shared an image on PixelDrop. The image looks normal but was flagged during a metadata review. Download it and extract the EXIF data to find the hidden flag.',
     diff: 'Easy', pts: 75, xp: 120,
-    flag: 'ACX{exif_data_reveals_secrets}',
-    hint: '`exiftool image.jpg` command chalao ya online EXIF viewer use karo.',
+    flag: 'ACX{m3t4_d4t4_1s_3v3rywh3r3}',
+    hints: ['Image files store hidden data called EXIF metadata beyond just pixels.', 'Use exiftool or an online viewer like exifinfo.net to read all fields.', 'The flag is split across 4 fields. Find them all and figure out the correct order.'],
+    labUrl: '/pages/labs/lab-metadata.html',
+    labApiPath: '/api/lab/metadata',
+    hasLabFlow: true,
     solvers: 178
   },
   {
