@@ -264,8 +264,8 @@ body { background: var(--bg); color: var(--white); font-family: var(--sans); min
 .lab-running .stop-btn{display:flex;}
 .timer-wrap.idle .timer-val{color:var(--dim);}
 .timer-wrap.running .timer-val{color:var(--green);}
-.right-col{position:relative;}
-.lock-overlay{position:absolute;inset:0;background:rgba(7,7,15,0.88);backdrop-filter:blur(3px);z-index:50;display:flex;align-items:center;justify-content:center;border-radius:12px;}
+.right-col{display:flex;flex-direction:column;gap:0;width:100%;}
+.lock-overlay{position:absolute;inset:0;background:rgba(7,7,15,0.88);backdrop-filter:blur(3px);z-index:50;display:flex;align-items:center;justify-content:center;}
 .lab-running .lock-overlay{display:none;}
 .lock-overlay-inner{text-align:center;padding:40px;max-width:320px;}
 .lock-icon-box{width:56px;height:56px;border-radius:14px;background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
@@ -538,14 +538,7 @@ X-Lab-Session: {{SESSION}}
     </div>
 
     <!-- Request Log -->
-    <div class="req-log">
-      <div class="req-log-head">
-        <span class="req-log-title">Request Log</span>
-        <button class="req-log-clear" onclick="clearLog()">Clear</button>
-      </div>
-      <div class="req-log-body" id="reqLogBody">
-        <!-- entries added by JS -->
-      </div>
+
     </div>
 
   </div>
@@ -572,8 +565,7 @@ function startChallenge() {
   document.querySelector('.timer-wrap').classList.remove('idle');
   document.querySelector('.timer-wrap').classList.add('running');
   timerInterval = setInterval(() => { elapsed++; updateTimerDisplay(); }, 1000);
-  if (typeof addLog === 'function') addLog('LOCAL', 'challenge started', 'running', 'ok');
-}
+  if (typeof addLog === 'function') }
 
 function stopChallenge() {
   if (!isRunning) return;
@@ -582,8 +574,7 @@ function stopChallenge() {
   document.querySelector('.timer-wrap').classList.add('idle');
   document.querySelector('.timer-wrap').classList.remove('running');
   clearInterval(timerInterval);
-  if (typeof addLog === 'function') addLog('LOCAL', 'challenge paused', 'paused', 'warn');
-}
+  if (typeof addLog === 'function') }
 
 let currentMode = 'POST'; // POST or GET
 
@@ -612,7 +603,7 @@ function completeObj(id) {
   if (el && !el.classList.contains('done')) el.classList.add('done');
 }
 
-function addLog(method, path, status, statusClass) {
+function {
   const body = document.getElementById('reqLogBody');
   const entry = document.createElement('div');
   entry.className = 'log-entry';
@@ -625,7 +616,7 @@ function addLog(method, path, status, statusClass) {
   body.prepend(entry);
 }
 
-function clearLog() { document.getElementById('reqLogBody').innerHTML = ''; }
+function { document.getElementById('reqLogBody').innerHTML = ''; }
 
 function setResponse(statusCode, statusClass, bodyHtml, rawText) {
   const codeEl = document.getElementById('statusCode');
@@ -712,8 +703,6 @@ async function sendComment() {
     const cls = res.ok ? 's200' : 's400';
     document.getElementById('statusTime').textContent = elapsed_ms + 'ms';
     setResponse(res.status, cls, `<pre style="white-space:pre-wrap;">${colorJson(data)}</pre>`, raw);
-    addLog('POST', '/api/lab/web02/comment', res.status, res.ok ? 'ok' : 'err');
-
     if (res.ok && data.success) {
       completeObj('obj1');
       const msg = payload.message || '';
@@ -722,8 +711,7 @@ async function sendComment() {
     }
   } catch(e) {
     setResponse('000', 's000', `<span style="color:var(--red)">Connection error: ${escHtml(e.message)}</span>`, e.message);
-    addLog('POST', '/api/lab/web02/comment', 'ERR', 'err');
-  }
+    }
 }
 
 async function fetchComments() {
@@ -738,8 +726,6 @@ async function fetchComments() {
 
     document.getElementById('statusTime').textContent = elapsed_ms + 'ms';
     setResponse(res.status, 's200', `<pre style="white-space:pre-wrap;">${colorJson(data)}</pre>`, raw);
-    addLog('GET', '/api/lab/web02/comments', res.status, 'ok');
-
     renderBoard(data.comments || []);
 
     if (data.flag) {
@@ -750,8 +736,7 @@ async function fetchComments() {
     }
   } catch(e) {
     setResponse('000', 's000', `<span style="color:var(--red)">Connection error: ${escHtml(e.message)}</span>`, e.message);
-    addLog('GET', '/api/lab/web02/comments', 'ERR', 'err');
-  }
+    }
 }
 
 function renderBoard(comments) {
@@ -788,8 +773,7 @@ async function resetComments() {
     document.getElementById('boardComments').querySelectorAll('.comment-entry').forEach(e => e.remove());
     document.getElementById('boardEmpty').style.display = 'block';
     document.getElementById('flagBox').classList.remove('show');
-    addLog('POST', '/api/lab/web02/reset', '200', 'warn');
-  } catch(e) { console.error(e); }
+    } catch(e) { console.error(e); }
 }
 
 // Load comments on start

@@ -40,7 +40,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .timer-wrap.expired .timer-val{color:var(--accent);}
 
 
-.lab-wrap{max-width:1140px;margin:0 auto;padding:20px 20px 40px;display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start;}
+.lab-wrap{max-width:100%;margin:0;padding:0;display:block;}
 
 .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,20,30,0.03);}
 .card-head{padding:12px 16px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;gap:8px;}
@@ -104,9 +104,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .hint-panel code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,0.05);border-radius:3px;padding:1px 5px;color:var(--text);}
 .hint-cost{font-size:9.5px;color:var(--orange);font-weight:700;margin-bottom:8px;letter-spacing:0.5px;text-transform:uppercase;}
 
-.right-col{display:flex;flex-direction:column;gap:0;position:relative;}
+.right-col{display:flex;flex-direction:column;gap:0;width:100%;}
 
-.lock-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center;border-radius:12px;}
+.lock-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center;}
 .lab-running .lock-overlay{display:none;}
 .lock-overlay-inner{text-align:center;padding:40px;max-width:320px;}
 .lock-icon-box{width:56px;height:56px;border-radius:14px;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
@@ -134,26 +134,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .solved-close{background:none;border:none;color:#fff;opacity:0.7;cursor:pointer;flex-shrink:0;padding:4px;}
 .solved-close:hover{opacity:1;}
 
-.burp-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 2px rgba(20,20,30,0.03);}
-.target-panel-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border-soft);background:var(--surface2);}
-.target-url-bar{background:var(--code-bg);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:6px 12px;font-family:var(--mono);font-size:11px;color:var(--code-text);display:flex;align-items:center;gap:8px;flex:1;max-width:400px;min-width:0;overflow:hidden;}
-.target-badge{font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:3px;text-transform:uppercase;background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent);}
-.view-source-btn{display:flex;align-items:center;gap:6px;background:var(--blue-dim);border:1px solid var(--blue-border);color:var(--blue);padding:6px 13px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
 .view-source-btn:hover{background:#dbeafe;}
 .lang-btn{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 13px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
 .lang-btn:hover{background:#eaeaee;}
-.site-frame{width:100%;height:calc(100vh - 140px);min-height:600px;border:none;background:#fff;display:block;}
+.site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}
 
-.source-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;display:none;box-shadow:0 1px 2px rgba(20,20,30,0.03);}
-.source-panel.visible{display:block;}
-.source-panel-head{padding:10px 14px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;}
-.source-panel-title{font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--text-faint);text-transform:uppercase;}
-.source-close{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:11.5px;font-family:var(--sans);transition:color 0.15s;}
 .source-close:hover{color:var(--text);}
-.source-body{padding:14px;background:var(--code-bg);font-family:var(--mono);font-size:11.5px;line-height:1.8;color:var(--code-text);max-height:320px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;}
 
-
-.flag-box{display:none;background:var(--green-dim);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.flag-box{display:none;background:var(--green-dim);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;}
 .flag-box.show{display:block;}
 .flag-head{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--green-border);}
 .flag-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 1.5s infinite;}
@@ -163,26 +151,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .flag-value{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green);letter-spacing:0.5px;margin-bottom:6px;}
 .flag-note{font-size:11.5px;color:#15803d;line-height:1.5;opacity:0.8;}
 
-.req-log{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 2px rgba(20,20,30,0.03);}
-.req-log-head{padding:10px 14px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;}
-.req-log-title{font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--text-faint);text-transform:uppercase;}
-.req-log-clear{font-size:10.5px;color:var(--text-faint);cursor:pointer;background:none;border:none;font-family:var(--sans);transition:color 0.15s;}
 .req-log-clear:hover{color:var(--text);}
-.req-log-body{max-height:160px;overflow-y:auto;}
-.log-entry{display:grid;grid-template-columns:56px 1fr 70px 60px;gap:8px;padding:7px 14px;border-bottom:1px solid var(--border-soft);font-family:var(--mono);font-size:10.5px;color:var(--text-faint);}
-.log-method{color:var(--blue);font-weight:700;}
-.log-path{color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
 .log-status.ok{color:var(--green);}
 .log-status.err{color:var(--accent);}
 .log-status.warn{color:var(--orange);}
-.log-time{color:var(--text-faint);text-align:right;}
+
 /* ── RESPONSIVE SYSTEM ── */
 
 /* Tablet: 768px - 1024px */
 @media(max-width:1024px){
-  .lab-wrap{grid-template-columns:260px 1fr;gap:16px;padding:16px 16px 40px;}
-  .site-frame{height:calc(100vh - 160px);min-height:480px;}
-  .target-url-bar{max-width:260px;}
+  .lab-wrap{max-width:100%;margin:0;padding:0;display:block;}
+  .site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}
+  
   .topbar{padding:0 16px;}
 }
 
@@ -198,23 +179,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
   .lang-btn span{display:none;}
   .lang-btn{padding:6px 9px;}
 
-  .lab-wrap{grid-template-columns:1fr;padding:12px 12px 32px;gap:14px;max-width:100%;}
-
-  .right-col{order:-1;}
-  .left-col{order:1;}
-
-  .target-panel-head{flex-wrap:wrap;gap:8px;padding:10px 12px;}
-  .target-url-bar{max-width:100%;width:100%;font-size:10px;}
+  .lab-wrap{max-width:100%;margin:0;padding:0;display:block;}
+  
   .target-url-bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 
-  .site-frame{height:360px;min-height:300px;}
+  .site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}
 
   .card{margin-bottom:12px;}
   .card-body{padding:13px;}
   .code-block{font-size:10.5px;padding:11px 13px;overflow-x:auto;}
 
-  .log-entry{grid-template-columns:48px 1fr 52px;gap:6px;}
-  .log-time{display:none;}
+  
+  
 
   .obj-item{font-size:12px;}
 
@@ -229,9 +205,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
   .lock-title{font-size:14px;}
   .lock-desc{font-size:12px;}
 
-  .source-body{font-size:10.5px;max-height:260px;}
+  
 
-  .req-log-body{max-height:140px;}
+  
 }
 
 /* Very small phones: ≤400px */
@@ -240,9 +216,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
   .back-link{font-size:12px;}
   .topbar-id{font-size:10px;padding:2px 6px;}
 
-  .lab-wrap{padding:10px 10px 28px;gap:12px;}
+  .lab-wrap{max-width:100%;margin:0;padding:0;display:block;}
 
-  .site-frame{height:300px;min-height:240px;}
+  .site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}
 
   .card-body{padding:11px 12px;}
 
@@ -250,8 +226,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 
   .flag-value{font-size:13.5px;word-break:break-all;}
 
-  .req-log-body{max-height:120px;}
-  .log-entry{grid-template-columns:44px 1fr 44px;font-size:9.5px;}
+  
+  
 }
 
 </style>
@@ -303,98 +279,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 </div>
 
 <div class="lab-wrap">
+<div class="right-col">
 
-  <div class="left-col">
-
-
-
-    <div class="card">
-      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Target</span></div>
-      <div class="card-body">
-        <div class="info-label">Endpoints</div>
-        <div class="code-block">
-<span class="kw">GET</span>  <span class="val">/api/lab/hidden/page</span>
-<span class="cmt"># Vulnerable target site</span>
-
-<span class="kw">POST</span> <span class="val">/api/lab/hidden/submit</span>
-<span class="cmt"># Submit your decoded flag</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Objectives</span></div>
-      <div class="card-body">
-        <ul class="obj-list" id="labObjList">
-          <li class="obj-item" id="obj1"><span class="obj-num">1</span><span class="obj-text">Enumerate the application: source, robots.txt, JS files</span></li>
-          <li class="obj-item" id="obj2"><span class="obj-num">2</span><span class="obj-text">Find and decode Part 1 in the HTML source</span></li>
-          <li class="obj-item" id="obj3"><span class="obj-num">3</span><span class="obj-text">Find Part 2 in an HTTP response header</span></li>
-          <li class="obj-item" id="obj4"><span class="obj-num">4</span><span class="obj-text">Find and decode Part 3 in the JS file</span></li>
-          <li class="obj-item" id="obj5"><span class="obj-num">5</span><span class="obj-text">Assemble and submit the complete flag</span></li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Hints</span></div>
-      <div class="card-body">
-        <div class="hint-tabs">
-          <button class="hint-tab-btn" id="hintTabBtn1" onclick="showHint(1)">1</button>
-          <button class="hint-tab-btn" id="hintTabBtn2" onclick="showHint(2)">2</button>
-          <button class="hint-tab-btn" id="hintTabBtn3" onclick="showHint(3)">3</button>
-        </div>
-        <div id="labHintsBox">
-        <div class="hint-panel" id="hintPanel1">
-          <div class="hint-cost">Hint cost: 10 XP</div>
-          Real reconnaissance always covers the same checklist: HTML source, robots.txt, response headers, linked JS and CSS files. Do not rely on what the browser renders; look at raw HTTP responses. The flag is split deliberately so checking only one location is not enough.
-        </div>
-        <div class="hint-panel" id="hintPanel2">
-          <div class="hint-cost">Hint cost: 10 XP</div>
-          Not every encoded string in the source is meaningful. Decode all of them. The one that contains a flag prefix is real. A string ending in <code>==</code> is Base64. Burp Suite Decoder tab or <code>echo "..." | base64 -d</code> both work.
-        </div>
-        <div class="hint-panel" id="hintPanel3">
-          <div class="hint-cost">Hint cost: 15 XP</div>
-          HTTP response headers are never shown in a browser's normal view. Use Burp Suite, DevTools Network tab, or curl with <code>-v</code> to see them. A path returning 404 can still carry useful information in its headers.
-        </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="right-col">
-
-
-
-
-
-    <div class="burp-panel">
-      <div class="target-panel-head">
-        <div class="target-url-bar">
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#4a4a6a" stroke-width="1"/><path d="M5 1v4l2.5 2.5" stroke="#4a4a6a" stroke-width="1" stroke-linecap="round"/></svg>
-          <span id="targetUrlText">/api/lab/hidden/page</span>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <span class="target-badge">TARGET</span>
-          <button class="view-source-btn" onclick="toggleSource()">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4L1 6l2 2M9 4l2 2-2 2M7 2l-2 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            View Source
-          </button>
-        </div>
-      </div>
-      <iframe class="site-frame" id="siteFrame" src="" sandbox="allow-same-origin allow-scripts"></iframe>
-    </div>
-
-
-
-    <div class="source-panel" id="sourcePanel">
-      <div class="source-panel-head">
-        <span class="source-panel-title">Page Source: /api/lab/hidden/page</span>
-        <button class="source-close" onclick="toggleSource()">Close</button>
-      </div>
-      <div class="source-body" id="sourceBody">Loading source...</div>
-    </div>
-
+    <iframe class="site-frame" id="siteFrame" src="" sandbox="allow-same-origin allow-scripts"></iframe>
 
     <div class="flag-box" id="flagBox">
       <div class="flag-head"><div class="flag-dot"></div><span class="flag-head-label">Flag Captured</span></div>
@@ -404,12 +291,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
       </div>
     </div>
 
-    <div class="req-log">
-      <div class="req-log-head"><span class="req-log-title">Request Log</span><button class="req-log-clear" onclick="clearLog()">Clear</button></div>
-      <div class="req-log-body" id="reqLogBody"></div>
-    </div>
-
-  </div>
 </div>
 
 <!-- ═══════════ LANGUAGE SELECTOR MODAL ═══════════ -->
@@ -575,14 +456,14 @@ function completeObj(id) {
   if (el && !el.classList.contains('done')) el.classList.add('done');
 }
 
-function addLog(method, path, status, cls) {
+function {
   const body = document.getElementById('reqLogBody');
   const e = document.createElement('div');
   e.className = 'log-entry';
   e.innerHTML = `<span class="log-method">${method}</span><span class="log-path">${path}</span><span class="log-status ${cls}">${status}</span><span class="log-time">${ts()}</span>`;
   body.prepend(e);
 }
-function clearLog() { document.getElementById('reqLogBody').innerHTML = ''; }
+function { document.getElementById('reqLogBody').innerHTML = ''; }
 
 function showHint(n) {
   for (let i = 1; i <= 3; i++) {
@@ -593,8 +474,7 @@ function showHint(n) {
   const btn = document.getElementById('hintTabBtn'+n);
   btn.classList.add('active');
   btn.classList.add('used');
-  addLog('LOCAL', 'hint #'+n+' viewed', 'opened', 'warn');
-}
+  }
 
 function formatTime(sec) {
   const m = String(Math.floor(sec/60)).padStart(2,'0');
@@ -657,7 +537,6 @@ function startChallenge() {
   isRunning = true;
   document.getElementById('labBody').classList.add('lab-running');
   document.getElementById('expiredOverlay').classList.remove('show');
-  addLog('LOCAL', 'challenge started', 'running', 'ok');
   startPolling();
 }
 
@@ -665,8 +544,7 @@ function stopChallenge() {
   if (!isRunning) return;
   isRunning = false;
   document.getElementById('labBody').classList.remove('lab-running');
-  addLog('LOCAL', 'challenge paused', 'paused', 'warn');
-}
+  }
 
 async function restartInstance() {
   const btn = document.querySelector('.expired-restart-btn');
@@ -692,14 +570,12 @@ async function restartInstance() {
       if (el) el.classList.remove('done');
     }
 
-    addLog('POST', '/api/lab/hidden/instance/restart', res.status, 'ok');
     if (!isRunning) startChallenge();
 
     // Reload iframe with fresh page
     document.getElementById('siteFrame').src = `/api/lab/hidden/page?session=${encodeURIComponent(SESSION_ID)}&_=${Date.now()}`;
 
   } catch(err) {
-    addLog('POST', '/api/lab/hidden/instance/restart', 'ERR', 'err');
     // Show error inside expired overlay
     const desc = document.querySelector('.expired-desc');
     if (desc) desc.textContent = 'Restart failed: ' + err.message + ' — Please refresh the page.';
@@ -721,7 +597,6 @@ async function loadSource() {
     document.getElementById('sourceBody').innerHTML = colorizeSource(text);
     sourceLoaded = true;
     completeObj('obj1');
-    addLog('GET', '/api/lab/hidden/page', res.status, 'ok');
     if (text.includes('QUNYe')) completeObj('obj2');
   } catch (err) {
     document.getElementById('sourceBody').textContent = 'Error loading source: ' + err.message;
@@ -733,20 +608,16 @@ async function loadSource() {
   // instead of being rubber-stamped on flag submit.
   try {
     const internalRes = await fetch(`${BASE}/api/lab/hidden/internal/`, { headers: { 'X-Lab-Session': SESSION_ID } });
-    addLog('GET', '/api/lab/hidden/internal/', internalRes.status, 'warn');
     if (internalRes.headers.get('X-Debug-Token')) completeObj('obj3');
   } catch (err) {
-    addLog('GET', '/api/lab/hidden/internal/', 'ERR', 'err');
-  }
+    }
 
   try {
     const jsRes = await fetch(`${BASE}/api/lab/hidden/static/portal.js`, { headers: { 'X-Lab-Session': SESSION_ID } });
     const jsText = await jsRes.text();
-    addLog('GET', '/api/lab/hidden/static/portal.js', jsRes.status, 'ok');
     if (/0x[0-9a-f]{16,}/i.test(jsText)) completeObj('obj4');
   } catch (err) {
-    addLog('GET', '/api/lab/hidden/static/portal.js', 'ERR', 'err');
-  }
+    }
 }
 
 function toggleSource() {
@@ -829,8 +700,7 @@ window.addEventListener('message', function(event) {
 document.getElementById('siteFrame').addEventListener('load', () => {
   if (!_labAccessGranted) return;
   completeObj('obj1');
-  addLog('GET', '/api/lab/hidden/page', '200', 'ok');
-});
+  });
 
 // Auto-start challenge on page load (user already clicked Start in modal)
 if (_labAccessGranted) {

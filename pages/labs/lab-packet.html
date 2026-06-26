@@ -28,7 +28,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .timer-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
 .timer-val{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--white);min-width:52px;text-align:center;}
 
-.lab-wrap{max-width:1140px;margin:0 auto;padding:28px 20px 60px;display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start;}
+.lab-wrap{max-width:100%;margin:0;padding:0;display:block;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
 .card-head{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
 .card-head-dot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;}
@@ -55,7 +55,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .hint-body.open{display:block;}
 .hint-body code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
 
-.right-col{display:flex;flex-direction:column;gap:0;}
+.right-col{display:flex;flex-direction:column;gap:0;width:100%;}
 
 /* File download card */
 .file-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
@@ -96,7 +96,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .submit-result.ok{display:block;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);color:var(--green);}
 .submit-result.err{display:block;background:rgba(220,20,20,0.06);border:1px solid rgba(220,20,20,0.2);color:var(--red);}
 
-.flag-box{display:none;background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.15);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.flag-box{display:none;background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.15);border-radius:12px;overflow:hidden;}
 .flag-box.show{display:block;}
 .flag-head{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid rgba(74,222,128,0.1);}
 .flag-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 1.5s infinite;}
@@ -106,7 +106,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .flag-value{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green);letter-spacing:0.5px;margin-bottom:6px;}
 .flag-note{font-size:11px;color:rgba(74,222,128,0.5);line-height:1.5;}
 
-@media(max-width:780px){.lab-wrap{grid-template-columns:1fr;}.topbar-title{display:none;}.file-card-body{flex-direction:column;align-items:flex-start;}}
+@media(max-width:780px){.lab-wrap{max-width:100%;margin:0;padding:0;display:block;}.topbar-title{display:none;}.file-card-body{flex-direction:column;align-items:flex-start;}}
 
 .launch-btn{display:flex;align-items:center;gap:7px;background:var(--green);color:#07070f;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
 .launch-btn:hover{background:#3dd673;}
@@ -116,8 +116,8 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 .lab-running .stop-btn{display:flex;}
 .timer-wrap.idle .timer-val{color:var(--dim);}
 .timer-wrap.running .timer-val{color:var(--green);}
-.right-col{position:relative;}
-.lock-overlay{position:absolute;inset:0;background:rgba(7,7,15,0.88);backdrop-filter:blur(3px);z-index:50;display:flex;align-items:center;justify-content:center;border-radius:12px;}
+.right-col{display:flex;flex-direction:column;gap:0;width:100%;}
+.lock-overlay{position:absolute;inset:0;background:rgba(7,7,15,0.88);backdrop-filter:blur(3px);z-index:50;display:flex;align-items:center;justify-content:center;}
 .lab-running .lock-overlay{display:none;}
 .lock-overlay-inner{text-align:center;padding:40px;max-width:320px;}
 .lock-icon-box{width:56px;height:56px;border-radius:14px;background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
@@ -157,79 +157,7 @@ body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:
 </div>
 
 <div class="lab-wrap">
-  <div class="left-col">
-
-    <div class="card">
-      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Scenario</span></div>
-      <div class="card-body">
-        <p class="scenario-text">
-          The CorpX security team flagged unusual outbound traffic from an internal host. A <strong>60 second packet capture</strong> was taken at the network egress point during the suspected window.
-          <br><br>
-          Your task is to analyze the capture in <strong>Wireshark</strong> and determine what data was exfiltrated, and how.
-          <br><br>
-          This is a real .pcap file. There is no simulation here — open it in an actual packet analyzer.
-        </p>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Objectives</span></div>
-      <div class="card-body">
-        <ul class="obj-list">
-          <li class="obj-item" id="obj1"><span class="obj-num">1</span><span class="obj-text">Download the capture file</span></li>
-          <li class="obj-item" id="obj2"><span class="obj-num">2</span><span class="obj-text">Open it in Wireshark and identify all protocols present</span></li>
-          <li class="obj-item" id="obj3"><span class="obj-num">3</span><span class="obj-text">Use Follow TCP Stream on the FTP session</span></li>
-          <li class="obj-item" id="obj4"><span class="obj-num">4</span><span class="obj-text">Identify the suspicious DNS query pattern</span></li>
-          <li class="obj-item" id="obj5"><span class="obj-num">5</span><span class="obj-text">Extract and decode the exfiltrated data, submit the flag</span></li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Hints</span></div>
-      <div class="card-body">
-        <div class="hint-item">
-          <button class="hint-btn" onclick="toggleHint(this,1)">
-            <div class="hint-btn-left">
-              <div class="hint-icon"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="#fbbf24" stroke-width="1"/><path d="M5.5 3.5v.5M5.5 6v2" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-              Where to start in Wireshark
-            </div>
-            <span class="hint-pill">H1</span>
-          </button>
-          <div class="hint-body" id="hb1">
-            Use the filter bar. Try <code>ftp</code> to isolate the FTP control session — right click any packet in that conversation and choose Follow then TCP Stream to see the full plaintext exchange. Separately, try filtering <code>dns</code> to see every DNS query in the capture.
-          </div>
-        </div>
-        <div class="hint-item">
-          <button class="hint-btn" onclick="toggleHint(this,2)">
-            <div class="hint-btn-left">
-              <div class="hint-icon"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="#fbbf24" stroke-width="1"/><path d="M5.5 3.5v.5M5.5 6v2" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-              The FTP session is a decoy
-            </div>
-            <span class="hint-pill">H2</span>
-          </button>
-          <div class="hint-body" id="hb2">
-            The FTP login credentials are real plaintext, but they are not the answer to this challenge. They demonstrate a different problem entirely. The actual exfiltration uses a completely different protocol. Look at which DNS queries return NXDOMAIN and ask yourself why a host would repeatedly query a domain that does not resolve.
-          </div>
-        </div>
-        <div class="hint-item">
-          <button class="hint-btn" onclick="toggleHint(this,3)">
-            <div class="hint-btn-left">
-              <div class="hint-icon"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="#fbbf24" stroke-width="1"/><path d="M5.5 3.5v.5M5.5 6v2" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg></div>
-              Decoding the exfil data
-            </div>
-            <span class="hint-pill">H3</span>
-          </button>
-          <div class="hint-body" id="hb3">
-            DNS exfiltration encodes stolen data as subdomain labels because DNS traffic is rarely blocked or inspected. Collect every unique subdomain label queried against the same parent domain, in the order they appear by timestamp. The labels look like Base32 — note that Base32 uses A-Z and 2-7 only, and is case-insensitive on decode. Concatenate the decoded chunks in query order.
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="right-col">
+<div class="right-col">
 
     <div class="lock-overlay" id="lockOverlay">
       <div class="lock-overlay-inner">
@@ -352,8 +280,7 @@ function startChallenge() {
   document.querySelector('.timer-wrap').classList.remove('idle');
   document.querySelector('.timer-wrap').classList.add('running');
   timerInterval = setInterval(() => { elapsed++; updateTimerDisplay(); }, 1000);
-  if (typeof addLog === 'function') addLog('LOCAL', 'challenge started', 'running', 'ok');
-}
+  if (typeof addLog === 'function') }
 
 function stopChallenge() {
   if (!isRunning) return;
@@ -362,11 +289,7 @@ function stopChallenge() {
   document.querySelector('.timer-wrap').classList.add('idle');
   document.querySelector('.timer-wrap').classList.remove('running');
   clearInterval(timerInterval);
-  if (typeof addLog === 'function') addLog('LOCAL', 'challenge paused', 'paused', 'warn');
-}
-
-
-
+  if (typeof addLog === 'function') }
 
 function completeObj(id) {
   const el = document.getElementById(id);

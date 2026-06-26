@@ -667,8 +667,8 @@ body {
 .lab-running .stop-btn{display:flex;}
 .timer-wrap.idle .timer-val{color:var(--dim);}
 .timer-wrap.running .timer-val{color:var(--green);}
-.right-col{position:relative;}
-.lock-overlay{position:absolute;inset:0;background:rgba(7,7,15,0.88);backdrop-filter:blur(3px);z-index:50;display:flex;align-items:center;justify-content:center;border-radius:12px;}
+.right-col{display:flex;flex-direction:column;gap:0;width:100%;}
+.lock-overlay{position:absolute;inset:0;background:rgba(7,7,15,0.88);backdrop-filter:blur(3px);z-index:50;display:flex;align-items:center;justify-content:center;}
 .lab-running .lock-overlay{display:none;}
 .lock-overlay-inner{text-align:center;padding:40px;max-width:320px;}
 .lock-icon-box{width:56px;height:56px;border-radius:14px;background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
@@ -988,13 +988,7 @@ db.<span class="kw">prepare</span>(query).<span class="kw">all</span>();
     </div>
 
     <!-- Request history log -->
-    <div class="req-log">
-      <div class="req-log-head">
-        <span class="req-log-title">Request History</span>
-        <button class="req-log-clear" onclick="clearLog()">Clear</button>
-      </div>
-      <div class="req-log-body" id="reqLog">
-        <div style="color:#2a2a40;font-size:11px;font-family:var(--sans);">No requests sent yet</div>
+
       </div>
     </div>
 
@@ -1152,15 +1146,13 @@ async function sendRequest() {
     try { data = JSON.parse(text); } catch { data = { raw: text }; }
 
     showResponse(respStatus, elapsed, size, data);
-    addLog('POST', '/api/lab/web01/login', respStatus, elapsed);
     processResult(data, respStatus, parsed.params);
 
   } catch (err) {
     const elapsed = Math.round(performance.now() - t0);
     data = { error: 'Network error — is the server running?', detail: err.message };
     showResponse(0, elapsed, 0, data);
-    addLog('POST', '/api/lab/web01/login', 0, elapsed);
-  }
+    }
 
   btn.disabled = false;
   btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1.5 6h9M7 2.5L10.5 6 7 9.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Send`;
@@ -1323,7 +1315,7 @@ function toggleHint(n) {
 }
 
 // ── Request log ──────────────────────────────────────────
-function addLog(method, path, status, ms) {
+function {
   const el = document.getElementById('reqLog');
   const placeholder = el.querySelector('div[style]');
   if (placeholder) el.innerHTML = '';
@@ -1346,7 +1338,7 @@ function addLog(method, path, status, ms) {
   el.scrollTop = el.scrollHeight;
 }
 
-function clearLog() {
+function {
   document.getElementById('reqLog').innerHTML =
     '<div style="color:#2a2a40;font-size:11px;font-family:var(--sans);">Cleared</div>';
 }

@@ -31,7 +31,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .diff-badge{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:4px 11px;border-radius:20px;background:var(--green-dim);border:1px solid var(--green-border);color:var(--green);}
 .lang-btn{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 13px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
 .lang-btn:hover{background:#eaeaee;}
-.lab-wrap{max-width:1140px;margin:0 auto;padding:20px 20px 40px;display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start;}
+.lab-wrap{max-width:100%;margin:0;padding:0;display:block;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,20,30,0.03);}
 .card-head{padding:12px 16px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;gap:8px;}
 .card-head-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
@@ -66,8 +66,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .hint-panel.active{display:block;}
 .hint-panel code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,0.05);border-radius:3px;padding:1px 5px;color:var(--text);}
 .hint-cost{font-size:9.5px;color:var(--orange);font-weight:700;margin-bottom:8px;letter-spacing:0.5px;text-transform:uppercase;}
-.right-col{display:flex;flex-direction:column;gap:0;position:relative;}
-.lock-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center;border-radius:12px;}
+.right-col{display:flex;flex-direction:column;gap:0;width:100%;}
+.lock-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center;}
 .lab-running .lock-overlay{display:none;}
 .lock-overlay-inner{text-align:center;padding:40px;max-width:320px;}
 .lock-icon-box{width:56px;height:56px;border-radius:14px;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
@@ -90,14 +90,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .solved-sub{font-size:11.5px;opacity:0.9;}
 .solved-close{background:none;border:none;color:#fff;opacity:0.7;cursor:pointer;flex-shrink:0;padding:4px;}
 .solved-close:hover{opacity:1;}
-.burp-panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 2px rgba(20,20,30,0.03);}
-.target-panel-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border-soft);background:var(--surface2);gap:8px;flex-wrap:wrap;}
-.target-url-bar{background:var(--code-bg);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:6px 12px;font-family:var(--mono);font-size:11px;color:var(--code-text);display:flex;align-items:center;gap:8px;flex:1;max-width:400px;min-width:0;overflow:hidden;}
-.target-badge{font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:3px;text-transform:uppercase;background:var(--accent-dim);border:1px solid var(--accent-border);color:var(--accent);}
+
 .dl-btn{display:flex;align-items:center;gap:6px;background:#7c3aed;color:#fff;padding:6px 13px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;text-decoration:none;white-space:nowrap;border:none;}
 .dl-btn:hover{background:#6d28d9;}
-.site-frame{width:100%;height:calc(100vh - 140px);min-height:600px;border:none;background:#fff;display:block;}
-.flag-box{display:none;background:var(--green-dim);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}
+.flag-box{display:none;background:var(--green-dim);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;}
 .flag-box.show{display:block;}
 .flag-head{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--green-border);}
 .flag-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 1.5s infinite;}
@@ -106,20 +103,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 .flag-body{padding:16px;}
 .flag-value{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green);letter-spacing:0.5px;margin-bottom:6px;}
 .flag-note{font-size:11.5px;color:#15803d;line-height:1.5;opacity:0.8;}
-.req-log{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
-.req-log-head{padding:10px 14px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between;}
-.req-log-title{font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--text-faint);text-transform:uppercase;}
-.req-log-clear{font-size:10.5px;color:var(--text-faint);cursor:pointer;background:none;border:none;font-family:var(--sans);transition:color 0.15s;}
+
 .req-log-clear:hover{color:var(--text);}
-.req-log-body{max-height:160px;overflow-y:auto;}
-.log-entry{display:grid;grid-template-columns:56px 1fr 70px 60px;gap:8px;padding:7px 14px;border-bottom:1px solid var(--border-soft);font-family:var(--mono);font-size:10.5px;color:var(--text-faint);}
-.log-method{color:var(--blue);font-weight:700;}
-.log-path{color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
 .log-status.ok{color:var(--green);}.log-status.err{color:var(--accent);}.log-status.warn{color:var(--orange);}
-.log-time{color:var(--text-faint);text-align:right;}
-@media(max-width:1024px){.lab-wrap{grid-template-columns:260px 1fr;gap:16px;padding:16px 16px 40px;}.site-frame{height:calc(100vh - 160px);min-height:480px;}.topbar{padding:0 16px;}}
-@media(max-width:768px){.topbar{padding:0 14px;height:52px;}.topbar-title{display:none;}.topbar-sep{display:none;}.diff-badge{display:none;}.lang-btn span{display:none;}.lang-btn{padding:6px 9px;}.lab-wrap{grid-template-columns:1fr;padding:12px 12px 32px;gap:14px;}.right-col{order:-1;}.left-col{order:1;}.target-panel-head{flex-wrap:wrap;gap:8px;}.target-url-bar{max-width:100%;width:100%;font-size:10px;}.site-frame{height:360px;min-height:300px;}.card{margin-bottom:12px;}.card-body{padding:13px;}.code-block{font-size:10.5px;padding:11px 13px;}.log-entry{grid-template-columns:48px 1fr 52px;}.log-time{display:none;}.solved-popup{width:90%;max-width:340px;padding:14px 16px;top:14px;}.lock-overlay-inner{padding:28px 20px;}}
-@media(max-width:400px){.topbar{padding:0 10px;height:48px;}.lab-wrap{padding:10px 10px 28px;gap:12px;}.site-frame{height:300px;min-height:240px;}.card-body{padding:11px 12px;}.hint-tab-btn{font-size:11px;padding:7px 6px;}.flag-value{font-size:13.5px;word-break:break-all;}}
+
+@media(max-width:1024px){.lab-wrap{max-width:100%;margin:0;padding:0;display:block;}.site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}.topbar{padding:0 16px;}}
+@media(max-width:768px){.topbar{padding:0 14px;height:52px;}.topbar-title{display:none;}.topbar-sep{display:none;}.diff-badge{display:none;}.lang-btn span{display:none;}.lang-btn{padding:6px 9px;}.lab-wrap{max-width:100%;margin:0;padding:0;display:block;}.site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}.card{margin-bottom:12px;}.card-body{padding:13px;}.code-block{font-size:10.5px;padding:11px 13px;}.solved-popup{width:90%;max-width:340px;padding:14px 16px;top:14px;}.lock-overlay-inner{padding:28px 20px;}}
+@media(max-width:400px){.topbar{padding:0 10px;height:48px;}.lab-wrap{max-width:100%;margin:0;padding:0;display:block;}.site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}.card-body{padding:11px 12px;}.hint-tab-btn{font-size:11px;padding:7px 6px;}.flag-value{font-size:13.5px;word-break:break-all;}}
 </style>
 </head>
 <body id="labBody">
@@ -169,90 +160,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
 </div>
 
 <div class="lab-wrap">
-  <div class="left-col">
-
-    <div class="card">
-      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Challenge</span></div>
-      <div class="card-body" id="labDescBox">
-        <div class="desc-meta-row">
-          <span class="meta-tag diff">Easy</span>
-          <span class="meta-tag cat">Forensics</span>
-          <span class="meta-tag edition">AlexCyberX Labs</span>
-        </div>
-        <div class="author-line">Author: AlexCyberX Security Team</div>
-        <div class="desc-text">
-          <p>Someone shared an image file on PixelDrop, an anonymous file sharing platform. The image itself looks completely normal.</p>
-          <p>But the file was flagged during a routine metadata review. Image files store far more than just pixels. <strong>EXIF metadata</strong> can contain camera info, GPS coordinates, software details, and custom fields.</p>
-          <p>Download the image and extract its EXIF metadata. The flag is hidden across multiple fields. You need to identify the right fields and assemble them in the correct order.</p>
-        </div>
-        <div class="debug-line">debug: [format: jpeg | exif: present | gps: stripped | fields: 9]</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Target</span></div>
-      <div class="card-body">
-        <div class="info-label">File Download</div>
-        <div class="code-block">
-<span class="kw">GET</span>  <span class="val">/api/lab/metadata/page</span>
-<span class="cmt"># PixelDrop homepage</span>
-
-<span class="kw">GET</span>  <span class="val">/api/lab/metadata/share/nx7k2p</span>
-<span class="cmt"># Shared file page</span>
-
-<span class="kw">GET</span>  <span class="val">/api/lab/metadata/download/image</span>
-<span class="cmt"># Download asset_photo.jpg</span>
-        </div>
-        <div class="info-label">Recommended Tools</div>
-        <div class="code-block">
-<span class="hi">ExifTool</span>   <span class="cmt"># exiftool asset_photo.jpg</span>
-<span class="hi">exifinfo.net</span> <span class="cmt"># online EXIF viewer</span>
-<span class="hi">exif.tools</span>  <span class="cmt"># online alternative</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Objectives</span></div>
-      <div class="card-body">
-        <ul class="obj-list" id="labObjList">
-          <li class="obj-item" id="obj1"><span class="obj-num">1</span><span class="obj-text">Visit PixelDrop and find the shared file</span></li>
-          <li class="obj-item" id="obj2"><span class="obj-num">2</span><span class="obj-text">Download asset_photo.jpg</span></li>
-          <li class="obj-item" id="obj3"><span class="obj-num">3</span><span class="obj-text">Extract EXIF metadata using ExifTool or an online viewer</span></li>
-          <li class="obj-item" id="obj4"><span class="obj-num">4</span><span class="obj-text">Identify the fields that contain flag fragments</span></li>
-          <li class="obj-item" id="obj5"><span class="obj-num">5</span><span class="obj-text">Assemble the fragments in the correct order and submit the flag</span></li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Hints</span></div>
-      <div class="card-body">
-        <div class="hint-tabs">
-          <button class="hint-tab-btn" id="hintTabBtn1" onclick="showHint(1)">1</button>
-          <button class="hint-tab-btn" id="hintTabBtn2" onclick="showHint(2)">2</button>
-          <button class="hint-tab-btn" id="hintTabBtn3" onclick="showHint(3)">3</button>
-        </div>
-        <div id="labHintsBox">
-          <div class="hint-panel" id="hintPanel1">
-            <div class="hint-cost">Hint cost: 5 XP</div>
-            Image files store hidden data called EXIF metadata. This includes fields like Artist, Copyright, Comment, Software, Make, Model, and GPS coordinates. Download the image and read all metadata fields carefully.
-          </div>
-          <div class="hint-panel" id="hintPanel2">
-            <div class="hint-cost">Hint cost: 10 XP</div>
-            Use <code>exiftool asset_photo.jpg</code> on your terminal, or upload the file to <code>exifinfo.net</code> online. Look through every field. The flag fragments start with <code>ACX{</code> and you need to find all parts.
-          </div>
-          <div class="hint-panel" id="hintPanel3">
-            <div class="hint-cost">Hint cost: 15 XP</div>
-            The flag is split across 4 fields. The first part starts with <code>ACX{</code> and the last part ends with <code>}</code>. The middle two parts need to be arranged so the full string makes a readable phrase. Try both orders and see which one forms a real sentence.
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="right-col">
+<div class="right-col">
 
     <div class="lock-overlay" id="lockOverlay">
       <div class="lock-overlay-inner">
@@ -268,24 +176,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
       </div>
     </div>
 
-    <div class="burp-panel">
-      <div class="target-panel-head">
-        <div class="target-url-bar">
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="#4a4a6a" stroke-width="1"/><path d="M5 1v4l2.5 2.5" stroke="#4a4a6a" stroke-width="1" stroke-linecap="round"/></svg>
-          <span id="targetUrlText">/api/lab/metadata/page</span>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <span class="target-badge">TARGET</span>
-          <a class="dl-btn" id="dlBtn" href="#" onclick="return false;">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5l3 3 3-3" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h10" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>
-            Download JPG
-          </a>
-        </div>
-      </div>
-      <iframe class="site-frame" id="siteFrame" src="" sandbox="allow-same-origin allow-scripts allow-forms allow-downloads"></iframe>
-    </div>
-
-    <div class="flag-box" id="flagBox">
+    <iframe class="site-frame" id="siteFrame" src="" sandbox="allow-same-origin allow-scripts allow-forms allow-downloads"></iframe>
+<div class="flag-box" id="flagBox">
       <div class="flag-head"><div class="flag-dot"></div><span class="flag-head-label">Flag Captured</span></div>
       <div class="flag-body">
         <div class="flag-value" id="flagValue"></div>
@@ -293,9 +185,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:1
       </div>
     </div>
 
-    <div class="req-log">
-      <div class="req-log-head"><span class="req-log-title">Request Log</span><button class="req-log-clear" onclick="clearLog()">Clear</button></div>
-      <div class="req-log-body" id="reqLogBody"></div>
     </div>
 
   </div>
@@ -366,15 +255,14 @@ async function applyLabTranslation(lang){
 
 function ts(){return new Date().toTimeString().substring(0,8);}
 function completeObj(id){const el=document.getElementById(id);if(el&&!el.classList.contains('done'))el.classList.add('done');}
-function addLog(method,path,status,cls){const body=document.getElementById('reqLogBody');const e=document.createElement('div');e.className='log-entry';e.innerHTML=`<span class="log-method">${method}</span><span class="log-path">${path}</span><span class="log-status ${cls}">${status}</span><span class="log-time">${ts()}</span>`;body.prepend(e);}
-function clearLog(){document.getElementById('reqLogBody').innerHTML='';}
+</span><span class="log-path">${path}</span><span class="log-status ${cls}">${status}</span><span class="log-time">${ts()}</span>`;body.prepend(e);}
+
 
 function showHint(n){
   for(let i=1;i<=3;i++){document.getElementById('hintPanel'+i).classList.remove('active');document.getElementById('hintTabBtn'+i).classList.remove('active');}
   document.getElementById('hintPanel'+n).classList.add('active');
   const btn=document.getElementById('hintTabBtn'+n);btn.classList.add('active');btn.classList.add('used');
-  addLog('LOCAL','hint #'+n+' viewed','opened','warn');
-}
+  }
 
 async function fetchInstanceStatus(){
   try{const res=await fetch(`${BASE}/api/lab/metadata/instance/status`,{headers:{'X-Lab-Session':SESSION_ID}});return await res.json();}catch(e){return null;}
@@ -393,7 +281,6 @@ function startChallenge(){
   isRunning=true;
   document.getElementById('labBody').classList.add('lab-running');
   document.getElementById('expiredOverlay').classList.remove('show');
-  addLog('LOCAL','instance started','running','ok');
   completeObj('obj1');
   startPolling();
   document.getElementById('siteFrame').src=`/api/lab/metadata/page?session=${encodeURIComponent(SESSION_ID)}&_=${Date.now()}`;
@@ -415,7 +302,6 @@ async function restartInstance(){
     document.getElementById('expiredOverlay').classList.remove('show');
     document.getElementById('flagBox').classList.remove('show');
     for(let i=1;i<=5;i++){const el=document.getElementById('obj'+i);if(el)el.classList.remove('done');}
-    addLog('POST','/api/lab/metadata/instance/restart',res.status,'ok');
     if(!isRunning)startChallenge();
     document.getElementById('siteFrame').src=`/api/lab/metadata/page?session=${encodeURIComponent(SESSION_ID)}&_=${Date.now()}`;
   }catch(err){
@@ -448,8 +334,8 @@ window.addEventListener('message',function(event){
 document.getElementById('siteFrame').addEventListener('load',()=>{
   if(!_labAccessGranted||!isRunning)return;
   const src=document.getElementById('siteFrame').src||'';
-  if(src.includes('/share/')){completeObj('obj1');completeObj('obj2');addLog('GET','/api/lab/metadata/share/nx7k2p','200','ok');}
-  else if(src.includes('/page')){completeObj('obj1');addLog('GET','/api/lab/metadata/page','200','ok');}
+  if(src.includes('/share/')){completeObj('obj1');completeObj('obj2');}
+  else if(src.includes('/page')){completeObj('obj1');}
 });
 
 if(_labAccessGranted){(async()=>{const d=await fetchInstanceStatus();applyInstanceStatus(d);})();}
