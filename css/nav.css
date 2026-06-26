@@ -146,6 +146,7 @@ nav {
   .nav-center { display: none; }
   .nav-right  { display: none; }
   .nav-mobile-right { display: flex; }
+  .hamburger { display: flex; }
 }
 
 /* Mobile Menu */

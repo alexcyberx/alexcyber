@@ -350,32 +350,32 @@
     </div>
   </div>
 
-  <!-- Mobile right: search icon first, then hamburger -->
-  <div class="nav-mobile-right" id="navMobileRight">
-    <div class="nav-search-wrap" id="navSearchWrap">
-      <button class="nav-search-icon-btn" id="navSearchToggle" onclick="toggleNavSearch()" title="Search">
-        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-          <circle cx="6.5" cy="6.5" r="5" stroke="#6a6a7a" stroke-width="1.4"/>
-          <path d="M10.5 10.5L13.5 13.5" stroke="#6a6a7a" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </button>
-      <div class="nav-search-expanded" id="navSearchExpanded" style="display:none;">
-        <svg width="13" height="13" viewBox="0 0 15 15" fill="none" style="flex-shrink:0;margin-left:10px;">
-          <circle cx="6.5" cy="6.5" r="5" stroke="#555" stroke-width="1.4"/>
-          <path d="M10.5 10.5L13.5 13.5" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <input type="text" id="heroSearchInput" placeholder="Search courses, chapters..." autocomplete="off"
-          oninput="handleCourseSearch(this.value)" onkeydown="handleSearchKeydown(event)" />
-        <button id="searchClearBtn" onclick="clearCourseSearch()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 8px;opacity:0.6;">
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="#888" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </button>
-      </div>
-      <div class="search-results-dropdown" id="searchResultsDropdown" style="display:none;"></div>
-    </div>
-    <button class="hamburger" id="hamburger" onclick="toggleMenu()">
-      <span></span><span></span><span></span>
+  <!-- Search icon — always visible on all screen sizes -->
+  <div class="nav-search-wrap" id="navSearchWrap">
+    <button class="nav-search-icon-btn" id="navSearchToggle" onclick="toggleNavSearch()" title="Search">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+        <circle cx="6.5" cy="6.5" r="5" stroke="#6a6a7a" stroke-width="1.4"/>
+        <path d="M10.5 10.5L13.5 13.5" stroke="#6a6a7a" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
     </button>
+    <div class="nav-search-expanded" id="navSearchExpanded" style="display:none;">
+      <svg width="13" height="13" viewBox="0 0 15 15" fill="none" style="flex-shrink:0;margin-left:10px;">
+        <circle cx="6.5" cy="6.5" r="5" stroke="#555" stroke-width="1.4"/>
+        <path d="M10.5 10.5L13.5 13.5" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input type="text" id="heroSearchInput" placeholder="Search courses, chapters..." autocomplete="off"
+        oninput="handleCourseSearch(this.value)" onkeydown="handleSearchKeydown(event)" />
+      <button id="searchClearBtn" onclick="clearCourseSearch()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 8px;opacity:0.6;">
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="#888" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="search-results-dropdown" id="searchResultsDropdown" style="display:none;"></div>
   </div>
+
+  <!-- Hamburger — mobile only -->
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- ═══════════ LEARN SUB-NAV (CodeWithHarry style) ═══════════ -->
