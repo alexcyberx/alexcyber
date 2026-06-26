@@ -3,7 +3,7 @@
 ═══════════════════════════════════════════ */
 nav {
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 0; left: 0; right: 0; left: auto;
   height: var(--nav-h);
   z-index: 900;
   display: flex;
@@ -153,7 +153,7 @@ nav {
   display: none;
   position: fixed;
   top: var(--nav-h);
-  left: 0; right: 0;
+  left: 0; right: 0; left: auto;
   background: rgba(6,6,8,0.98);
   border-bottom: 1px solid var(--border);
   padding: 12px 20px 20px;
@@ -235,7 +235,7 @@ nav {
   position: fixed;
   top: var(--nav-h);
   left: 0;
-  right: 0;
+  right: 0; left: auto;
   display: flex;
   align-items: center;
   background: rgba(10,10,14,0.98);
@@ -269,7 +269,7 @@ nav {
   position: fixed;
   top: calc(var(--nav-h) + 48px);
   left: 0;
-  right: 0;
+  right: 0; left: auto;
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
@@ -349,7 +349,7 @@ nav {
 .nav-search-desktop-results {
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
+  right: 0; left: auto;
   width: 300px;
   background: #0d0d12;
   border: 1px solid rgba(255,255,255,0.08);
