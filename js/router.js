@@ -241,8 +241,42 @@ function goToTutorials() {
    HOME NAV
 ═══════════════════════════ */
 function toggleMenu() {
-  document.getElementById('mobileMenu').classList.toggle('show');
+  const menu = document.getElementById('mobileMenu');
+  const ham  = document.getElementById('hamburger');
+  const isOpen = menu.classList.toggle('show');
+  if (ham) {
+    ham.classList.toggle('open', isOpen);
+    ham.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  }
+  // Prevent body scroll when menu is open
+  document.body.style.overflow = isOpen ? 'hidden' : '';
 }
+
+function closeMenu() {
+  const menu = document.getElementById('mobileMenu');
+  const ham  = document.getElementById('hamburger');
+  if (menu && menu.classList.contains('show')) {
+    menu.classList.remove('show');
+    if (ham) { ham.classList.remove('open'); ham.setAttribute('aria-expanded','false'); }
+    document.body.style.overflow = '';
+  }
+}
+
+// Close mobile menu when tapping outside
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('mobileMenu');
+  const ham  = document.getElementById('hamburger');
+  if (menu && menu.classList.contains('show')) {
+    if (!menu.contains(e.target) && e.target !== ham && !ham.contains(e.target)) {
+      closeMenu();
+    }
+  }
+});
+
+// Close mobile menu on resize to desktop
+window.addEventListener('resize', function() {
+  if (window.innerWidth > 768) closeMenu();
+});
 
 /* ═══════════════════════════
    LEARN SIDEBAR
