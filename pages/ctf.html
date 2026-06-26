@@ -104,6 +104,7 @@
 .ctf-modal-cat { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 .ctf-modal-title { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
 .ctf-modal-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+.ctf-modal-author { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 14px; }
 .ctf-modal-desc { font-size: 13px; color: var(--text); line-height: 1.7; margin-bottom: 22px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
 .ctf-modal-hint-wrap { margin-bottom: 20px; }
 .ctf-hint-toggle { font-size: 12px; color: var(--red); cursor: pointer; background: none; border: none; font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 5px; padding: 0; }
@@ -118,7 +119,7 @@
 .ctf-timer-row{display:none;align-items:center;justify-content:space-between;background:rgba(220,20,20,0.06);border:1px solid rgba(220,20,20,0.18);border-radius:10px;padding:10px 14px;margin-bottom:14px;}
 .ctf-timer-row.show{display:flex;}
 .ctf-timer-left{display:flex;align-items:center;gap:8px;font-size:12px;color:#a0a0b8;}
-.ctf-timer-val{font-family:"JetBrains Mono",monospace;font-size:14px;font-weight:700;color:#4ade80;}
+.ctf-timer-val{font-family:"JetBrains Mono",monospace;font-size:14px;font-weight:700;color:#ffffff;}
 .ctf-timer-val.warn{color:#fb923c;}
 .ctf-timer-val.danger{color:#dc1414;}
 
@@ -288,7 +289,16 @@
     <div class="ctf-modal-cat" id="modalCat"></div>
     <div class="ctf-modal-title" id="modalTitle"></div>
     <div class="ctf-modal-meta" id="modalMeta"></div>
+    <div class="ctf-modal-author" id="modalAuthor"></div>
     <div class="ctf-modal-desc" id="modalDesc"></div>
+
+    <div class="ctf-modal-hint-wrap">
+      <button class="ctf-hint-toggle" id="ctfHintToggle" onclick="toggleCTFHint()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5a4 4 0 0 0-2 7.5v1.3h4V9a4 4 0 0 0-2-7.5z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+        <span id="ctfHintToggleLabel">Show Hint</span>
+      </button>
+      <div class="ctf-hint-box" id="ctfHintBox"></div>
+    </div>
 
     <!-- Launch Lab (shown if challenge has a lab) -->
     <div id="ctfLaunchWrap" style="display:none;">
@@ -319,7 +329,7 @@
     <!-- Instance timer (shown after Start) -->
     <div class="ctf-timer-row" id="ctfTimerRow">
       <div class="ctf-timer-left">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#4ade80" stroke-width="1.2"/><path d="M6.5 3.5v3l2 1.5" stroke="#4ade80" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#ffffff" stroke-width="1.2"/><path d="M6.5 3.5v3l2 1.5" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/></svg>
         Instance Time Remaining
       </div>
       <span class="ctf-timer-val" id="ctfTimerVal">30:00</span>
@@ -360,36 +370,40 @@ const CTF_CHALLENGES = [
     diff: 'Easy', pts: 50, xp: 100,
     flag: 'ACX{html_comments_are_not_safe}',
     hint: 'Browser mein Ctrl+U (View Source) dabao aur HTML comments <!-- --> dhundo.',
+    author: 'AlexCyberX',
     solvers: 142,
     lab_url: '/pages/labs/lab-hidden.html'
   },
   {
     id: 'web-02', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
     title: 'Cookie Monster',
-    desc: 'Authentication bypass karna hai. Application cookies ka use karti hai session manage karne ke liye — kya in cookies mein kuch manipulate kiya ja sakta hai?',
+    desc: 'NovaCorp employee portal blindly apni session cookies pe trust karti hai. Ek leaked employee account ka access mila hai. Cookie ki value dekho aur samjho ki authentication kaise kaam kar rahi hai. Privilege escalate karke Admin Control Panel tak pahuncho.',
     diff: 'Medium', pts: 150, xp: 250,
     flag: 'ACX{cookies_can_be_tampered}',
     hint: 'Browser DevTools (F12) → Application → Cookies. `isAdmin` cookie ki value dekho.',
+    author: 'AlexCyberX',
     solvers: 67,
     lab_url: '/pages/labs/lab-cookie.html'
   },
   {
     id: 'web-03', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
     title: 'SQL Injection 101',
-    desc: 'Login form mein SQL injection vulnerability hai. Database se admin password extract karo. Burp Suite se POST /login intercept karo aur username field mein payload inject karo.',
+    desc: 'Login form mein SQL injection vulnerability hai. Database query directly user input ke saath ban rahi hai, bina proper sanitization ke. Burp Suite se POST /login request intercept karo, username field mein payload daalo, aur admin password extract karke authentication layer bypass karo.',
     diff: 'Medium', pts: 200, xp: 350,
     flag: 'ACX{sql1_bypassed_auth_layer}',
     hint: "Username field mein `' OR '1'='1' --` try karo. Single quote se SQL error trigger hoga.",
+    author: 'AlexCyberX',
     solvers: 89,
     lab_url: '/pages/labs/lab-sqli.html'
   },
   {
     id: 'web-04', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
     title: 'robots.txt Secret',
-    desc: 'Website ke robots.txt file mein koi restricted path chhupa hua hai jo search engines ko index karne se rokta hai. Woh path visit karo.',
+    desc: 'Website ka robots.txt file search engines ko bata deta hai ki kaunse paths index nahi karna hai, lekin yeh file khud public hoti hai. Ek restricted path is file mein chhupa hua hai. Usko dhundo aur visit karo.',
     diff: 'Easy', pts: 50, xp: 80,
     flag: 'ACX{robots_txt_not_a_security_measure}',
     hint: '/robots.txt URL open karo aur Disallow entries dekho.',
+    author: 'AlexCyberX',
     solvers: 210,
     lab_url: '/pages/labs/lab-robots.html'
   },
@@ -419,10 +433,11 @@ const CTF_CHALLENGES = [
   {
     id: 'for-02', cat: 'Forensics', icon: '🔍', iconClass: 'ctf-cat-forensics',
     title: 'Metadata Matters',
-    desc: 'Ek image file di gayi hai. Lagta hai normal image hai lekin iske metadata mein kuch chhua hua hai. ExifTool ya strings command use karo.',
+    desc: 'Ek image file di gayi hai jo dekhne mein bilkul normal lagti hai, lekin har image apne saath ek hidden metadata layer carry karti hai, jaise camera model, GPS location, ya editing software ka naam. Is image ke metadata ko inspect karo aur dekho kya chhupaya gaya hai.',
     diff: 'Easy', pts: 75, xp: 120,
     flag: 'ACX{exif_data_reveals_secrets}',
     hint: '`exiftool image.jpg` command chalao ya online EXIF viewer use karo.',
+    author: 'AlexCyberX',
     solvers: 178,
     lab_url: '/pages/labs/lab-metadata.html'
   },
@@ -611,7 +626,7 @@ function ctfLaunchClick(e) {
 
 // Stop previously running instance when user starts a different challenge
 // Labs jinke paas server-side instance management hai
-const INSTANCE_MANAGED_LABS = ['web-01'];
+const INSTANCE_MANAGED_LABS = ['web-01', 'web-02', 'web-03', 'web-04', 'for-02'];
 
 async function ctfStopRunningInstance() {
   if (!ctfRunningChallengeId) return;
@@ -982,6 +997,28 @@ function openCTFModal(id) {
   document.getElementById('modalTitle').textContent = c.title;
   document.getElementById('modalDesc').textContent = c.desc;
 
+  const authorEl = document.getElementById('modalAuthor');
+  if (c.author) {
+    authorEl.textContent = `Author: ${c.author}`;
+    authorEl.style.display = 'block';
+  } else {
+    authorEl.style.display = 'none';
+  }
+
+  const hintWrap = document.querySelector('.ctf-modal-hint-wrap');
+  const hintToggle = document.getElementById('ctfHintToggle');
+  const hintBox = document.getElementById('ctfHintBox');
+  const hintLabel = document.getElementById('ctfHintToggleLabel');
+  if (c.hint) {
+    hintWrap.style.display = 'block';
+    hintToggle.style.display = 'flex';
+    hintBox.textContent = c.hint;
+    hintBox.classList.remove('visible');
+    hintLabel.textContent = 'Show Hint';
+  } else {
+    hintWrap.style.display = 'none';
+  }
+
   const diffColor = { Easy: '#4ade80', Medium: '#fb923c', Hard: '#f87171' }[c.diff];
   document.getElementById('modalMeta').innerHTML = `
     <span class="ctf-diff-badge ${c.diff.toLowerCase()}">${c.diff}</span>
@@ -1015,6 +1052,14 @@ function openCTFModal(id) {
     const inp = document.getElementById('ctfFlagInput');
     if (inp && !solved) inp.focus();
   }, 100);
+}
+
+function toggleCTFHint() {
+  ctfHintVisible = !ctfHintVisible;
+  const hintBox = document.getElementById('ctfHintBox');
+  const hintLabel = document.getElementById('ctfHintToggleLabel');
+  hintBox.classList.toggle('visible', ctfHintVisible);
+  hintLabel.textContent = ctfHintVisible ? 'Hide Hint' : 'Show Hint';
 }
 
 function closeCTFModal() {
