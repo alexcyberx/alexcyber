@@ -1802,7 +1802,7 @@ function declineCookies(){
 .ctf-timer-row{display:none;align-items:center;justify-content:space-between;background:rgba(220,20,20,0.06);border:1px solid rgba(220,20,20,0.18);border-radius:10px;padding:10px 14px;margin-bottom:14px;}
 .ctf-timer-row.show{display:flex;}
 .ctf-timer-left{display:flex;align-items:center;gap:8px;font-size:12px;color:#a0a0b8;}
-.ctf-timer-val{font-family:"JetBrains Mono",monospace;font-size:14px;font-weight:700;color:#4ade80;}
+.ctf-timer-val{font-family:"JetBrains Mono",monospace;font-size:14px;font-weight:700;color:#ffffff;}
 .ctf-timer-val.warn{color:#fb923c;}
 .ctf-timer-val.danger{color:#dc1414;}
 
@@ -1997,6 +1997,14 @@ function declineCookies(){
       <!-- Scenario description -->
       <div id="modalChallengeScenario" style="font-size:12.5px;color:#a0a0b8;line-height:1.85;"></div>
     </div>
+
+    <div class="ctf-modal-hint-wrap" id="ctfHintWrap" style="margin-bottom:16px;">
+      <button class="ctf-hint-toggle" id="ctfHintToggle" onclick="toggleCTFHint()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5a4 4 0 0 0-2 7.5v1.3h4V9a4 4 0 0 0-2-7.5z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+        <span id="ctfHintToggleLabel">Show Hint</span>
+      </button>
+      <div class="ctf-hint-box" id="ctfHintBox"></div>
+    </div>
     <div id="ctfLaunchWrap" style="display:none;">
       <!-- Start button (before instance is running) -->
       <div id="ctfStartWrap" style="margin-bottom:14px;">
@@ -2023,7 +2031,7 @@ function declineCookies(){
     <!-- Instance timer (shown after Start) -->
     <div class="ctf-timer-row" id="ctfTimerRow">
       <div class="ctf-timer-left">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#4ade80" stroke-width="1.2"/><path d="M6.5 3.5v3l2 1.5" stroke="#4ade80" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#ffffff" stroke-width="1.2"/><path d="M6.5 3.5v3l2 1.5" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/></svg>
         Instance Time Remaining
       </div>
       <span class="ctf-timer-val" id="ctfTimerVal">30:00</span>
@@ -2097,6 +2105,7 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     id: 'web-02', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
     title: 'Cookie Monster',
     desc: 'NovaCorp Employee Portal blindly trusts its session cookies. A leaked employee account has been found. Can you escalate your privileges and access the Admin Control Panel?',
+    author: 'AlexCyberX',
     diff: 'Medium', pts: 150, xp: 250,
     flag: 'ACX{c00k13s_4r3_n0t_s3cur3}',
     hints: ['Check DevTools Application tab and inspect all cookies set after login.', 'One cookie is Base64 encoded JSON. Decode it with atob() in browser console.', 'The server checks more than one cookie. Changing only one triggers a security alert.'],
@@ -2109,6 +2118,7 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     id: 'web-03', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
     title: 'SQL Injection 101',
     desc: 'VaultBank Employee Portal has a vulnerable search feature. Extract the flag from a hidden database table using UNION-based SQL injection.',
+    author: 'AlexCyberX',
     diff: 'Medium', pts: 200, xp: 350,
     flag: 'ACX{un10n_s3l3ct_g0t_m3}',
     hints: ['Add a single quote to the search field to trigger a SQL error and confirm the injection point.', 'Use ORDER BY to count columns, then UNION SELECT NULL to find which column accepts strings.', 'Query information_schema.tables to find hidden tables, then extract data from vault_secrets.'],
@@ -2121,6 +2131,7 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     id: 'web-04', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
     title: 'robots.txt Secret',
     desc: 'NexaCloud has misconfigured its crawler directives. The robots.txt file reveals hidden internal paths. One of them leads to a vault that holds the flag.',
+    author: 'AlexCyberX',
     diff: 'Easy', pts: 50, xp: 80,
     flag: 'ACX{r0b0ts_txt_l34ks_s3cr3ts}',
     hints: ['Every website has a robots.txt at /robots.txt. Always check it during recon.', 'The Disallow entries list paths that are meant to stay hidden. Visit each one.', 'The vault needs a passcode. Check the page source of the homepage carefully.'],
@@ -2144,6 +2155,7 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     id: 'for-02', cat: 'Forensics', icon: '🔍', iconClass: 'ctf-cat-forensics',
     title: 'Metadata Matters',
     desc: 'Someone shared an image on PixelDrop. The image looks normal but was flagged during a metadata review. Download it and extract the EXIF data to find the hidden flag.',
+    author: 'AlexCyberX',
     diff: 'Easy', pts: 75, xp: 120,
     flag: 'ACX{m3t4_d4t4_1s_3v3rywh3r3}',
     hints: ['Image files store hidden data called EXIF metadata beyond just pixels.', 'Use exiftool or an online viewer like exifinfo.net to read all fields.', 'The flag is split across 4 fields. Find them all and figure out the correct order.'],
@@ -2621,19 +2633,28 @@ function openCTFModal(id) {
     <span style="font-size:12px;color:var(--text-dim);">${c.solvers} solvers</span>
   `;
 
+  // Hint(s) — supports both c.hint (single string) and c.hints (array)
+  const hintList = c.hints && c.hints.length ? c.hints : (c.hint ? [c.hint] : []);
+  const hintWrapEl = document.getElementById('ctfHintWrap');
+  const hintBoxEl = document.getElementById('ctfHintBox');
+  const hintLabelEl = document.getElementById('ctfHintToggleLabel');
+  if (hintList.length) {
+    hintWrapEl.style.display = 'block';
+    hintBoxEl.innerHTML = hintList.map((h, i) => hintList.length > 1 ? `<div style="margin-bottom:6px;"><strong>Hint ${i+1}:</strong> ${h}</div>` : h).join('');
+    hintBoxEl.classList.remove('visible');
+    hintLabelEl.textContent = 'Show Hint';
+    ctfHintVisible = false;
+  } else {
+    hintWrapEl.style.display = 'none';
+  }
+
   // CHALLENGE card — show if scenario exists, else show plain desc
   const challengeCard = document.getElementById('ctfChallengeCard');
   if (challengeCard) {
     if (c.scenario) {
-      // Badges
+      // Badges removed — diff already shown in modalMeta above, tags not shown
       const badgesEl = document.getElementById('modalChallengeBadges');
-      if (badgesEl) {
-        const diffBadge = `<span style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 10px;border-radius:4px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:#4ade80;">${c.diff}</span>`;
-        const tagBadges = (c.tags || []).map(t =>
-          `<span style="font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 10px;border-radius:4px;background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);color:#dc1414;">${t}</span>`
-        ).join('');
-        badgesEl.innerHTML = diffBadge + tagBadges;
-      }
+      if (badgesEl) badgesEl.innerHTML = '';
       // Author
       const authorEl = document.getElementById('modalChallengeAuthor');
       if (authorEl) authorEl.textContent = c.author ? `Author: ${c.author}` : '';
@@ -2648,7 +2669,7 @@ function openCTFModal(id) {
       const badgesEl = document.getElementById('modalChallengeBadges');
       if (badgesEl) badgesEl.innerHTML = '';
       const authorEl = document.getElementById('modalChallengeAuthor');
-      if (authorEl) authorEl.textContent = '';
+      if (authorEl) authorEl.textContent = c.author ? `Author: ${c.author}` : '';
       challengeCard.style.display = 'block';
     }
   }
@@ -2753,6 +2774,14 @@ function openCTFModal(id) {
 // Lab state persist karo per challenge
 const ctfLabState = {};
 
+function toggleCTFHint() {
+  ctfHintVisible = !ctfHintVisible;
+  const hintBox = document.getElementById('ctfHintBox');
+  const hintLabel = document.getElementById('ctfHintToggleLabel');
+  if (hintBox) hintBox.classList.toggle('visible', ctfHintVisible);
+  if (hintLabel) hintLabel.textContent = ctfHintVisible ? 'Hide Hint' : 'Show Hint';
+}
+
 function closeCTFModal() {
   document.getElementById('ctfModalOverlay').classList.remove('active');
   // Save running state so reopening shows Restart not Start
@@ -2806,7 +2835,39 @@ function ctfLaunchClick(e) {
   return false;
 }
 
+// Stop any other challenge's running instance (server-side + local state)
+// before starting a new one — sirf ek challenge ek time pe active honi chahiye.
+async function ctfStopOtherRunningInstances(exceptId) {
+  for (const ch of ctfChallenges) {
+    if (ch.id === exceptId) continue;
+    let raw = null;
+    try { raw = localStorage.getItem('acx_lab_active_' + ch.id); } catch(e) {}
+    if (!raw) continue;
+
+    // Server-side stop, sirf un challenges ke liye jinka backend instance hai
+    if (ch.hasLabFlow && ch.labApiPath) {
+      try {
+        await fetch(ch.labApiPath + '/instance/stop', {
+          method: 'POST',
+          headers: { 'X-Lab-Session': sessionStorage.getItem('acx_lab_direct_session_' + ch.id) || '' }
+        });
+      } catch(e) {}
+    }
+
+    try { localStorage.removeItem('acx_lab_active_' + ch.id); } catch(e) {}
+    if (ctfLabState && ctfLabState[ch.id]) ctfLabState[ch.id] = { running: false, timerVal: '30:00' };
+  }
+
+  // Close any open lab tab from the previous challenge
+  if (ctfActiveTab && !ctfActiveTab.closed) {
+    try { ctfActiveTab.close(); } catch(e) {}
+  }
+  ctfActiveTab = null;
+}
+
 async function ctfStartInstance(c) {
+  await ctfStopOtherRunningInstances(c.id);
+
   document.getElementById('ctfStartWrap').style.display = 'none';
   document.getElementById('ctfRunningWrap').style.display = 'block';
   document.getElementById('ctfTimerRow').classList.add('show');
@@ -2864,6 +2925,8 @@ async function ctfStartInstance(c) {
 function ctfRestartFromModal() {
   const c = ctfCurrentChallenge;
   if (!c) return;
+
+  ctfStopOtherRunningInstances(c.id);
 
   let targetUrl;
   if (c.hasLabFlow && c.labApiPath) {
