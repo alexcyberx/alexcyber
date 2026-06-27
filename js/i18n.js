@@ -222,8 +222,9 @@ function applyLanguage() {
       applyLabTranslation(selectedLang);
     }
   } else if (currentPage === 'ctf') {
-    // Hinglish/English selected — restore original text
-    restoreCTFOriginal();
+    // Hinglish ya English selected — applyCTFTranslation khud decide karta hai
+    // ki original Hinglish dikhana hai ya English overrides apply karne hain
+    if (typeof applyCTFTranslation === 'function') applyCTFTranslation(selectedLang);
   } else if (typeof restoreLabTranslation === 'function') {
     restoreLabTranslation();
   }
@@ -244,6 +245,9 @@ document.addEventListener('DOMContentLoaded', () => {
     applyDictTranslations(selectedLang);
     if (selectedLang !== 'en' && selectedLang !== 'hl' && typeof applyLabTranslation === 'function') {
       applyLabTranslation(selectedLang);
+    }
+    if (currentPage === 'ctf' && typeof applyCTFTranslation === 'function') {
+      applyCTFTranslation(selectedLang);
     }
   }
 });
