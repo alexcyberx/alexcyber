@@ -151,19 +151,15 @@ function showTranslateLoader(langName) {
 
   if (box) {
     const rect = box.getBoundingClientRect();
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
 
     // Fixed to viewport - stays put while scrolling
-    // Positioned over the chapterContent area horizontally, top 30% of viewport vertically
+    // Positioned over the content box horizontally, top portion vertically
     loader.style.cssText = [
       'position:fixed',
       'z-index:99999',
       'pointer-events:none',
-      // Horizontally match the content box
       'left:' + Math.max(rect.left, 0) + 'px',
       'width:' + rect.width + 'px',
-      // Vertically: sit in upper portion of viewport over the content
       'top:' + Math.round(rect.top + 16) + 'px',
       'display:flex',
       'flex-direction:column',
@@ -171,7 +167,8 @@ function showTranslateLoader(langName) {
       'gap:10px',
     ].join(';') + ';';
   } else {
-    loader.style.cssText = 'position:fixed;top:20%;left:50%;transform:translateX(-50%);z-index:99999;display:flex;flex-direction:column;align-items:center;gap:10px;';
+    // CTF page ya koi aur page jahan chapterContent nahi — screen ke center mein
+    loader.style.cssText = 'position:fixed;top:30%;left:0;right:0;margin:0 auto;width:fit-content;z-index:99999;display:flex;flex-direction:column;align-items:center;gap:10px;';
   }
 
   loader.innerHTML = `
@@ -281,7 +278,14 @@ function storeCTFOriginals() {
 }
 
 function restoreCTFOriginal() {
-  if (!_ctfOriginals || typeof ctfChallenges === 'undefined') return;
+  if (typeof ctfChallenges === 'undefined') return;
+  // Agar originals kabhi store nahi hue (direct hinglish select), toh kuch restore nahi karna
+  // bas ctfRender() call karo taaki current (already hinglish) data re-render ho
+  if (!_ctfOriginals) {
+    if (typeof ctfRender === 'function') ctfRender();
+    refreshOpenCTFModal();
+    return;
+  }
   ctfChallenges.forEach(c => {
     const orig = _ctfOriginals[c.id];
     if (!orig) return;
