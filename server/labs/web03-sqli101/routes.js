@@ -57,6 +57,33 @@ function instStatus(inst) {
   return { running: remaining > 0, remaining_sec: remaining, solved: inst.solved };
 }
 
+function isInstanceRunning(s) {
+  const inst = instances[s];
+  if (!inst) return false;
+  const elapsed = Math.floor((Date.now() - inst.startedAt) / 1000);
+  return (INSTANCE_DURATION_SEC - elapsed) > 0;
+}
+
+function sendInstanceNotActive(res) {
+  res.status(403).setHeader('Content-Type', 'text/html');
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Instance Not Active</title>
+<style>
+  body{background:#0a0a12;color:#e4e4ef;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;}
+  .box{max-width:420px;padding:32px;}
+  h1{font-size:20px;margin:0 0 10px;}
+  p{font-size:14px;color:#9999a6;line-height:1.6;}
+</style></head>
+<body>
+  <div class="box">
+    <h1>Instance Not Active</h1>
+    <p>This lab instance is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p>
+  </div>
+</body>
+</html>`);
+}
+
 // ── INSTANCE ENDPOINTS ────────────────────────────────────────────
 router.get('/instance/status', async (req, res) => {
   const inst = await getOrCreate(sid(req));
@@ -79,7 +106,7 @@ router.post('/instance/stop', async (req, res) => {
 // ── LOGIN PAGE ─────────────────────────────────────────────────────
 router.get('/page', async (req, res) => {
   const s = sid(req);
-  await getOrCreate(s);
+  if (!isInstanceRunning(s)) return sendInstanceNotActive(res);
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -193,6 +220,7 @@ document.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const s = sid(req);
+  if (!isInstanceRunning(s)) return res.status(403).json({ error: 'Instance not active' });
   if (username === 'john' && password === 'pass123') {
     logAttempt('SQLI101', req.ip, 'login:john', 'ok');
     return res.json({ success: true, labSession: s });
@@ -204,6 +232,7 @@ router.post('/login', async (req, res) => {
 // ── DASHBOARD ──────────────────────────────────────────────────────
 router.get('/dashboard', async (req, res) => {
   const s = sid(req);
+  if (!isInstanceRunning(s)) return sendInstanceNotActive(res);
   await getOrCreate(s);
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
@@ -339,6 +368,7 @@ document.getElementById('searchInput').addEventListener('keydown', e => { if(e.k
 router.post('/search', async (req, res) => {
   const { q } = req.body;
   const s = sid(req);
+  if (!isInstanceRunning(s)) return res.status(403).json({ error: 'Instance not active' });
   const inst = await getOrCreate(s);
   const db = inst.db;
 

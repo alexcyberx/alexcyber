@@ -23,6 +23,33 @@ function instStatus(sid) {
 }
 function sid(req) { return req.headers['x-lab-session'] || req.query.session || req.ip; }
 
+function isInstanceRunning(s) {
+  const inst = instances[s];
+  if (!inst) return false;
+  const elapsed = Math.floor((Date.now() - inst.startedAt) / 1000);
+  return (INSTANCE_DURATION_SEC - elapsed) > 0;
+}
+
+function sendInstanceNotActive(res) {
+  res.status(403).setHeader('Content-Type', 'text/html');
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Instance Not Active</title>
+<style>
+  body{background:#0a0a12;color:#e4e4ef;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;}
+  .box{max-width:420px;padding:32px;}
+  h1{font-size:20px;margin:0 0 10px;}
+  p{font-size:14px;color:#9999a6;line-height:1.6;}
+</style></head>
+<body>
+  <div class="box">
+    <h1>Instance Not Active</h1>
+    <p>This lab instance is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p>
+  </div>
+</body>
+</html>`);
+}
+
 // ── INSTANCE ENDPOINTS ──────────────────────────────────────────
 router.get('/instance/status', (req, res) => res.json(instStatus(sid(req))));
 
@@ -58,7 +85,7 @@ function parseSessionToken(token) {
 // ── LOGIN PAGE ───────────────────────────────────────────────────
 router.get('/page', (req, res) => {
   const s = sid(req);
-  getOrCreate(s);
+  if (!isInstanceRunning(s)) return sendInstanceNotActive(res);
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -166,6 +193,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Enter') doLogin(
 
 // ── LOGIN API ────────────────────────────────────────────────────
 router.post('/login', (req, res) => {
+  if (!isInstanceRunning(sid(req))) return res.status(403).json({ error: 'Instance not active' });
   const { username, password } = req.body;
   if (username === 'employee' && password === 'nova123') {
     logAttempt('COOKIE', req.ip, 'login:employee', 'ok');
@@ -182,6 +210,7 @@ router.post('/login', (req, res) => {
 
 // ── DASHBOARD ────────────────────────────────────────────────────
 router.get('/dashboard', (req, res) => {
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
   const cookieHeader = req.headers.cookie || '';
   const get = (name) => { const m = cookieHeader.match(new RegExp(name + '=([^;]+)')); return m ? m[1] : null; };
 

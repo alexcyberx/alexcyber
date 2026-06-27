@@ -41,6 +41,36 @@ function getInstanceStatus(sessionId) {
   };
 }
 
+// Instance existing aur abhi running honi chahiye — agar kabhi start hi nahi
+// hui, ya stop/expire ho gayi hai, to false. (getOrCreateInstance se alag —
+// ye naya instance silently create nahi karta.)
+function isInstanceRunning(sessionId) {
+  const inst = instances[sessionId];
+  if (!inst) return false;
+  const elapsedSec = Math.floor((Date.now() - inst.startedAt) / 1000);
+  return (INSTANCE_DURATION_SEC - elapsedSec) > 0;
+}
+
+function sendInstanceNotActive(res) {
+  res.status(403).setHeader('Content-Type', 'text/html');
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Instance Not Active</title>
+<style>
+  body{background:#0a0a12;color:#e4e4ef;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;}
+  .box{max-width:420px;padding:32px;}
+  h1{font-size:20px;margin:0 0 10px;}
+  p{font-size:14px;color:#9999a6;line-height:1.6;}
+</style></head>
+<body>
+  <div class="box">
+    <h1>Instance Not Active</h1>
+    <p>This lab instance is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p>
+  </div>
+</body>
+</html>`);
+}
+
 // GET /api/lab/hidden/instance/status
 router.get('/instance/status', (req, res) => {
   const sessionId = req.headers['x-lab-session'] || req.query.session || req.ip;
@@ -77,7 +107,7 @@ router.post('/instance/stop', (req, res) => {
 // session buckets server-side, breaking instance status sync.
 router.get('/page', (req, res) => {
   const sessionId = req.headers['x-lab-session'] || req.query.session || req.ip;
-  getOrCreateInstance(sessionId);
+  if (!isInstanceRunning(sessionId)) return sendInstanceNotActive(res);
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -149,6 +179,8 @@ router.get('/page', (req, res) => {
 // GET /api/lab/hidden/robots.txt
 // Disallows /internal/ — gives student the next breadcrumb
 router.get('/robots.txt', (req, res) => {
+  const sessionId = req.headers['x-lab-session'] || req.query.session || req.ip;
+  if (!isInstanceRunning(sessionId)) return sendInstanceNotActive(res);
   res.setHeader('Content-Type', 'text/plain');
   res.send(`User-agent: *
 Disallow: /internal/
@@ -161,6 +193,8 @@ Disallow: /api/
 // GET /api/lab/hidden/internal/
 // 404 page — but X-Debug-Token header contains PART2
 router.get('/internal/', (req, res) => {
+  const sessionId = req.headers['x-lab-session'] || req.query.session || req.ip;
+  if (!isInstanceRunning(sessionId)) return sendInstanceNotActive(res);
   res.setHeader('X-Debug-Token', PART2_HDR);
   res.setHeader('X-Powered-By', 'CorpX-Engine/2.4');
   res.status(404).json({
@@ -173,6 +207,8 @@ router.get('/internal/', (req, res) => {
 // GET /api/lab/hidden/static/portal.js
 // JS file with hex-encoded string buried in a comment
 router.get('/static/portal.js', (req, res) => {
+  const sessionId = req.headers['x-lab-session'] || req.query.session || req.ip;
+  if (!isInstanceRunning(sessionId)) return res.status(403).send('// instance not active');
   const js = `// CorpX Internal Portal — v2.4.1
 // Last modified: 2024-11-08
 

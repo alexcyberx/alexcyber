@@ -11,6 +11,31 @@ function sid(req) { return req.headers['x-lab-session'] || req.query.session || 
 function getOrCreate(s) { if (!instances[s]) instances[s] = { startedAt: Date.now(), solved: false }; return instances[s]; }
 function resetInst(s)   { instances[s] = { startedAt: Date.now(), solved: false }; return instances[s]; }
 function instStatus(s)  { const inst = getOrCreate(s); const e = Math.floor((Date.now()-inst.startedAt)/1000); const r = Math.max(0, INSTANCE_DURATION_SEC-e); return { running: r>0, remaining_sec: r, solved: inst.solved }; }
+function isInstanceRunning(s) {
+  const inst = instances[s];
+  if (!inst) return false;
+  const e = Math.floor((Date.now() - inst.startedAt) / 1000);
+  return (INSTANCE_DURATION_SEC - e) > 0;
+}
+function sendInstanceNotActive(res) {
+  res.status(403).setHeader('Content-Type', 'text/html');
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Instance Not Active</title>
+<style>
+  body{background:#0a0a12;color:#e4e4ef;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;}
+  .box{max-width:420px;padding:32px;}
+  h1{font-size:20px;margin:0 0 10px;}
+  p{font-size:14px;color:#9999a6;line-height:1.6;}
+</style></head>
+<body>
+  <div class="box">
+    <h1>Instance Not Active</h1>
+    <p>This lab instance is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p>
+  </div>
+</body>
+</html>`);
+}
 
 // ── Build JPEG with embedded EXIF ─────────────────────────────────
 function buildExifJpeg(flag) {
@@ -93,7 +118,7 @@ router.post('/instance/stop',   (req, res) => { const s=sid(req); if(instances[s
 
 // ── HOMEPAGE ──────────────────────────────────────────────────────
 router.get('/page', (req, res) => {
-  getOrCreate(sid(req));
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
   res.setHeader('Content-Type','text/html');
   res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -186,6 +211,7 @@ body{background:#0c0c10;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
 
 // ── SHARE PAGE ────────────────────────────────────────────────────
 router.get('/share/nx7k2p', (req, res) => {
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
   logAttempt('META', req.ip, 'GET /share', 'accessed');
   res.setHeader('Content-Type','text/html');
   res.send(`<!DOCTYPE html>
@@ -267,8 +293,9 @@ body{background:#0c0c10;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
 
 // ── IMAGE DOWNLOAD ────────────────────────────────────────────────
 router.get('/download/image', (req, res) => {
-  logAttempt('META', req.ip, 'GET /download/image', 'downloaded');
   const s = sid(req);
+  if (!isInstanceRunning(s)) return res.status(403).send('Instance not active');
+  logAttempt('META', req.ip, 'GET /download/image', 'downloaded');
   getOrCreate(s);
   res.setHeader('Content-Type', 'image/jpeg');
   res.setHeader('Content-Disposition', 'attachment; filename="asset_photo.jpg"');

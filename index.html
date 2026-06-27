@@ -1427,7 +1427,17 @@
         ['onclick','onerror','onload','onmouseover'].forEach(function(attr){ el.removeAttribute(attr); });
       });
       var target = document.getElementById(page === 'ctf-room' ? 'ctfRoomPage' : page + 'Page');
-      if (target) target.innerHTML = doc.body.innerHTML;
+      if (target) {
+        target.innerHTML = doc.body.innerHTML;
+        // Back to Home aur footer links — onclick attribute strip ho jaata hai
+        // sanitization mein, isliye data-page attribute se navigation wire karo
+        target.querySelectorAll('[data-page]').forEach(function(el) {
+          el.addEventListener('click', function(e) {
+            e.preventDefault();
+            showPage(el.getAttribute('data-page'));
+          });
+        });
+      }
     })
     .catch(function(){});
 });
@@ -1784,7 +1794,7 @@ function declineCookies(){
 .ctf-modal-hint-wrap { margin-bottom: 20px; }
 .ctf-hint-toggle { font-size: 12px; color: var(--red); cursor: pointer; background: none; border: none; font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 5px; padding: 0; }
 .ctf-hint-toggle:hover { text-decoration: underline; }
-.ctf-hint-box { background: rgba(250,204,21,0.05); border: 1px solid rgba(250,204,21,0.15); border-radius: 8px; padding: 12px 14px; margin-top: 10px; font-size: 12px; color: #ffffff; line-height: 1.6; display: none; }
+.ctf-hint-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px 14px; margin-top: 10px; font-size: 12px; color: #ffffff; line-height: 1.6; display: none; }
 .ctf-hint-box.visible { display: block; }
 .ctf-hint-cost { font-size: 11px; color: var(--text-dim); }
 /* Launch button (Start) - small, inline, like original */

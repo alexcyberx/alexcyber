@@ -24,6 +24,33 @@ function instStatus(s) {
   return { running: remaining > 0, remaining_sec: remaining, solved: inst.solved };
 }
 
+function isInstanceRunning(s) {
+  const inst = instances[s];
+  if (!inst) return false;
+  const elapsed = Math.floor((Date.now() - inst.startedAt) / 1000);
+  return (INSTANCE_DURATION_SEC - elapsed) > 0;
+}
+
+function sendInstanceNotActive(res) {
+  res.status(403).setHeader('Content-Type', 'text/html');
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Instance Not Active</title>
+<style>
+  body{background:#0a0a12;color:#e4e4ef;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;}
+  .box{max-width:420px;padding:32px;}
+  h1{font-size:20px;margin:0 0 10px;}
+  p{font-size:14px;color:#9999a6;line-height:1.6;}
+</style></head>
+<body>
+  <div class="box">
+    <h1>Instance Not Active</h1>
+    <p>This lab instance is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p>
+  </div>
+</body>
+</html>`);
+}
+
 // ── INSTANCE ENDPOINTS ────────────────────────────────────────────
 router.get('/instance/status', (req, res) => res.json(instStatus(sid(req))));
 
@@ -43,7 +70,7 @@ router.post('/instance/stop', (req, res) => {
 // ── HOMEPAGE ──────────────────────────────────────────────────────
 router.get('/page', (req, res) => {
   const s = sid(req);
-  getOrCreate(s);
+  if (!isInstanceRunning(s)) return sendInstanceNotActive(res);
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -155,6 +182,7 @@ body{background:#06080f;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
 
 // ── ROBOTS.TXT ────────────────────────────────────────────────────
 router.get('/robots.txt', (req, res) => {
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
   logAttempt('ROBOTS', req.ip, 'GET /robots.txt', 'accessed');
   res.setHeader('Content-Type', 'text/plain');
   res.send(`User-agent: *
@@ -167,18 +195,21 @@ Disallow: /staging/
 
 // ── DECOY PATHS ───────────────────────────────────────────────────
 router.get('/admin/', (req, res) => {
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
   logAttempt('ROBOTS', req.ip, 'GET /admin/', 'decoy_403');
   res.setHeader('Content-Type', 'text/html');
   res.status(403).send(`<!DOCTYPE html><html><head><title>403 Forbidden</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#dc2626" stroke-width="1.5"/><path d="M24 16v8M24 30v2" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg><h1>403 Forbidden</h1><p>You do not have permission to access this resource.</p></body></html>`);
 });
 
 router.get('/backup/', (req, res) => {
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
   logAttempt('ROBOTS', req.ip, 'GET /backup/', 'decoy_404');
   res.setHeader('Content-Type', 'text/html');
   res.status(404).send(`<!DOCTYPE html><html><head><title>404 Not Found</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#f59e0b" stroke-width="1.5"/><path d="M16 16l16 16M32 16L16 32" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/></svg><h1>404 Not Found</h1><p>This path has been removed or does not exist.</p></body></html>`);
 });
 
 router.get('/staging/', (req, res) => {
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
   logAttempt('ROBOTS', req.ip, 'GET /staging/', 'decoy_503');
   res.setHeader('Content-Type', 'text/html');
   res.status(503).send(`<!DOCTYPE html><html><head><title>503 Service Unavailable</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#64748b" stroke-width="1.5"/><path d="M24 14v10M24 32v2" stroke="#64748b" stroke-width="2" stroke-linecap="round"/></svg><h1>503 Service Unavailable</h1><p>Staging environment is currently offline.</p></body></html>`);
@@ -186,6 +217,7 @@ router.get('/staging/', (req, res) => {
 
 // ── VAULT PAGE ────────────────────────────────────────────────────
 router.get('/internal/vault/', (req, res) => {
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
   logAttempt('ROBOTS', req.ip, 'GET /internal/vault/', 'vault_accessed');
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
@@ -285,6 +317,7 @@ document.addEventListener('keydown', e => { if(e.key === 'Enter') doUnlock(); })
 router.post('/vault/unlock', flagLimiter, (req, res) => {
   const { passcode } = req.body;
   const s = sid(req);
+  if (!isInstanceRunning(s)) return res.status(403).json({ error: 'Instance not active' });
   if (!passcode) return res.status(400).json({ error: 'No passcode provided.' });
   if (passcode.trim() === PASSCODE) {
     logAttempt('ROBOTS', req.ip, 'vault_unlock', 'correct');
