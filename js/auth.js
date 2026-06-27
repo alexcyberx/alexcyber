@@ -338,6 +338,13 @@ async function loadUserProfile(authUser) {
   updateNavForUser(profile);
   window._currentUser = profile;
   refreshCTFSolvedForCurrentUser();
+
+  // Agar CTF page already active hai (e.g. /rooms direct open hua)
+  // toh initCTFPage reinit karo kyunki pehle user null tha
+  const ctfEl = document.getElementById('ctfPage');
+  if (ctfEl && ctfEl.classList.contains('active')) {
+    if (typeof initCTFPage === 'function') initCTFPage();
+  }
 }
 
 // CTF page's solved-state is namespaced by user id in localStorage (see ctf.html).

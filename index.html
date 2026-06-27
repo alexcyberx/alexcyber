@@ -2367,8 +2367,15 @@ function initCTFPage() {
   const mainView  = document.getElementById('ctfMainView');
 
   if (!user) {
-    if (setupView) setupView.style.display = 'none';
-    if (mainView)  mainView.style.display  = 'none';
+    // Auth still loading — retry after short delay (race condition: /rooms direct open)
+    setTimeout(function() {
+      if (window._currentUser) {
+        initCTFPage();
+      } else {
+        // Still no user after retry — show login prompt
+        if (typeof showAuth === 'function') showAuth('login', 'ctf');
+      }
+    }, 800);
     return;
   }
 
