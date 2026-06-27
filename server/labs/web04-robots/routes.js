@@ -217,7 +217,8 @@ router.get('/staging/', (req, res) => {
 
 // ── VAULT PAGE ────────────────────────────────────────────────────
 router.get('/internal/vault/', (req, res) => {
-  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
+  const s = sid(req);
+  if (!isInstanceRunning(s)) return sendInstanceNotActive(res);
   logAttempt('ROBOTS', req.ip, 'GET /internal/vault/', 'vault_accessed');
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
@@ -279,6 +280,7 @@ input::placeholder{color:#1e293b;font-family:'Segoe UI',sans-serif;letter-spacin
   </div>
 </div>
 <script>
+const LAB_SESSION = ${JSON.stringify(s)};
 async function doUnlock() {
   const btn = document.getElementById('unlockBtn');
   const err = document.getElementById('errBox');
@@ -286,7 +288,7 @@ async function doUnlock() {
   err.classList.remove('show');
   btn.disabled = true;
   try {
-    const res = await fetch('/api/lab/robots/vault/unlock', {
+    const res = await fetch('/api/lab/robots/vault/unlock?session=' + encodeURIComponent(LAB_SESSION), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ passcode })

@@ -6,6 +6,11 @@ const path     = require('path');
 
 const app = express();
 
+// Render reverse proxy ke peeche hai — trust proxy on karo taaki req.ip
+// asli client IP de, na ki proxy ka internal IP (jo har request pe
+// inconsistent ho sakta hai aur instance session fallback ko todta hai)
+app.set('trust proxy', 1);
+
 app.use(helmet({ contentSecurityPolicy: false }));
 
 app.use(cors({

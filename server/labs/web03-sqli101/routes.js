@@ -185,20 +185,21 @@ input::placeholder{color:#2a3555;}
 </div>
 <div class="footer">VaultBank Employee Portal v4.2.1 — Unauthorized access is strictly prohibited</div>
 <script>
+const LAB_SESSION = ${JSON.stringify(s)};
 async function doLogin() {
   const btn = document.getElementById('loginBtn');
   const err = document.getElementById('errBox');
   btn.disabled = true;
   err.style.display = 'none';
   try {
-    const res = await fetch('/api/lab/sqli101/login', {
+    const res = await fetch('/api/lab/sqli101/login?session=' + encodeURIComponent(LAB_SESSION), {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ username: document.getElementById('uname').value, password: document.getElementById('pass').value })
     });
     const data = await res.json();
     if (data.success) {
-      window.location.href = '/api/lab/sqli101/dashboard?session=' + encodeURIComponent(data.labSession || '');
+      window.location.href = '/api/lab/sqli101/dashboard?session=' + encodeURIComponent(LAB_SESSION);
     } else {
       err.innerHTML = data.error || 'Login failed.';
       err.style.display = 'block';

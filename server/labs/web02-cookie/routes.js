@@ -154,6 +154,7 @@ input::placeholder{color:#374151;}
 </div>
 <div class="footer">NovaCorp Systems v3.1.0 — Unauthorized access is strictly prohibited</div>
 <script>
+const LAB_SESSION = ${JSON.stringify(s)};
 async function doLogin() {
   const btn = document.getElementById('loginBtn');
   const err = document.getElementById('errBox');
@@ -161,7 +162,7 @@ async function doLogin() {
   btn.textContent = 'Signing in...';
   err.style.display = 'none';
   try {
-    const res = await fetch('/api/lab/cookie/login', {
+    const res = await fetch('/api/lab/cookie/login?session=' + encodeURIComponent(LAB_SESSION), {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ username: document.getElementById('uname').value, password: document.getElementById('pass').value })
@@ -171,7 +172,7 @@ async function doLogin() {
       document.cookie = 'session_token=' + data.session_token + '; path=/';
       document.cookie = 'access_lvl=' + data.access_lvl + '; path=/';
       document.cookie = 'user_pref=' + data.user_pref + '; path=/';
-      window.location.href = '/api/lab/cookie/dashboard';
+      window.location.href = '/api/lab/cookie/dashboard?session=' + encodeURIComponent(LAB_SESSION);
     } else {
       err.textContent = data.error || 'Login failed. Please try again.';
       err.style.display = 'block';
