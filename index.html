@@ -1783,7 +1783,23 @@ function declineCookies(){
 /* ── MODAL ── */
 .ctf-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
 .ctf-modal-overlay.active { display: flex; }
-.ctf-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; padding: 28px; position: relative; }
+.ctf-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; padding: 28px; position: relative; transition: max-width 0.3s ease; }
+.ctf-modal.lab-active { max-width: 960px; }
+
+/* Lab iframe inside modal */
+.ctf-lab-iframe-wrap { display: none; margin-top: 16px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: #07070f; }
+.ctf-lab-iframe-wrap.show { display: block; }
+.ctf-lab-iframe-wrap iframe { width: 100%; height: 520px; border: none; display: block; }
+.ctf-lab-iframe-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #0a0a12; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 8px 12px; }
+.ctf-lab-iframe-dots { display: flex; gap: 5px; }
+.ctf-lab-iframe-dots span { width: 10px; height: 10px; border-radius: 50%; }
+.ctf-lab-iframe-dots span:nth-child(1) { background: #f87171; }
+.ctf-lab-iframe-dots span:nth-child(2) { background: #fb923c; }
+.ctf-lab-iframe-dots span:nth-child(3) { background: #4ade80; }
+.ctf-lab-iframe-url { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 5px; padding: 3px 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6a6a7a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ctf-lab-iframe-actions { display: flex; gap: 6px; }
+.ctf-lab-iframe-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 5px; padding: 3px 8px; font-size: 10px; font-weight: 600; color: #a0a0b8; cursor: pointer; font-family: 'Inter', sans-serif; transition: color 0.15s; display: flex; align-items: center; gap: 4px; }
+.ctf-lab-iframe-btn:hover { color: var(--white); }
 .ctf-modal-close { position: absolute; top: 16px; right: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-dim); transition: color 0.15s; }
 .ctf-modal-close:hover { color: var(--white); }
 .ctf-modal-cat { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
@@ -1854,6 +1870,7 @@ function declineCookies(){
   .ctf-login-banner button { width: 100%; }
   .ctf-modal-overlay { padding: 12px; }
   .ctf-modal { padding: 20px; max-height: 92vh; }
+  .ctf-lab-iframe-wrap iframe { height: 380px; }
   .ctf-modal-title { font-size: 20px; }
   #ctfRunningWrap > div { flex-direction: column; }
   .ctf-flag-row { flex-direction: column; }
@@ -2036,6 +2053,27 @@ function declineCookies(){
           </a>
         </div>
       </div>
+    </div>
+
+    <!-- Embedded Lab iframe (shown after Start, inside modal) -->
+    <div class="ctf-lab-iframe-wrap" id="ctfLabIframeWrap">
+      <div class="ctf-lab-iframe-bar">
+        <div class="ctf-lab-iframe-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="ctf-lab-iframe-url" id="ctfLabIframeUrl">about:blank</div>
+        <div class="ctf-lab-iframe-actions">
+          <button class="ctf-lab-iframe-btn" onclick="ctfIframeReload()" title="Reload">
+            <svg width="11" height="11" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5a4 4 0 1 0 1-2.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M2.5 2.5v2h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Reload
+          </button>
+          <button class="ctf-lab-iframe-btn" onclick="ctfOpenLabTab(event)" title="Open in new tab">
+            <svg width="11" height="11" viewBox="0 0 13 13" fill="none"><path d="M5 2H2.5A1.5 1.5 0 0 0 1 3.5v7A1.5 1.5 0 0 0 2.5 12h7A1.5 1.5 0 0 0 11 10.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8 1h4m0 0v4m0-4L6 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            New Tab
+          </button>
+        </div>
+      </div>
+      <iframe id="ctfLabIframe" src="about:blank" sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals" title="Lab Environment"></iframe>
     </div>
 
     <!-- Instance timer (shown after Start) -->
@@ -2748,12 +2786,38 @@ function openCTFModal(id) {
         if (secs<=0){clearInterval(ctfTimerPoll);ctfTimerPoll=null;}
       }, 1000);
     }
+    // Iframe restore: session se URL recover karke iframe mein load karo
+    const iframeWrap = document.getElementById('ctfLabIframeWrap');
+    const iframe = document.getElementById('ctfLabIframe');
+    const iframeUrlEl = document.getElementById('ctfLabIframeUrl');
+    const modal = document.getElementById('ctfModal');
+    if (iframe && iframeWrap) {
+      let restoreUrl = '';
+      if (c.hasLabFlow && c.labApiPath) {
+        const sid = (() => { try { return sessionStorage.getItem('acx_lab_direct_session_' + c.id); } catch(e) { return null; } })();
+        if (sid) restoreUrl = c.labApiPath + '/page?session=' + encodeURIComponent(sid);
+      } else if (c.labUrl) {
+        const tok = (() => { try { return sessionStorage.getItem('acx_lab_token_' + c.id); } catch(e) { return null; } })();
+        restoreUrl = tok ? c.labUrl + (c.labUrl.includes('?') ? '&' : '?') + 'acx_token=' + encodeURIComponent(tok) : c.labUrl;
+      }
+      if (restoreUrl) {
+        iframe.src = restoreUrl;
+        if (iframeUrlEl) iframeUrlEl.textContent = restoreUrl;
+        iframeWrap.classList.add('show');
+        if (modal) modal.classList.add('lab-active');
+      }
+    }
   } else {
     // Fresh start
     ctfActiveTab = null;
     if (startWrap) startWrap.style.display = 'block';
     if (runningWrap) runningWrap.style.display = 'none';
     if (timerRow) timerRow.classList.remove('show');
+    // Ensure iframe is hidden on fresh open
+    const iframeWrap = document.getElementById('ctfLabIframeWrap');
+    const modal = document.getElementById('ctfModal');
+    if (iframeWrap) iframeWrap.classList.remove('show');
+    if (modal) modal.classList.remove('lab-active');
   }
 
   // Show/hide Launch wrap
@@ -2801,6 +2865,16 @@ function toggleCTFHint() {
 
 function closeCTFModal() {
   document.getElementById('ctfModalOverlay').classList.remove('active');
+  // Modal ko normal size pe wapas lao
+  const modal = document.getElementById('ctfModal');
+  if (modal) modal.classList.remove('lab-active');
+  // Iframe clear karo (security + performance)
+  const iframeWrap = document.getElementById('ctfLabIframeWrap');
+  const iframe = document.getElementById('ctfLabIframe');
+  const iframeUrl = document.getElementById('ctfLabIframeUrl');
+  if (iframeWrap) iframeWrap.classList.remove('show');
+  if (iframe) iframe.src = 'about:blank';
+  if (iframeUrl) iframeUrl.textContent = 'about:blank';
   // Save running state so reopening shows Restart not Start
   if (ctfCurrentChallenge && ctfCurrentChallenge.labUrl) {
     const runningWrap = document.getElementById('ctfRunningWrap');
@@ -2844,6 +2918,25 @@ function getLabUrlWithToken(c) {
 let ctfActiveTab = null;
 let ctfTimerPoll = null;
 
+/* ── IFRAME HELPERS ── */
+function ctfLoadInIframe(url) {
+  const modal = document.getElementById('ctfModal');
+  const iframeWrap = document.getElementById('ctfLabIframeWrap');
+  const iframe = document.getElementById('ctfLabIframe');
+  const iframeUrl = document.getElementById('ctfLabIframeUrl');
+  if (!iframe || !iframeWrap) return;
+  iframe.src = url;
+  if (iframeUrl) iframeUrl.textContent = url;
+  iframeWrap.classList.add('show');
+  if (modal) modal.classList.add('lab-active');
+}
+
+function ctfIframeReload() {
+  const iframe = document.getElementById('ctfLabIframe');
+  if (!iframe || !iframe.src || iframe.src === 'about:blank') return;
+  iframe.src = iframe.src; // force reload
+}
+
 function ctfLaunchClick(e) {
   e.preventDefault();
   const c = ctfCurrentChallenge;
@@ -2866,6 +2959,13 @@ function ctfEnforceSingleActiveLocal(keepId) {
     } catch(e) {}
     if (ctfLabState && ctfLabState[ch.id]) ctfLabState[ch.id] = { running: false, timerVal: '30:00' };
   });
+  // Iframe clear karo (previous challenge ka content)
+  const iframe = document.getElementById('ctfLabIframe');
+  const iframeWrap = document.getElementById('ctfLabIframeWrap');
+  const iframeUrlEl = document.getElementById('ctfLabIframeUrl');
+  if (iframe) iframe.src = 'about:blank';
+  if (iframeWrap) iframeWrap.classList.remove('show');
+  if (iframeUrlEl) iframeUrlEl.textContent = 'about:blank';
 }
 
 // Server-side stop calls for every other challenge that has a backend instance.
@@ -2904,7 +3004,7 @@ async function ctfStartInstance(c) {
   // window.open ko block nahi karna (fire and forget)
   ctfStopOtherInstancesOnServer(c.id);
 
-  // For hasLabFlow: ping server to start instance, then open target directly
+  // For hasLabFlow: ping server to start instance, then load in modal iframe
   if (c.hasLabFlow && c.labApiPath) {
     const sessionId = 'sess_' + Math.random().toString(36).substring(2, 10);
     try { sessionStorage.setItem('acx_lab_direct_session_' + c.id, sessionId); } catch(e) {}
@@ -2913,12 +3013,12 @@ async function ctfStartInstance(c) {
       method: 'POST',
       headers: { 'X-Lab-Session': sessionId }
     }).catch(() => {});
-    // Open target page directly
+    // Load in modal iframe
     const targetUrl = c.labApiPath + '/page?session=' + encodeURIComponent(sessionId);
-    ctfActiveTab = window.open(targetUrl, '_blank');
+    ctfLoadInIframe(targetUrl);
   } else {
     const labUrl = getLabUrlWithToken(c);
-    ctfActiveTab = window.open(labUrl, '_blank');
+    ctfLoadInIframe(labUrl);
   }
 
   // localStorage mein lab active state save karo (refresh pe survive karta hai)
@@ -2975,7 +3075,7 @@ function ctfRestartFromModal() {
     ctfActiveTab.location.href = targetUrl;
     ctfActiveTab.focus();
   } else {
-    ctfActiveTab = window.open(targetUrl, '_blank');
+    ctfLoadInIframe(targetUrl);
   }
   // Reset localStorage state on restart
   try {
@@ -3007,21 +3107,21 @@ function ctfRestartFromModal() {
 }
 
 function ctfOpenLabTab(e) {
-  e.preventDefault();
+  if (e && e.preventDefault) e.preventDefault();
   const c = ctfCurrentChallenge;
   if (!c) return false;
-  if (ctfActiveTab && !ctfActiveTab.closed) {
-    ctfActiveTab.focus();
+  // Iframe ka current URL new tab mein kholo
+  const iframe = document.getElementById('ctfLabIframe');
+  let url = '';
+  if (iframe && iframe.src && iframe.src !== 'about:blank') {
+    url = iframe.src;
+  } else if (c.hasLabFlow && c.labApiPath) {
+    const sid = (() => { try { return sessionStorage.getItem('acx_lab_direct_session_' + c.id); } catch(e) { return null; } })();
+    url = c.labApiPath + '/page' + (sid ? '?session=' + encodeURIComponent(sid) : '');
   } else {
-    // Open target directly for hasLabFlow challenges
-    if (c.hasLabFlow && c.labApiPath) {
-      const sid = (() => { try { return sessionStorage.getItem('acx_lab_direct_session_' + c.id); } catch(e) { return null; } })();
-      const url = c.labApiPath + '/page' + (sid ? '?session=' + encodeURIComponent(sid) : '');
-      ctfActiveTab = window.open(url, '_blank');
-    } else {
-      ctfActiveTab = window.open(c.labUrl, '_blank');
-    }
+    url = c.labUrl || '#';
   }
+  window.open(url, '_blank');
   return false;
 }
 
