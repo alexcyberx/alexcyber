@@ -2153,13 +2153,21 @@ const ctfChallenges = window.CTF_CHALLENGES = [
 
   // ── FORENSICS ──
   {
-    id: 'for-01', cat: 'Forensics', icon: '🔍', iconClass: 'ctf-cat-forensics',
+    id: 'for-01', cat: 'Forensics', iconClass: 'ctf-cat-forensics',
     title: 'Packet Detective',
-    desc: 'Ek PCAP file di gayi hai jisme suspicious traffic hai. Network packets analyze karo aur hidden data dhundo. HTTP traffic carefully dekho.',
-    diff: 'Medium', pts: 200, xp: 350,
-    flag: 'ACX{wireshark_follow_http_stream}',
-    hint: 'Wireshark mein HTTP packet select karo → Right click → Follow → HTTP Stream.',
-    solvers: 54
+    desc: 'A machine on the CorpX LAN was flagged for unusual outbound DNS activity. A 20-second packet capture was taken at the egress point. Download the PCAP, isolate the suspicious traffic, and reconstruct what was exfiltrated.',
+    author: 'AlexCyberX',
+    diff: 'Medium', pts: 150, xp: 250,
+    flag: 'ACX{p4ck3t_d3t3ct1v3_dn5_3xf1l}',
+    hints: [
+      'Filter by dns in Wireshark. One internal IP is querying an external domain repeatedly and getting NXDOMAIN every time.',
+      'The parent domain is data.corpx-sync.net. Collect the 4 subdomain labels in timestamp order.',
+      'Join the labels, convert to uppercase, pad to a multiple of 8 with = signs, then Base32 decode. CyberChef works well for this.'
+    ],
+    labUrl: '/pages/labs/lab-packet.html',
+    labApiPath: '/api/lab/packet',
+    hasLabFlow: false,
+    solvers: 41
   },
   {
     id: 'for-02', cat: 'Forensics', icon: '🔍', iconClass: 'ctf-cat-forensics',
@@ -2175,33 +2183,57 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     solvers: 178
   },
   {
-    id: 'for-03', cat: 'Forensics', icon: '🔍', iconClass: 'ctf-cat-forensics',
+    id: 'for-03', cat: 'Forensics', iconClass: 'ctf-cat-forensics',
     title: 'Log Hunter',
-    desc: 'Server access logs diye gaye hain. Attacker ne kaunsa IP address use kiya aur kaunse path pe attack kiya? Logs parse karo aur attack pattern identify karo.',
+    desc: 'CorpX SOC pulled a full day of Apache access logs after detecting unusual activity. 2,156 requests, one attacker hidden in the noise. Find the IP, identify both tools used, and name the path that was targeted for SQL injection.',
+    author: 'AlexCyberX',
     diff: 'Hard', pts: 350, xp: 600,
-    flag: 'ACX{log_analysis_uncovers_attack}',
-    hint: '`grep` se 404 errors aur unusual user agents dhundo. `awk` se IPs count karo.',
-    solvers: 28
+    flag: 'ACX{45.33.32.156__sqlmap__/admin/config.php}',
+    hints: [
+      'Count requests per IP with awk and uniq -c. One IP has far more requests than any legitimate visitor.',
+      'Filter by the attacker IP and check unique User-Agent strings. Two distinct tools were used at different times of day.',
+      'The flag uses the SQL injection tool name only (not the directory scanner). Strip the query string from the path, keep only the base PHP file.'
+    ],
+    labUrl: '/pages/labs/lab-loghunter.html',
+    labApiPath: '/api/lab/loghunter',
+    hasLabFlow: false,
+    solvers: 14
   },
 
   // ── CRYPTO ──
   {
-    id: 'cry-01', cat: 'Crypto', icon: '🔐', iconClass: 'ctf-cat-crypto',
-    title: 'Caesar\'s Secret',
-    desc: 'Yeh ciphertext decode karo: "NJY{pnvzhy_pvfcure_vf_rnfl}". Ek classic substitution cipher hai jise Roman emperor ne bhi use kiya tha.',
+    id: 'cry-01', cat: 'Crypto', iconClass: 'ctf-cat-crypto',
+    title: "Caesar's Secret",
+    desc: "An encrypted transmission was intercepted from a dark web channel linked to underground group RedCell. The message is protected with a classic substitution cipher. Decrypt it and extract the verification token.",
+    author: 'AlexCyberX',
     diff: 'Easy', pts: 50, xp: 80,
-    flag: 'ACX{caesar_cipher_is_easy}',
-    hint: 'ROT13 ya Caesar cipher tool use karo. Shift 13 try karo.',
-    solvers: 195
+    flag: 'ACX{veni_vidi_vici_shift3}',
+    hints: [
+      'The cipher is named after the Roman emperor who invented it. He used a fixed letter shift to encode his military messages.',
+      'The shift value is the same one Julius Caesar used in his own correspondence -- a single digit, historically documented.',
+      'Shift is 3. Decode at CyberChef using the Caesar Cipher Decode recipe with shift 3, or use any online Caesar solver.'
+    ],
+    labUrl: '/pages/labs/lab-caesar.html',
+    labApiPath: '/api/lab/caesar',
+    hasLabFlow: false,
+    solvers: 312
   },
   {
-    id: 'cry-02', cat: 'Crypto', icon: '🔐', iconClass: 'ctf-cat-crypto',
+    id: 'cry-02', cat: 'Crypto', iconClass: 'ctf-cat-crypto',
     title: 'Base64 Bonanza',
-    desc: 'Yeh string decode karo: "QUNYR3tiYXNlNjRfaXNfbm90X2VuY3J5cHRpb259". Dekho koi pattern milta hai ya nahi.',
+    desc: 'A suspicious file was found in the NovaSat NS-7 telemetry export directory. It has a .jpg extension but it is not an image. Open it as text, decode what you find, and peel back both layers to extract the flag.',
+    author: 'AlexCyberX',
     diff: 'Easy', pts: 50, xp: 80,
     flag: 'ACX{base64_is_not_encryption}',
-    hint: 'Base64 decode karo. Python mein: `import base64; base64.b64decode("...")`.decode()',
-    solvers: 231
+    hints: [
+      'Open the file in a text editor or with cat. It is not an image -- the content is a single Base64 encoded string.',
+      'Decoding the file gives a telemetry message, not the flag. Look for the ENCODED PAYLOAD section inside that message.',
+      'Decode the payload string a second time with Base64 to get the flag. Two layers total.'
+    ],
+    labUrl: '/pages/labs/lab-base64.html',
+    labApiPath: '/api/lab/base64',
+    hasLabFlow: false,
+    solvers: 267
   },
   {
     id: 'cry-03', cat: 'Crypto', icon: '🔐', iconClass: 'ctf-cat-crypto',

@@ -4,13 +4,13 @@ const path     = require('path');
 const { flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt }  = require('../../middleware/logger');
 
-const FLAG = process.env.FLAG_PACKET || 'ACX{dns_3xf1ltr4t10n_d3t3ct3d}';
-const PCAP_PATH = path.join(__dirname, '../../files/corpx_segment.pcap');
+const FLAG      = process.env.FLAG_PACKET || 'ACX{p4ck3t_d3t3ct1v3_dn5_3xf1l}';
+const PCAP_PATH = path.join(__dirname, '../../files/corpx_network.pcap');
 
-// GET /api/lab/packet/download — serves the real .pcap file
+// GET /api/lab/packet/download
 router.get('/download', (req, res) => {
   logAttempt('PACKET', req.ip, 'GET /download', 'pcap_downloaded');
-  res.download(PCAP_PATH, 'corpx_segment.pcap', (err) => {
+  res.download(PCAP_PATH, 'corpx_network.pcap', (err) => {
     if (err) {
       console.error('[PACKET] download error:', err.message);
       if (!res.headersSent) res.status(500).json({ error: 'File not found' });
@@ -18,14 +18,14 @@ router.get('/download', (req, res) => {
   });
 });
 
-// GET /api/lab/packet/info — basic capture metadata, no flag content
+// GET /api/lab/packet/info
 router.get('/info', (req, res) => {
   res.json({
-    filename:      'corpx_segment.pcap',
-    size_bytes:    2757,
-    packet_count:  22,
-    duration_sec:  18.9,
-    note: 'A 60 second segment of traffic captured at the CorpX network egress point. Suspicious activity was reported around this timeframe.'
+    filename:     'corpx_network.pcap',
+    size_bytes:   2167,
+    packet_count: 21,
+    duration_sec: 20,
+    note: 'A 20 second segment captured at the CorpX network egress point. One machine on the LAN showed unusual outbound DNS behaviour during this window.'
   });
 });
 
@@ -41,7 +41,7 @@ router.post('/submit', flagLimiter, (req, res) => {
     return res.json({
       success: true,
       flag: FLAG,
-      message: 'Correct. DNS exfiltration hides in plain sight inside repeated NXDOMAIN queries with changing subdomain labels. Always inspect every unique query name in a capture, not just the ones that resolve.'
+      message: 'Correct. DNS exfiltration tunnels data through subdomain labels, one chunk per query. Each label was a Base32 encoded fragment of the flag. Defenders should alert on repeated NXDOMAIN responses to the same unknown domain from a single host.'
     });
   }
 

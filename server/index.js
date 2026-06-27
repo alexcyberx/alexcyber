@@ -36,6 +36,9 @@ app.use('/api/lab/sqli101', require('./labs/web03-sqli101/routes'));
 app.use('/api/lab/robots', require('./labs/web04-robots/routes'));
 app.use('/api/lab/packet', require('./labs/for01-packet/routes'));
 app.use('/api/lab/metadata', require('./labs/for02-metadata/routes'));
+app.use('/api/lab/loghunter', require('./labs/for03-loghunter/routes'));
+app.use('/api/lab/caesar', require('./labs/cry01-caesar/routes'));
+app.use('/api/lab/base64', require('./labs/cry02-base64/routes'));
 
 /* ── CTF Disabled Challenges API ──
    In-memory store (resets on redeploy, but Supabase sync handles persistence).
