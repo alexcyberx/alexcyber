@@ -101,7 +101,7 @@ const DICT = {
   'hero.cta2':      { hi:'Meet AlexCyberX',  en:'Meet AlexCyberX', bn:'AlexCyberX জানুন', pa:'AlexCyberX ਨੂੰ ਮਿਲੋ', te:'AlexCyberX కలవండి', ta:'AlexCyberX சந்திக்கவும்', mr:'AlexCyberX ला भेटा' },
 
   'stat.students':  { hi:'Students', en:'Students',    bn:'শিক্ষার্থী',   pa:'ਵਿਦਿਆਰਥੀ',  te:'విద్యార్థులు', ta:'மாணவர்கள்',   mr:'विद्यार्थी'     },
-  'stat.chapters':  { hi:'Chapters', en:'Chapters',        bn:'অধ্যায়',       pa:'ਅਧਿਆਏ',      te:'అధ్యాయాలు',    ta:'அத்தியாயங்கள்', mr:'अध्याय'       },
+  'stat.chapters':  { hi:'Courses', en:'Courses',        bn:'কোর্স',       pa:'ਕੋਰਸ',      te:'కోర్సులు',    ta:'கோர்சுகள்', mr:'कोर्सेस'       },
   'stat.free':      { hi:'Free',     en:'Free',          bn:'বিনামূল্যে',   pa:'ਮੁਫਤ',       te:'ఉచితం',        ta:'இலவசம்',      mr:'मोफत'    },
 
   'courses.title':  { hi:'Kya Seekhoge?',    en:'What Will You Learn?', bn:'কী শিখবেন?',     pa:'ਕੀ ਸਿੱਖੋਗੇ?', te:'మీరు ఏమి నేర్చుకుంటారు?', ta:'என்ன கற்பீர்கள்?', mr:'काय शिकणार?' },

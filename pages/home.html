@@ -79,7 +79,7 @@
 
 <!-- STATS -->
 <div class="stats-strip">
-  <div class="stat-item"><span class="stat-num">20+</span><span class="stat-label" data-i18n="stat.chapters">Chapters</span></div>
+  <div class="stat-item"><span class="stat-num" id="statCourseCount">2</span><span class="stat-label" data-i18n="stat.chapters">Courses</span></div>
   <div class="stat-item"><span class="stat-num">8K+</span><span class="stat-label" data-i18n="stat.community">Community</span></div>
   <div class="stat-item"><span class="stat-num">100%</span><span class="stat-label" data-i18n="stat.practical">Practical</span></div>
   <div class="stat-item"><span class="stat-num">Free</span><span class="stat-label" data-i18n="stat.always">Always</span></div>
@@ -296,4 +296,20 @@
 </footer>
 
 </div><!-- end #homePage -->
+
+<script>
+(function() {
+  function updateCourseCount() {
+    var el = document.getElementById('statCourseCount');
+    if (!el) return;
+    var count = document.querySelectorAll('#homePage .cards-grid .tut-card').length;
+    el.textContent = count > 0 ? count : el.textContent;
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateCourseCount);
+  } else {
+    updateCourseCount();
+  }
+})();
+</script>
 
