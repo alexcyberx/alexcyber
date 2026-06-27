@@ -1784,7 +1784,7 @@ function declineCookies(){
 .ctf-modal-hint-wrap { margin-bottom: 20px; }
 .ctf-hint-toggle { font-size: 12px; color: var(--red); cursor: pointer; background: none; border: none; font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 5px; padding: 0; }
 .ctf-hint-toggle:hover { text-decoration: underline; }
-.ctf-hint-box { background: rgba(250,204,21,0.05); border: 1px solid rgba(250,204,21,0.15); border-radius: 8px; padding: 12px 14px; margin-top: 10px; font-size: 12px; color: #fbbf24; line-height: 1.6; display: none; }
+.ctf-hint-box { background: rgba(250,204,21,0.05); border: 1px solid rgba(250,204,21,0.15); border-radius: 8px; padding: 12px 14px; margin-top: 10px; font-size: 12px; color: #ffffff; line-height: 1.6; display: none; }
 .ctf-hint-box.visible { display: block; }
 .ctf-hint-cost { font-size: 11px; color: var(--text-dim); }
 /* Launch button (Start) - small, inline, like original */
@@ -2835,38 +2835,46 @@ function ctfLaunchClick(e) {
   return false;
 }
 
-// Stop any other challenge's running instance (server-side + local state)
-// before starting a new one — sirf ek challenge ek time pe active honi chahiye.
-async function ctfStopOtherRunningInstances(exceptId) {
-  for (const ch of ctfChallenges) {
-    if (ch.id === exceptId) continue;
-    let raw = null;
-    try { raw = localStorage.getItem('acx_lab_active_' + ch.id); } catch(e) {}
-    if (!raw) continue;
-
-    // Server-side stop, sirf un challenges ke liye jinka backend instance hai
-    if (ch.hasLabFlow && ch.labApiPath) {
-      try {
-        await fetch(ch.labApiPath + '/instance/stop', {
-          method: 'POST',
-          headers: { 'X-Lab-Session': sessionStorage.getItem('acx_lab_direct_session_' + ch.id) || '' }
-        });
-      } catch(e) {}
-    }
-
-    try { localStorage.removeItem('acx_lab_active_' + ch.id); } catch(e) {}
+// Synchronous, localStorage-only enforcement — sirf ek challenge ka
+// "active" state kabhi bhi localStorage mein rehna chahiye. Ye function
+// koi network call ya tab close nahi karta, sirf stale flags clear karta hai,
+// taaki modal/grid hamesha sahi state dikhaye chahe stop call kahin miss ho jaye.
+function ctfEnforceSingleActiveLocal(keepId) {
+  ctfChallenges.forEach(ch => {
+    if (ch.id === keepId) return;
+    try {
+      if (localStorage.getItem('acx_lab_active_' + ch.id)) {
+        localStorage.removeItem('acx_lab_active_' + ch.id);
+      }
+    } catch(e) {}
     if (ctfLabState && ctfLabState[ch.id]) ctfLabState[ch.id] = { running: false, timerVal: '30:00' };
-  }
+  });
+}
 
-  // Close any open lab tab from the previous challenge
+// Server-side stop calls for every other challenge that has a backend instance.
+// Fire-and-forget — UI aur window.open ka wait nahi karta, taaki popup block na ho.
+function ctfStopOtherInstancesOnServer(exceptId) {
+  ctfChallenges.forEach(ch => {
+    if (ch.id === exceptId) return;
+    if (!ch.hasLabFlow || !ch.labApiPath) return;
+    const sess = sessionStorage.getItem('acx_lab_direct_session_' + ch.id);
+    if (!sess) return; // never started, nothing to stop
+    fetch(ch.labApiPath + '/instance/stop', {
+      method: 'POST',
+      headers: { 'X-Lab-Session': sess }
+    }).catch(() => {});
+  });
+}
+
+async function ctfStartInstance(c) {
+  // Pehle turant, synchronously, doosri sab challenges ka local "active" state
+  // saaf karo aur unka tab band karo — koi await yahan nahi, taaki window.open
+  // popup blocker se na ruke (popup sirf direct click ke andar hi allow hota hai).
+  ctfEnforceSingleActiveLocal(c.id);
   if (ctfActiveTab && !ctfActiveTab.closed) {
     try { ctfActiveTab.close(); } catch(e) {}
   }
   ctfActiveTab = null;
-}
-
-async function ctfStartInstance(c) {
-  await ctfStopOtherRunningInstances(c.id);
 
   document.getElementById('ctfStartWrap').style.display = 'none';
   document.getElementById('ctfRunningWrap').style.display = 'block';
@@ -2874,6 +2882,10 @@ async function ctfStartInstance(c) {
   document.getElementById('ctfFlagSection').style.display = 'block';
   const timerVal = document.getElementById('ctfTimerVal');
   if (timerVal) timerVal.textContent = '30:00';
+
+  // Server-side stop calls for other running instances — background mein,
+  // window.open ko block nahi karna (fire and forget)
+  ctfStopOtherInstancesOnServer(c.id);
 
   // For hasLabFlow: ping server to start instance, then open target directly
   if (c.hasLabFlow && c.labApiPath) {
@@ -2926,7 +2938,8 @@ function ctfRestartFromModal() {
   const c = ctfCurrentChallenge;
   if (!c) return;
 
-  ctfStopOtherRunningInstances(c.id);
+  ctfEnforceSingleActiveLocal(c.id);
+  ctfStopOtherInstancesOnServer(c.id);
 
   let targetUrl;
   if (c.hasLabFlow && c.labApiPath) {
