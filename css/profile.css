@@ -238,6 +238,7 @@
 .pf-streak-dot.on { background: #ef4444; }
 
 /* ── Daily Challenge ── */
+.pf-daily { display: flex; flex-direction: column; }
 .pf-daily-loading { font-size: 12px; color: var(--text-dim); }
 .pf-daily-cat {
   font-size: 10px; font-weight: 700;
@@ -401,6 +402,7 @@
   transform: translateY(-2px);
 }
 .pf-badge-card.locked { opacity: 0.45; }
+.pf-badge-grid--locked { margin-top: 4px; opacity: 0.9; }
 .pf-badge-icon {
   width: 40px; height: 40px;
   border-radius: 10px;

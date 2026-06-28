@@ -1415,7 +1415,7 @@
 
 <script>
 // Load legal pages dynamically - sanitized to strip inline scripts
-['privacy','terms','disclaimer','refund','cookie','donotsell','legalwarning','ctf-room'].forEach(function(page) {
+['privacy','terms','disclaimer','refund','cookie','donotsell','legalwarning'].forEach(function(page) {
   fetch('pages/' + page + '.html')
     .then(function(r){ return r.text(); })
     .then(function(html){
@@ -1426,7 +1426,7 @@
       doc.querySelectorAll('[onclick],[onerror],[onload],[onmouseover]').forEach(function(el){
         ['onclick','onerror','onload','onmouseover'].forEach(function(attr){ el.removeAttribute(attr); });
       });
-      var target = document.getElementById(page === 'ctf-room' ? 'ctfRoomPage' : page + 'Page');
+      var target = document.getElementById(page + 'Page');
       if (target) {
         target.innerHTML = doc.body.innerHTML;
         // Back to Home aur footer links — onclick attribute strip ho jaata hai
@@ -2127,7 +2127,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     author: 'AlexCyberX Security Team',
     tags: ['Web Exploitation', 'AlexCyberX Labs'],
     diff: 'Easy', pts: 50, xp: 100,
-    flag: 'ACX{c0mm3nts_4r3_n0t_s3cr3t}',
     hint: 'Browser mein Ctrl+U (View Source) dabao aur HTML comments <!-- --> dhundo.',
     labUrl: '/pages/labs/lab-hidden.html',
     labApiPath: '/api/lab/hidden',
@@ -2147,7 +2146,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     desc: 'NovaCorp Employee Portal blindly trusts its session cookies. A leaked employee account has been found. Can you escalate your privileges and access the Admin Control Panel?',
     author: 'AlexCyberX',
     diff: 'Medium', pts: 150, xp: 250,
-    flag: 'ACX{c00k13s_4r3_n0t_s3cur3}',
     hints: ['Check DevTools Application tab and inspect all cookies set after login.', 'One cookie is Base64 encoded JSON. Decode it with atob() in browser console.', 'The server checks more than one cookie. Changing only one triggers a security alert.'],
     labUrl: '/pages/labs/lab-cookie.html',
     labApiPath: '/api/lab/cookie',
@@ -2160,7 +2158,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     desc: 'VaultBank Employee Portal has a vulnerable search feature. Extract the flag from a hidden database table using UNION-based SQL injection.',
     author: 'AlexCyberX',
     diff: 'Medium', pts: 200, xp: 350,
-    flag: 'ACX{un10n_s3l3ct_g0t_m3}',
     hints: ['Add a single quote to the search field to trigger a SQL error and confirm the injection point.', 'Use ORDER BY to count columns, then UNION SELECT NULL to find which column accepts strings.', 'Query information_schema.tables to find hidden tables, then extract data from vault_secrets.'],
     labUrl: '/pages/labs/lab-sqli101.html',
     labApiPath: '/api/lab/sqli101',
@@ -2173,7 +2170,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     desc: 'NexaCloud has misconfigured its crawler directives. The robots.txt file reveals hidden internal paths. One of them leads to a vault that holds the flag.',
     author: 'AlexCyberX',
     diff: 'Easy', pts: 50, xp: 80,
-    flag: 'ACX{r0b0ts_txt_l34ks_s3cr3ts}',
     hints: ['Every website has a robots.txt at /robots.txt. Always check it during recon.', 'The Disallow entries list paths that are meant to stay hidden. Visit each one.', 'The vault needs a passcode. Check the page source of the homepage carefully.'],
     labUrl: '/pages/labs/lab-robots.html',
     labApiPath: '/api/lab/robots',
@@ -2188,7 +2184,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     desc: 'A machine on the CorpX LAN was flagged for unusual outbound DNS activity. A 20-second packet capture was taken at the egress point. Download the PCAP, isolate the suspicious traffic, and reconstruct what was exfiltrated.',
     author: 'AlexCyberX',
     diff: 'Medium', pts: 150, xp: 250,
-    flag: 'ACX{p4ck3t_d3t3ct1v3_dn5_3xf1l}',
     hints: [
       'Filter by dns in Wireshark. One internal IP is querying an external domain repeatedly and getting NXDOMAIN every time.',
       'The parent domain is data.corpx-sync.net. Collect the 4 subdomain labels in timestamp order.',
@@ -2205,7 +2200,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     desc: 'Someone shared an image on PixelDrop. The image looks normal but was flagged during a metadata review. Download it and extract the EXIF data to find the hidden flag.',
     author: 'AlexCyberX',
     diff: 'Easy', pts: 75, xp: 120,
-    flag: 'ACX{m3t4_d4t4_1s_3v3rywh3r3}',
     hints: ['Image files store hidden data called EXIF metadata beyond just pixels.', 'Use exiftool or an online viewer like exifinfo.net to read all fields.', 'The flag is split across 4 fields. Find them all and figure out the correct order.'],
     labUrl: '/pages/labs/lab-metadata.html',
     labApiPath: '/api/lab/metadata',
@@ -2218,7 +2212,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     desc: 'CorpX SOC pulled a full day of Apache access logs after detecting unusual activity. 2,156 requests, one attacker hidden in the noise. Find the IP, identify both tools used, and name the path that was targeted for SQL injection.',
     author: 'AlexCyberX',
     diff: 'Hard', pts: 350, xp: 600,
-    flag: 'ACX{45.33.32.156__sqlmap__/admin/config.php}',
     hints: [
       'Count requests per IP with awk and uniq -c. One IP has far more requests than any legitimate visitor.',
       'Filter by the attacker IP and check unique User-Agent strings. Two distinct tools were used at different times of day.',
@@ -2237,7 +2230,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     desc: "An encrypted transmission was intercepted from a dark web channel linked to underground group RedCell. The message is protected with a classic substitution cipher. Decrypt it and extract the verification token.",
     author: 'AlexCyberX',
     diff: 'Easy', pts: 50, xp: 80,
-    flag: 'ACX{veni_vidi_vici_shift3}',
     hints: [
       'The cipher is named after the Roman emperor who invented it. He used a fixed letter shift to encode his military messages.',
       'The shift value is the same one Julius Caesar used in his own correspondence -- a single digit, historically documented.',
@@ -2254,7 +2246,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     desc: 'A suspicious file was found in the NovaSat NS-7 telemetry export directory. It has a .jpg extension but it is not an image. Open it as text, decode what you find, and peel back both layers to extract the flag.',
     author: 'AlexCyberX',
     diff: 'Easy', pts: 50, xp: 80,
-    flag: 'ACX{base64_is_not_encryption}',
     hints: [
       'Open the file in a text editor or with cat. It is not an image -- the content is a single Base64 encoded string.',
       'Decoding the file gives a telemetry message, not the flag. Look for the ENCODED PAYLOAD section inside that message.',
@@ -2270,7 +2261,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     title: 'RSA Weak Keys',
     desc: 'Small primes se generate ki gayi RSA key di gayi hai. N = 3233, e = 17. Ciphertext = 2790. Private key recover karo aur message decrypt karo.',
     diff: 'Hard', pts: 400, xp: 700,
-    flag: 'ACX{rsa_small_primes_are_vulnerable}',
     hint: 'p aur q dhundo jinka product N=3233 ho. Factor: 61 × 53. Phir d = e⁻¹ mod φ(N).',
     solvers: 19
   },
@@ -2281,7 +2271,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     title: 'Google Dorking',
     desc: 'AlexCyberX ke creator ka full name dhundo jo publicly available hai. Website, social media, ya YouTube channel check karo.',
     diff: 'Easy', pts: 50, xp: 75,
-    flag: 'ACX{Pawan_Tanwar_AlexCyberX}',
     hint: 'alexcyberx.com ka "About" section ya YouTube channel description dekho.',
     solvers: 289
   },
@@ -2290,7 +2279,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     title: 'Wayback Machine',
     desc: 'Ek website ne apna content delete kar diya lekin internet poori tarah bhoolti nahi. web.archive.org use karke deleted content dhundo.',
     diff: 'Medium', pts: 150, xp: 250,
-    flag: 'ACX{internet_never_forgets}',
     hint: 'web.archive.org pe URL enter karo aur purane snapshots dekho.',
     solvers: 73
   },
@@ -2299,7 +2287,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     title: 'Geolocation Challenge',
     desc: 'Di gayi image mein ek location hai. Buildings, signs, aur landscape ke clues use karke exact city identify karo. Format: ACX{City_Country}',
     diff: 'Hard', pts: 300, xp: 500,
-    flag: 'ACX{Jhalawar_India}',
     hint: 'Image mein Rajasthani architecture aur Hindi signboards dhundo.',
     solvers: 41
   },
@@ -2310,7 +2297,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     title: 'Buffer Overflow 101',
     desc: 'Ek vulnerable C program diya gaya hai jo `gets()` function use karta hai. Stack overflow karke return address overwrite karo aur win() function call karo.',
     diff: 'Hard', pts: 400, xp: 700,
-    flag: 'ACX{buffer_overflow_pwned}',
     hint: 'gdb use karo buffer size dhundne ke liye. Pattern create karo: `python3 -c "print(\'A\'*100)"`. EIP/RIP offset dhundo.',
     solvers: 15
   },
@@ -2319,7 +2305,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     title: 'Format String Bug',
     desc: 'Yeh program user input ko directly printf mein pass karta hai. Format string vulnerability exploit karke stack se flag read karo.',
     diff: 'Hard', pts: 450, xp: 800,
-    flag: 'ACX{format_string_leaks_memory}',
     hint: '`%x %x %x %x` input deke stack values leak karo. `%s` use karke string read karo.',
     solvers: 9
   },
@@ -2330,7 +2315,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     title: 'Strings Hunt',
     desc: 'Ek compiled binary diya gaya hai. Reverse engineer karo aur hidden flag dhundo. Sirf `strings` command se kaam chalega.',
     diff: 'Easy', pts: 75, xp: 120,
-    flag: 'ACX{strings_command_is_powerful}',
     hint: '`strings binary_file | grep ACX` command chalao.',
     solvers: 156
   },
@@ -2339,7 +2323,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     title: 'XOR Decoder',
     desc: 'Flag ko XOR se encrypt kiya gaya hai key = 0x42 se. Encrypted bytes: [0x03, 0x07, 0x13, 0x26, 0x20, 0x07, 0x36, 0x07, 0x25]. Decode karo.',
     diff: 'Medium', pts: 200, xp: 350,
-    flag: 'ACX{xor_is_reversible}',
     hint: 'Python: `bytes([b ^ 0x42 for b in encrypted]).decode()`. XOR apni reverse operation hai.',
     solvers: 62
   },
@@ -2350,7 +2333,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     title: 'QR Code Mystery',
     desc: 'Ek QR code image di gayi hai jo normal QR scanners se scan nahi hoti. Image mein kuch modified hai, carefully dekho. QR decoder tools try karo.',
     diff: 'Medium', pts: 150, xp: 250,
-    flag: 'ACX{qr_codes_hide_secrets}',
     hint: 'zbarimg ya online QR decoder use karo. Image pe adjustments try karo (brightness/contrast).',
     solvers: 83
   },
@@ -2359,7 +2341,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     title: 'Steganography Intro',
     desc: 'Ek innocent-looking image mein data chhupa hua hai. Steganography tools use karo aur hidden message extract karo.',
     diff: 'Medium', pts: 175, xp: 300,
-    flag: 'ACX{stego_hides_data_in_plain_sight}',
     hint: 'steghide ya zsteg tool use karo. `steghide extract -sf image.jpg` try karo.',
     solvers: 71
   },
@@ -2368,7 +2349,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     title: 'Linux Basics',
     desc: 'Ek Linux server pe ek file hai `/home/ctf/flag.txt` lekin permission se protected hai. Correct command dhundo aur file read karo. Flag format: ACX{...}',
     diff: 'Easy', pts: 50, xp: 75,
-    flag: 'ACX{linux_permissions_matter}',
     hint: '`ls -la` se permissions dekho. `chmod`, `sudo`, ya `find / -name flag.txt` try karo.',
     solvers: 198
   }
@@ -3193,11 +3173,9 @@ async function submitCTFFlag() {
       });
       const data = await res.json().catch(() => ({}));
       isCorrect = !!(res.ok && data.success);
-      // Fallback: if server says wrong but client-side flag matches, accept it
-      // (handles case where server has stale/old flag after redeploy)
-      if (!isCorrect && c.flag && flag.trim() === c.flag.trim()) {
-        isCorrect = true;
-      }
+      // Lab backend hi sole source of truth hai — flag client pe kabhi nahi aata,
+      // isliye yahan koi client-side fallback nahi hai. Agar redeploy ke baad
+      // flag stale ho jaaye, woh server/lab route mein fix karna hoga.
       // Lab backend ne validate kiya — ab Supabase mein bhi record karo via RPC
       if (isCorrect && window._supabase && c.dbId) {
         const { data: rpcRes } = await window._supabase.rpc('submit_ctf_flag', {
@@ -3232,14 +3210,22 @@ async function submitCTFFlag() {
       isCorrect = result.correct || result.already_solved;
       earnedXP  = result.already_solved ? 0 : (result.points_earned || c.xp);
     } else {
-      // UUID nahi mila — client-side fallback (dev only)
-      console.warn('[CTF] UUID not found, client-side check (dev only)');
-      isCorrect = (flag === c.flag);
+      // UUID nahi mila — flag client pe kabhi available nahi hota, isliye
+      // yahan validate karna possible nahi hai. Fail safely, user ko batao.
+      console.warn('[CTF] UUID not found, cannot validate flag client-side');
+      showFlagMsg('error', '[!] Could not verify this challenge right now. Please try again shortly.');
+      btn.disabled = false;
+      btn.textContent = 'Submit';
+      return;
     }
   } else {
-    // Fallback: Supabase unavailable (dev mode)
-    console.warn('[CTF] Supabase unavailable — client-side check (dev only)');
-    isCorrect = (flag === c.flag);
+    // Supabase unavailable — flag client pe nahi hai, isliye validate nahi kar sakte.
+    // Fail safely instead of silently rejecting or accepting.
+    console.warn('[CTF] Supabase unavailable — cannot validate flag');
+    showFlagMsg('error', '[!] Could not connect to server. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Submit';
+    return;
   }
 
   if (isCorrect) {

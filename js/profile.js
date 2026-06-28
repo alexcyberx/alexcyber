@@ -1,15 +1,9 @@
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════
    js/profile.js  —  AlexCyberX Profile Dashboard
-   Phase 2: read-only stats + badges + leaderboard
-             + notifications + settings tab
-   Depends on: _supabase (config.js), window._currentUser (auth.js),
-               showPage / saveProfile / doLogout (router.js / auth.js)
-═══════════════════════════════════════════════════ */
+   Fixed: .catch() on rpc, patchShowPage timing, 404 on leaderboard/notifs
+═══════════════════════════════════════════════════════════════ */
 
-/* ───────────────────────────────────────────────
-   BADGE SVG SYSTEM (copied from admin.html so profile
-   can render badge icons without importing admin)
-─────────────────────────────────────────────────*/
+/* ── BADGE SVG SYSTEM ─────────────────────────────────────────*/
 const PF_BADGE_ICONS = {
   medal:   '<path d="M7 2l1.2 3.6H12L9.1 7.4l1.1 3.6L7 9l-3.2 2 1.1-3.6L2 5.6h3.8z" stroke="C" stroke-width="1.3" stroke-linejoin="round"/>',
   flame:   '<path d="M7 12c-2.8 0-5-1.8-5-4.5 0-1.8 1-3 2-4 .2 1.2.8 2 1.5 2.5C5.5 4.5 6.5 2 7 1c.5 2 2.5 3 2.5 5 .7-.5 1.2-1.3 1.5-2.5 1 1 2 2.2 2 4C13 10.2 9.8 12 7 12z" stroke="C" stroke-width="1.2" stroke-linejoin="round"/>',
@@ -30,22 +24,16 @@ function pfBadgeSVG(icon, color) {
   return `<svg width="22" height="22" viewBox="0 0 14 14" fill="none">${path.replace(/C/g, color)}</svg>`;
 }
 
-/* ───────────────────────────────────────────────
-   DAILY CHALLENGE — date-seeded deterministic RNG
-─────────────────────────────────────────────────*/
+/* ── DAILY CHALLENGE ──────────────────────────────────────────*/
 function pfDailyChallenge(challenges) {
   if (!challenges || !challenges.length) return null;
-  // Seed: integer of today's date (YYYYMMDD)
   const d = new Date();
   const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-  // Simple LCG hash
   const idx = Math.abs((seed * 1103515245 + 12345) & 0x7fffffff) % challenges.length;
   return challenges[idx];
 }
 
-/* ───────────────────────────────────────────────
-   HELPERS
-─────────────────────────────────────────────────*/
+/* ── HELPERS ──────────────────────────────────────────────────*/
 function escHtml(s) {
   if (!s) return '';
   return String(s)
@@ -62,8 +50,7 @@ function pfTimeAgo(iso) {
   if (m < 60) return m + 'm ago';
   const h = Math.floor(m / 60);
   if (h < 24) return h + 'h ago';
-  const day = Math.floor(h / 24);
-  return day + 'd ago';
+  return Math.floor(h / 24) + 'd ago';
 }
 
 function pfCatColor(cat) {
@@ -74,9 +61,7 @@ function pfCatColor(cat) {
   return map[(cat||'').toLowerCase()] || '#6a6a7a';
 }
 
-/* ───────────────────────────────────────────────
-   TAB SWITCHER
-─────────────────────────────────────────────────*/
+/* ── TAB SWITCHER ─────────────────────────────────────────────*/
 function pfShowTab(tab) {
   document.querySelectorAll('.pf-tab').forEach(b =>
     b.classList.toggle('active', b.dataset.tab === tab)
@@ -84,22 +69,17 @@ function pfShowTab(tab) {
   document.querySelectorAll('.pf-tab-panel').forEach(p =>
     p.classList.toggle('active', p.id === 'pfTab-' + tab)
   );
-  // Lazy-load leaderboard on first open
-  if (tab === 'leaderboard') pfLoadLeaderboard(false);
-  // Load notifications on first open
+  if (tab === 'leaderboard')   pfLoadLeaderboard(false);
   if (tab === 'notifications') pfLoadNotifications();
 }
 
-/* ───────────────────────────────────────────────
-   RENDER STATS from get_profile_stats() result
-─────────────────────────────────────────────────*/
+/* ── RENDER STATS ─────────────────────────────────────────────*/
 function pfRenderStats(s) {
-  // Hero numbers
   const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
 
   const xp      = s.xp || 0;
   const level   = s.level || 1;
-  const rank    = s.rank  || '—';
+  const rank    = s.rank;
   const solved  = s.ctf_solved  || 0;
   const total   = s.ctf_total   || 0;
   const badges  = s.badge_count || 0;
@@ -109,7 +89,7 @@ function pfRenderStats(s) {
 
   setText('pfXP',            xp.toLocaleString());
   setText('pfLevel',         level);
-  setText('pfRank',          rank === null ? '—' : '#' + rank);
+  setText('pfRank',          (rank == null) ? '—' : '#' + rank);
   setText('pfSolved',        solved);
   setText('pfRemaining',     Math.max(0, total - solved));
   setText('pfBadges',        badges);
@@ -117,17 +97,15 @@ function pfRenderStats(s) {
   setText('pfStreakCurrent', streakC);
   setText('pfStreakLongest', streakL);
 
-  // XP bar: 500 XP per level
-  const xpInLevel   = xp % 500;
-  const pct         = Math.min(100, Math.round((xpInLevel / 500) * 100));
-  const fill        = document.getElementById('pfXpFill');
-  const pctEl       = document.getElementById('pfXpBarPct');
-  const labelEl     = document.getElementById('pfXpBarLabel');
-  if (fill)   fill.style.width = pct + '%';
-  if (pctEl)  pctEl.textContent = pct + '%';
+  const xpInLevel = xp % 500;
+  const pct       = Math.min(100, Math.round((xpInLevel / 500) * 100));
+  const fill      = document.getElementById('pfXpFill');
+  const pctEl     = document.getElementById('pfXpBarPct');
+  const labelEl   = document.getElementById('pfXpBarLabel');
+  if (fill)    fill.style.width = pct + '%';
+  if (pctEl)   pctEl.textContent = pct + '%';
   if (labelEl) labelEl.textContent = `Lv ${level} → Lv ${level + 1}`;
 
-  // Streak dots (last 7 days visual — always show 7, fill current streak)
   const dotsEl = document.getElementById('pfStreakDots');
   if (dotsEl) {
     const filled = Math.min(7, streakC);
@@ -136,7 +114,6 @@ function pfRenderStats(s) {
     ).join('');
   }
 
-  // Recent solves
   pfRenderRecentSolves(s.recent_solves);
 }
 
@@ -165,17 +142,14 @@ function pfRenderRecentSolves(solves) {
   `).join('');
 }
 
-/* ───────────────────────────────────────────────
-   RENDER BADGES
-─────────────────────────────────────────────────*/
+/* ── RENDER BADGES ────────────────────────────────────────────*/
 function pfRenderBadges(earnedBadges, allBadges) {
-  const earnedEl  = document.getElementById('pfBadgeGrid');
-  const lockedEl  = document.getElementById('pfBadgeGridLocked');
+  const earnedEl = document.getElementById('pfBadgeGrid');
+  const lockedEl = document.getElementById('pfBadgeGridLocked');
   if (!earnedEl || !lockedEl) return;
 
   const earnedIds = new Set((earnedBadges || []).map(b => b.badge_id));
 
-  // Earned
   if (!earnedBadges || !earnedBadges.length) {
     earnedEl.innerHTML = '<div class="pf-empty">No badges earned yet. Keep going!</div>';
   } else {
@@ -188,7 +162,6 @@ function pfRenderBadges(earnedBadges, allBadges) {
     `).join('');
   }
 
-  // Locked — show all badges not yet earned
   const locked = (allBadges || []).filter(b => !earnedIds.has(b.id));
   if (!locked.length) {
     lockedEl.innerHTML = '<div class="pf-empty">You have earned every badge! 🎉</div>';
@@ -214,21 +187,24 @@ function pfBadgeRule(b) {
   }
 }
 
-/* ───────────────────────────────────────────────
-   LEADERBOARD (on-demand fetch)
-─────────────────────────────────────────────────*/
+/* ── LEADERBOARD ──────────────────────────────────────────────*/
 let _pfLbLoaded = false;
 
 async function pfLoadLeaderboard(force) {
   if (_pfLbLoaded && !force) return;
   const el = document.getElementById('pfLeaderboard');
-  if (!el || !_supabase) return;
+  if (!el) return;
+
+  const sb = window._supabase || window.supabase?.createClient;
+  if (!sb) { el.innerHTML = '<div class="pf-empty">Not connected.</div>'; return; }
 
   el.innerHTML = '<div class="pf-empty">Loading…</div>';
 
   try {
-    const { data, error } = await _supabase.rpc('get_leaderboard', { p_limit: 50 });
-    if (error) throw error;
+    const res  = await window._supabase.rpc('get_leaderboard', { p_limit: 50 });
+    const data = res.data;
+    const err  = res.error;
+    if (err) throw err;
 
     _pfLbLoaded = true;
 
@@ -238,7 +214,6 @@ async function pfLoadLeaderboard(force) {
     }
 
     const myId = window._currentUser?.id;
-
     el.innerHTML = data.map((u, i) => {
       const isMe  = u.user_id === myId;
       const rank  = i + 1;
@@ -257,32 +232,34 @@ async function pfLoadLeaderboard(force) {
       `;
     }).join('');
   } catch(e) {
+    console.error('Leaderboard error:', e);
     el.innerHTML = '<div class="pf-empty">Could not load leaderboard.</div>';
   }
 }
 
-/* ───────────────────────────────────────────────
-   NOTIFICATIONS
-─────────────────────────────────────────────────*/
+/* ── NOTIFICATIONS ────────────────────────────────────────────*/
 let _pfNotifsLoaded = false;
 
 async function pfLoadNotifications() {
   if (_pfNotifsLoaded) return;
   const el = document.getElementById('pfNotifList');
-  if (!el || !_supabase || !window._currentUser) return;
+  if (!el || !window._supabase || !window._currentUser) return;
 
   el.innerHTML = '<div class="pf-empty">Loading…</div>';
 
   try {
-    // Fetch own notifications + broadcasts (user_id IS NULL handled by RLS)
-    const { data, error } = await _supabase
+    const userId = window._currentUser.id;
+    const res = await window._supabase
       .from('notifications')
       .select('*')
-      .or(`user_id.eq.${window._currentUser.id},user_id.is.null`)
+      .or(`user_id.eq.${userId},user_id.is.null`)
       .order('created_at', { ascending: false })
       .limit(30);
 
-    if (error) throw error;
+    const data = res.data;
+    const err  = res.error;
+    if (err) throw err;
+
     _pfNotifsLoaded = true;
 
     if (!data || !data.length) {
@@ -305,15 +282,16 @@ async function pfLoadNotifications() {
       </div>
     `).join('');
   } catch(e) {
+    console.error('Notifications error:', e);
     el.innerHTML = '<div class="pf-empty">Could not load notifications.</div>';
   }
 }
 
 async function pfMarkNotifsRead() {
-  if (!_supabase || !window._currentUser) return;
+  if (!window._supabase || !window._currentUser) return;
   try {
-    await _supabase.rpc('mark_notifications_read', { p_user_id: window._currentUser.id });
-    _pfNotifsLoaded = false; // force re-render
+    await window._supabase.rpc('mark_notifications_read', { p_user_id: window._currentUser.id });
+    _pfNotifsLoaded = false;
     pfUpdateNotifDot(false);
     pfLoadNotifications();
   } catch(e) {}
@@ -324,111 +302,119 @@ function pfUpdateNotifDot(show) {
   if (dot) dot.style.display = show ? '' : 'none';
 }
 
-/* ───────────────────────────────────────────────
-   DAILY CHALLENGE RENDER
-─────────────────────────────────────────────────*/
+/* ── DAILY CHALLENGE RENDER ───────────────────────────────────*/
 function pfRenderDailyChallenge(challenges) {
   const el = document.getElementById('pfDailyInner');
   if (!el) return;
-
   const ch = pfDailyChallenge(challenges);
   if (!ch) {
     el.innerHTML = '<div class="pf-daily-loading">No challenges available.</div>';
     return;
   }
-
   el.innerHTML = `
-    <div class="pf-daily-cat" style="color:${pfCatColor(ch.category)}">${escHtml(ch.category || '').toUpperCase()}</div>
+    <div class="pf-daily-cat" style="color:${pfCatColor(ch.category)}">${escHtml((ch.category||'').toUpperCase())}</div>
     <div class="pf-daily-title">${escHtml(ch.title)}</div>
     <div class="pf-daily-meta">
-      <span class="pf-daily-diff pf-daily-diff--${(ch.difficulty||'').toLowerCase()}">${escHtml(ch.difficulty || '')}</span>
+      <span class="pf-daily-diff pf-daily-diff--${(ch.difficulty||'').toLowerCase()}">${escHtml(ch.difficulty||'')}</span>
       <span>·</span>
-      <span>${ch.points || 0} pts</span>
+      <span>${ch.points||0} pts</span>
     </div>
     <button class="pf-daily-btn" onclick="showPage('ctf')">Go to challenge →</button>
   `;
 }
 
-/* ───────────────────────────────────────────────
-   MAIN INIT — called by showPage('profile')
-─────────────────────────────────────────────────*/
+/* ── MAIN INIT ────────────────────────────────────────────────*/
 async function initProfilePage() {
-  if (!window._currentUser || !_supabase) return;
+  const sb   = window._supabase;
+  const user = window._currentUser;
+  if (!user || !sb) {
+    console.warn('initProfilePage: no user or supabase', { user, sb });
+    return;
+  }
 
-  const userId = window._currentUser.id;
+  const userId = user.id;
 
-  // Update login streak (fire-and-forget)
-  _supabase.rpc('update_login_streak', { p_user_id: userId }).catch(() => {});
+  // Fire-and-forget streak — wrapped in Promise to avoid .catch() issue
+  Promise.resolve(sb.rpc('update_login_streak', { p_user_id: userId })).catch(() => {});
 
-  // Load all data in parallel
+  // Parallel fetch
   const [statsRes, badgesRes, allBadgesRes, challengesRes] = await Promise.allSettled([
-    _supabase.rpc('get_profile_stats', { p_user_id: userId }),
-    _supabase.from('user_badges')
+    sb.rpc('get_profile_stats', { p_user_id: userId }),
+    sb.from('user_badges')
       .select('badge_id, earned_at, badges(id, name, icon, color, rule, value, description)')
       .eq('user_id', userId)
       .order('earned_at', { ascending: false }),
-    _supabase.from('badges').select('*').order('created_at'),
-    _supabase.from('ctf_challenges').select('id,title,category,difficulty,points').eq('status','active'),
+    sb.from('badges').select('*').order('created_at'),
+    sb.from('ctf_challenges').select('id,title,category,difficulty,points').eq('status','active'),
   ]);
 
   // Stats
-  if (statsRes.status === 'fulfilled' && !statsRes.value.error) {
+  if (statsRes.status === 'fulfilled' && !statsRes.value?.error) {
     pfRenderStats(statsRes.value.data || {});
+  } else {
+    console.error('Stats error:', statsRes.reason || statsRes.value?.error);
   }
 
   // Badges
-  const earnedBadges = (badgesRes.status === 'fulfilled' && !badgesRes.value.error)
+  const earnedBadges = (badgesRes.status === 'fulfilled' && !badgesRes.value?.error)
     ? (badgesRes.value.data || []).map(r => ({
-        badge_id:    r.badge_id,
-        earned_at:   r.earned_at,
-        name:        r.badges?.name,
-        icon:        r.badges?.icon,
-        color:       r.badges?.color,
+        badge_id:  r.badge_id,
+        earned_at: r.earned_at,
+        name:      r.badges?.name,
+        icon:      r.badges?.icon,
+        color:     r.badges?.color,
       }))
     : [];
-  const allBadges = (allBadgesRes.status === 'fulfilled' && !allBadgesRes.value.error)
+  const allBadges = (allBadgesRes.status === 'fulfilled' && !allBadgesRes.value?.error)
     ? (allBadgesRes.value.data || [])
     : [];
   pfRenderBadges(earnedBadges, allBadges);
 
   // Daily challenge
-  const challenges = (challengesRes.status === 'fulfilled' && !challengesRes.value.error)
+  const challenges = (challengesRes.status === 'fulfilled' && !challengesRes.value?.error)
     ? (challengesRes.value.data || [])
     : [];
   pfRenderDailyChallenge(challenges);
 
-  // Notifications dot (quick unread count — don't load full list yet)
+  // Notif dot
   try {
-    const { count } = await _supabase
+    const res = await sb
       .from('notifications')
       .select('id', { count: 'exact', head: true })
       .or(`user_id.eq.${userId},user_id.is.null`)
       .eq('read', false);
-    pfUpdateNotifDot(count > 0);
+    pfUpdateNotifDot((res.count || 0) > 0);
   } catch(e) {}
 }
 
-/* ───────────────────────────────────────────────
-   HOOK INTO router.js showPage('profile')
-   We patch showPage to call initProfilePage after
-   the original function runs.
-─────────────────────────────────────────────────*/
-(function patchShowPage() {
-  const _orig = window.showPage;
-  if (typeof _orig !== 'function') {
-    // router.js not yet loaded — retry once scripts are deferred
-    window.addEventListener('DOMContentLoaded', patchShowPage);
+/* ── PATCH showPage — with retry if router not ready ──────────*/
+function _pfPatchShowPage() {
+  if (typeof window.showPage !== 'function') {
+    // router.js not ready yet — retry
+    setTimeout(_pfPatchShowPage, 50);
     return;
   }
+  const _orig = window.showPage;
   window.showPage = function(page, skipPush) {
     _orig.call(this, page, skipPush);
     if (page === 'profile') {
-      // Reset tab state to activity on each open
       pfShowTab('activity');
-      // Reset lazy-load flags so data refreshes each visit
-      _pfLbLoaded    = false;
+      _pfLbLoaded     = false;
       _pfNotifsLoaded = false;
       initProfilePage();
     }
   };
-})();
+}
+
+// Start patching immediately + also on DOMContentLoaded as fallback
+_pfPatchShowPage();
+document.addEventListener('DOMContentLoaded', () => {
+  // If current page is already profile on load
+  const path = window.location.pathname;
+  if (path === '/profile' || path.includes('profile')) {
+    setTimeout(() => {
+      pfShowTab('activity');
+      initProfilePage();
+    }, 300);
+  }
+});

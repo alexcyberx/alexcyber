@@ -42,7 +42,6 @@ const PAGE_TO_PATH = {
   learn:       '/tutorials/network-forensics',
   learn2:      '/tutorials/cyber-attacks-fundamentals',
   ctf:         '/rooms',
-  ctfroom:     '/rooms/browse',
   tools:       '/tools',
   profile:     '/profile',
   privacy:     '/privacy-policy',
@@ -108,10 +107,6 @@ function showPage(page, skipPush) {
   const ctfP = document.getElementById('ctfPage');
   if (ctfP) ctfP.classList.toggle('active', page === 'ctf');
 
-  // CTF Room page
-  const ctfRoomP = document.getElementById('ctfRoomPage');
-  if (ctfRoomP) ctfRoomP.classList.toggle('active', page === 'ctfroom');
-
   // Legal pages
   const legalPages = ['privacy', 'terms', 'disclaimer', 'refund', 'cookie', 'donotsell', 'legalwarning'];
   legalPages.forEach(id => {
@@ -146,8 +141,6 @@ function showPage(page, skipPush) {
     document.title = 'Tools - AlexCyberX';
   } else if (page === 'ctf') {
     document.title = 'CTF Challenges - AlexCyberX';
-  } else if (page === 'ctfroom') {
-    document.title = 'CTF Room - AlexCyberX';
   }
 
   // Show/hide learn sub-nav and home nav links
