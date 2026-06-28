@@ -330,9 +330,13 @@ async function loadUserProfile(authUser) {
   if (_supabase) {
     const { data } = await _supabase.from('profiles').select('*').eq('id', authUser.id).single();
     if (data) {
-      profile.name     = data.full_name     || profile.name;
-      profile.username = data.username      || profile.username;
-      profile.bio      = data.bio           || profile.bio;
+      profile.name       = data.full_name   || profile.name;
+      profile.username   = data.username    || profile.username;
+      profile.bio        = data.bio         || profile.bio;
+      profile.xp         = data.xp         || 0;
+      profile.level      = data.level       || 1;
+      profile.ctf_solves = data.ctf_solves  || 0;
+      profile.badge_count= data.badge_count || 0;
     }
   }
   updateNavForUser(profile);
@@ -412,6 +416,9 @@ function updateNavForUser(user) {
     setText('profileDisplayEmail', user.email    || '');
     setText('pfUsernameTag',       user.username ? '@' + user.username : '');
     setText('pfBioDisplay',        user.bio      || '');
+    // XP / level / solves — set karo agar profile page pe pehle se hain
+    if (user.xp    != null) setText('pfXP',    (user.xp || 0).toLocaleString());
+    if (user.level != null) setText('pfLevel', user.level || 1);
     const fields = { profileName: user.name, profileEmail: user.email, profileUsername: user.username || '', profileBio: user.bio || '' };
     Object.entries(fields).forEach(([id, val]) => { const el = document.getElementById(id); if (el) el.value = val || ''; });
   } else {
@@ -471,9 +478,21 @@ async function saveProfile() {
     document.getElementById('profileNewPw').value   = '';
     document.getElementById('profileConfirmPw').value = '';
   }
-  updateNavForUser({ email: data.user.email, name, username: uname, bio, id: data.user.id });
+  // Update in-memory user so profile page reflects new data without reload
+  if (window._currentUser) {
+    window._currentUser.name     = name;
+    window._currentUser.username = uname;
+    window._currentUser.bio      = bio;
+  }
+  updateNavForUser({
+    email: data.user.email, name, username: uname, bio, id: data.user.id,
+    xp:          window._currentUser?.xp          || 0,
+    level:       window._currentUser?.level        || 1,
+    ctf_solves:  window._currentUser?.ctf_solves   || 0,
+    badge_count: window._currentUser?.badge_count  || 0
+  });
   if (msg) { msg.style.color='#60c060'; msg.textContent='Changes saved!'; }
-  setTimeout(() => { showPage('home'); }, 1200);
+  // Stay on profile page — do NOT redirect to home
 }
 
 /* ═══════════════════════════════════════════

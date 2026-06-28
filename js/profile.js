@@ -355,7 +355,7 @@ async function initProfilePage() {
       .eq('user_id', userId)
       .order('earned_at', { ascending: false }),
     sb.from('badges').select('*').order('created_at'),
-    sb.from('ctf_challenges').select('id,title,category,difficulty,points').eq('status','active').limit(100),
+    sb.from('ctf_challenges_public').select('id,slug,title,category,difficulty,points').limit(100),
   ]);
 
   // Stats

@@ -176,7 +176,7 @@ function _uid() {
       window._ctfSlugToUuid = {};
       try {
         const { data, error } = await window._supabase
-          .from('ctf_challenges')
+          .from('ctf_challenges_public')
           .select('id, slug, title, status');
 
         if (error || !data || !data.length) {
@@ -355,8 +355,7 @@ async function _verifyWithSupabase(userId) {
     const { data, error } = await window._supabase
       .from('ctf_solves')
       .select('challenge_id, points_earned')
-      .eq('user_id', userId)
-      .eq('correct', true);
+      .eq('user_id', userId);
 
     if (error) { console.warn('[SYNC] ctf_solves fetch error:', error.message); return; }
     if (!data || data.length === 0) {
