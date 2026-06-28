@@ -345,6 +345,13 @@ async function loadUserProfile(authUser) {
   if (ctfEl && ctfEl.classList.contains('active')) {
     if (typeof initCTFPage === 'function') initCTFPage();
   }
+
+  // Agar Profile page already active hai (e.g. /profile direct open hua)
+  // toh initProfilePage reinit karo kyunki pehle user null tha
+  const pfEl = document.getElementById('profilePage');
+  if (pfEl && pfEl.classList.contains('active')) {
+    if (typeof initProfilePage === 'function') initProfilePage();
+  }
 }
 
 // CTF page's solved-state is namespaced by user id in localStorage (see ctf.html).

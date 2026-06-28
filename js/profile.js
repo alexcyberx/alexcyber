@@ -195,13 +195,13 @@ async function pfLoadLeaderboard(force) {
   const el = document.getElementById('pfLeaderboard');
   if (!el) return;
 
-  const sb = window._supabase || window.supabase?.createClient;
+  const sb = window._supabase;
   if (!sb) { el.innerHTML = '<div class="pf-empty">Not connected.</div>'; return; }
 
   el.innerHTML = '<div class="pf-empty">Loading…</div>';
 
   try {
-    const res  = await window._supabase.rpc('get_leaderboard', { p_limit: 50 });
+    const res  = await sb.rpc('get_leaderboard', { p_limit: 50 });
     const data = res.data;
     const err  = res.error;
     if (err) throw err;
@@ -243,13 +243,15 @@ let _pfNotifsLoaded = false;
 async function pfLoadNotifications() {
   if (_pfNotifsLoaded) return;
   const el = document.getElementById('pfNotifList');
-  if (!el || !window._supabase || !window._currentUser) return;
+  const sb = window._supabase;
+  const user = window._currentUser;
+  if (!el || !sb || !user) return;
 
   el.innerHTML = '<div class="pf-empty">Loading…</div>';
 
   try {
-    const userId = window._currentUser.id;
-    const res = await window._supabase
+    const userId = user.id;
+    const res = await sb
       .from('notifications')
       .select('*')
       .or(`user_id.eq.${userId},user_id.is.null`)
@@ -288,9 +290,11 @@ async function pfLoadNotifications() {
 }
 
 async function pfMarkNotifsRead() {
-  if (!window._supabase || !window._currentUser) return;
+  const sb = window._supabase;
+  const user = window._currentUser;
+  if (!sb || !user) return;
   try {
-    await window._supabase.rpc('mark_notifications_read', { p_user_id: window._currentUser.id });
+    await sb.rpc('mark_notifications_read', { p_user_id: user.id });
     _pfNotifsLoaded = false;
     pfUpdateNotifDot(false);
     pfLoadNotifications();
@@ -324,11 +328,17 @@ function pfRenderDailyChallenge(challenges) {
 }
 
 /* ── MAIN INIT ────────────────────────────────────────────────*/
+let _pfInitRunning = false;
+
 async function initProfilePage() {
+  if (_pfInitRunning) return; // Prevent concurrent duplicate calls
+  _pfInitRunning = true;
+
   const sb   = window._supabase;
   const user = window._currentUser;
   if (!user || !sb) {
     console.warn('initProfilePage: no user or supabase', { user, sb });
+    _pfInitRunning = false;
     return;
   }
 
@@ -353,6 +363,8 @@ async function initProfilePage() {
     pfRenderStats(statsRes.value.data || {});
   } else {
     console.error('Stats error:', statsRes.reason || statsRes.value?.error);
+    // RPC fail hone par bhi empty state render karo — "Loading..." stuck na rahe
+    pfRenderStats({});
   }
 
   // Badges
@@ -385,15 +397,22 @@ async function initProfilePage() {
       .eq('read', false);
     pfUpdateNotifDot((res.count || 0) > 0);
   } catch(e) {}
+
+  _pfInitRunning = false;
 }
 
 /* ── PATCH showPage — with retry if router not ready ──────────*/
+let _pfPatched = false;
+
 function _pfPatchShowPage() {
   if (typeof window.showPage !== 'function') {
     // router.js not ready yet — retry
     setTimeout(_pfPatchShowPage, 50);
     return;
   }
+  if (_pfPatched) return; // Double-patch guard
+  _pfPatched = true;
+
   const _orig = window.showPage;
   window.showPage = function(page, skipPush) {
     _orig.call(this, page, skipPush);
@@ -401,7 +420,9 @@ function _pfPatchShowPage() {
       pfShowTab('activity');
       _pfLbLoaded     = false;
       _pfNotifsLoaded = false;
-      initProfilePage();
+      _pfInitRunning  = false; // Allow fresh init on each profile visit
+      // Small defer so DOM is visible before Supabase fetch
+      setTimeout(initProfilePage, 50);
     }
   };
 }
@@ -409,12 +430,19 @@ function _pfPatchShowPage() {
 // Start patching immediately + also on DOMContentLoaded as fallback
 _pfPatchShowPage();
 document.addEventListener('DOMContentLoaded', () => {
-  // If current page is already profile on load
+  // Apply patch if not done yet (in case router.js loaded late)
+  _pfPatchShowPage();
+
+  // If current URL is /profile on first load, init once user is available
   const path = window.location.pathname;
-  if (path === '/profile' || path.includes('profile')) {
+  if (path === '/profile' || path.startsWith('/profile')) {
+    // Auth will trigger initProfilePage via loadUserProfile hook in auth.js.
+    // This is a fallback in case the user was already set before DOMContentLoaded.
     setTimeout(() => {
-      pfShowTab('activity');
-      initProfilePage();
-    }, 300);
+      if (window._currentUser && window._supabase) {
+        pfShowTab('activity');
+        initProfilePage();
+      }
+    }, 600);
   }
 });
