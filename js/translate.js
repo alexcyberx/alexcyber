@@ -330,6 +330,72 @@ function refreshOpenCTFModal() {
 // Punjabi, Tamil, Telugu, Bengali, Marathi) yahan hand-written hain, taaki
 // machine translation ki zarurat na pade in jaane-mane challenges ke liye.
 const CTF_OVERRIDES = {
+  'for-01': {
+    hl: {
+      desc: 'CorpX LAN pe ek machine unusual outbound DNS activity ke liye flag hua. Egress point pe 20-second ka packet capture liya gaya. PCAP download karo, suspicious traffic isolate karo, aur pata karo kya exfiltrate kiya gaya.',
+      hints: [
+        'Wireshark mein dns filter lagao. Ek internal IP baar baar ek external domain query kar raha hai aur har baar NXDOMAIN aa raha hai.',
+        'Parent domain hai data.corpx-sync.net. 4 subdomain labels ko timestamp order mein collect karo.',
+        'Labels join karo, uppercase karo, = signs se multiple of 8 tak pad karo, phir Base32 decode karo. CyberChef iske liye best hai.'
+      ]
+    },
+    en: {
+      desc: 'A machine on the CorpX LAN was flagged for unusual outbound DNS activity. A 20-second packet capture was taken at the egress point. Download the PCAP, isolate the suspicious traffic, and reconstruct what was exfiltrated.',
+      hints: [
+        'Filter by dns in Wireshark. One internal IP is querying an external domain repeatedly and getting NXDOMAIN every time.',
+        'The parent domain is data.corpx-sync.net. Collect the 4 subdomain labels in timestamp order.',
+        'Join the labels, convert to uppercase, pad to a multiple of 8 with = signs, then Base32 decode. CyberChef works well for this.'
+      ]
+    },
+    hi: {
+      desc: 'CorpX LAN पर एक मशीन को असामान्य outbound DNS activity के लिए flag किया गया। Egress point पर 20-second का packet capture लिया गया। PCAP download करो, suspicious traffic isolate करो, और पता करो क्या exfiltrate किया गया।',
+      hints: [
+        'Wireshark में dns filter लगाओ। एक internal IP बार-बार एक external domain query कर रहा है और हर बार NXDOMAIN मिल रहा है।',
+        'Parent domain है data.corpx-sync.net। 4 subdomain labels को timestamp order में collect करो।',
+        'Labels join करो, uppercase करो, = signs से multiple of 8 तक pad करो, फिर Base32 decode करो। CyberChef इसके लिए बेस्ट है।'
+      ]
+    },
+    pa: {
+      desc: 'CorpX LAN ਤੇ ਇੱਕ machine ਨੂੰ unusual outbound DNS activity ਲਈ flag ਕੀਤਾ ਗਿਆ। Egress point ਤੇ 20-second ਦਾ packet capture ਲਿਆ ਗਿਆ। PCAP download ਕਰੋ, suspicious traffic isolate ਕਰੋ, ਅਤੇ ਪਤਾ ਕਰੋ ਕੀ exfiltrate ਕੀਤਾ ਗਿਆ।',
+      hints: [
+        'Wireshark ਵਿੱਚ dns filter ਲਗਾਓ। ਇੱਕ internal IP ਵਾਰ-ਵਾਰ ਇੱਕ external domain query ਕਰ ਰਿਹਾ ਹੈ ਅਤੇ ਹਰ ਵਾਰ NXDOMAIN ਮਿਲਦਾ ਹੈ।',
+        'Parent domain ਹੈ data.corpx-sync.net। 4 subdomain labels ਨੂੰ timestamp order ਵਿੱਚ collect ਕਰੋ।',
+        'Labels join ਕਰੋ, uppercase ਕਰੋ, = signs ਨਾਲ multiple of 8 ਤੱਕ pad ਕਰੋ, ਫਿਰ Base32 decode ਕਰੋ। CyberChef ਇਸ ਲਈ ਬੈਸਟ ਹੈ।'
+      ]
+    },
+    ta: {
+      desc: 'CorpX LAN-இல் ஒரு machine அசாதாரண outbound DNS செயல்பாட்டிற்காக flag செய்யப்பட்டது. Egress point-இல் 20-second packet capture எடுக்கப்பட்டது. PCAP பதிவிறக்கி, suspicious traffic-ஐ தனிமைப்படுத்தி, என்ன exfiltrate செய்யப்பட்டது என்று கண்டறியுங்கள்.',
+      hints: [
+        'Wireshark-இல் dns filter போடுங்கள். ஒரு internal IP திரும்பத்திரும்ப ஒரு external domain-ஐ query செய்கிறது, ஒவ்வொரு முறையும் NXDOMAIN வருகிறது.',
+        'Parent domain data.corpx-sync.net. 4 subdomain labels-ஐ timestamp வரிசையில் சேகரியுங்கள்.',
+        'Labels-ஐ join செய்து, uppercase-ஆக மாற்றி, = signs-ஆல் 8-இன் மடங்காக pad செய்து, Base32 decode செய்யுங்கள். CyberChef இதற்கு சிறந்தது.'
+      ]
+    },
+    te: {
+      desc: 'CorpX LAN‌లో ఒక machine అసాధారణ outbound DNS కార్యకలాపానికి flag చేయబడింది. Egress point‌లో 20-second packet capture తీసుకోబడింది. PCAP డౌన్‌లోడ్ చేసి, suspicious traffic‌ను వేరుచేసి, ఏమి exfiltrate చేయబడిందో కనుగొనండి.',
+      hints: [
+        'Wireshark‌లో dns filter వేయండి. ఒక internal IP పదే పదే ఒక external domain‌ను query చేస్తోంది మరియు ప్రతిసారి NXDOMAIN వస్తోంది.',
+        'Parent domain data.corpx-sync.net. 4 subdomain labels‌ను timestamp క్రమంలో సేకరించండి.',
+        'Labels‌ను join చేసి, uppercase‌కు మార్చి, = signs‌తో 8 యొక్క గుణకంగా pad చేసి, Base32 decode చేయండి. CyberChef దీనికి బాగా పనిచేస్తుంది.'
+      ]
+    },
+    bn: {
+      desc: 'CorpX LAN-এ একটি machine অস্বাভাবিক outbound DNS কার্যকলাপের জন্য flag হয়েছে। Egress point-এ 20-second packet capture নেওয়া হয়েছে। PCAP download করুন, suspicious traffic আলাদা করুন, এবং কী exfiltrate করা হয়েছে তা পুনর্গঠন করুন।',
+      hints: [
+        'Wireshark-এ dns filter দিন। একটি internal IP বারবার একটি external domain query করছে এবং প্রতিবার NXDOMAIN পাচ্ছে।',
+        'Parent domain হল data.corpx-sync.net। 4 subdomain labels টাইমস্ট্যাম্প ক্রমে সংগ্রহ করুন।',
+        'Labels জোড়া দিন, uppercase করুন, = signs দিয়ে 8-এর গুণিতক পর্যন্ত pad করুন, তারপর Base32 decode করুন। CyberChef এর জন্য ভালো।'
+      ]
+    },
+    mr: {
+      desc: 'CorpX LAN वर एक machine ला असामान्य outbound DNS क्रियाकलापासाठी flag केले गेले. Egress point वर 20-second चे packet capture घेतले. PCAP download करा, suspicious traffic वेगळा करा, आणि काय exfiltrate केले गेले ते शोधा.',
+      hints: [
+        'Wireshark मध्ये dns filter लावा. एक internal IP वारंवार एक external domain query करत आहे आणि प्रत्येक वेळी NXDOMAIN मिळत आहे.',
+        'Parent domain आहे data.corpx-sync.net. 4 subdomain labels timestamp क्रमाने गोळा करा.',
+        'Labels join करा, uppercase करा, = signs ने 8 च्या पटीत pad करा, मग Base32 decode करा. CyberChef यासाठी उत्तम आहे.'
+      ]
+    }
+  },
   'web-01': {
     en: {
       desc: 'There is a website with something hidden in its source code. Carefully look at the page source. Developers sometimes leave a lot behind in comments.',
@@ -511,7 +577,7 @@ function applyCTFStaticOverride(lang) {
 
 async function applyCTFTranslation(lang) {
   if (typeof ctfChallenges === 'undefined') return;
-  if (lang === 'hl') { restoreCTFOriginal(); return; }
+  if (lang === 'hl') { restoreCTFOriginal(); applyCTFStaticOverride('hl'); return; }
 
   storeCTFOriginals();
 

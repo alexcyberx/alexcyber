@@ -1533,9 +1533,17 @@ async function handleContactSubmit() {
   setTimeout(() => setStatus('', true), 4000);
 }
 function handleCourseClick() {
+  if (!window._currentUser) {
+    showAuth('login', 'learn');
+    return;
+  }
   showPage('learn');
 }
 function handleCourse2Click() {
+  if (!window._currentUser) {
+    showAuth('login', 'learn2');
+    return;
+  }
   showPage('learn2');
 }
 
@@ -2831,6 +2839,11 @@ function openCTFModal(id) {
     flagSection.style.display = 'none';
     solvedBadge.style.display = 'block';
     document.getElementById('solvedXpLabel').textContent = `+${ctfSolved[id]?.xp || c.xp} XP earned`;
+    // Solved hone ke baad: Restart/ViewLab hide, START show, timer hide
+    if (startWrap) startWrap.style.display = 'block';
+    if (runningWrap) runningWrap.style.display = 'none';
+    if (timerRow) { timerRow.classList.remove('show'); }
+    if (typeof ctfTimerPoll !== 'undefined' && ctfTimerPoll) { clearInterval(ctfTimerPoll); ctfTimerPoll = null; }
   } else {
     // Show flag if: no lab, OR lab already running (sessionStorage se check)
     const showFlag = !c.labUrl || isLabRunning;
@@ -3138,6 +3151,12 @@ async function submitCTFFlag() {
     return;
   }
 
+  // Already solved guard — ek challenge se ek hi baar XP milega
+  if (ctfSolved[c.id]) {
+    showFlagMsg('error', '[!] Already solved. No additional XP awarded.');
+    return;
+  }
+
   const inp = document.getElementById('ctfFlagInput');
   const btn = document.getElementById('ctfSubmitBtn');
   const flag = inp.value.trim();
@@ -3181,9 +3200,12 @@ async function submitCTFFlag() {
       }
       // Lab backend ne validate kiya — ab Supabase mein bhi record karo via RPC
       if (isCorrect && window._supabase && c.dbId) {
-        await window._supabase.rpc('submit_ctf_flag', {
+        const { data: rpcRes } = await window._supabase.rpc('submit_ctf_flag', {
           p_challenge_id: c.dbId, p_flag: flag
-        }).catch(() => {}); // non-fatal, lab already confirmed
+        }).catch(() => ({ data: null }));
+        // Agar DB already_solved return kare toh XP 0 karo
+        const rpcResult = rpcRes?.[0] || rpcRes || {};
+        if (rpcResult.already_solved) { earnedXP = 0; }
       }
     } catch (e) {
       showFlagMsg('error', '[!] Could not connect to server. Please try again.');
@@ -3208,7 +3230,7 @@ async function submitCTFFlag() {
       }
       const result = rpcData?.[0] || rpcData || {};
       isCorrect = result.correct || result.already_solved;
-      earnedXP  = result.already_solved ? c.xp : (result.points_earned || c.xp);
+      earnedXP  = result.already_solved ? 0 : (result.points_earned || c.xp);
     } else {
       // UUID nahi mila — client-side fallback (dev only)
       console.warn('[CTF] UUID not found, client-side check (dev only)');
@@ -3252,6 +3274,14 @@ async function submitCTFFlag() {
       badge.classList.remove('pop');
       requestAnimationFrame(() => badge.classList.add('pop'));
       document.getElementById('solvedXpLabel').textContent = `+${c.xp} XP earned`;
+      // Solved: Restart/ViewLab hide, START show, timer hide
+      const sw = document.getElementById('ctfStartWrap');
+      const rw = document.getElementById('ctfRunningWrap');
+      const tr = document.getElementById('ctfTimerRow');
+      if (sw) sw.style.display = 'block';
+      if (rw) rw.style.display = 'none';
+      if (tr) tr.classList.remove('show');
+      if (typeof ctfTimerPoll !== 'undefined' && ctfTimerPoll) { clearInterval(ctfTimerPoll); ctfTimerPoll = null; }
     }, 1500);
 
   } else {

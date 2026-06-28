@@ -1,17 +1,157 @@
 <div id="profilePage" class="page">
-  <div class="profile-wrap">
-    <div class="profile-card">
-      <div class="profile-banner">
-        <div class="profile-banner-overlay"></div>
-        <div class="profile-avatar-wrap">
-          <div class="profile-avatar" id="profileAvatarBig">A</div>
+  <div class="pf-wrap">
+
+    <!-- ── HERO CARD ─────────────────────────────── -->
+    <div class="pf-hero-card">
+      <div class="pf-hero-bg"></div>
+      <div class="pf-hero-body">
+        <div class="pf-avatar" id="profileAvatarBig">A</div>
+        <div class="pf-hero-info">
+          <div class="pf-hero-name"  id="profileDisplayName">Alex Cyberx</div>
+          <div class="pf-hero-meta">
+            <span id="profileDisplayEmail">user@example.com</span>
+            <span class="pf-hero-sep">·</span>
+            <span id="pfUsernameTag" style="color:var(--red)">@username</span>
+          </div>
         </div>
       </div>
-      <div class="profile-body">
-        <div class="profile-name" id="profileDisplayName">Alex User</div>
-        <div class="profile-email-tag" id="profileDisplayEmail">user@example.com</div>
+    </div>
 
-        <div class="profile-section-title">Personal Information</div>
+    <!-- ── STATS ROW ──────────────────────────────── -->
+    <div class="pf-stats-row">
+      <div class="pf-stat-box">
+        <div class="pf-stat-val" id="pfXP">—</div>
+        <div class="pf-stat-lbl">TOTAL XP</div>
+      </div>
+      <div class="pf-stat-box">
+        <div class="pf-stat-val" id="pfLevel">—</div>
+        <div class="pf-stat-lbl">LEVEL</div>
+      </div>
+      <div class="pf-stat-box">
+        <div class="pf-stat-val pf-stat-val--red" id="pfRank">—</div>
+        <div class="pf-stat-lbl">GLOBAL RANK</div>
+      </div>
+    </div>
+
+    <!-- ── XP PROGRESS BAR ───────────────────────── -->
+    <div class="pf-card">
+      <div class="pf-xpbar-header">
+        <span class="pf-card-title" id="pfXpBarLabel">LEVEL PROGRESS</span>
+        <span class="pf-xp-pct" id="pfXpBarPct">—</span>
+      </div>
+      <div class="pf-xpbar-track">
+        <div class="pf-xpbar-fill" id="pfXpFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- ── CTF STATS GRID ─────────────────────────── -->
+    <div class="pf-grid-2">
+      <div class="pf-card pf-stat-card">
+        <div class="pf-stat-icon pf-stat-icon--green">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="pf-stat-val" id="pfSolved">—</div>
+        <div class="pf-stat-lbl">SOLVED</div>
+      </div>
+      <div class="pf-card pf-stat-card">
+        <div class="pf-stat-icon pf-stat-icon--gray">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="pf-stat-val" id="pfRemaining">—</div>
+        <div class="pf-stat-lbl">REMAINING</div>
+      </div>
+      <div class="pf-card pf-stat-card">
+        <div class="pf-stat-icon pf-stat-icon--yellow">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="pf-stat-val" id="pfBadges">—</div>
+        <div class="pf-stat-lbl">BADGES</div>
+      </div>
+      <div class="pf-card pf-stat-card">
+        <div class="pf-stat-icon pf-stat-icon--red">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="pf-stat-val" id="pfFirstBloods">—</div>
+        <div class="pf-stat-lbl">FIRST BLOODS</div>
+      </div>
+    </div>
+
+    <!-- ── DAILY STREAK ───────────────────────────── -->
+    <div class="pf-card">
+      <div class="pf-card-title">🔥 DAILY STREAK</div>
+      <div class="pf-streak-row">
+        <div class="pf-streak-dots" id="pfStreakDots">
+          <div class="pf-streak-dot"></div><div class="pf-streak-dot"></div>
+          <div class="pf-streak-dot"></div><div class="pf-streak-dot"></div>
+          <div class="pf-streak-dot"></div><div class="pf-streak-dot"></div>
+          <div class="pf-streak-dot"></div>
+        </div>
+        <div class="pf-streak-info">
+          <span id="pfStreakCurrent">—</span> day streak
+          <span class="pf-streak-best">Best: <span id="pfStreakLongest">—</span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DAILY CHALLENGE ────────────────────────── -->
+    <div class="pf-card">
+      <div class="pf-card-title">⏰ DAILY CHALLENGE</div>
+      <div id="pfDailyInner"><div class="pf-daily-loading">Loading...</div></div>
+    </div>
+
+    <!-- ── TABS ───────────────────────────────────── -->
+    <div class="pf-tabs">
+      <button class="pf-tab active"        data-tab="activity"       onclick="pfShowTab('activity')">Activity</button>
+      <button class="pf-tab"               data-tab="badges"         onclick="pfShowTab('badges')">Badges</button>
+      <button class="pf-tab"               data-tab="leaderboard"    onclick="pfShowTab('leaderboard')">Leaderboard</button>
+      <button class="pf-tab"               data-tab="notifications"  onclick="pfShowTab('notifications')">
+        Notifs <span id="pfNotifDot" class="pf-notif-dot" style="display:none"></span>
+      </button>
+      <button class="pf-tab"               data-tab="settings"       onclick="pfShowTab('settings')">Settings</button>
+    </div>
+
+    <!-- ── TAB: ACTIVITY ─────────────────────────── -->
+    <div class="pf-tab-panel active" id="pfTab-activity">
+      <div class="pf-card">
+        <div class="pf-card-title">Recent Solves</div>
+        <div id="pfRecentSolves"><div class="pf-empty">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- ── TAB: BADGES ───────────────────────────── -->
+    <div class="pf-tab-panel" id="pfTab-badges">
+      <div class="pf-card">
+        <div class="pf-card-title">Earned Badges</div>
+        <div class="pf-badge-grid" id="pfBadgeGrid"></div>
+      </div>
+      <div class="pf-card">
+        <div class="pf-card-title">Locked Badges</div>
+        <div class="pf-badge-grid" id="pfBadgeGridLocked"></div>
+      </div>
+    </div>
+
+    <!-- ── TAB: LEADERBOARD ──────────────────────── -->
+    <div class="pf-tab-panel" id="pfTab-leaderboard">
+      <div class="pf-card">
+        <div id="pfLeaderboard"><div class="pf-empty">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- ── TAB: NOTIFICATIONS ────────────────────── -->
+    <div class="pf-tab-panel" id="pfTab-notifications">
+      <div class="pf-card">
+        <div class="pf-card-title-row">
+          <div class="pf-card-title">Notifications</div>
+          <button class="pf-mark-read-btn" onclick="pfMarkNotifsRead()">Mark all read</button>
+        </div>
+        <div id="pfNotifList"><div class="pf-empty">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- ── TAB: SETTINGS ─────────────────────────── -->
+    <div class="pf-tab-panel" id="pfTab-settings">
+      <div class="pf-card">
+        <div class="pf-card-title">Personal Information</div>
         <div class="profile-field">
           <label class="profile-label">Full Name</label>
           <input class="profile-input" id="profileName" type="text" placeholder="Aapka naam"/>
@@ -30,22 +170,24 @@
         </div>
 
         <div class="profile-divider"></div>
-        <div class="profile-section-title">Change Password</div>
+        <div class="pf-card-title">Change Password</div>
         <div class="profile-field">
           <label class="profile-label">New Password</label>
           <input class="profile-input" id="profileNewPw" type="password" placeholder="Naya password (optional)"/>
         </div>
         <div class="profile-field">
-          <label class="profile-label">Confirm New Password</label>
+          <label class="profile-label">Confirm Password</label>
           <input class="profile-input" id="profileConfirmPw" type="password" placeholder="Dobara dalo"/>
         </div>
 
         <div class="profile-divider"></div>
         <div class="profile-msg" id="profileMsg"></div>
-        <button class="profile-save-btn" onclick="saveProfile()">Save Changes</button>
+        <button class="profile-save-btn"   onclick="saveProfile()">Save Changes</button>
         <button class="profile-logout-btn" onclick="doLogout()">Sign Out</button>
       </div>
     </div>
+
+    <!-- bottom padding -->
+    <div style="height:32px"></div>
   </div>
 </div>
-
