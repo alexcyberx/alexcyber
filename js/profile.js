@@ -355,15 +355,17 @@ async function initProfilePage() {
       .eq('user_id', userId)
       .order('earned_at', { ascending: false }),
     sb.from('badges').select('*').order('created_at'),
-    sb.from('ctf_challenges').select('id,title,category,difficulty,points').eq('status','active'),
+    sb.from('ctf_challenges').select('id,title,category,difficulty,points').eq('status','active').limit(100),
   ]);
 
   // Stats
   if (statsRes.status === 'fulfilled' && !statsRes.value?.error) {
-    pfRenderStats(statsRes.value.data || {});
+    // RPC returns array with one element — extract it
+    const raw = statsRes.value.data;
+    const statsData = Array.isArray(raw) ? (raw[0] || {}) : (raw || {});
+    pfRenderStats(statsData);
   } else {
     console.error('Stats error:', statsRes.reason || statsRes.value?.error);
-    // RPC fail hone par bhi empty state render karo — "Loading..." stuck na rahe
     pfRenderStats({});
   }
 
