@@ -1,0 +1,1278 @@
+<!-- ═══════════════════════════════════════════
+     CTF PAGE — AlexCyberX
+     Add this as pages/ctf.html
+     And include in index.html + router.js
+═══════════════════════════════════════════ -->
+<div id="ctfPage" class="page" style="display:none;">
+<style>
+/* ── CTF PAGE STYLES ── */
+.ctf-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
+
+/* Header */
+.ctf-header { margin-bottom: 32px; }
+.ctf-header-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.ctf-title-wrap {}
+.ctf-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; color: var(--red); text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.ctf-eyebrow-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: ctf-blink 2s ease-in-out infinite; }
+@keyframes ctf-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.ctf-page-title { font-family: 'Rajdhani', sans-serif; font-size: 32px; font-weight: 700; color: var(--white); line-height: 1.1; margin-bottom: 6px; }
+.ctf-page-sub { font-size: 13px; color: var(--text-dim); line-height: 1.6; max-width: 480px; }
+
+/* Stats bar */
+.ctf-stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+.ctf-stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; min-width: 120px; }
+.ctf-stat-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ctf-stat-icon.red   { background: var(--red-dim); border: 1px solid rgba(220,20,20,0.2); }
+.ctf-stat-icon.green { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.15); }
+.ctf-stat-icon.blue  { background: rgba(99,179,237,0.08); border: 1px solid rgba(99,179,237,0.15); }
+.ctf-stat-icon.gold  { background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.15); }
+.ctf-stat-val  { font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; color: var(--white); line-height: 1; }
+.ctf-stat-lbl  { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
+
+/* XP Banner for guests */
+.ctf-login-banner { background: var(--surface); border: 1px solid rgba(220,20,20,0.2); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+.ctf-login-banner svg { flex-shrink: 0; color: var(--red); }
+.ctf-login-banner p { font-size: 13px; color: var(--text-dim); flex: 1; }
+.ctf-login-banner p strong { color: var(--white); }
+.ctf-login-banner button { font-size: 12px; white-space: nowrap; padding: 8px 16px; background: var(--red); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; transition: background 0.2s; }
+.ctf-login-banner button:hover { background: #e81818; }
+
+/* Filter bar */
+.ctf-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; }
+.ctf-filter-btn { font-size: 12px; font-weight: 500; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; }
+.ctf-filter-btn:hover, .ctf-filter-btn.active { background: var(--red-dim); border-color: rgba(220,20,20,0.3); color: var(--white); }
+.ctf-filter-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+.ctf-diff-btn { font-size: 11px; font-weight: 600; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: transparent; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; letter-spacing: 0.3px; }
+.ctf-diff-btn.easy   { color: #4ade80; }
+.ctf-diff-btn.medium { color: #fb923c; }
+.ctf-diff-btn.hard   { color: #f87171; }
+.ctf-diff-btn.active.easy   { background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.3); }
+.ctf-diff-btn.active.medium { background: rgba(251,146,60,0.1); border-color: rgba(251,146,60,0.3); }
+.ctf-diff-btn.active.hard   { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); }
+.ctf-search { margin-left: auto; position: relative; }
+.ctf-search input { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px 7px 32px; font-size: 12px; color: var(--white); font-family: 'Inter', sans-serif; width: 200px; outline: none; transition: border-color 0.2s; }
+.ctf-search input:focus { border-color: rgba(220,20,20,0.4); }
+.ctf-search input::placeholder { color: var(--text-dim); }
+.ctf-search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+
+/* Challenge grid */
+.ctf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+
+/* Challenge card */
+.ctf-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 22px; position: relative; transition: border-color 0.2s, transform 0.15s; cursor: pointer; display: flex; flex-direction: column; gap: 0; }
+.ctf-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+.ctf-card.solved { border-color: rgba(74,222,128,0.2); }
+.ctf-card.solved::after { content: '✓ Solved'; position: absolute; top: 12px; right: 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: #4ade80; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); padding: 3px 8px; border-radius: 20px; }
+
+.ctf-card-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+.ctf-card-icon { width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; }
+.ctf-cat-web     { background: rgba(99,179,237,0.1); border: 1px solid rgba(99,179,237,0.15); }
+.ctf-cat-forensics { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.15); }
+.ctf-cat-crypto  { background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.15); }
+.ctf-cat-osint   { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.15); }
+.ctf-cat-pwn     { background: rgba(220,20,20,0.1); border: 1px solid rgba(220,20,20,0.2); }
+.ctf-cat-misc    { background: rgba(156,163,175,0.1); border: 1px solid rgba(156,163,175,0.15); }
+.ctf-cat-reversing { background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.15); }
+
+.ctf-card-info { flex: 1; min-width: 0; }
+.ctf-card-title { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ctf-card-cat { font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-dim); }
+
+.ctf-card-desc { font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.ctf-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }
+.ctf-diff-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; }
+.ctf-diff-badge.easy   { color: #4ade80; background: rgba(74,222,128,0.1); }
+.ctf-diff-badge.medium { color: #fb923c; background: rgba(251,146,60,0.1); }
+.ctf-diff-badge.hard   { color: #f87171; background: rgba(248,113,113,0.1); }
+.ctf-points { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--white); }
+.ctf-points span { font-size: 11px; color: var(--text-dim); font-family: 'Inter', sans-serif; font-weight: 400; }
+.ctf-solvers { font-size: 11px; color: var(--text-dim); }
+
+/* Empty state */
+.ctf-empty { text-align: center; padding: 60px 20px; grid-column: 1 / -1; }
+.ctf-empty-icon { width: 60px; height: 60px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+.ctf-empty h3 { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+.ctf-empty p { font-size: 13px; color: var(--text-dim); }
+
+/* ── MODAL ── */
+.ctf-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+.ctf-modal-overlay.active { display: flex; }
+.ctf-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; padding: 28px; position: relative; }
+.ctf-modal-close { position: absolute; top: 16px; right: 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-dim); transition: color 0.15s; }
+.ctf-modal-close:hover { color: var(--white); }
+.ctf-modal-cat { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.ctf-modal-title { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
+.ctf-modal-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+.ctf-modal-author { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 14px; }
+.ctf-modal-desc { font-size: 13px; color: var(--text); line-height: 1.7; margin-bottom: 22px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+.ctf-modal-hint-wrap { margin-bottom: 20px; }
+.ctf-hint-toggle { font-size: 12px; color: var(--red); cursor: pointer; background: none; border: none; font-family: 'Inter', sans-serif; display: flex; align-items: center; gap: 5px; padding: 0; }
+.ctf-hint-toggle:hover { text-decoration: underline; }
+.ctf-hint-box { background: rgba(250,204,21,0.05); border: 1px solid rgba(250,204,21,0.15); border-radius: 8px; padding: 12px 14px; margin-top: 10px; font-size: 12px; color: #fbbf24; line-height: 1.6; display: none; }
+.ctf-hint-box.visible { display: block; }
+.ctf-hint-cost { font-size: 11px; color: var(--text-dim); }
+
+/* Flag submission */
+.ctf-flag-section { }
+
+.ctf-timer-row{display:none;align-items:center;justify-content:space-between;background:rgba(220,20,20,0.06);border:1px solid rgba(220,20,20,0.18);border-radius:10px;padding:10px 14px;margin-bottom:14px;}
+.ctf-timer-row.show{display:flex;}
+.ctf-timer-left{display:flex;align-items:center;gap:8px;font-size:12px;color:#a0a0b8;}
+.ctf-timer-val{font-family:"JetBrains Mono",monospace;font-size:14px;font-weight:700;color:#ffffff;}
+.ctf-timer-val.warn{color:#fb923c;}
+.ctf-timer-val.danger{color:#dc1414;}
+
+.ctf-launch-btn.restart-mode{background:linear-gradient(135deg,#fb7185,#f43f5e);color:#fff;box-shadow:0 4px 14px rgba(244,63,94,0.25);}
+.ctf-launch-btn.restart-mode:hover{box-shadow:0 6px 18px rgba(244,63,94,0.35);}
+.ctf-launch-btn.restart-mode .ctf-launch-icon svg path{fill:#fff;}
+/* Restart Instance button (shown in modal after Start) */
+.ctf-restart-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;background:linear-gradient(135deg,#fb7185,#f43f5e);color:#fff;border:none;border-radius:11px;font-size:13px;font-weight:700;font-family:"Inter",sans-serif;cursor:pointer;transition:box-shadow 0.15s,transform 0.15s;box-shadow:0 4px 14px rgba(244,63,94,0.25);}
+.ctf-restart-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(244,63,94,0.35);}
+.ctf-restart-btn:active{transform:translateY(0);}
+/* View Lab button */
+.ctf-viewlab-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:11px;font-size:13px;font-weight:600;font-family:"Inter",sans-serif;cursor:pointer;text-decoration:none;transition:border-color 0.15s,color 0.15s;}
+.ctf-viewlab-btn:hover{border-color:rgba(255,255,255,0.25);color:var(--white);}
+/* Launch Lab button */
+.ctf-launch-btn { display:flex; align-items:center; justify-content:center; gap:9px; width:100%; padding:13px 16px; background:linear-gradient(135deg,#4ade80,#22c55e); border:none; border-radius:11px; color:#07070f; font-size:13.5px; font-weight:700; font-family:"Inter",sans-serif; cursor:pointer; text-decoration:none; margin-bottom:16px; transition:transform 0.15s,box-shadow 0.15s; box-shadow:0 4px 14px rgba(74,222,128,0.25); }
+.ctf-launch-btn:hover { transform:translateY(-1px); box-shadow:0 6px 18px rgba(74,222,128,0.35); }
+.ctf-launch-btn:active { transform:translateY(0); }
+.ctf-launch-icon{display:flex;align-items:center;justify-content:center;}
+.ctf-flag-label { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.ctf-flag-row { display: flex; gap: 8px; }
+.ctf-flag-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; font-size: 13px; color: var(--white); font-family: 'monospace', monospace; outline: none; transition: border-color 0.2s; }
+.ctf-flag-input:focus { border-color: rgba(220,20,20,0.4); }
+.ctf-flag-input::placeholder { color: var(--text-dim); font-family: 'Inter', sans-serif; font-size: 12px; }
+.ctf-flag-input.correct { border-color: #4ade80 !important; }
+.ctf-flag-input.wrong   { border-color: #f87171 !important; animation: ctf-shake 0.3s; }
+@keyframes ctf-shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.ctf-submit-btn { padding: 11px 20px; background: var(--red); color: #fff; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: background 0.2s, opacity 0.2s; white-space: nowrap; }
+.ctf-submit-btn:hover { background: #e81818; }
+.ctf-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ctf-flag-msg { margin-top: 10px; font-size: 12px; padding: 10px 14px; border-radius: 8px; display: none; }
+.ctf-flag-msg.success { display: block; color: #4ade80; background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.15); }
+.ctf-flag-msg.error   { display: block; color: #f87171; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.15); }
+
+.ctf-solved-badge { text-align: center; padding: 20px; background: rgba(74,222,128,0.05); border: 1px solid rgba(74,222,128,0.15); border-radius: 10px; }
+.ctf-solved-badge svg { margin-bottom: 8px; }
+.ctf-solved-badge p { font-size: 14px; font-weight: 600; color: #4ade80; }
+.ctf-solved-badge small { font-size: 12px; color: var(--text-dim); }
+
+.ctf-xp-pill { font-size: 12px; font-weight: 600; color: #fbbf24; background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.15); border-radius: 20px; padding: 4px 10px; }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .ctf-wrap { padding: 20px 14px 48px; }
+  .ctf-grid { grid-template-columns: 1fr; }
+  .ctf-search { margin-left: 0; width: 100%; }
+  .ctf-search input { width: 100%; }
+  .ctf-page-title { font-size: 24px; }
+  .ctf-page-sub { max-width: 100%; }
+  .ctf-stats { gap: 8px; }
+  .ctf-stat-card { flex: 1 1 calc(50% - 8px); min-width: 0; padding: 12px 14px; }
+  .ctf-login-banner { flex-wrap: wrap; }
+  .ctf-login-banner button { width: 100%; }
+  .ctf-modal-overlay { padding: 12px; }
+  .ctf-modal { padding: 20px; max-height: 92vh; }
+  .ctf-modal-title { font-size: 20px; }
+  #ctfRunningWrap > div { flex-direction: column; }
+  .ctf-flag-row { flex-direction: column; }
+  .ctf-submit-btn { width: 100%; }
+}
+@media (max-width: 380px) {
+  .ctf-stat-card { flex: 1 1 100%; }
+  .ctf-filters { gap: 6px; }
+  .ctf-filter-btn, .ctf-diff-btn { padding: 6px 10px; font-size: 11px; }
+  .ctf-modal { padding: 16px; border-radius: 14px; }
+}
+</style>
+
+<div class="ctf-wrap">
+
+  <!-- HEADER -->
+  <div class="ctf-header">
+    <div class="ctf-header-top">
+      <div class="ctf-title-wrap">
+        <div class="ctf-eyebrow">
+          <span class="ctf-eyebrow-dot"></span>
+          Capture The Flag
+        </div>
+        <h1 class="ctf-page-title">CTF Challenges</h1>
+        <p class="ctf-page-sub">Real-world cybersecurity challenges. Find the flag, earn XP, climb the leaderboard.</p>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="ctf-stats">
+      <div class="ctf-stat-card">
+        <div class="ctf-stat-icon red">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5L10.5 6.5H14.5L11 9.5L12.5 14.5L8 11.5L3.5 14.5L5 9.5L1.5 6.5H5.5L8 1.5Z" stroke="var(--red)" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="ctf-stat-val" id="ctfTotalCount">—</div>
+          <div class="ctf-stat-lbl">Total Challenges</div>
+        </div>
+      </div>
+      <div class="ctf-stat-card">
+        <div class="ctf-stat-icon green">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="ctf-stat-val" id="ctfSolvedCount">0</div>
+          <div class="ctf-stat-lbl">Solved</div>
+        </div>
+      </div>
+      <div class="ctf-stat-card">
+        <div class="ctf-stat-icon gold">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.8 3.6L14 6.4l-3 2.9.7 4.1L8 11.4l-3.7 2 .7-4.1-3-2.9 4.2-.8L8 2z" stroke="#fbbf24" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="ctf-stat-val" id="ctfTotalXP">0</div>
+          <div class="ctf-stat-lbl">XP Earned</div>
+        </div>
+      </div>
+      <div class="ctf-stat-card">
+        <div class="ctf-stat-icon blue">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1.5" stroke="#63b3ed" stroke-width="1.3"/><rect x="9" y="2" width="5" height="5" rx="1.5" stroke="#63b3ed" stroke-width="1.3"/><rect x="2" y="9" width="5" height="5" rx="1.5" stroke="#63b3ed" stroke-width="1.3"/><rect x="9" y="9" width="5" height="5" rx="1.5" stroke="#63b3ed" stroke-width="1.3"/></svg>
+        </div>
+        <div>
+          <div class="ctf-stat-val" id="ctfCategoryCount">7</div>
+          <div class="ctf-stat-lbl">Categories</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Banner (shown when not logged in) -->
+  <div class="ctf-login-banner" id="ctfLoginBanner" style="display:none;">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2a4 4 0 100 8 4 4 0 000-8zM3.5 17a6.5 6.5 0 0113 0" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <p><strong>Login karein</strong> apni progress save karne ke liye aur XP earn karne ke liye.</p>
+    <button onclick="showAuth('login')">Login / Sign Up</button>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="ctf-filters">
+    <button class="ctf-filter-btn active" data-cat="all" onclick="ctfSetFilter(this,'cat')">All</button>
+    <button class="ctf-filter-btn" data-cat="Web"       onclick="ctfSetFilter(this,'cat')">🌐 Web</button>
+    <button class="ctf-filter-btn" data-cat="Forensics" onclick="ctfSetFilter(this,'cat')">🔍 Forensics</button>
+    <button class="ctf-filter-btn" data-cat="Crypto"    onclick="ctfSetFilter(this,'cat')">🔐 Crypto</button>
+    <button class="ctf-filter-btn" data-cat="OSINT"     onclick="ctfSetFilter(this,'cat')">🕵️ OSINT</button>
+    <button class="ctf-filter-btn" data-cat="Pwn"       onclick="ctfSetFilter(this,'cat')">💥 Pwn</button>
+    <button class="ctf-filter-btn" data-cat="Reversing" onclick="ctfSetFilter(this,'cat')">⚙️ Reversing</button>
+    <button class="ctf-filter-btn" data-cat="Misc"      onclick="ctfSetFilter(this,'cat')">🎯 Misc</button>
+
+    <div class="ctf-filter-sep"></div>
+    <button class="ctf-diff-btn easy"   data-diff="Easy"   onclick="ctfSetFilter(this,'diff')">Easy</button>
+    <button class="ctf-diff-btn medium" data-diff="Medium" onclick="ctfSetFilter(this,'diff')">Medium</button>
+    <button class="ctf-diff-btn hard"   data-diff="Hard"   onclick="ctfSetFilter(this,'diff')">Hard</button>
+
+    <div class="ctf-search">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#6a6a7a" stroke-width="1.2"/><path d="M9 9l2.5 2.5" stroke="#6a6a7a" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <input type="text" id="ctfSearchInput" placeholder="Search challenges..." oninput="ctfRender()">
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div class="ctf-grid" id="ctfGrid">
+    <!-- Populated by JS -->
+  </div>
+
+</div>
+
+<!-- ── CHALLENGE MODAL ── -->
+<div class="ctf-modal-overlay" id="ctfModalOverlay" onclick="if(event.target===this)closeCTFModal()">
+  <div class="ctf-modal" id="ctfModal">
+    <button class="ctf-modal-close" onclick="closeCTFModal()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+
+    <div class="ctf-modal-cat" id="modalCat"></div>
+    <div class="ctf-modal-title" id="modalTitle"></div>
+    <div class="ctf-modal-meta" id="modalMeta"></div>
+    <div class="ctf-modal-author" id="modalAuthor"></div>
+    <div class="ctf-modal-desc" id="modalDesc"></div>
+
+    <div class="ctf-modal-hint-wrap">
+      <button class="ctf-hint-toggle" id="ctfHintToggle" onclick="toggleCTFHint()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5a4 4 0 0 0-2 7.5v1.3h4V9a4 4 0 0 0-2-7.5z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+        <span id="ctfHintToggleLabel">Show Hint</span>
+      </button>
+      <div class="ctf-hint-box" id="ctfHintBox"></div>
+    </div>
+
+    <!-- Launch Lab (shown if challenge has a lab) -->
+    <div id="ctfLaunchWrap" style="display:none;">
+      <!-- Start button (before instance is running) -->
+      <div id="ctfStartWrap">
+        <a class="ctf-launch-btn" id="ctfLaunchBtn" href="#" onclick="return ctfLaunchClick(event)">
+          <span class="ctf-launch-icon" id="ctfLaunchIconWrap">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M4 3l6 3.5L4 10V3z" fill="#07070f"/></svg>
+          </span>
+          <span id="ctfLaunchLabel">Start</span>
+        </a>
+      </div>
+      <!-- Restart Instance + View Lab buttons (shown after Start is clicked) -->
+      <div id="ctfRunningWrap" style="display:none;">
+        <div style="display:flex;gap:10px;margin-bottom:16px;">
+          <button class="ctf-restart-btn" id="ctfRestartBtn" onclick="ctfRestartFromModal()">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5a4 4 0 1 0 1-2.6" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><path d="M2.5 2.5v2h2" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Restart Instance
+          </button>
+          <a class="ctf-viewlab-btn" id="ctfViewLabBtn" href="#" onclick="return ctfOpenLabTab(event)">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M5 2H2.5A1.5 1.5 0 0 0 1 3.5v7A1.5 1.5 0 0 0 2.5 12h7A1.5 1.5 0 0 0 11 10.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8 1h4m0 0v4m0-4L6 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            View Lab
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instance timer (shown after Start) -->
+    <div class="ctf-timer-row" id="ctfTimerRow">
+      <div class="ctf-timer-left">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#ffffff" stroke-width="1.2"/><path d="M6.5 3.5v3l2 1.5" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Instance Time Remaining
+      </div>
+      <span class="ctf-timer-val" id="ctfTimerVal">30:00</span>
+    </div>
+
+    <!-- Flag submission -->
+    <div class="ctf-flag-section" id="ctfFlagSection" style="display:none;">
+      <div class="ctf-flag-label">Flag Submit Karein</div>
+      <div class="ctf-flag-row">
+        <input type="text" class="ctf-flag-input" id="ctfFlagInput" placeholder="ACX{your_flag_here}" autocomplete="off" onkeydown="if(event.key==='Enter')submitCTFFlag()">
+        <button class="ctf-submit-btn" id="ctfSubmitBtn" onclick="submitCTFFlag()">Submit</button>
+      </div>
+      <div class="ctf-flag-msg" id="ctfFlagMsg"></div>
+    </div>
+
+    <!-- Solved state -->
+    <div class="ctf-solved-badge" id="ctfSolvedBadge" style="display:none;">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="#4ade80" stroke-width="1.5"/><path d="M10 16l4 4 8-8" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <p>Challenge Solved! 🎉</p>
+      <small id="solvedXpLabel"></small>
+    </div>
+  </div>
+</div>
+
+<!-- ── CTF JAVASCRIPT ── -->
+<script>
+/* ═══════════════════════════════════════════
+   CTF DATA — AlexCyberX
+   Admin panel se manage hoga future mein (Supabase ctf_challenges table)
+   Abhi ke liye: local data (static seed)
+═══════════════════════════════════════════ */
+const CTF_CHALLENGES = [
+  // ── WEB ──
+  {
+    id: 'web-01', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
+    title: 'Hidden in Plain Sight',
+    desc: 'Ek website hai jiske source code mein kuch chupa hua hai. Page ka source carefully dekho — developers kabhi kabhi comments mein bahut kuch chhor dete hain.',
+    diff: 'Easy', pts: 50, xp: 100,
+    flag: 'ACX{html_comments_are_not_safe}',
+    hint: 'Browser mein Ctrl+U (View Source) dabao aur HTML comments <!-- --> dhundo.',
+    author: 'AlexCyberX',
+    solvers: 142,
+    lab_url: '/pages/labs/lab-hidden.html'
+  },
+  {
+    id: 'web-02', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
+    title: 'Cookie Monster',
+    desc: 'NovaCorp employee portal blindly apni session cookies pe trust karti hai. Ek leaked employee account ka access mila hai. Cookie ki value dekho aur samjho ki authentication kaise kaam kar rahi hai. Privilege escalate karke Admin Control Panel tak pahuncho.',
+    diff: 'Medium', pts: 150, xp: 250,
+    flag: 'ACX{cookies_can_be_tampered}',
+    hint: 'Browser DevTools (F12) → Application → Cookies. `isAdmin` cookie ki value dekho.',
+    author: 'AlexCyberX',
+    solvers: 67,
+    lab_url: '/pages/labs/lab-cookie.html'
+  },
+  {
+    id: 'web-03', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
+    title: 'SQL Injection 101',
+    desc: 'Login form mein SQL injection vulnerability hai. Database query directly user input ke saath ban rahi hai, bina proper sanitization ke. Burp Suite se POST /login request intercept karo, username field mein payload daalo, aur admin password extract karke authentication layer bypass karo.',
+    diff: 'Medium', pts: 200, xp: 350,
+    flag: 'ACX{sql1_bypassed_auth_layer}',
+    hint: "Username field mein `' OR '1'='1' --` try karo. Single quote se SQL error trigger hoga.",
+    author: 'AlexCyberX',
+    solvers: 89,
+    lab_url: '/pages/labs/lab-sqli.html'
+  },
+  {
+    id: 'web-04', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
+    title: 'robots.txt Secret',
+    desc: 'Website ka robots.txt file search engines ko bata deta hai ki kaunse paths index nahi karna hai, lekin yeh file khud public hoti hai. Ek restricted path is file mein chhupa hua hai. Usko dhundo aur visit karo.',
+    diff: 'Easy', pts: 50, xp: 80,
+    flag: 'ACX{robots_txt_not_a_security_measure}',
+    hint: '/robots.txt URL open karo aur Disallow entries dekho.',
+    author: 'AlexCyberX',
+    solvers: 210,
+    lab_url: '/pages/labs/lab-robots.html'
+  },
+
+  {
+    id: 'web-05', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
+    title: 'Stored XSS — EchoBoard',
+    desc: 'EchoBoard message board mein stored XSS vulnerability hai. Comment field unsanitized hai — payload inject karo jo victim browser pe execute ho.',
+    diff: 'Medium', pts: 200, xp: 350,
+    flag: 'ACX{st0red_xss_p4yload_exec}',
+    hint: 'POST /comment mein message field mein script tag ya event handler inject karo. Phir GET /comments se payload trigger karo.',
+    solvers: 0,
+    lab_url: '/pages/labs/lab-xss.html'
+  },
+
+  // ── FORENSICS ──
+  {
+    id: 'for-01', cat: 'Forensics', icon: '🔍', iconClass: 'ctf-cat-forensics',
+    title: 'Packet Detective',
+    desc: 'Ek PCAP file di gayi hai jisme suspicious traffic hai. Network packets analyze karo aur hidden data dhundo. HTTP traffic carefully dekho.',
+    diff: 'Medium', pts: 200, xp: 350,
+    flag: 'ACX{wireshark_follow_http_stream}',
+    hint: 'Wireshark mein HTTP packet select karo → Right click → Follow → HTTP Stream.',
+    solvers: 54,
+    lab_url: '/pages/labs/lab-packet.html'
+  },
+  {
+    id: 'for-02', cat: 'Forensics', icon: '🔍', iconClass: 'ctf-cat-forensics',
+    title: 'Metadata Matters',
+    desc: 'Ek image file di gayi hai jo dekhne mein bilkul normal lagti hai, lekin har image apne saath ek hidden metadata layer carry karti hai, jaise camera model, GPS location, ya editing software ka naam. Is image ke metadata ko inspect karo aur dekho kya chhupaya gaya hai.',
+    diff: 'Easy', pts: 75, xp: 120,
+    flag: 'ACX{exif_data_reveals_secrets}',
+    hint: '`exiftool image.jpg` command chalao ya online EXIF viewer use karo.',
+    author: 'AlexCyberX',
+    solvers: 178,
+    lab_url: '/pages/labs/lab-metadata.html'
+  },
+  {
+    id: 'for-03', cat: 'Forensics', icon: '🔍', iconClass: 'ctf-cat-forensics',
+    title: 'Log Hunter',
+    desc: 'Server access logs diye gaye hain. Attacker ne kaunsa IP address use kiya aur kaunse path pe attack kiya? Logs parse karo aur attack pattern identify karo.',
+    diff: 'Hard', pts: 350, xp: 600,
+    flag: 'ACX{log_analysis_uncovers_attack}',
+    hint: '`grep` se 404 errors aur unusual user agents dhundo. `awk` se IPs count karo.',
+    solvers: 28
+  },
+
+  // ── CRYPTO ──
+  {
+    id: 'cry-01', cat: 'Crypto', icon: '🔐', iconClass: 'ctf-cat-crypto',
+    title: 'Caesar\'s Secret',
+    desc: 'Yeh ciphertext decode karo: "NJY{pnvzhy_pvfcure_vf_rnfl}". Ek classic substitution cipher hai — Roman emperor ne bhi use kiya tha.',
+    diff: 'Easy', pts: 50, xp: 80,
+    flag: 'ACX{caesar_cipher_is_easy}',
+    hint: 'ROT13 ya Caesar cipher tool use karo. Shift 13 try karo.',
+    solvers: 195
+  },
+  {
+    id: 'cry-02', cat: 'Crypto', icon: '🔐', iconClass: 'ctf-cat-crypto',
+    title: 'Base64 Bonanza',
+    desc: 'Yeh string decode karo: "QUNYR3tiYXNlNjRfaXNfbm90X2VuY3J5cHRpb259". Dekho koi pattern milta hai ya nahi.',
+    diff: 'Easy', pts: 50, xp: 80,
+    flag: 'ACX{base64_is_not_encryption}',
+    hint: 'Base64 decode karo. Python mein: `import base64; base64.b64decode("...")`.decode()',
+    solvers: 231
+  },
+  {
+    id: 'cry-03', cat: 'Crypto', icon: '🔐', iconClass: 'ctf-cat-crypto',
+    title: 'RSA Weak Keys',
+    desc: 'Small primes se generate ki gayi RSA key di gayi hai. N = 3233, e = 17. Ciphertext = 2790. Private key recover karo aur message decrypt karo.',
+    diff: 'Hard', pts: 400, xp: 700,
+    flag: 'ACX{rsa_small_primes_are_vulnerable}',
+    hint: 'p aur q dhundo jinka product N=3233 ho. Factor: 61 × 53. Phir d = e⁻¹ mod φ(N).',
+    solvers: 19
+  },
+
+  // ── OSINT ──
+  {
+    id: 'osi-01', cat: 'OSINT', icon: '🕵️', iconClass: 'ctf-cat-osint',
+    title: 'Google Dorking',
+    desc: 'AlexCyberX ke creator ka full name dhundo jo publicly available hai. Website, social media, ya YouTube channel check karo.',
+    diff: 'Easy', pts: 50, xp: 75,
+    flag: 'ACX{Pawan_Tanwar_AlexCyberX}',
+    hint: 'alexcyberx.com ka "About" section ya YouTube channel description dekho.',
+    solvers: 289
+  },
+  {
+    id: 'osi-02', cat: 'OSINT', icon: '🕵️', iconClass: 'ctf-cat-osint',
+    title: 'Wayback Machine',
+    desc: 'Ek website ne apna content delete kar diya lekin internet poori tarah bhoolti nahi. web.archive.org use karke deleted content dhundo.',
+    diff: 'Medium', pts: 150, xp: 250,
+    flag: 'ACX{internet_never_forgets}',
+    hint: 'web.archive.org pe URL enter karo aur purane snapshots dekho.',
+    solvers: 73
+  },
+  {
+    id: 'osi-03', cat: 'OSINT', icon: '🕵️', iconClass: 'ctf-cat-osint',
+    title: 'Geolocation Challenge',
+    desc: 'Di gayi image mein ek location hai. Clues use karo — buildings, signs, landscape — aur exact city identify karo. Format: ACX{City_Country}',
+    diff: 'Hard', pts: 300, xp: 500,
+    flag: 'ACX{Jhalawar_India}',
+    hint: 'Image mein Rajasthani architecture aur Hindi signboards dhundo.',
+    solvers: 41
+  },
+
+  // ── PWN ──
+  {
+    id: 'pwn-01', cat: 'Pwn', icon: '💥', iconClass: 'ctf-cat-pwn',
+    title: 'Buffer Overflow 101',
+    desc: 'Ek vulnerable C program diya gaya hai jo `gets()` function use karta hai. Stack overflow karke return address overwrite karo aur win() function call karo.',
+    diff: 'Hard', pts: 400, xp: 700,
+    flag: 'ACX{buffer_overflow_pwned}',
+    hint: 'gdb use karo buffer size dhundne ke liye. Pattern create karo: `python3 -c "print(\'A\'*100)"`. EIP/RIP offset dhundo.',
+    solvers: 15
+  },
+  {
+    id: 'pwn-02', cat: 'Pwn', icon: '💥', iconClass: 'ctf-cat-pwn',
+    title: 'Format String Bug',
+    desc: 'Yeh program user input ko directly printf mein pass karta hai. Format string vulnerability exploit karke stack se flag read karo.',
+    diff: 'Hard', pts: 450, xp: 800,
+    flag: 'ACX{format_string_leaks_memory}',
+    hint: '`%x %x %x %x` input deke stack values leak karo. `%s` use karke string read karo.',
+    solvers: 9
+  },
+
+  // ── REVERSING ──
+  {
+    id: 'rev-01', cat: 'Reversing', icon: '⚙️', iconClass: 'ctf-cat-reversing',
+    title: 'Strings Hunt',
+    desc: 'Ek compiled binary diya gaya hai. Reverse engineer karo aur hidden flag dhundo. Sirf `strings` command se kaam chalega.',
+    diff: 'Easy', pts: 75, xp: 120,
+    flag: 'ACX{strings_command_is_powerful}',
+    hint: '`strings binary_file | grep ACX` command chalao.',
+    solvers: 156
+  },
+  {
+    id: 'rev-02', cat: 'Reversing', icon: '⚙️', iconClass: 'ctf-cat-reversing',
+    title: 'XOR Decoder',
+    desc: 'Flag ko XOR se encrypt kiya gaya hai key = 0x42 se. Encrypted bytes: [0x03, 0x07, 0x13, 0x26, 0x20, 0x07, 0x36, 0x07, 0x25]. Decode karo.',
+    diff: 'Medium', pts: 200, xp: 350,
+    flag: 'ACX{xor_is_reversible}',
+    hint: 'Python: `bytes([b ^ 0x42 for b in encrypted]).decode()`. XOR apni reverse operation hai.',
+    solvers: 62
+  },
+
+  // ── MISC ──
+  {
+    id: 'mis-01', cat: 'Misc', icon: '🎯', iconClass: 'ctf-cat-misc',
+    title: 'QR Code Mystery',
+    desc: 'Ek QR code image di gayi hai jo normal QR scanners se scan nahi hoti. Image ko carefully dekho — kuch modified hai. QR decoder tools try karo.',
+    diff: 'Medium', pts: 150, xp: 250,
+    flag: 'ACX{qr_codes_hide_secrets}',
+    hint: 'zbarimg ya online QR decoder use karo. Image pe adjustments try karo (brightness/contrast).',
+    solvers: 83
+  },
+  {
+    id: 'mis-02', cat: 'Misc', icon: '🎯', iconClass: 'ctf-cat-misc',
+    title: 'Steganography Intro',
+    desc: 'Ek innocent-looking image mein data chhupa hua hai. Steganography tools use karo aur hidden message extract karo.',
+    diff: 'Medium', pts: 175, xp: 300,
+    flag: 'ACX{stego_hides_data_in_plain_sight}',
+    hint: 'steghide ya zsteg tool use karo. `steghide extract -sf image.jpg` try karo.',
+    solvers: 71
+  },
+  {
+    id: 'mis-03', cat: 'Misc', icon: '🎯', iconClass: 'ctf-cat-misc',
+    title: 'Linux Basics',
+    desc: 'Ek Linux server pe ek file hai `/home/ctf/flag.txt` lekin permission se protected hai. Correct command dhundo aur file read karo. Flag format: ACX{...}',
+    diff: 'Easy', pts: 50, xp: 75,
+    flag: 'ACX{linux_permissions_matter}',
+    hint: '`ls -la` se permissions dekho. `chmod`, `sudo`, ya `find / -name flag.txt` try karo.',
+    solvers: 198
+  }
+];
+
+/* ── STATE ── */
+let ctfActiveFilter = { cat: 'all', diff: null };
+let ctfSolved = {}; // { challengeId: { xp, solvedAt } }
+let ctfCurrentChallenge = null;
+let ctfHintVisible = false;
+let ctfActiveTab = null;
+let ctfTimerPoll = null;
+let ctfRunningChallengeId = null; // tracks which challenge has a live server instance
+// Session must be tied to logged-in user ID so instance state is
+// per-user, not per-page-load or per-IP.  We initialise to a random
+// fallback and replace it with the real user-id as soon as the auth
+// state is known (see ctfInitUserSession below).
+let ctfLabSession = 'sess_' + Math.random().toString(36).substring(2, 10);
+
+function ctfInitUserSession() {
+  const uid = window._currentUser?.id;
+  if (uid) {
+    // Stable, user-scoped session key.  Prefixed so it never collides
+    // with the old random keys that may still live in the server's
+    // in-memory map.
+    ctfLabSession = 'usr_' + uid;
+  }
+}
+
+function ctfLabApiBase(c) {
+  const m = (c.lab_url || '').match(/lab-([a-z0-9]+)\.html/i);
+  return m ? m[1] : null;
+}
+
+function ctfLaunchClick(e) {
+  e.preventDefault();
+  const c = ctfCurrentChallenge;
+  if (!c || !c.lab_url) return false;
+
+  const btn = document.getElementById('ctfLaunchBtn');
+  const isRestart = btn.classList.contains('restart-mode');
+
+  if (isRestart) {
+    ctfRestartInstance(c);
+  } else {
+    ctfStartInstance(c);
+  }
+  return false;
+}
+
+// Stop previously running instance when user starts a different challenge
+// Labs jinke paas server-side instance management hai
+const INSTANCE_MANAGED_LABS = ['web-01', 'web-02', 'web-03', 'web-04', 'for-02'];
+
+async function ctfStopRunningInstance() {
+  if (!ctfRunningChallengeId) return;
+  const prevChallenge = CTF_CHALLENGES.find(x => x.id === ctfRunningChallengeId) || {};
+  const prevApiId = ctfLabApiBase(prevChallenge);
+
+  // 1. Server-side stop — sirf un labs ke liye jo instance track karte hain
+  if (prevApiId && INSTANCE_MANAGED_LABS.includes(ctfRunningChallengeId)) {
+    try {
+      await fetch(`/api/lab/${prevApiId}/instance/stop`, {
+        method: 'POST',
+        headers: { 'X-Lab-Session': ctfLabSession }
+      });
+    } catch (err) {}
+  }
+
+  // 2. Client-side: postMessage bhejo lab tab ko → tab khud close ho jayega
+  if (ctfActiveTab && !ctfActiveTab.closed) {
+    try {
+      ctfActiveTab.postMessage({ type: 'ACX_LAB_STOP', challengeId: ctfRunningChallengeId }, '*');
+    } catch (err) {}
+    // 800ms dedo tab ko message receive + close karne ke liye
+    setTimeout(() => {
+      try { if (ctfActiveTab && !ctfActiveTab.closed) ctfActiveTab.close(); } catch(e) {}
+      ctfActiveTab = null;
+    }, 800);
+  } else {
+    ctfActiveTab = null;
+  }
+
+  // 3. Stop timer poll for the old challenge
+  if (ctfTimerPoll) { clearInterval(ctfTimerPoll); ctfTimerPoll = null; }
+
+  ctfRunningChallengeId = null;
+}
+
+async function ctfStartInstance(c) {
+  const apiId = ctfLabApiBase(c);
+
+  // Stop any previously running instance before starting this one
+  if (ctfRunningChallengeId && ctfRunningChallengeId !== c.id) {
+    await ctfStopRunningInstance();
+  }
+
+  // Hide Start button, show Restart+ViewLab buttons
+  document.getElementById('ctfStartWrap').style.display = 'none';
+  document.getElementById('ctfRunningWrap').style.display = 'block';
+  document.getElementById('ctfTimerRow').classList.add('show');
+  document.getElementById('ctfFlagSection').style.display = 'block';
+
+  // Generate token and store in sessionStorage so lab page can validate it
+  const labId = c.id || (c.lab_url.match(/lab-([a-z0-9]+)\.html/i)?.[1]) || apiId || 'lab';
+  const token = 'tok_' + Math.random().toString(36).substring(2, 18);
+  try { sessionStorage.setItem('acx_lab_token_' + labId, token); } catch(e) {}
+  const labUrl = c.lab_url + '?acx_token=' + encodeURIComponent(token);
+
+  ctfActiveTab = window.open(labUrl, '_blank');
+  ctfRunningChallengeId = c.id; // mark this challenge as the active one
+
+  if (apiId) {
+    try {
+      await fetch(`/api/lab/${apiId}/instance/restart`, {
+        method: 'POST',
+        headers: { 'X-Lab-Session': ctfLabSession }
+      });
+    } catch (err) {}
+  }
+
+  ctfPollInstanceTimer(c);
+}
+
+function ctfRestartFromModal() {
+  const c = ctfCurrentChallenge;
+  if (!c) return;
+  ctfRestartInstance(c);
+}
+
+function ctfOpenLabTab(e) {
+  e.preventDefault();
+  const c = ctfCurrentChallenge;
+  if (!c) return false;
+  if (ctfActiveTab && !ctfActiveTab.closed) {
+    ctfActiveTab.focus();
+  } else {
+    // Generate fresh token for new tab
+    const apiId = ctfLabApiBase(c);
+    const labId = c.id || (c.lab_url.match(/lab-([a-z0-9]+)\.html/i)?.[1]) || apiId || 'lab';
+    const token = 'tok_' + Math.random().toString(36).substring(2, 18);
+    try { sessionStorage.setItem('acx_lab_token_' + labId, token); } catch(e) {}
+    ctfActiveTab = window.open(c.lab_url + '?acx_token=' + encodeURIComponent(token), '_blank');
+    ctfRunningChallengeId = c.id;
+  }
+  return false;
+}
+
+async function ctfRestartInstance(c) {
+  // Stop any other running challenge first
+  if (ctfRunningChallengeId && ctfRunningChallengeId !== c.id) {
+    await ctfStopRunningInstance();
+  }
+
+  const apiId = ctfLabApiBase(c);
+  if (apiId) {
+    try {
+      await fetch(`/api/lab/${apiId}/instance/restart`, {
+        method: 'POST',
+        headers: { 'X-Lab-Session': ctfLabSession }
+      });
+    } catch (err) {}
+  }
+  // Generate fresh token for restarted lab
+  const labId = c.id || (c.lab_url.match(/lab-([a-z0-9]+)\.html/i)?.[1]) || apiId || 'lab';
+  const token = 'tok_' + Math.random().toString(36).substring(2, 18);
+  try { sessionStorage.setItem('acx_lab_token_' + labId, token); } catch(e) {}
+  const labUrl = c.lab_url + '?acx_token=' + encodeURIComponent(token);
+
+  if (ctfActiveTab && !ctfActiveTab.closed) {
+    ctfActiveTab.location.href = labUrl + '&_=' + Date.now();
+    ctfActiveTab.focus();
+  } else {
+    ctfActiveTab = window.open(labUrl, '_blank');
+  }
+  ctfRunningChallengeId = c.id;
+  ctfPollInstanceTimer(c);
+}
+
+function ctfFormatTime(sec) {
+  const m = String(Math.floor(sec / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  return m + ':' + s;
+}
+
+function ctfPollInstanceTimer(c) {
+  if (ctfTimerPoll) clearInterval(ctfTimerPoll);
+  const apiId = ctfLabApiBase(c);
+  if (!apiId) return;
+
+  const tick = async () => {
+    try {
+      const res = await fetch(`/api/lab/${apiId}/instance/status`, {
+        headers: { 'X-Lab-Session': ctfLabSession }
+      });
+      const data = await res.json();
+      const valEl = document.getElementById('ctfTimerVal');
+      valEl.textContent = ctfFormatTime(data.remaining_sec);
+      valEl.className = 'ctf-timer-val';
+      if (data.remaining_sec <= 60) valEl.classList.add('danger');
+      else if (data.remaining_sec <= 300) valEl.classList.add('warn');
+
+      if (!data.running) {
+        clearInterval(ctfTimerPoll);
+        valEl.textContent = 'Expired';
+        valEl.classList.add('danger');
+      }
+    } catch (err) {}
+  };
+
+  tick();
+  ctfTimerPoll = setInterval(tick, 5000);
+}
+
+
+/* ── INIT ── */
+function initCTFPage() {
+  ctfInitUserSession(); // must run first so all API calls use user-scoped session
+  loadCTFSolvedFromStorage();
+  ctfRender();
+  updateCTFStats();
+  updateCTFLoginBanner();
+}
+
+/* ── STORAGE (Supabase ya localStorage) ──
+   NOTE: localStorage is per-BROWSER, not per-ACCOUNT. Without namespacing
+   by user id, every account on the same browser shared one global
+   'acx_ctf_solved' key — so switching accounts showed stale/wrong solves.
+   This is a stopgap fix only; once the backend lands, solved-state should
+   be read from Supabase (ctf_solves table) per logged-in user instead of
+   trusting localStorage at all. */
+function ctfSolvedStorageKey() {
+  const uid = window._currentUser?.id || 'guest';
+  return 'acx_ctf_solved_' + uid;
+}
+
+function loadCTFSolvedFromStorage() {
+  try {
+    const raw = localStorage.getItem(ctfSolvedStorageKey());
+    ctfSolved = raw ? JSON.parse(raw) : {};
+  } catch(e) { ctfSolved = {}; }
+}
+
+function saveCTFSolvedToStorage() {
+  try {
+    localStorage.setItem(ctfSolvedStorageKey(), JSON.stringify(ctfSolved));
+  } catch(e) {}
+}
+
+/* Supabase mein save karo agar user logged in ho.
+   FIX: pehle is function mein 'ctf_solves' table mein galat column
+   names (xp_earned) aur ek non-existent 'user_xp' table use ho rahi
+   thi — isliye profile/leaderboard pe data kabhi nahi pohochta tha.
+   Ab submit_ctf_flag RPC use karta hai (sql/backend-setup-full.sql
+   mein defined) jo ctf_solves + profiles dono ko ek saath, sahi
+   column names ke saath update karta hai. */
+async function saveSolvedToSupabase(challengeId, xp) {
+  if (!window._supabase || !window._currentUser) return;
+  try {
+    // Slug → Supabase UUID lookup (bugfix-patch.js maintains this map)
+    if (Object.keys(window._ctfSlugToUuid || {}).length === 0 && typeof window.loadCTFUuids === 'function') {
+      await window.loadCTFUuids();
+    }
+    const uuid = window._ctfSlugToUuid?.[challengeId];
+    if (!uuid) {
+      console.warn('[CTF] No Supabase UUID found for', challengeId, '— run sql/insert-challenges-fixed.sql');
+      return;
+    }
+
+    const flagToVerify = ctfCurrentChallenge?.flag;
+    const { data, error } = await window._supabase.rpc('submit_ctf_flag', {
+      p_challenge_id: uuid,
+      p_flag: flagToVerify
+    });
+
+    if (error) {
+      console.warn('[CTF] submit_ctf_flag RPC failed:', error.message);
+      return;
+    }
+
+    const result = Array.isArray(data) ? data[0] : data;
+    if (result && !result.correct && !result.already_solved) {
+      console.warn('[CTF] Server rejected flag for', challengeId, '— local/server flag mismatch');
+    }
+  } catch(e) { console.warn('CTF Supabase save failed:', e); }
+}
+
+/* ── FILTERS ── */
+function ctfSetFilter(btn, type) {
+  if (type === 'cat') {
+    document.querySelectorAll('.ctf-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ctfActiveFilter.cat = btn.dataset.cat;
+  } else {
+    const wasActive = btn.classList.contains('active');
+    document.querySelectorAll('.ctf-diff-btn').forEach(b => b.classList.remove('active'));
+    if (!wasActive) {
+      btn.classList.add('active');
+      ctfActiveFilter.diff = btn.dataset.diff;
+    } else {
+      ctfActiveFilter.diff = null;
+    }
+  }
+  ctfRender();
+}
+
+/* ── RENDER ── */
+function ctfRender() {
+  const grid = document.getElementById('ctfGrid');
+  if (!grid) return;
+
+  const query = (document.getElementById('ctfSearchInput')?.value || '').toLowerCase().trim();
+  // Read disabled slugs from localStorage (set by admin panel)
+  const _ctfDisabled = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
+
+  const filtered = CTF_CHALLENGES.filter(c => {
+    // Hide challenges disabled from admin panel
+    if (_ctfDisabled.includes(c.id)) return false;
+    if (ctfActiveFilter.cat !== 'all' && c.cat !== ctfActiveFilter.cat) return false;
+    if (ctfActiveFilter.diff && c.diff !== ctfActiveFilter.diff) return false;
+    if (query && !c.title.toLowerCase().includes(query) && !c.desc.toLowerCase().includes(query) && !c.cat.toLowerCase().includes(query)) return false;
+    return true;
+  });
+
+  if (!filtered.length) {
+    grid.innerHTML = `
+      <div class="ctf-empty">
+        <div class="ctf-empty-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" stroke="#444" stroke-width="1.5"/><path d="M21 21l-4.35-4.35" stroke="#444" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <h3>Koi challenge nahi mila</h3>
+        <p>Filter change karo ya search query modify karo.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(c => {
+    const solved = !!ctfSolved[c.id];
+    return `
+    <div class="ctf-card ${solved ? 'solved' : ''}" onclick="${c.room_id ? 'openCTFRoom(\'' + c.room_id + '\')' : 'openCTFModal(\'' + c.id + '\')'}" style="cursor:pointer;">
+      <div class="ctf-card-top">
+        <div class="ctf-card-icon ${c.iconClass}">${c.icon}</div>
+        <div class="ctf-card-info">
+          <div class="ctf-card-title">${c.title}</div>
+          <div class="ctf-card-cat">${c.cat} ${c.room_id ? '<span style="font-size:9px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:#60a5fa;padding:1px 6px;border-radius:10px;margin-left:4px;">ROOM</span>' : ''}</div>
+        </div>
+      </div>
+      <div class="ctf-card-desc">${c.desc}</div>
+      <div class="ctf-card-footer">
+        <span class="ctf-diff-badge ${c.diff.toLowerCase()}">${c.diff}</span>
+        <span class="ctf-points">${c.pts} <span>pts</span></span>
+        <span class="ctf-solvers">${c.solvers + (solved && !ctfSolved[c.id]?.counted ? 0 : 0)} solvers</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── STATS ── */
+function updateCTFStats() {
+  const solvedIds = Object.keys(ctfSolved);
+  const totalXP = solvedIds.reduce((sum, id) => sum + (ctfSolved[id]?.xp || 0), 0);
+  const _ctfDisabled = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
+  const activeCount = CTF_CHALLENGES.filter(c => !_ctfDisabled.includes(c.id)).length;
+  const el = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
+  el('ctfTotalCount', activeCount);
+  el('ctfSolvedCount', solvedIds.length);
+  el('ctfTotalXP', totalXP);
+}
+
+/* ── LOGIN BANNER ── */
+function updateCTFLoginBanner() {
+  const banner = document.getElementById('ctfLoginBanner');
+  if (!banner) return;
+  const loggedIn = !!(window._currentUser);
+  banner.style.display = loggedIn ? 'none' : 'flex';
+}
+
+/* ── MODAL ── */
+function openCTFModal(id) {
+  const c = CTF_CHALLENGES.find(x => x.id === id);
+  if (!c) return;
+  ctfCurrentChallenge = c;
+  ctfHintVisible = false;
+
+  const solved = !!ctfSolved[id];
+
+  // Fill modal
+  // Launch lab button
+  const launchWrap = document.getElementById('ctfLaunchWrap');
+  const launchBtn  = document.getElementById('ctfLaunchBtn');
+  if (c.lab_url) {
+    launchWrap.style.display = 'block';
+    launchBtn.href = c.lab_url;
+  } else {
+    launchWrap.style.display = 'none';
+  }
+
+  // Reset start/restart + timer state
+  // If this is the SAME challenge that's already running — keep running state
+  const isSameRunning = (ctfRunningChallengeId === c.id);
+  if (!isSameRunning) {
+    // Different challenge modal opened — reset UI to Start state
+    // NOTE: Do NOT null ctfActiveTab here — ctfStopRunningInstance() needs it
+    // to send postMessage to the running lab tab before closing it.
+    if (ctfTimerPoll) { clearInterval(ctfTimerPoll); ctfTimerPoll = null; }
+  }
+  const startWrap = document.getElementById('ctfStartWrap');
+  const runningWrap = document.getElementById('ctfRunningWrap');
+  if (isSameRunning) {
+    // Show running state — user can View Lab or Restart
+    if (startWrap) startWrap.style.display = 'none';
+    if (runningWrap) runningWrap.style.display = 'block';
+    document.getElementById('ctfTimerRow').classList.add('show');
+    document.getElementById('ctfFlagSection').style.display = 'block';
+  } else {
+    if (startWrap) startWrap.style.display = 'block';
+    if (runningWrap) runningWrap.style.display = 'none';
+    document.getElementById('ctfLaunchLabel').textContent = 'Start';
+    document.getElementById('ctfLaunchBtn').classList.remove('restart-mode');
+    document.getElementById('ctfTimerRow').classList.remove('show');
+  }
+
+  document.getElementById('modalCat').innerHTML = `${c.icon} ${c.cat}`;
+  document.getElementById('modalTitle').textContent = c.title;
+  document.getElementById('modalDesc').textContent = c.desc;
+
+  const authorEl = document.getElementById('modalAuthor');
+  if (c.author) {
+    authorEl.textContent = `Author: ${c.author}`;
+    authorEl.style.display = 'block';
+  } else {
+    authorEl.style.display = 'none';
+  }
+
+  const hintWrap = document.querySelector('.ctf-modal-hint-wrap');
+  const hintToggle = document.getElementById('ctfHintToggle');
+  const hintBox = document.getElementById('ctfHintBox');
+  const hintLabel = document.getElementById('ctfHintToggleLabel');
+  if (c.hint) {
+    hintWrap.style.display = 'block';
+    hintToggle.style.display = 'flex';
+    hintBox.textContent = c.hint;
+    hintBox.classList.remove('visible');
+    hintLabel.textContent = 'Show Hint';
+  } else {
+    hintWrap.style.display = 'none';
+  }
+
+  const diffColor = { Easy: '#4ade80', Medium: '#fb923c', Hard: '#f87171' }[c.diff];
+  document.getElementById('modalMeta').innerHTML = `
+    <span class="ctf-diff-badge ${c.diff.toLowerCase()}">${c.diff}</span>
+    <span style="font-size:13px;font-weight:600;color:var(--white);">${c.pts} pts</span>
+    <span class="ctf-xp-pill">+${c.xp} XP</span>
+    <span style="font-size:12px;color:var(--text-dim);">${c.solvers} solvers</span>
+  `;
+
+  // Solved state
+  const flagSection = document.getElementById('ctfFlagSection');
+  const solvedBadge = document.getElementById('ctfSolvedBadge');
+  if (solved) {
+    flagSection.style.display = 'none';
+    solvedBadge.style.display = 'block';
+    document.getElementById('solvedXpLabel').textContent = `+${ctfSolved[id]?.xp || c.xp} XP earned`;
+  } else {
+    // For challenges with a lab, flag section stays hidden until Start is clicked.
+    // For challenges without a lab_url, the flag box is the only interaction, so show it directly.
+    flagSection.style.display = c.lab_url ? 'none' : 'block';
+    solvedBadge.style.display = 'none';
+    const inp = document.getElementById('ctfFlagInput');
+    if (inp) { inp.value = ''; inp.className = 'ctf-flag-input'; }
+    const msg = document.getElementById('ctfFlagMsg');
+    if (msg) msg.className = 'ctf-flag-msg';
+    const btn = document.getElementById('ctfSubmitBtn');
+    if (btn) btn.disabled = false;
+  }
+
+  document.getElementById('ctfModalOverlay').classList.add('active');
+  setTimeout(() => {
+    const inp = document.getElementById('ctfFlagInput');
+    if (inp && !solved) inp.focus();
+  }, 100);
+}
+
+function toggleCTFHint() {
+  ctfHintVisible = !ctfHintVisible;
+  const hintBox = document.getElementById('ctfHintBox');
+  const hintLabel = document.getElementById('ctfHintToggleLabel');
+  hintBox.classList.toggle('visible', ctfHintVisible);
+  hintLabel.textContent = ctfHintVisible ? 'Hide Hint' : 'Show Hint';
+}
+
+function closeCTFModal() {
+  document.getElementById('ctfModalOverlay').classList.remove('active');
+  ctfCurrentChallenge = null;
+}
+
+/* ── HINT ── */
+
+/* ── FLAG SUBMIT ── */
+async function submitCTFFlag() {
+  if (!ctfCurrentChallenge) return;
+  const c = ctfCurrentChallenge;
+
+  if (!window._currentUser) {
+    showFlagMsg('error', '⚠️ Flag submit karne ke liye pehle login karein.');
+    return;
+  }
+
+  const inp = document.getElementById('ctfFlagInput');
+  const btn = document.getElementById('ctfSubmitBtn');
+  const flag = inp.value.trim();
+
+  if (!flag) { showFlagMsg('error', 'Flag enter karein.'); return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Checking...';
+
+  // Lab-backed challenges (web-* with a live instance) must eventually be
+  // verified by the server — the flag must never be checked against the
+  // plaintext c.flag in this file, since that value ships to every visitor's
+  // browser and can be read straight out of page source. Right now only
+  // web-01 (Hidden in Plain Sight) has its backend submit endpoint wired up,
+  // so only that one routes through it. As each other lab's backend goes
+  // live, add its id here. Everything else keeps the local check for now —
+  // do not remove this allowlist until all lab backends are ready, or those
+  // challenges will break instead of falling back safely.
+  const BACKEND_READY_IDS = ['web-01'];
+  const apiId = ctfLabApiBase(c);
+  const useBackend = apiId && BACKEND_READY_IDS.includes(c.id);
+  let isCorrect = false;
+  let serverMessage = null;
+
+  if (useBackend) {
+    try {
+      const res = await fetch(`/api/lab/${apiId}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Lab-Session': ctfLabSession },
+        body: JSON.stringify({ flag })
+      });
+      const data = await res.json();
+      isCorrect = res.ok && !!data.success;
+      serverMessage = data.message || null;
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Submit';
+      showFlagMsg('error', 'Request failed: ' + err.message);
+      return;
+    }
+  } else {
+    // Slight delay for UX on non-lab challenges
+    await new Promise(r => setTimeout(r, 600));
+    isCorrect = (flag === c.flag);
+  }
+
+  if (isCorrect) {
+    // ✅ CORRECT
+    inp.classList.add('correct');
+    showFlagMsg('success', serverMessage ? `🎉 ${serverMessage}` : `🎉 Sahi hai! +${c.xp} XP earn kiya!`);
+
+    // Save
+    ctfSolved[c.id] = { xp: c.xp, solvedAt: new Date().toISOString() };
+    saveCTFSolvedToStorage();
+    await saveSolvedToSupabase(c.id, c.xp);
+
+    // Update UI
+    updateCTFStats();
+    ctfRender();
+
+    // After 1.5s show solved badge
+    setTimeout(() => {
+      document.getElementById('ctfFlagSection').style.display = 'none';
+      const badge = document.getElementById('ctfSolvedBadge');
+      badge.style.display = 'block';
+      document.getElementById('solvedXpLabel').textContent = `+${c.xp} XP earned`;
+    }, 1500);
+
+  } else {
+    // ❌ WRONG
+    inp.classList.add('wrong');
+    setTimeout(() => inp.classList.remove('wrong'), 500);
+    showFlagMsg('error', '❌ Galat flag. Dobara try karo!');
+    btn.disabled = false;
+    btn.textContent = 'Submit';
+  }
+}
+
+function showFlagMsg(type, text) {
+  const el = document.getElementById('ctfFlagMsg');
+  if (!el) return;
+  el.className = `ctf-flag-msg ${type}`;
+  el.textContent = text;
+}
+
+/* Keyboard shortcut — Esc closes modal */
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeCTFModal();
+});
+
+/* ── RETURN FROM LAB: three ways a lab tab signals "I'm going back" ──
+   These must match the keys/function name used in labGoBack() inside each
+   lab-*.html file (currently localStorage 'acx_return_to_modal' +
+   'acx_return_ts', sessionStorage 'acx_back_to_ctf' + 'acx_back_ts', and
+   window.opener.acxLabReturn). If a lab page's labGoBack() implementation
+   changes these names, this block must be updated to match or the user gets
+   stuck on a closed/blank tab when hitting "Labs" from inside a lab. */
+
+// Strategy 1: lab tab still has window.opener pointing here and calls this directly
+window.acxLabReturn = function(challengeId) {
+  if (!challengeId) return;
+  const c = CTF_CHALLENGES.find(x => x.id === challengeId);
+  if (!c) return;
+  openCTFModal(challengeId);
+  // The instance is still running server-side — show Restart/View Lab, not Start
+  ctfShowRunningState(c);
+  window.focus();
+};
+
+// Strategy 2: lab tab closed itself and wrote a localStorage signal (storage
+// event only fires in OTHER tabs, which is exactly this still-open CTF tab)
+window.addEventListener('storage', function(e) {
+  if (e.key === 'acx_return_to_modal' && e.newValue) {
+    const challengeId = e.newValue;
+    try { localStorage.removeItem('acx_return_to_modal'); } catch(err) {}
+    try { localStorage.removeItem('acx_return_ts'); } catch(err) {}
+    const c = CTF_CHALLENGES.find(x => x.id === challengeId);
+    if (!c) return;
+    openCTFModal(challengeId);
+    ctfShowRunningState(c);
+  }
+  // Re-render CTF grid when admin panel changes disabled challenge list
+  if (e.key === 'acx_ctf_disabled') {
+    ctfRender();
+    updateCTFStats();
+  }
+});
+
+// Puts the modal in "instance already running" mode instead of resetting to
+// Start — openCTFModal() always resets to Start state, so this runs right after
+function ctfShowRunningState(c) {
+  const apiId = ctfLabApiBase(c);
+  document.getElementById('ctfStartWrap').style.display = 'none';
+  document.getElementById('ctfRunningWrap').style.display = 'block';
+  document.getElementById('ctfTimerRow').classList.add('show');
+  if (!ctfSolved[c.id]) {
+    document.getElementById('ctfFlagSection').style.display = 'block';
+  }
+  document.getElementById('ctfLaunchLabel').textContent = 'Restart';
+  document.getElementById('ctfLaunchBtn').classList.add('restart-mode');
+  ctfActiveTab = null; // the old tab is closed/gone; ctfOpenLabTab will open a fresh one
+  ctfRunningChallengeId = c.id; // keep tracking this as the running challenge
+  if (apiId) ctfPollInstanceTimer(c);
+}
+
+/* ── AUTO-OPEN MODAL: when user comes back from a lab page ── */
+/* Lab pages set sessionStorage key 'acx_back_to_ctf' before navigating back
+   (fallback path 3, used when window.close() doesn't work — mobile or a
+   manually-opened tab) */
+(function autoOpenFromReturn() {
+  // Check URL hash first: ctf.html#challenge=web-01
+  const hash = window.location.hash;
+  const hashMatch = hash.match(/[#&]?challenge=([a-z0-9-]+)/);
+  if (hashMatch) {
+    const cid = hashMatch[1];
+    // Wait for challenges data to be ready (already defined above)
+    window.addEventListener('DOMContentLoaded', function() {
+      openCTFModal(cid);
+      // Clean up hash without reload
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    });
+    return;
+  }
+  // Check sessionStorage for return from lab (Strategy 3 in labGoBack)
+  const returnId = sessionStorage.getItem('acx_back_to_ctf');
+  if (returnId) {
+    sessionStorage.removeItem('acx_back_to_ctf');
+    sessionStorage.removeItem('acx_back_ts');
+    window.addEventListener('DOMContentLoaded', function() {
+      const c = CTF_CHALLENGES.find(x => x.id === returnId);
+      if (!c) return;
+      openCTFModal(returnId);
+      ctfShowRunningState(c);
+    });
+  }
+
+  // Also check localStorage signal in case this tab loaded fresh right after
+  // the lab tab wrote it (race: lab tab closed before this listener attached)
+  try {
+    const pendingId = localStorage.getItem('acx_return_to_modal');
+    if (pendingId) {
+      localStorage.removeItem('acx_return_to_modal');
+      localStorage.removeItem('acx_return_ts');
+      window.addEventListener('DOMContentLoaded', function() {
+        const c = CTF_CHALLENGES.find(x => x.id === pendingId);
+        if (!c) return;
+        openCTFModal(pendingId);
+        ctfShowRunningState(c);
+      });
+    }
+  } catch(e) {}
+})();
+</script>
+</div>
