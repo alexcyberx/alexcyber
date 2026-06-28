@@ -7,8 +7,62 @@ const { logAttempt }  = require('../../middleware/logger');
 const FLAG      = process.env.FLAG_PACKET || 'ACX{p4ck3t_d3t3ct1v3_dn5_3xf1l}';
 const PCAP_PATH = path.join(__dirname, '../../files/corpx_network.pcap');
 
+// ── INSTANCE STATE (same pattern as metadata/robots/hidden/cookie/sqli101) ──
+const INSTANCE_DURATION_SEC = 30 * 60;
+const instances = {};
+
+function sid(req) { return req.headers['x-lab-session'] || req.query.session || req.ip; }
+function getOrCreate(s) { if (!instances[s]) instances[s] = { startedAt: Date.now(), solved: false }; return instances[s]; }
+function resetInst(s)   { instances[s] = { startedAt: Date.now(), solved: false }; return instances[s]; }
+function instStatus(s)  { const inst = getOrCreate(s); const e = Math.floor((Date.now()-inst.startedAt)/1000); const r = Math.max(0, INSTANCE_DURATION_SEC-e); return { running: r>0, remaining_sec: r, solved: inst.solved }; }
+
+function isInstanceRunning(s) {
+  const inst = instances[s];
+  if (!inst) return false;
+  const elapsed = Math.floor((Date.now() - inst.startedAt) / 1000);
+  return (INSTANCE_DURATION_SEC - elapsed) > 0;
+}
+
+function sendInstanceNotActive(res) {
+  res.status(403).setHeader('Content-Type', 'text/html');
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Instance Not Active</title>
+<style>
+  body{background:#0a0a12;color:#e4e4ef;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;}
+  .box{max-width:420px;padding:32px;}
+  h1{font-size:20px;margin:0 0 10px;}
+  p{font-size:14px;color:#9999a6;line-height:1.6;}
+</style></head>
+<body>
+  <div class="box">
+    <h1>Instance Not Active</h1>
+    <p>This lab instance is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p>
+  </div>
+</body>
+</html>`);
+}
+
+// ── INSTANCE ENDPOINTS ────────────────────────────────────────────
+router.get('/instance/status', (req, res) => res.json(instStatus(sid(req))));
+
+router.post('/instance/restart', (req, res) => {
+  resetInst(sid(req));
+  logAttempt('PACKET', req.ip, 'instance_restart', 'ok');
+  res.json({ success: true, ...instStatus(sid(req)) });
+});
+
+router.post('/instance/stop', (req, res) => {
+  const s = sid(req);
+  if (instances[s]) instances[s].startedAt = Date.now() - (INSTANCE_DURATION_SEC + 1) * 1000;
+  logAttempt('PACKET', req.ip, 'instance_stop', 'ok');
+  res.json({ success: true, running: false, remaining_sec: 0 });
+});
+
 // GET /api/lab/packet/page  — target site shown in iframe
 router.get('/page', (req, res) => {
+  const s = sid(req);
+  if (!isInstanceRunning(s)) return sendInstanceNotActive(res);
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -142,7 +196,7 @@ body{background:#07070f;font-family:'Inter',sans-serif;min-height:100vh;display:
           <div class="file-name">corpx_network.pcap</div>
           <div class="file-size">2.1 KB &nbsp;·&nbsp; 21 packets &nbsp;·&nbsp; 20s capture</div>
         </div>
-        <a class="dl-btn" href="/api/lab/packet/download" download="corpx_network.pcap">
+        <a class="dl-btn" href="/api/lab/packet/download?session=${encodeURIComponent(s)}" download="corpx_network.pcap">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 6.5l3.5 3L10 6.5M2 12h9" stroke="#07070f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Download
         </a>
@@ -163,6 +217,8 @@ body{background:#07070f;font-family:'Inter',sans-serif;min-height:100vh;display:
 
 // GET /api/lab/packet/download
 router.get('/download', (req, res) => {
+  const s = sid(req);
+  if (!isInstanceRunning(s)) return res.status(403).send('Instance not active');
   logAttempt('PACKET', req.ip, 'GET /download', 'pcap_downloaded');
   res.download(PCAP_PATH, 'corpx_network.pcap', (err) => {
     if (err) {
@@ -186,12 +242,14 @@ router.get('/info', (req, res) => {
 // POST /api/lab/packet/submit
 router.post('/submit', flagLimiter, (req, res) => {
   const { flag } = req.body;
+  const s = sid(req);
   if (!flag) return res.status(400).json({ error: 'No flag provided' });
 
   const correct = flag.trim() === FLAG;
   logAttempt('PACKET', req.ip, flag.trim(), correct ? 'correct' : 'wrong');
 
   if (correct) {
+    getOrCreate(s).solved = true;
     return res.json({
       success: true,
       flag: FLAG,
