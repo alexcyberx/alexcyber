@@ -135,23 +135,39 @@ async function _saveSolveToDb(challengeId, xp) {
     return;
   }
 
-  // Update profile XP
-  const currentXP = window._currentUser.xp || 0;
-  const newXP     = currentXP + xp;
-  const newLevel  = Math.max(1, Math.floor(newXP / 500) + 1);
-  const newSolves = (window._currentUser.ctf_solves || 0) + 1;
-
-  await window._supabase
+  // Update profile XP — DB se fresh value lo (stale in-memory se nahi)
+  const { data: freshProfile, error: fetchErr } = await window._supabase
     .from('profiles')
-    .update({ xp: newXP, level: newLevel, ctf_solves: newSolves, last_seen: new Date().toISOString() })
+    .select('xp, ctf_solves, level')
+    .eq('id', userId)
+    .single();
+
+  if (fetchErr) console.warn('[SYNC] Profile fetch error:', fetchErr.message);
+
+  const currentXP     = (freshProfile?.xp          ?? window._currentUser.xp         ?? 0);
+  const currentSolves = (freshProfile?.ctf_solves   ?? window._currentUser.ctf_solves ?? 0);
+  const newXP         = currentXP + xp;
+  const newLevel      = Math.max(1, Math.floor(newXP / 500) + 1);
+  const newSolves     = currentSolves + 1;
+
+  const { error: updateErr } = await window._supabase
+    .from('profiles')
+    .update({
+      xp:         newXP,
+      level:      newLevel,
+      ctf_solves: newSolves,
+      last_seen:  new Date().toISOString()
+    })
     .eq('id', userId);
 
-  // Update in-memory user
-  window._currentUser.xp         = newXP;
-  window._currentUser.level      = newLevel;
-  window._currentUser.ctf_solves = newSolves;
-
-  console.log('[SYNC] Solve saved to DB:', challengeId, '+' + xp + ' XP');
+  if (updateErr) {
+    console.error('[SYNC] Profile update FAILED:', updateErr.message, updateErr);
+  } else {
+    window._currentUser.xp         = newXP;
+    window._currentUser.level      = newLevel;
+    window._currentUser.ctf_solves = newSolves;
+    console.log('[SYNC] Solve saved:', challengeId, '+' + xp + ' XP => total', newXP, 'XP');
+  }
 }
 
 // ── Load solves FROM Supabase on login/refresh ─────────────────
