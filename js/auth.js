@@ -431,6 +431,47 @@ function updateNavForUser(user) {
 /* ═══════════════════════════════════════════
    SAVE PROFILE
 ═══════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════
+   PROFILE REAL-TIME VALIDATION HELPERS
+══════════════════════════════════════════════════════════════ */
+function pfShowFieldError(input, message) {
+  input.style.borderColor = '#e06060';
+  let err = input.parentNode.querySelector('.pf-field-error');
+  if (!err) {
+    err = document.createElement('div');
+    err.className = 'pf-field-error';
+    err.style.cssText = 'color:#e06060;font-size:12px;margin-top:4px;';
+    input.parentNode.appendChild(err);
+  }
+  err.textContent = message;
+}
+
+function pfClearFieldError(input) {
+  input.style.borderColor = '';
+  const err = input.parentNode.querySelector('.pf-field-error');
+  if (err) err.remove();
+}
+
+function pfValidateName(input) {
+  const val = (input.value || '').trim();
+  if (!val) { pfShowFieldError(input, 'Name cannot be empty.'); return false; }
+  if (val.length < 2) { pfShowFieldError(input, 'At least 2 characters required.'); return false; }
+  if (/<[^>]*>/.test(val) || /[<>"'&;]/.test(val)) { pfShowFieldError(input, 'Invalid characters.'); return false; }
+  pfClearFieldError(input);
+  return true;
+}
+
+function pfValidateUsername(input) {
+  const val = (input.value || '').trim();
+  if (!val) { pfClearFieldError(input); return true; } // optional field
+  if (val.length < 3) { pfShowFieldError(input, 'At least 3 characters required.'); return false; }
+  if (!/^[a-zA-Z0-9_.-]+$/.test(val)) { pfShowFieldError(input, 'Only letters, numbers, _ . - allowed.'); return false; }
+  if (/^[._-]/.test(val)) { pfShowFieldError(input, 'Cannot start with . _ -'); return false; }
+  pfClearFieldError(input);
+  return true;
+}
+
 async function saveProfile() {
   // CSRF protection: ensure request is from same origin
   if (window.location.origin !== document.location.origin) return;
@@ -442,14 +483,34 @@ async function saveProfile() {
   const newPw  =  document.getElementById('profileNewPw').value   || '';
   const confPw =  document.getElementById('profileConfirmPw').value || '';
 
-  if (!name) { if (msg) { msg.style.color='#e06060'; msg.textContent='Name cannot be empty.'; } return; }
-  if (name.length > 60) { if (msg) { msg.style.color='#e06060'; msg.textContent='Name must be 60 characters or less.'; } return; }
-  if (/<[^>]*>/.test(name)) { if (msg) { msg.style.color='#e06060'; msg.textContent='Name mein HTML tags allowed nahi hain.'; } return; }
-  if (uname.length > 30) { if (msg) { msg.style.color='#e06060'; msg.textContent='Username 30 characters se zyada nahi ho sakta.'; } return; }
-  if (uname && !/^[a-zA-Z0-9_.-]+$/.test(uname)) { if (msg) { msg.style.color='#e06060'; msg.textContent='Username mein sirf letters, numbers, _ . - allowed hain.'; } return; }
-  if (bio.length > 200) { if (msg) { msg.style.color='#e06060'; msg.textContent='Bio 200 characters se zyada nahi ho sakti.'; } return; }
-  if (newPw && newPw.length < 8) { if (msg) { msg.style.color='#e06060'; msg.textContent='Password must be at least 8 characters.'; } return; }
-  if (newPw && newPw !== confPw) { if (msg) { msg.style.color='#e06060'; msg.textContent='Passwords do not match.'; } return; }
+  function showErr(msg_el, text) {
+    if (msg_el) { msg_el.style.color = '#e06060'; msg_el.textContent = text; }
+  }
+
+  // ── Name validation ─────────────────────────────────────────
+  if (!name) { showErr(msg, 'Name cannot be empty.'); return; }
+  if (name.length < 2)  { showErr(msg, 'Name must be at least 2 characters.'); return; }
+  if (name.length > 60) { showErr(msg, 'Name must be 60 characters or less.'); return; }
+  if (/<[^>]*>/.test(name)) { showErr(msg, 'Name cannot contain HTML.'); return; }
+  if (/[<>"'&;]/.test(name)) { showErr(msg, 'Name contains invalid characters.'); return; }
+
+  // ── Username validation ─────────────────────────────────────
+  if (uname && uname.length < 3) { showErr(msg, 'Username must be at least 3 characters.'); return; }
+  if (uname.length > 30) { showErr(msg, 'Username cannot exceed 30 characters.'); return; }
+  if (uname && !/^[a-zA-Z0-9_.-]+$/.test(uname)) { showErr(msg, 'Username can only contain letters, numbers, _ . -'); return; }
+  if (uname && /^[._-]/.test(uname)) { showErr(msg, 'Username cannot start with . _ -'); return; }
+  if (uname && /[._-]{2,}/.test(uname)) { showErr(msg, 'Username cannot have consecutive special characters.'); return; }
+
+  // ── Bio validation ──────────────────────────────────────────
+  if (bio.length > 200) { showErr(msg, 'Bio cannot exceed 200 characters.'); return; }
+  if (/<[^>]*>/.test(bio)) { showErr(msg, 'Bio cannot contain HTML.'); return; }
+
+  // ── Password validation ─────────────────────────────────────
+  if (newPw && newPw.length < 8) { showErr(msg, 'Password must be at least 8 characters.'); return; }
+  if (newPw && newPw.length > 72) { showErr(msg, 'Password cannot exceed 72 characters.'); return; }
+  if (newPw && !/[A-Za-z]/.test(newPw)) { showErr(msg, 'Password must contain at least one letter.'); return; }
+  if (newPw && !/[0-9]/.test(newPw)) { showErr(msg, 'Password must contain at least one number.'); return; }
+  if (newPw && newPw !== confPw) { showErr(msg, 'Passwords do not match.'); return; }
 
   if (!_supabase) {
     if (msg) { msg.style.color='#e06060'; msg.textContent='Service not configured.'; }
@@ -642,6 +703,11 @@ async function saveProfile() {
         clearInterval(ctfTimerPoll);
         window.ctfTimerPoll = null;
       }
+      // Live leaderboard polling + cached rank-comparison state bhi yahin
+      // reset karo — warna account switch (same browser/tab) pe naya user
+      // purane user ka stale leaderboard data ya galat rank-arrows dekh
+      // sakta hai jab tak fresh poll na chale.
+      if (typeof pfResetLeaderboardState === 'function') pfResetLeaderboardState();
       if (typeof ctfSolved !== 'undefined') window.ctfSolved = {};
       if (typeof ctfCurrentChallenge !== 'undefined') window.ctfCurrentChallenge = null;
       if (typeof closeCTFModal === 'function') { try { closeCTFModal(); } catch(e) {} }

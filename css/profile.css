@@ -428,7 +428,9 @@
 .pf-lb-header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 14px;
+  gap: 10px;
 }
+.pf-lb-header .pf-section-label { flex-shrink: 0; }
 .pf-lb-refresh {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -438,6 +440,7 @@
   cursor: pointer;
   transition: border-color 0.2s, color 0.2s;
   display: flex; align-items: center;
+  flex-shrink: 0;
 }
 .pf-lb-refresh:hover { border-color: var(--border-hover); color: var(--white); }
 
@@ -490,6 +493,38 @@
   font-family: 'Rajdhani', sans-serif;
   font-size: 14px; font-weight: 700; color: var(--white);
   flex-shrink: 0;
+}
+
+/* Rank-change arrow vs previous poll — green up, red down */
+.pf-lb-move {
+  font-size: 10px; font-weight: 700;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+.pf-lb-move--up   { color: #4ade80; }
+.pf-lb-move--down { color: var(--red); }
+
+/* "Live" pulse dot + updated-ago label next to the refresh button */
+.pf-lb-live {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; color: var(--text-dim);
+  min-width: 0; /* allows the label below to actually shrink/truncate */
+}
+.pf-lb-live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 0 0 rgba(74,222,128,0.5);
+  animation: pfLbPulse 2s infinite;
+  flex-shrink: 0;
+}
+#pfLbUpdatedLabel {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  min-width: 0;
+}
+@keyframes pfLbPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.5); }
+  70%  { box-shadow: 0 0 0 5px rgba(74,222,128,0); }
+  100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
 }
 
 /* ── Notifications ── */

@@ -69,7 +69,12 @@ function pfShowTab(tab) {
   document.querySelectorAll('.pf-tab-panel').forEach(p =>
     p.classList.toggle('active', p.id === 'pfTab-' + tab)
   );
-  if (tab === 'leaderboard')   pfLoadLeaderboard(false);
+  if (tab === 'leaderboard') {
+    pfLoadLeaderboard(false);
+    pfStartLbPolling();
+  } else {
+    pfStopLbPolling();
+  }
   if (tab === 'notifications') pfLoadNotifications();
 }
 
@@ -187,18 +192,41 @@ function pfBadgeRule(b) {
   }
 }
 
-/* ── LEADERBOARD ──────────────────────────────────────────────*/
-let _pfLbLoaded = false;
+/* ── LEADERBOARD (live) ───────────────────────────────────────*
+   Real CTF platforms (CTFd, HTB, etc.) scoreboard ko "live" rakhte
+   hain — auto-refresh, rank-change indicators, "updated Xs ago".
+   Yahan Supabase Realtime ke bajaye polling use kiya hai (simpler,
+   bina extra DB/replication config ke deploy ho jaata hai). Poll
+   sirf tab visible hone par chalta hai — background mein band ho
+   jaata hai (battery/network friendly, mobile ke liye zaroori). */
+let _pfLbLoaded     = false;
+let _pfLbPollTimer  = null;
+let _pfLbLastRanks  = {};   // { user_id: rank } — pichle fetch se, arrow ke liye
+let _pfLbLastFetch  = null; // Date — "updated Xs ago" ke liye
+let _pfLbAgoTimer   = null;
+const PF_LB_POLL_MS = 15000; // 15s — CTFd jaisa hi interval
 
-async function pfLoadLeaderboard(force) {
-  if (_pfLbLoaded && !force) return;
+let _pfLbReqSeq = 0; // monotonic token — discard stale/out-of-order responses
+
+async function pfLoadLeaderboard(force, silent) {
+  if (_pfLbLoaded && !force && !silent) return;
   const el = document.getElementById('pfLeaderboard');
   if (!el) return;
 
   const sb = window._supabase;
   if (!sb) { el.innerHTML = '<div class="pf-empty">Not connected.</div>'; return; }
 
-  el.innerHTML = '<div class="pf-empty">Loading…</div>';
+  // Silent poll pe "Loading…" se grid wipe nahi karte — flicker lagta hai
+  if (!silent) el.innerHTML = '<div class="pf-empty">Loading…</div>';
+
+  // FIX: agar network slow ho (mobile data pe common) aur ek poll ka
+  // response 15s se zyada le, next setInterval tick ek aur concurrent
+  // call chala deta tha. Dono requests kabhi out-of-order resolve ho
+  // sakti hain — purana response baad mein aaye to woh naya/latest
+  // data ko overwrite kar deta, UI stale dikhta even though fresh data
+  // already mil chuka tha. Yeh token sirf SABSE LATEST request ka
+  // result render hone deta hai, baaki discard ho jaate hain.
+  const myReq = ++_pfLbReqSeq;
 
   try {
     const res  = await sb.rpc('get_leaderboard', { p_limit: 50 });
@@ -206,7 +234,10 @@ async function pfLoadLeaderboard(force) {
     const err  = res.error;
     if (err) throw err;
 
-    _pfLbLoaded = true;
+    if (myReq !== _pfLbReqSeq) return; // koi naya request iske baad chal gaya — yeh stale hai, discard
+
+    _pfLbLoaded   = true;
+    _pfLbLastFetch = new Date();
 
     if (!data || !data.length) {
       el.innerHTML = '<div class="pf-empty">No players yet.</div>';
@@ -214,30 +245,98 @@ async function pfLoadLeaderboard(force) {
     }
 
     const myId = window._currentUser?.id;
+    const newRanks = {};
+
     el.innerHTML = data.map((u, i) => {
       const isMe  = u.user_id === myId;
       const rank  = i + 1;
+      newRanks[u.user_id] = rank;
       const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
       const name  = escHtml(u.username || u.full_name || 'Anonymous');
+
+      // Rank-change arrow vs last poll (real scoreboard feel)
+      const prevRank = _pfLbLastRanks[u.user_id];
+      let moveHtml = '';
+      if (prevRank != null && prevRank !== rank) {
+        const up = rank < prevRank; // lower number = higher rank = moved up
+        moveHtml = `<span class="pf-lb-move ${up ? 'pf-lb-move--up' : 'pf-lb-move--down'}">${up ? '▲' : '▼'}${Math.abs(prevRank - rank)}</span>`;
+      }
+
       return `
         <div class="pf-lb-row ${isMe ? 'pf-lb-row--me' : ''}">
           <div class="pf-lb-rank">${medal || rank}</div>
           <div class="pf-lb-avatar">${(name[0] || '?').toUpperCase()}</div>
           <div class="pf-lb-info">
-            <div class="pf-lb-name">${name}${isMe ? ' <span class="pf-lb-you">you</span>' : ''}</div>
+            <div class="pf-lb-name">${name}${isMe ? ' <span class="pf-lb-you">you</span>' : ''} ${moveHtml}</div>
             <div class="pf-lb-sub">Lv ${u.level} · ${u.ctf_solves} solved · ${u.badge_count} badges</div>
           </div>
           <div class="pf-lb-xp">${(u.xp||0).toLocaleString()} XP</div>
         </div>
       `;
     }).join('');
+
+    _pfLbLastRanks = newRanks;
+    pfUpdateLbAgoLabel();
   } catch(e) {
+    if (myReq !== _pfLbReqSeq) return; // ek naya request already chal/succeed ho gaya, yeh error stale hai
     console.error('Leaderboard error:', e);
-    el.innerHTML = '<div class="pf-empty">Could not load leaderboard.</div>';
+    if (!silent) el.innerHTML = '<div class="pf-empty">Could not load leaderboard.</div>';
+    // Silent poll fail hua toh purani list dikhti rehne do, error se UI wipe mat karo
   }
 }
 
-/* ── NOTIFICATIONS ────────────────────────────────────────────*/
+/* "Updated Xs ago" label — har second update hota hai */
+function pfUpdateLbAgoLabel() {
+  const lbl = document.getElementById('pfLbUpdatedLabel');
+  if (!lbl) return;
+  if (!_pfLbLastFetch) { lbl.textContent = ''; return; }
+  const secs = Math.max(0, Math.round((Date.now() - _pfLbLastFetch.getTime()) / 1000));
+  lbl.textContent = secs < 2 ? 'Updated just now' : `Updated ${secs}s ago`;
+}
+
+/* Polling lifecycle — sirf jab leaderboard tab visible hai aur browser
+   tab bhi active hai (Page Visibility API), warna band rakho. */
+function pfStartLbPolling() {
+  pfStopLbPolling();
+  _pfLbPollTimer = setInterval(() => {
+    if (document.hidden) return; // browser tab background mein hai, skip
+    const panel = document.getElementById('pfTab-leaderboard');
+    if (!panel || !panel.classList.contains('active')) return; // user kisi aur tab pe hai
+    pfLoadLeaderboard(true, true); // force+silent
+  }, PF_LB_POLL_MS);
+
+  if (!_pfLbAgoTimer) {
+    _pfLbAgoTimer = setInterval(pfUpdateLbAgoLabel, 1000);
+  }
+}
+
+function pfStopLbPolling() {
+  if (_pfLbPollTimer) { clearInterval(_pfLbPollTimer); _pfLbPollTimer = null; }
+  // FIX: yeh 1s "ago" label timer pehle kabhi clear nahi hota tha —
+  // ek baar leaderboard tab khulne ke baad forever chalta rehta, page
+  // navigate/logout ke baad bhi. Chhota leak hai but real hai.
+  if (_pfLbAgoTimer)  { clearInterval(_pfLbAgoTimer);  _pfLbAgoTimer  = null; }
+}
+
+// Account switch ke liye (same browser, same tab, A logout -> B login):
+// _pfLbLoaded/_pfLbLastRanks/_pfLbLastFetch module-level `let` hain, kabhi
+// reset nahi hote. Bina is reset ke, Account B leaderboard kholte hi
+// purana "already loaded" flag dekh ke fetch skip kar sakta tha (stale
+// data Account A ka dikhta), ya Account A ke ranks se galat ▲▼ arrows
+// dikhte. Logout pe yeh call hota hai (auth.js se).
+function pfResetLeaderboardState() {
+  pfStopLbPolling();
+  _pfLbLoaded    = false;
+  _pfLbLastRanks = {};
+  _pfLbLastFetch = null;
+  _pfLbReqSeq++; // in-flight requests (purane account ke) ab stale ho jaate hain
+  const el = document.getElementById('pfLeaderboard');
+  if (el) el.innerHTML = '<div class="pf-empty">Click refresh to load.</div>';
+  const lbl = document.getElementById('pfLbUpdatedLabel');
+  if (lbl) lbl.textContent = '';
+}
+
+
 let _pfNotifsLoaded = false;
 
 async function pfLoadNotifications() {
@@ -355,7 +454,7 @@ async function initProfilePage() {
       .eq('user_id', userId)
       .order('earned_at', { ascending: false }),
     sb.from('badges').select('*').order('created_at'),
-    sb.from('ctf_challenges').select('id,slug,title,category,difficulty,points').limit(100),
+    sb.from('ctf_challenges').select('id,title,category,difficulty,points').limit(100),
   ]);
 
   // Stats

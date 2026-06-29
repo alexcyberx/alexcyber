@@ -21,7 +21,7 @@ async function _loadUuidMap() {
   try {
     const { data, error } = await window._supabase
       .from('ctf_challenges')
-      .select('id, slug, title, status');
+      .select('id, title, status');
 
     if (error || !data || !data.length) {
       console.warn('[ACX] ctf_challenges fetch failed:', error?.message);
@@ -100,7 +100,7 @@ async function _syncFromSupabase(userId) {
     // Step 2: Fetch user's solves
     const { data, error } = await window._supabase
       .from('ctf_solves')
-      .select('challenge_id, points_earned')
+      .select('challenge_id')
       .eq('user_id', userId);
 
     if (error) {
@@ -134,7 +134,7 @@ async function _syncFromSupabase(userId) {
     data.forEach(row => {
       const slug = reverseMap[row.challenge_id];
       if (slug) {
-        dbSolved[slug] = { xp: row.points_earned || 0, solvedAt: null };
+        dbSolved[slug] = { xp: 0, solvedAt: null };
       }
     });
 

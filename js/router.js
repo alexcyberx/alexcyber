@@ -98,6 +98,10 @@ function showPage(page, skipPush) {
   if (l2p) l2p.classList.toggle('active', page === 'learn2');
   const pp = document.getElementById('profilePage');
   if (pp) pp.classList.toggle('active', page === 'profile');
+  // Live leaderboard polling sirf profile page pe chalna chahiye —
+  // kisi aur page pe navigate karte hi band kar do (warna background
+  // mein interval chalta rehta, battery/network waste).
+  if (page !== 'profile' && typeof pfStopLbPolling === 'function') pfStopLbPolling();
 
   // Tools page
   const tp = document.getElementById('toolsPage');

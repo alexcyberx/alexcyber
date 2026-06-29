@@ -324,10 +324,19 @@ RETURNS TABLE (
 LANGUAGE plpgsql SECURITY DEFINER
 AS $$
 BEGIN
+  -- FIX: pehle sirf `ORDER BY p.xp DESC` tha — jab do users ka XP same
+  -- ho, Postgres unka aapas ka order GUARANTEE nahi karta (vacuum, query
+  -- plan, ya kuch bhi internal reason se badal sakta hai bina kisi real
+  -- score-change ke). Client-side naye rank-change-arrow feature ke
+  -- saath yeh combine ho ke FALSE "▲ moved up" / "▼ moved down" dikhata,
+  -- jabki actual mein kisi ka rank nahi badla tha. ctf_solves DESC se
+  -- tie-break karna real CTF platforms jaisa hai (zyada solves wins
+  -- tie ko), aur id ko aakhri, hamesha-unique tiebreaker rakha hai taaki
+  -- order har baar 100% deterministic rahe.
   RETURN QUERY
   SELECT p.id, p.username, p.full_name, p.xp, p.level, p.ctf_solves, p.badge_count
   FROM profiles p
-  ORDER BY p.xp DESC
+  ORDER BY p.xp DESC, p.ctf_solves DESC, p.id ASC
   LIMIT p_limit;
 END;
 $$;

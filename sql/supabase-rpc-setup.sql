@@ -110,10 +110,14 @@ RETURNS TABLE (
 LANGUAGE plpgsql SECURITY DEFINER
 AS $$
 BEGIN
+  -- FIX: same-XP rows ka order pehle non-deterministic tha (no tiebreaker).
+  -- Live leaderboard ke rank-change-arrow feature ke saath combine ho ke
+  -- false "moved up/down" dikha sakta tha. ctf_solves DESC, id ASC se ab
+  -- order 100% deterministic hai.
   RETURN QUERY
   SELECT p.id, p.username, p.full_name, p.xp, p.level, p.ctf_solves, p.badge_count
   FROM profiles p
-  ORDER BY p.xp DESC
+  ORDER BY p.xp DESC, p.ctf_solves DESC, p.id ASC
   LIMIT p_limit;
 END;
 $$;
