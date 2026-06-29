@@ -72,21 +72,31 @@ async function _buildUuidMap() {
   try {
     const { data, error } = await window._supabase
       .from('ctf_challenges')
-      .select('id, title');
+      .select('id, slug, title');
 
     if (error || !data) {
       console.warn('[SYNC] ctf_challenges fetch error:', error?.message);
       return;
     }
 
-    // Map: JS c.id → DB UUID (via title match)
-    // Map: DB UUID → JS c.id (for reverse lookup)
+    // FIX: Pehle sirf title se match hota tha — agar DB mein title alag tha
+    // (Caesar''s Secret vs Caesar's Secret) toh map empty rehta tha aur
+    // UUID null milta tha, insert silently skip ho jaata tha.
+    // Ab SLUG se primary match karo (c.id === row.slug) — yeh 100% reliable
+    // hai kyunki slug aur JS id dono same value hain ('web-01', 'cry-01' etc).
+    // Title match backup ke taur pe rakha hai naye challenges ke liye.
     (window.CTF_CHALLENGES || []).forEach(c => {
-      const row = data.find(r => r.title === c.title);
+      // Primary: slug match (most reliable)
+      let row = data.find(r => r.slug === c.id);
+      // Fallback: title match
+      if (!row) row = data.find(r => r.title === c.title);
+
       if (row) {
         _titleToUuid[c.id]    = row.id;  // 'web-01' → UUID
         _titleToUuid[c.title] = row.id;  // 'Cookie Monster' → UUID
         _uuidToId[row.id]     = c.id;    // UUID → 'web-01'
+      } else {
+        console.warn('[SYNC] No DB row for challenge:', c.id, c.title);
       }
     });
 
