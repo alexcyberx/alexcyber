@@ -2364,15 +2364,17 @@ async function loadCTFUuids() {
     // Fetch id, title, status from Supabase (slug column removed — not in DB)
     const { data } = await window._supabase
       .from('ctf_challenges')
-      .select('id, title, status');
+      .select('id, slug, title, status');
     if (data) {
-      // Map title → UUID
+      // Map slug → UUID (primary) and title → UUID (fallback)
       data.forEach(r => {
+        if (r.slug) _ctfSlugToUuid[r.slug] = r.id;
         _ctfSlugToUuid[r.title] = r.id;
       });
-      // Also map by c.id (like 'web-01') by matching title
+      // Also map by c.id (like 'web-01') via slug or title match
       if (window.CTF_CHALLENGES) {
         window.CTF_CHALLENGES.forEach(c => {
+          if (_ctfSlugToUuid[c.id]) return; // already mapped via slug
           const match = data.find(r => r.title === c.title);
           if (match) _ctfSlugToUuid[c.id] = match.id;
         });
