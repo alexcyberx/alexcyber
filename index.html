@@ -2363,7 +2363,7 @@ async function loadCTFUuids() {
   try {
     // Fetch id, title, status from Supabase (slug column removed — not in DB)
     const { data } = await window._supabase
-      .from('ctf_challenges_public')
+      .from('ctf_challenges')
       .select('id, title, status');
     if (data) {
       // Map title → UUID

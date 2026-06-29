@@ -176,7 +176,7 @@ function _uid() {
       window._ctfSlugToUuid = {};
       try {
         const { data, error } = await window._supabase
-          .from('ctf_challenges_public')
+          .from('ctf_challenges')
           .select('id, slug, title, status');
 
         if (error || !data || !data.length) {
