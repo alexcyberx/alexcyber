@@ -1,48 +1,314 @@
 /* ═══════════════════════════════════════════════════════════════
-   bugfix-patch.js  —  AlexCyberX
-   Complete bug fix patch — all critical bugs addressed
-   
-   BUGS FIXED:
-   BUG-01: Profile page blank (race condition - _currentUser null)
-   BUG-02: CTF solves reset on logout (auth.js generic key wipe)
-   BUG-03: User isolation failure (User1 data → User2)
-   BUG-04: refreshCTFSolvedForCurrentUser wipes before loading
-   BUG-05: loadCTFUuids uses title match (fragile) → slug match
-   BUG-06: submitCTFFlag UUID pre-load missing
-   BUG-07: Profile XP/ctf_solves not updating in Supabase
-   BUG-08: syncSolvedFromSupabase wipes ctfSolved on UUID miss
-   BUG-09: _pfLbLoaded/_pfNotifsLoaded never reset → stale data
-   BUG-10: initCTFPage loadCTFSolvedFromStorage called BEFORE
-           user-specific key patch → loads wrong user's data
-   BUG-11: ctfRender solvers count arithmetic always = 0 (dead code)
-   BUG-12: Double SIGNED_IN fire — onAuthStateChange + getSession
-           both call consumePendingRedirect (router.js already handles)
-           but ctf solve sync called twice → race condition
-   BUG-13: profile.js _pfNotifsLoaded never set to false on tab switch
-           → notifications dont refresh between visits
+   bugfix-patch.js — AlexCyberX v76
+   Clean rewrite — single source of truth for CTF sync
 ═══════════════════════════════════════════════════════════════ */
 
-/* ══════════════════════════════════════════════════════════════
-   CORE UTILITY: User-specific localStorage keys
-   
-   auth.js SIGNED_OUT wipes 'acx_ctf_solved' (generic key).
-   User-specific key 'acx_ctf_solved_u_<id>' is NEVER wiped.
-   Same user logs back in → their data is instantly restored.
-   Different user logs in → gets their own isolated key.
-══════════════════════════════════════════════════════════════ */
-function _acxKey(userId) {
-  return userId ? 'acx_ctf_solved_u_' + userId : 'acx_ctf_solved';
+/* ── User-specific localStorage key ── */
+function _acxKey(uid) {
+  return uid ? 'acx_ctf_solved_u_' + uid : 'acx_ctf_solved';
 }
 function _uid() {
   return window._currentUser?.id || null;
 }
 
+/* ══════════════════════════════════════════════════════════════
+   CORE: UUID map — shared on window so all functions use same ref
+══════════════════════════════════════════════════════════════ */
+window._ctfSlugToUuid = window._ctfSlugToUuid || {};
+
+async function _loadUuidMap() {
+  if (!window._supabase) return;
+  try {
+    const { data, error } = await window._supabase
+      .from('ctf_challenges')
+      .select('id, slug, title, status');
+
+    if (error || !data || !data.length) {
+      console.warn('[ACX] ctf_challenges fetch failed:', error?.message);
+      return;
+    }
+
+    window._ctfSlugToUuid = {};
+
+    // Pass 1: slug → uuid (DB slug column, exact match with JS c.id like 'web-01')
+    data.forEach(r => {
+      if (r.slug) window._ctfSlugToUuid[r.slug] = r.id;
+    });
+
+    // Pass 2: JS c.id → uuid via title match (for any that didn't match by slug)
+    if (window.CTF_CHALLENGES) {
+      window.CTF_CHALLENGES.forEach(c => {
+        if (window._ctfSlugToUuid[c.id]) return; // already mapped
+        const match = data.find(r => r.title === c.title);
+        if (match) window._ctfSlugToUuid[c.id] = match.id;
+      });
+    }
+
+    // Pass 3: title → uuid (fallback for leaderboard/display, not for solve tracking)
+    data.forEach(r => {
+      if (r.title && !window._ctfSlugToUuid[r.title]) {
+        window._ctfSlugToUuid[r.title] = r.id;
+      }
+    });
+
+    console.log('[ACX] UUID map loaded:', Object.keys(window._ctfSlugToUuid).length, 'entries');
+    if (typeof ctfRender === 'function') ctfRender();
+  } catch(e) {
+    console.warn('[ACX] _loadUuidMap error:', e);
+  }
+}
 
 /* ══════════════════════════════════════════════════════════════
-   BUG-01 FIX: Profile page race condition
-   initProfilePage() called before _currentUser is set
+   CORE: Push local solves to Supabase profiles table
 ══════════════════════════════════════════════════════════════ */
-(function fix01_profileRace() {
+async function _pushProfileToSupabase() {
+  if (!window._supabase || !window._currentUser) return;
+  try {
+    const solved  = window.ctfSolved || {};
+    const keys    = Object.keys(solved).filter(k => solved[k] != null);
+    const totalXP = keys.reduce((s, k) => s + (solved[k]?.xp || 0), 0);
+    const count   = keys.length;
+    const level   = Math.max(1, Math.floor(totalXP / 500) + 1);
+
+    await window._supabase
+      .from('profiles')
+      .update({ xp: totalXP, level, ctf_solves: count, last_seen: new Date().toISOString() })
+      .eq('id', window._currentUser.id);
+
+    console.log('[ACX] Profile synced — XP:', totalXP, 'Solves:', count);
+  } catch(e) {
+    console.warn('[ACX] _pushProfileToSupabase error:', e);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CORE: Sync from Supabase — safe, never wipes on failure
+══════════════════════════════════════════════════════════════ */
+let _syncInProgress = false;
+
+async function _syncFromSupabase(userId) {
+  if (!window._supabase || !userId) return;
+  if (_syncInProgress) return;
+  _syncInProgress = true;
+
+  try {
+    // Step 1: Ensure UUID map is loaded
+    if (Object.keys(window._ctfSlugToUuid).length === 0) {
+      await _loadUuidMap();
+    }
+
+    // Step 2: Fetch user's solves
+    const { data, error } = await window._supabase
+      .from('ctf_solves')
+      .select('challenge_id, points_earned')
+      .eq('user_id', userId);
+
+    if (error) {
+      console.warn('[ACX] ctf_solves fetch error:', error.message);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      // No DB records — push local if we have any
+      const localCount = Object.keys(window.ctfSolved || {}).length;
+      if (localCount > 0) await _pushProfileToSupabase();
+      return;
+    }
+
+    // Step 3: Build reverse map UUID → slug
+    // Priority: short slug (like 'web-01') over title (like 'Hidden in Plain Sight')
+    // because ctfSolved uses c.id which matches the short slug format
+    const reverseMap = {};
+    const jsIds = new Set((window.CTF_CHALLENGES || []).map(c => c.id));
+    // First pass: only map JS c.id slugs (like 'web-01')
+    Object.entries(window._ctfSlugToUuid).forEach(([slug, uuid]) => {
+      if (jsIds.has(slug)) reverseMap[uuid] = slug;
+    });
+    // Second pass: fill gaps with title-based keys (fallback only)
+    Object.entries(window._ctfSlugToUuid).forEach(([slug, uuid]) => {
+      if (!reverseMap[uuid]) reverseMap[uuid] = slug;
+    });
+
+    // Step 4: Build dbSolved from Supabase data
+    const dbSolved = {};
+    data.forEach(row => {
+      const slug = reverseMap[row.challenge_id];
+      if (slug) {
+        dbSolved[slug] = { xp: row.points_earned || 0, solvedAt: null };
+      }
+    });
+
+    const dbCount    = Object.keys(dbSolved).length;
+    const localCount = Object.keys(window.ctfSolved || {}).length;
+
+    console.log('[ACX] Sync — DB solves:', dbCount, '| Local solves:', localCount);
+
+    if (dbCount >= localCount && dbCount > 0) {
+      // DB has same or more — use DB as truth
+      window.ctfSolved = dbSolved;
+      try {
+        localStorage.setItem(_acxKey(userId), JSON.stringify(dbSolved));
+        localStorage.setItem('acx_ctf_solved', JSON.stringify(dbSolved));
+      } catch(e) {}
+      if (typeof updateCTFStats === 'function') updateCTFStats();
+      if (typeof ctfRender      === 'function') ctfRender();
+      console.log('[ACX] Loaded', dbCount, 'solves from DB');
+    } else if (localCount > dbCount) {
+      // Local has more — push to profile
+      console.log('[ACX] Local ahead — pushing to profile');
+      await _pushProfileToSupabase();
+    }
+
+  } catch(e) {
+    console.warn('[ACX] _syncFromSupabase error:', e);
+  } finally {
+    _syncInProgress = false;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   OVERRIDE: loadCTFUuids — use shared window map
+══════════════════════════════════════════════════════════════ */
+(function patchLoadCTFUuids() {
+  const _wait = setInterval(() => {
+    if (typeof loadCTFUuids !== 'function') return;
+    clearInterval(_wait);
+    window.loadCTFUuids = _loadUuidMap;
+    console.log('[ACX] BUG-05 fixed: loadCTFUuids slug-based');
+  }, 50);
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   OVERRIDE: syncSolvedFromSupabase — use new safe sync
+══════════════════════════════════════════════════════════════ */
+(function patchSyncSolved() {
+  const _wait = setInterval(() => {
+    if (typeof syncSolvedFromSupabase !== 'function') return;
+    clearInterval(_wait);
+    window.syncSolvedFromSupabase = async function() {
+      const uid = _uid();
+      if (uid) await _syncFromSupabase(uid);
+    };
+    console.log('[ACX] BUG-08 fixed: syncSolvedFromSupabase non-destructive');
+  }, 50);
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   OVERRIDE: saveCTFSolvedToStorage — save to user-specific key
+══════════════════════════════════════════════════════════════ */
+(function patchSaveStorage() {
+  const _wait = setInterval(() => {
+    if (typeof saveCTFSolvedToStorage !== 'function') return;
+    clearInterval(_wait);
+    window.saveCTFSolvedToStorage = async function() {
+      try {
+        const uid     = _uid();
+        const payload = JSON.stringify(window.ctfSolved || {});
+        if (uid) localStorage.setItem(_acxKey(uid), payload);
+        localStorage.setItem('acx_ctf_solved', payload);
+      } catch(e) {}
+      await _pushProfileToSupabase();
+    };
+    console.log('[ACX] BUG-02+03 fixed: user-isolated storage active');
+  }, 50);
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   OVERRIDE: loadCTFSolvedFromStorage — load user-specific key
+══════════════════════════════════════════════════════════════ */
+(function patchLoadStorage() {
+  const _wait = setInterval(() => {
+    if (typeof loadCTFSolvedFromStorage !== 'function') return;
+    clearInterval(_wait);
+    window.loadCTFSolvedFromStorage = function() {
+      try {
+        const uid = _uid();
+        if (uid) {
+          const raw = localStorage.getItem(_acxKey(uid));
+          if (raw) {
+            window.ctfSolved = JSON.parse(raw);
+            localStorage.setItem('acx_ctf_solved', raw);
+            return;
+          }
+        }
+        window.ctfSolved = {};
+      } catch(e) { window.ctfSolved = {}; }
+    };
+  }, 50);
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   OVERRIDE: refreshCTFSolvedForCurrentUser — load local first,
+   then sync from DB in background
+══════════════════════════════════════════════════════════════ */
+(function patchRefreshCTF() {
+  const _wait = setInterval(() => {
+    if (typeof refreshCTFSolvedForCurrentUser !== 'function') return;
+    clearInterval(_wait);
+    window.refreshCTFSolvedForCurrentUser = function() {
+      const uid = _uid();
+
+      // Step 1: Load local data instantly
+      try {
+        if (uid) {
+          const raw = localStorage.getItem(_acxKey(uid));
+          if (raw) {
+            window.ctfSolved = JSON.parse(raw);
+            localStorage.setItem('acx_ctf_solved', raw);
+          } else {
+            window.ctfSolved = {};
+          }
+        } else {
+          window.ctfSolved = {};
+        }
+        if (typeof updateCTFStats === 'function') updateCTFStats();
+        if (typeof ctfRender      === 'function') ctfRender();
+      } catch(e) { window.ctfSolved = {}; }
+
+      // Step 2: Background DB sync
+      if (uid && window._supabase) {
+        setTimeout(() => _syncFromSupabase(uid), 1000);
+      }
+    };
+    console.log('[ACX] BUG-04 fixed: refreshCTFSolvedForCurrentUser');
+  }, 50);
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   OVERRIDE: submitCTFFlag — pre-load UUID map before submit
+══════════════════════════════════════════════════════════════ */
+(function patchSubmitFlag() {
+  const _wait = setInterval(() => {
+    if (typeof submitCTFFlag !== 'function') return;
+    clearInterval(_wait);
+    const _orig = window.submitCTFFlag;
+    window.submitCTFFlag = async function() {
+      if (window._supabase && Object.keys(window._ctfSlugToUuid).length === 0) {
+        await _loadUuidMap();
+      }
+      return _orig.apply(this, arguments);
+    };
+    console.log('[ACX] BUG-06 fixed: UUID pre-load on submit');
+  }, 100);
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   OVERRIDE: getChallengeUuid — use shared window map
+══════════════════════════════════════════════════════════════ */
+(function patchGetChallengeUuid() {
+  const _wait = setInterval(() => {
+    if (typeof getChallengeUuid !== 'function') return;
+    clearInterval(_wait);
+    window.getChallengeUuid = function(slugOrId) {
+      return window._ctfSlugToUuid[slugOrId] || null;
+    };
+  }, 50);
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   OVERRIDE: initProfilePage — race condition fix
+══════════════════════════════════════════════════════════════ */
+(function patchInitProfile() {
   const _wait = setInterval(() => {
     if (typeof initProfilePage !== 'function') return;
     clearInterval(_wait);
@@ -59,7 +325,6 @@ function _uid() {
           _orig.apply(this, arguments);
         } else if (tries >= 40) {
           clearInterval(_r);
-          console.warn('[BUG-01] User null after 4s, giving up');
         }
       }, 100);
     };
@@ -67,227 +332,10 @@ function _uid() {
   }, 50);
 })();
 
-
 /* ══════════════════════════════════════════════════════════════
-   BUG-02 + BUG-03 FIX: User-isolated storage
-   
-   saveCTFSolvedToStorage → save to user-specific key
-   loadCTFSolvedFromStorage → load ONLY current user's key
-   (prevents User1 data leaking to User2)
+   OVERRIDE: showPage — reset profile cache on visit
 ══════════════════════════════════════════════════════════════ */
-(function fix02_03_userIsolatedStorage() {
-  const _wait = setInterval(() => {
-    if (typeof saveCTFSolvedToStorage !== 'function') return;
-    clearInterval(_wait);
-
-    window.saveCTFSolvedToStorage = async function() {
-      try {
-        const uid = _uid();
-        const payload = JSON.stringify(window.ctfSolved || {});
-        if (uid) localStorage.setItem(_acxKey(uid), payload);
-        localStorage.setItem('acx_ctf_solved', payload); // compat
-      } catch(e) {}
-      // Also sync to Supabase profiles table (BUG-07)
-      await _pushProfileToSupabase();
-    };
-
-    window.loadCTFSolvedFromStorage = function() {
-      try {
-        const uid = _uid();
-        if (uid) {
-          const raw = localStorage.getItem(_acxKey(uid));
-          if (raw) {
-            window.ctfSolved = JSON.parse(raw);
-            localStorage.setItem('acx_ctf_solved', raw); // keep generic in sync
-            return;
-          }
-        }
-        // New user or no saved data — start clean
-        window.ctfSolved = {};
-      } catch(e) { window.ctfSolved = {}; }
-    };
-
-    console.log('[ACX] BUG-02+03 fixed: user-isolated storage active');
-  }, 50);
-})();
-
-
-/* ══════════════════════════════════════════════════════════════
-   BUG-04 FIX: refreshCTFSolvedForCurrentUser
-   
-   Original: ctfSolved = {} → then Supabase sync (which may fail)
-   → result is always 0 for any user
-   
-   Fix: load user-specific key FIRST (instant, correct), then
-   verify with Supabase in background (non-destructive)
-══════════════════════════════════════════════════════════════ */
-(function fix04_refreshCTF() {
-  const _wait = setInterval(() => {
-    if (typeof refreshCTFSolvedForCurrentUser !== 'function') return;
-    clearInterval(_wait);
-
-    window.refreshCTFSolvedForCurrentUser = function() {
-      const uid = _uid();
-
-      // Step 1: Load this user's data instantly
-      try {
-        if (uid) {
-          const raw = localStorage.getItem(_acxKey(uid));
-          if (raw) {
-            window.ctfSolved = JSON.parse(raw);
-            localStorage.setItem('acx_ctf_solved', raw);
-          } else {
-            // Truly new user — clean slate
-            window.ctfSolved = {};
-            localStorage.setItem('acx_ctf_solved', '{}');
-          }
-        } else {
-          window.ctfSolved = {};
-        }
-        if (typeof updateCTFStats === 'function') updateCTFStats();
-        if (typeof ctfRender === 'function') ctfRender();
-      } catch(e) { window.ctfSolved = {}; }
-
-      // Step 2: Background Supabase verify (won't wipe on failure)
-      if (uid && window._supabase) {
-        setTimeout(() => _verifyWithSupabase(uid), 800);
-      }
-    };
-
-    console.log('[ACX] BUG-04 fixed: refreshCTFSolvedForCurrentUser');
-  }, 50);
-})();
-
-
-/* ══════════════════════════════════════════════════════════════
-   BUG-05 FIX: loadCTFUuids — slug column primary, title fallback
-   
-   Original used title match only — breaks if title has typo,
-   apostrophe, or case mismatch. Now uses slug (exact JS c.id match)
-══════════════════════════════════════════════════════════════ */
-(function fix05_loadCTFUuids() {
-  const _wait = setInterval(() => {
-    if (typeof loadCTFUuids !== 'function') return;
-    clearInterval(_wait);
-
-    window.loadCTFUuids = async function() {
-      if (!window._supabase) return;
-      // Always reload fresh (stale map causes UUID miss)
-      window._ctfSlugToUuid = {};
-      try {
-        const { data, error } = await window._supabase
-          .from('ctf_challenges')
-          .select('id, slug, title, status');
-
-        if (error || !data || !data.length) {
-          console.warn('[BUG-05] ctf_challenges empty or error:', error?.message,
-            '— Run sql/insert-challenges.sql in Supabase');
-          return;
-        }
-
-        // Primary: slug → uuid (exact match with JS c.id like 'web-01')
-        data.forEach(r => {
-          if (r.slug) window._ctfSlugToUuid[r.slug] = r.id;
-          if (r.title) window._ctfSlugToUuid[r.title] = r.id; // fallback
-        });
-
-        // Also map by CTF_CHALLENGES array c.id via title match
-        if (window.CTF_CHALLENGES) {
-          window.CTF_CHALLENGES.forEach(c => {
-            if (window._ctfSlugToUuid[c.id]) return; // already mapped
-            const match = data.find(r => r.title === c.title);
-            if (match) window._ctfSlugToUuid[c.id] = match.id;
-          });
-        }
-
-        const count = Object.keys(window._ctfSlugToUuid).length;
-        console.log('[ACX] BUG-05: UUID map loaded,', count, 'entries');
-        if (typeof ctfRender === 'function') ctfRender();
-      } catch(e) {
-        console.warn('[BUG-05] loadCTFUuids error:', e);
-      }
-    };
-
-    // Trigger immediately
-    if (window._supabase) window.loadCTFUuids();
-    console.log('[ACX] BUG-05 fixed: loadCTFUuids slug-based');
-  }, 100);
-})();
-
-
-/* ══════════════════════════════════════════════════════════════
-   BUG-06 FIX: submitCTFFlag — ensure UUID map loaded before submit
-══════════════════════════════════════════════════════════════ */
-(function fix06_submitPreload() {
-  const _wait = setInterval(() => {
-    if (typeof submitCTFFlag !== 'function') return;
-    clearInterval(_wait);
-    const _orig = window.submitCTFFlag;
-    window.submitCTFFlag = async function() {
-      // Pre-load UUID map if empty
-      if (window._supabase && Object.keys(window._ctfSlugToUuid || {}).length === 0) {
-        await window.loadCTFUuids();
-      }
-      return _orig.apply(this, arguments);
-    };
-    console.log('[ACX] BUG-06 fixed: UUID pre-load on submit');
-  }, 100);
-})();
-
-
-/* ══════════════════════════════════════════════════════════════
-   BUG-07 FIX: Supabase profiles.xp + ctf_solves direct update
-   
-   Original depended on submit_ctf_flag RPC which required UUID.
-   UUID was often null → profiles never updated → profile shows 0.
-   Now: push directly to profiles table on every save.
-══════════════════════════════════════════════════════════════ */
-async function _pushProfileToSupabase() {
-  if (!window._supabase || !window._currentUser) return;
-  try {
-    const solved = window.ctfSolved || {};
-    const keys = Object.keys(solved).filter(k => solved[k] != null);
-    const totalXP = keys.reduce((s, k) => s + (solved[k]?.xp || 0), 0);
-    const count   = keys.length;
-    const level   = Math.max(1, Math.floor(totalXP / 500) + 1);
-
-    const { error } = await window._supabase
-      .from('profiles')
-      .update({ xp: totalXP, level, ctf_solves: count, last_seen: new Date().toISOString() })
-      .eq('id', window._currentUser.id);
-
-    if (!error) console.log('[ACX] BUG-07: Profile synced → XP:', totalXP, 'Solves:', count);
-    else console.warn('[BUG-07] Profile update error:', error.message);
-  } catch(e) { console.warn('[BUG-07] _pushProfileToSupabase error:', e); }
-}
-
-
-/* ══════════════════════════════════════════════════════════════
-   BUG-08 FIX: syncSolvedFromSupabase — non-destructive
-   Replaces original which wiped ctfSolved if UUID map was empty
-══════════════════════════════════════════════════════════════ */
-(function fix08_syncSolved() {
-  const _wait = setInterval(() => {
-    if (typeof syncSolvedFromSupabase !== 'function') return;
-    clearInterval(_wait);
-    window.syncSolvedFromSupabase = async function() {
-      const uid = _uid();
-      if (!window._supabase || !uid) return;
-      await _verifyWithSupabase(uid);
-    };
-    console.log('[ACX] BUG-08 fixed: syncSolvedFromSupabase non-destructive');
-  }, 50);
-})();
-
-
-/* ══════════════════════════════════════════════════════════════
-   BUG-09 FIX: _pfLbLoaded + _pfNotifsLoaded stale cache
-   
-   profile.js sets these to true but never resets them properly.
-   pfShowPage calls _pfLbLoaded = false but only after profile.js patch.
-   Solution: reset on every profile page visit.
-══════════════════════════════════════════════════════════════ */
-(function fix09_staleProfileCache() {
+(function patchShowPage() {
   const _wait = setInterval(() => {
     if (typeof showPage !== 'function') return;
     clearInterval(_wait);
@@ -295,7 +343,6 @@ async function _pushProfileToSupabase() {
     window.showPage = function(page, skipPush) {
       _orig.call(this, page, skipPush);
       if (page === 'profile') {
-        // Force fresh load of leaderboard and notifications every visit
         window._pfLbLoaded     = false;
         window._pfNotifsLoaded = false;
         window._pfInitRunning  = false;
@@ -305,160 +352,10 @@ async function _pushProfileToSupabase() {
   }, 50);
 })();
 
-
 /* ══════════════════════════════════════════════════════════════
-   BUG-10 FIX: initCTFPage calls loadCTFSolvedFromStorage before
-   user-specific patch applies — loads generic key (wrong user data)
+   OVERRIDE: pfShowTab — reset tabs on switch
 ══════════════════════════════════════════════════════════════ */
-(function fix10_initCTFLoad() {
-  const _wait = setInterval(() => {
-    if (typeof initCTFPage !== 'function') return;
-    clearInterval(_wait);
-    const _orig = window.initCTFPage;
-    window.initCTFPage = function() {
-      // Ensure ctfSolved is loaded from correct user key before rendering
-      if (window._currentUser) {
-        window.loadCTFSolvedFromStorage();
-      }
-      return _orig.apply(this, arguments);
-    };
-    console.log('[ACX] BUG-10 fixed: initCTFPage correct user data');
-  }, 50);
-})();
-
-
-/* ══════════════════════════════════════════════════════════════
-   BUG-12 FIX: Double SIGNED_IN → double sync race condition
-   
-   onAuthStateChange SIGNED_IN fires even on page load session restore.
-   getSession() in initAuth() ALSO calls loadUserProfile → refreshCTF.
-   Both trigger _verifyWithSupabase simultaneously. Guard with flag.
-══════════════════════════════════════════════════════════════ */
-let _acxSyncInProgress = false;
-
-
-/* ══════════════════════════════════════════════════════════════
-   CORE: _verifyWithSupabase — safe, non-destructive DB sync
-   Only replaces ctfSolved if DB has MORE data than localStorage
-══════════════════════════════════════════════════════════════ */
-async function _verifyWithSupabase(userId) {
-  if (!window._supabase || !userId) return;
-  if (_acxSyncInProgress) return;
-  _acxSyncInProgress = true;
-
-  try {
-    // Ensure UUID map is loaded
-    if (Object.keys(window._ctfSlugToUuid || {}).length === 0) {
-      await window.loadCTFUuids();
-    }
-
-    const { data, error } = await window._supabase
-      .from('ctf_solves')
-      .select('challenge_id, points_earned')
-      .eq('user_id', userId);
-
-    if (error) { console.warn('[SYNC] ctf_solves fetch error:', error.message); return; }
-    if (!data || data.length === 0) {
-      // No DB records — if localStorage has data, push it up
-      const localCount = Object.keys(window.ctfSolved || {}).length;
-      if (localCount > 0) await _pushProfileToSupabase();
-      return;
-    }
-
-    // Build reverse map UUID → slug
-    const reverseMap = {};
-    Object.entries(window._ctfSlugToUuid || {}).forEach(([slug, uuid]) => {
-      reverseMap[uuid] = slug;
-    });
-
-    const dbSolved = {};
-    let matched = 0;
-    data.forEach(row => {
-      const slug = reverseMap[row.challenge_id];
-      if (slug) {
-        dbSolved[slug] = { xp: row.points_earned || 0, solvedAt: null };
-        matched++;
-      }
-    });
-
-    const localCount = Object.keys(window.ctfSolved || {}).length;
-
-    if (matched > localCount) {
-      // DB has more — use DB as source of truth
-      window.ctfSolved = dbSolved;
-      localStorage.setItem(_acxKey(userId), JSON.stringify(dbSolved));
-      localStorage.setItem('acx_ctf_solved', JSON.stringify(dbSolved));
-      if (typeof updateCTFStats === 'function') updateCTFStats();
-      if (typeof ctfRender === 'function') ctfRender();
-      console.log('[SYNC] DB ahead: loaded', matched, 'solves from Supabase');
-    } else if (localCount > matched && localCount > 0) {
-      // Local has more — push to Supabase
-      console.log('[SYNC] Local ahead: pushing', localCount, 'solves to profile');
-      await _pushProfileToSupabase();
-    }
-    // Equal → no action needed
-
-  } catch(e) {
-    console.warn('[SYNC] _verifyWithSupabase error:', e);
-    // Never wipe on error
-  } finally {
-    _acxSyncInProgress = false;
-  }
-}
-
-
-/* ══════════════════════════════════════════════════════════════
-   AUTH EVENTS: Login → load user key, Logout → preserve user key
-══════════════════════════════════════════════════════════════ */
-(function fixAuthEvents() {
-  const _wait = setInterval(() => {
-    if (!window._supabase) return;
-    clearInterval(_wait);
-
-    window._supabase.auth.onAuthStateChange(async (event, session) => {
-
-      if (event === 'SIGNED_IN' && session) {
-        const uid = session.user?.id;
-        if (!uid) return;
-
-        // Load this user's data immediately
-        try {
-          const raw = localStorage.getItem(_acxKey(uid));
-          if (raw) {
-            window.ctfSolved = JSON.parse(raw);
-            localStorage.setItem('acx_ctf_solved', raw);
-            if (typeof updateCTFStats === 'function') updateCTFStats();
-            if (typeof ctfRender === 'function') ctfRender();
-            console.log('[AUTH] Loaded', Object.keys(window.ctfSolved).length, 'solves for user', uid.slice(0,8));
-          }
-        } catch(e) {}
-
-        // Background verify (delayed to avoid race with getSession init)
-        setTimeout(() => _verifyWithSupabase(uid), 1200);
-      }
-
-      if (event === 'SIGNED_OUT') {
-        // Reset UUID map
-        window._ctfSlugToUuid = {};
-        // Clear in-memory state
-        window.ctfSolved = {};
-        // Clear generic key (auth.js also does this — double safe)
-        try { localStorage.removeItem('acx_ctf_solved'); } catch(e) {}
-        // NOTE: _acxKey(uid) keys are NEVER deleted — same user recovers data on next login
-        console.log('[AUTH] Logout: in-memory cleared, user-specific keys preserved');
-      }
-    });
-
-    console.log('[ACX] Auth event handlers patched');
-  }, 100);
-})();
-
-
-/* ══════════════════════════════════════════════════════════════
-   BUG-13 FIX: notifications tab doesnt refresh between visits
-   Reset _pfNotifsLoaded flag on every tab switch
-══════════════════════════════════════════════════════════════ */
-(function fix13_notifTab() {
+(function patchPfShowTab() {
   const _wait = setInterval(() => {
     if (typeof pfShowTab !== 'function') return;
     clearInterval(_wait);
@@ -472,18 +369,52 @@ async function _verifyWithSupabase(userId) {
   }, 100);
 })();
 
+/* ══════════════════════════════════════════════════════════════
+   AUTH EVENTS: Login → sync from DB, Logout → preserve keys
+══════════════════════════════════════════════════════════════ */
+(function patchAuthEvents() {
+  const _wait = setInterval(() => {
+    if (!window._supabase) return;
+    clearInterval(_wait);
+
+    window._supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        const uid = session.user?.id;
+        if (!uid) return;
+
+        // Load local data immediately
+        try {
+          const raw = localStorage.getItem(_acxKey(uid));
+          if (raw) {
+            window.ctfSolved = JSON.parse(raw);
+            localStorage.setItem('acx_ctf_solved', raw);
+            if (typeof updateCTFStats === 'function') updateCTFStats();
+            if (typeof ctfRender      === 'function') ctfRender();
+          }
+        } catch(e) {}
+
+        // Background DB sync after slight delay
+        setTimeout(() => _syncFromSupabase(uid), 1500);
+      }
+
+      if (event === 'SIGNED_OUT') {
+        window._ctfSlugToUuid = {};
+        window.ctfSolved = {};
+        try { localStorage.removeItem('acx_ctf_solved'); } catch(e) {}
+        // NOTE: user-specific keys (_acxKey) are never deleted
+      }
+    });
+
+    console.log('[ACX] Auth event handlers patched');
+  }, 100);
+})();
 
 /* ══════════════════════════════════════════════════════════════
-   FINAL: Log confirmation that all patches loaded
+   INIT: Pre-load UUID map as early as possible
 ══════════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('[ACX] bugfix-patch.js loaded — 13 bugs patched');
-
-  // Pre-load UUID map as early as possible
+  console.log('[ACX] bugfix-patch.js loaded');
   setTimeout(() => {
-    if (window._supabase && typeof loadCTFUuids === 'function') {
-      loadCTFUuids();
-    }
-  }, 500);
+    if (window._supabase) _loadUuidMap();
+  }, 300);
 });
-
