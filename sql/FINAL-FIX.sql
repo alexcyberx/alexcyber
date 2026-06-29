@@ -15,7 +15,11 @@ ALTER TABLE profiles
   ADD COLUMN IF NOT EXISTS is_banned       boolean     DEFAULT false,
   ADD COLUMN IF NOT EXISTS ctf_solves      integer     DEFAULT 0,
   ADD COLUMN IF NOT EXISTS badge_count     integer     DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS role            text        DEFAULT 'user';
+  ADD COLUMN IF NOT EXISTS role            text        DEFAULT 'user',
+  -- FIX: saveProfile() auth.js mein upsert updated_at bhejta tha —
+  -- yeh column exist nahi tha isliye upsert silently fail ho raha tha
+  -- aur name/username save nahi ho rahe the. Column add karo.
+  ADD COLUMN IF NOT EXISTS updated_at      timestamptz DEFAULT NOW();
 
 
 -- ── STEP 2: profiles RLS ────────────────────────────────────────
@@ -366,7 +370,40 @@ CREATE POLICY "notifications_update" ON notifications
   FOR UPDATE USING (user_id = auth.uid() OR user_id IS NULL);
 
 
--- ── STEP 11: Schema cache reload ────────────────────────────────
+-- ── STEP 11: Auto-create profile on signup (CRITICAL FIX) ───────
+-- Bina is trigger ke: naye user signup karte hain lekin profiles table
+-- mein koi row nahi banti. Phir:
+--   • get_profile_stats → 0 rows return → profile page blank
+--   • submit_ctf_flag → UPDATE profiles WHERE id = user_id → 0 rows updated → XP kabhi nahi badhta
+--   • saveProfile → pehla save hone ke baad hi row banti hai
+-- Yeh trigger Supabase ke auth.users table pe lagta hai aur har naye
+-- signup pe automatically profiles mein ek row insert kar deta hai.
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, username, bio, xp, level, ctf_solves, badge_count, role)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', split_part(NEW.email, '@', 1)),
+    COALESCE(NEW.raw_user_meta_data->>'username', ''),
+    COALESCE(NEW.raw_user_meta_data->>'bio', ''),
+    0, 1, 0, 0, 'user'
+  )
+  ON CONFLICT (id) DO NOTHING; -- safe if row already exists
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+
+-- ── STEP 12: Schema cache reload ────────────────────────────────
 NOTIFY pgrst, 'reload schema';
 
 

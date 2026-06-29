@@ -122,7 +122,13 @@ async function _saveSolveToDb(challengeId, xp) {
   // Insert solve
   const { error: insertErr } = await window._supabase
     .from('ctf_solves')
-    .insert({ user_id: userId, challenge_id: uuid, solved_at: new Date().toISOString() });
+    .insert({
+      user_id:       userId,
+      challenge_id:  uuid,
+      solved_at:     new Date().toISOString(),
+      points_earned: xp,   // FIX: get_profile_stats recent_solves query yeh field read karta hai
+      correct:       true  // FIX: get_profile_stats mein correct = true filter hai
+    });
 
   if (insertErr) {
     console.warn('[SYNC] Insert error:', insertErr.message);

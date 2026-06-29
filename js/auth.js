@@ -223,6 +223,17 @@ async function doSignup() {
   setTimeout(async () => {
     closeAuth();
     await loadUserProfile(data.user);
+    // Safety-net: trigger handles profile creation, but if trigger is missing/delayed,
+    // yeh upsert ensure karta hai ki profiles row exist kare before profile page load ho
+    if (_supabase && data.user) {
+      _supabase.from('profiles').upsert({
+        id: data.user.id,
+        full_name: name,
+        username: '',
+        bio: '',
+        xp: 0, level: 1, ctf_solves: 0, badge_count: 0, role: 'user'
+      }, { onConflict: 'id' }).catch(() => {});
+    }
     if (window._pendingRedirect) {
       const redirect = window._pendingRedirect;
       window._pendingRedirect = null;
@@ -523,16 +534,22 @@ async function saveProfile() {
   const { data, error } = await _supabase.auth.updateUser(updates);
 
   if (error) {
+    console.error('[saveProfile] auth.updateUser error:', error);
     if (msg) { msg.style.color='#e06060'; msg.textContent = 'Could not save changes. Please try again.'; }
     return;
   }
 
   // Also upsert into profiles table if available
+  // NOTE: updated_at column profiles table mein nahi hai — isliye woh field
+  // nahi bhej rahe. onConflict: 'id' se Supabase ko pata lagta hai ki update
+  // karna hai naya row insert nahi — bina is flag ke upsert silently fail
+  // hota tha jab profiles RLS INSERT policy block karta tha (row already exists).
   if (data.user) {
-    await _supabase.from('profiles').upsert({
+    const { error: upsertErr } = await _supabase.from('profiles').upsert({
       id: data.user.id, full_name: name, username: uname, bio,
       updated_at: new Date().toISOString()
-    }).catch(() => {});
+    }, { onConflict: 'id' });
+    if (upsertErr) console.error('[saveProfile] profiles upsert error:', upsertErr);
   }
 
   if (newPw) {
