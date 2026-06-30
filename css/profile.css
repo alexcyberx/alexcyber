@@ -807,3 +807,11 @@
 
 /* Username tag */
 #pfUsernameTag { font-size: 12px; }
+
+/* ── Field validation error (profile settings) ─────────────── */
+.pf-field-error {
+  color: #e06060;
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.4;
+}

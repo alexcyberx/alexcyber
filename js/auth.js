@@ -301,11 +301,38 @@ function clearProfileFields() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
-  // Clear display text too
-  const textsToClear = ['profileAvatarBig', 'profileDisplayName', 'profileDisplayEmail', 'profileMsg'];
+  // Clear all display elements — prevents stale data leaking to next account
+  // FIX: pehle sirf 4 elements clear hote the. pfBioDisplay, pfUsernameTag,
+  // pfXP, pfLevel, pfRank, pfSolved, pfRemaining, pfBadges, pfFirstBloods
+  // sab clear nahi hote the — Account A logout ke baad Account B login karte
+  // hi profile page kholo toh initProfilePage chalane se pehle A ka data
+  // briefly visible rehta tha (especially agar Supabase fetch slow ho).
+  const textsToClear = [
+    'profileAvatarBig', 'profileDisplayName', 'profileDisplayEmail',
+    'profileMsg', 'pfBioDisplay', 'pfUsernameTag',
+    'pfXP', 'pfLevel', 'pfRank',
+    'pfSolved', 'pfRemaining', 'pfBadges', 'pfFirstBloods',
+    'pfStreakCurrent', 'pfStreakLongest', 'pfXpBarPct', 'pfXpBarLabel'
+  ];
   textsToClear.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.textContent = '';
+  });
+  // Also reset XP bar fill width
+  const fill = document.getElementById('pfXpFill');
+  if (fill) fill.style.width = '0%';
+  // Reset tab panels to loading state
+  const resetPanels = [
+    { id: 'pfRecentSolves', html: '<div class="pf-empty">—</div>' },
+    { id: 'pfBadgeGrid',    html: '' },
+    { id: 'pfBadgeGridLocked', html: '' },
+    { id: 'pfLeaderboard', html: '<div class="pf-empty">—</div>' },
+    { id: 'pfNotifList',   html: '<div class="pf-empty">—</div>' },
+    { id: 'pfDailyInner',  html: '<div class="pf-daily-loading">—</div>' },
+  ];
+  resetPanels.forEach(({ id, html }) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = html;
   });
 }
 

@@ -833,7 +833,7 @@ function saveCTFSolvedToStorage() {
 async function saveSolvedToSupabase(challengeId, xp) {
   if (!window._supabase || !window._currentUser) return;
   try {
-    // Slug → Supabase UUID lookup (bugfix-patch.js maintains this map)
+    // Slug → Supabase UUID lookup (ctf-sync.js maintains this map via window.loadCTFUuids)
     if (Object.keys(window._ctfSlugToUuid || {}).length === 0 && typeof window.loadCTFUuids === 'function') {
       await window.loadCTFUuids();
     }

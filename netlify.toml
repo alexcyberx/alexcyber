@@ -63,7 +63,11 @@
   from = "/rooms/*"
   to   = "/index.html"
   status = 200
-  conditions = {Role = ["admin", "member", ""]}
+
+[[redirects]]
+  from = "/rooms"
+  to   = "/index.html"
+  status = 200
 
 [[redirects]]
   from = "/tutorials/*"

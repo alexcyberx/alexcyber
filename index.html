@@ -2407,6 +2407,26 @@ let ctfCurrentChallenge = null;
 let ctfHintVisible = false;
 
 /* ── INIT ── */
+// ── CTF USER SESSION INIT ───────────────────────────────────────
+// auth.js mein SIGNED_IN event pe call hota hai — lab session ko
+// newly logged-in user ke saath anchor karta hai taaki cross-user
+// session leakage na ho. Per-challenge sessionStorage keys use
+// hoti hain (acx_lab_session_<challengeId>) jo user-scoped hain.
+// Plain Math.random() ka use yahan intentional nahi tha (v28 bug
+// tha woh, fix ho chuka hai). Yeh function sirf ensure karta hai
+// ki koi stale anonymous session nahi bachi hai.
+function ctfInitUserSession() {
+  try {
+    // Purani anonymous lab sessions sessionStorage se wipe karo
+    const toWipe = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const k = sessionStorage.key(i);
+      if (k && k.startsWith('acx_lab_session_')) toWipe.push(k);
+    }
+    toWipe.forEach(k => sessionStorage.removeItem(k));
+  } catch(e) {}
+}
+
 function initCTFPage() {
   const user = window._currentUser;
 

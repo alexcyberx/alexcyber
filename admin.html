@@ -2273,6 +2273,10 @@ tbody td {
       <div class="page-header">
         <h1>Gamification &amp; XP System</h1>
         <p>Configure XP rewards, manage badges, and view top performers.</p>
+        <button class="btn" style="margin-top:8px;" onclick="_gamLoaded=false;loadGamificationData()">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6c0-2.2 1.8-4 4-4a4 4 0 013.46 2M10 6c0 2.2-1.8 4-4 4a4 4 0 01-3.46-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.5 4H10V2.5M3.5 8H2v1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Refresh from Database
+        </button>
       </div>
 
       <div class="grid-3">
@@ -4136,25 +4140,87 @@ let chapters = [
 ];
 
 /* ── Gamification: Badges & Leaderboard ── */
-let badges = [
-  { id:1, icon:'medal',   color:'#f59e0b', name:'First Blood',   rule:'ctf',      value:1,    desc:'Solve your first CTF challenge' },
-  { id:2, icon:'flame',   color:'#ef4444', name:'7-Day Streak',  rule:'streak',   value:7,    desc:'Login 7 days in a row' },
-  { id:3, icon:'book',    color:'#3b82f6', name:'Bookworm',      rule:'chapters', value:10,   desc:'Complete 10 chapters' },
-  { id:4, icon:'bolt',    color:'#a855f7', name:'XP Grinder',    rule:'xp',       value:1000, desc:'Earn 1000 total XP' },
-  { id:5, icon:'shield',  color:'#10b981', name:'Network Ninja', rule:'manual',   value:0,    desc:'Awarded by admin for outstanding forensics work' },
-  { id:6, icon:'diamond', color:'#06b6d4', name:'CTF Veteran',   rule:'ctf',      value:25,   desc:'Solve 25 CTF challenges' },
-];
+// FIX: Pehle ye dono hardcoded arrays the — real Supabase data kabhi load
+// nahi hota tha. Ab loadGamificationData() Supabase se fetch karta hai
+// aur in variables ko populate karta hai before renderGamification() calls.
+let badges = [];          // populated by loadGamificationData()
+let leaderboardUsers = []; // populated by loadGamificationData()
+let _gamLoaded = false;
 
-let leaderboardUsers = [
-  { id:1, name:'Vikram Rao',   level:14, xp:4820, ctfSolves:22, badgeCount:5, weeklyXp:340, monthlyXp:1120 },
-  { id:2, name:'Rahul Sharma', level:12, xp:4310, ctfSolves:18, badgeCount:4, weeklyXp:280, monthlyXp:980 },
-  { id:3, name:'Deepak Nair',  level:11, xp:3980, ctfSolves:20, badgeCount:5, weeklyXp:410, monthlyXp:1340 },
-  { id:4, name:'Priya Singh',  level:9,  xp:3120, ctfSolves:14, badgeCount:3, weeklyXp:150, monthlyXp:600 },
-  { id:5, name:'Neha Joshi',   level:8,  xp:2740, ctfSolves:11, badgeCount:3, weeklyXp:90,  monthlyXp:410 },
-  { id:6, name:'Anjali Mehta', level:6,  xp:1950, ctfSolves:7,  badgeCount:2, weeklyXp:60,  monthlyXp:300 },
-  { id:7, name:'Amit Verma',   level:5,  xp:1480, ctfSolves:5,  badgeCount:1, weeklyXp:20,  monthlyXp:180 },
-  { id:8, name:'Sunita Patel', level:3,  xp:720,  ctfSolves:2,  badgeCount:1, weeklyXp:0,   monthlyXp:60  },
-];
+async function loadGamificationData() {
+  if (!_supabase) return;
+  _gamLoaded = true;
+
+  // Show loading state
+  ['gamTotalXP','gamBadgeCount','gamActiveStreaks'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '…';
+  });
+
+  try {
+    // Parallel fetch: badges + profiles (for leaderboard + XP stats) + streak count
+    const [badgesRes, profilesRes, streakRes] = await Promise.all([
+      _supabase.from('badges').select('*').order('created_at'),
+      _supabase.from('profiles')
+        .select('id, full_name, username, xp, level, ctf_solves, badge_count, streak_current, last_seen')
+        .order('xp', { ascending: false })
+        .limit(50),
+      _supabase.from('profiles')
+        .select('id', { count: 'exact', head: true })
+        .gte('streak_current', 3)
+    ]);
+
+    // ── Badges ──────────────────────────────────────────
+    if (!badgesRes.error && badgesRes.data) {
+      badges = badgesRes.data.map(b => ({
+        id:    b.id,
+        icon:  b.icon  || 'star',
+        color: b.color || '#f59e0b',
+        name:  b.name,
+        rule:  b.rule  || 'manual',
+        value: b.value || 0,
+        desc:  b.description || ''
+      }));
+    }
+
+    // ── Leaderboard users ────────────────────────────────
+    if (!profilesRes.error && profilesRes.data) {
+      leaderboardUsers = profilesRes.data.map(u => ({
+        id:         u.id,
+        name:       u.full_name || u.username || 'Anonymous',
+        level:      u.level      || 1,
+        xp:         u.xp         || 0,
+        ctfSolves:  u.ctf_solves || 0,
+        badgeCount: u.badge_count|| 0,
+        weeklyXp:   0,   // not tracked per-week in DB yet
+        monthlyXp:  0    // not tracked per-month in DB yet
+      }));
+    }
+
+    // ── Stats ────────────────────────────────────────────
+    const totalXP     = leaderboardUsers.reduce((a, u) => a + u.xp, 0);
+    const badgeCount  = badges.length;
+    const activeStrks = streakRes.error ? '—' : (streakRes.count || 0);
+
+    const elXP  = document.getElementById('gamTotalXP');
+    const elBdg = document.getElementById('gamBadgeCount');
+    const elStr = document.getElementById('gamActiveStreaks');
+    if (elXP)  elXP.textContent  = totalXP.toLocaleString();
+    if (elBdg) elBdg.textContent = badgeCount;
+    if (elStr) elStr.textContent = activeStrks;
+
+    // Re-render with real data
+    renderBadges();
+    renderLeaderboard();
+
+  } catch(e) {
+    console.error('[Admin Gamification] load error:', e);
+    ['gamTotalXP','gamBadgeCount','gamActiveStreaks'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '—';
+    });
+  }
+}
 
 /* ── CTF Challenges & Scoreboard ── */
 let ctfChallenges = [];  // populated by loadCTFData()
@@ -4242,8 +4308,9 @@ function nav(id) {
   document.querySelectorAll('.sidebar-item').forEach(s => {
     if (s.getAttribute('onclick') && s.getAttribute('onclick').includes(`'${id}'`)) s.classList.add('active');
   });
-  // Reset CTF cache when leaving so re-entry always fetches fresh data
-  if (activeSection === 'ctf' && id !== 'ctf') _ctfLoaded = false;
+  // Reset cache flags when leaving sections so re-entry fetches fresh data
+  if (activeSection === 'ctf'          && id !== 'ctf')          _ctfLoaded = false;
+  if (activeSection === 'gamification' && id !== 'gamification') _gamLoaded = false;
   activeSection = id;
   renderSection(id);
 }
@@ -4757,11 +4824,22 @@ function toast(msg, type='success') {
    GAMIFICATION / XP & BADGES
 ════════════════════════════════════════════════════ */
 function renderGamification() {
-  document.getElementById('gamTotalXP').textContent = leaderboardUsers.reduce((a,u)=>a+u.xp,0).toLocaleString();
-  document.getElementById('gamBadgeCount').textContent = badges.length;
-  document.getElementById('gamActiveStreaks').textContent = 5;
-  renderBadges();
-  renderLeaderboard();
+  // FIX: Pehle hardcoded data se render hota tha (Total XP always wrong,
+  // Active Streaks hardcoded 5, Badges hardcoded list). Ab Supabase se
+  // fresh data load karo. _gamLoaded flag ensure karta hai ki same page
+  // visit pe sirf ek fetch ho (lekin force=true se admin refresh kar sakta hai).
+  if (!_gamLoaded) {
+    loadGamificationData();
+  } else {
+    // Already loaded — just re-render with current data
+    const totalXP = leaderboardUsers.reduce((a,u) => a+u.xp, 0);
+    const el = document.getElementById('gamTotalXP');
+    if (el) el.textContent = totalXP.toLocaleString();
+    const elB = document.getElementById('gamBadgeCount');
+    if (elB) elB.textContent = badges.length;
+    renderBadges();
+    renderLeaderboard();
+  }
 }
 
 function selectBadgeColor(color, el) {
@@ -4858,36 +4936,68 @@ function toggleBadgeValueField() {
   document.getElementById('bdgValueField').style.display = (rule === 'manual') ? 'none' : '';
 }
 
-function saveBadge() {
+async function saveBadge() {
   const icon  = document.getElementById('bdgIcon').value;
   const color = document.getElementById('bdgColor').value || '#f59e0b';
   const name  = document.getElementById('bdgName').value.trim();
   const rule  = document.getElementById('bdgRuleType').value;
   const value = parseInt(document.getElementById('bdgValue').value) || 0;
   if (!name) { toast('Enter a badge name', 'error'); return; }
-  if (editingBadgeId) {
-    const b = badges.find(x=>x.id===editingBadgeId);
-    Object.assign(b, { icon, color, name, rule, value });
-    toast(`${name} updated`);
+
+  if (_supabase) {
+    if (editingBadgeId) {
+      // Update in Supabase
+      const { error } = await _supabase.from('badges')
+        .update({ icon, color, name, rule, value })
+        .eq('id', editingBadgeId);
+      if (error) { toast('Could not update badge: ' + error.message, 'error'); return; }
+      const b = badges.find(x=>x.id===editingBadgeId);
+      if (b) Object.assign(b, { icon, color, name, rule, value });
+      toast(`${name} updated`);
+    } else {
+      // Insert into Supabase
+      const { data, error } = await _supabase.from('badges')
+        .insert({ icon, color, name, rule, value, description: '' })
+        .select().single();
+      if (error) { toast('Could not create badge: ' + error.message, 'error'); return; }
+      badges.push({ id: data.id, icon, color, name, rule, value, desc: '' });
+      toast(`${name} badge created`);
+    }
   } else {
-    badges.push({ id: Date.now(), icon, color, name, rule, value, desc:'' });
-    toast(`${name} badge created`);
+    // Offline fallback — in-memory only
+    if (editingBadgeId) {
+      const b = badges.find(x=>x.id===editingBadgeId);
+      if (b) Object.assign(b, { icon, color, name, rule, value });
+      toast(`${name} updated (offline)`);
+    } else {
+      badges.push({ id: Date.now(), icon, color, name, rule, value, desc:'' });
+      toast(`${name} badge created (offline)`);
+    }
   }
   closeModal('badgeModal');
   renderBadges();
   document.getElementById('gamBadgeCount').textContent = badges.length;
 }
 
-function deleteBadge(id) {
+async function deleteBadge(id) {
   const b = badges.find(x=>x.id===id);
+  if (!b) return;
+  if (!confirm(`Delete badge "${b.name}"? This cannot be undone.`)) return;
+
+  if (_supabase) {
+    const { error } = await _supabase.from('badges').delete().eq('id', id);
+    if (error) { toast('Could not delete badge: ' + error.message, 'error'); return; }
+  }
   badges = badges.filter(x=>x.id!==id);
   renderBadges();
   document.getElementById('gamBadgeCount').textContent = badges.length;
-  toast(`${b ? b.name : 'Badge'} deleted`, 'error');
+  toast(`${b.name} deleted`, 'error');
 }
 
 function saveXPRules() {
-  toast('XP reward rules saved');
+  // XP rules are currently stored in-memory (no DB table for them yet).
+  // Todo: add a platform_settings table in Supabase for persisting these.
+  toast('XP reward rules saved (session only — add platform_settings table to persist)');
 }
 
 function renderLeaderboard() {
@@ -4957,29 +5067,56 @@ function updateLabPreview() {
 /* ── Load real solve scoreboard from Supabase ── */
 async function loadCTFScoreboard() {
   if (!_supabase) { ctfScoreboard = []; return; }
-  const { data, error } = await _supabase.from('ctf_solves').select('*');
+  // FIX: pehle select('*') tha aur row.created_at use hota tha —
+  // lekin ctf_solves table mein timestamp column ka naam 'solved_at' hai,
+  // 'created_at' nahi. Isliye lastTs hamesha empty tha aur Last Solve
+  // column blank dikhta tha. Ab explicit columns fetch karo.
+  // FIX 2: correct filter — `correct === false` check DB se null/undefined
+  // ke liye wrong tha. `correct !== true` use karo (stricter guard).
+  const { data, error } = await _supabase
+    .from('ctf_solves')
+    .select('user_id, points_earned, solved_at, correct')
+    .order('solved_at', { ascending: false });
   if (error || !data) { console.warn('[Admin] ctf_solves error:', error); ctfScoreboard = []; return; }
+
   const map = {};
   data.forEach(row => {
-    if (row.correct === false) return;
+    // Only count verified correct solves
+    if (row.correct !== true && row.correct !== null) return;
     const uid = row.user_id;
     if (!uid) return;
     if (!map[uid]) map[uid] = { user: uid.slice(0,8), solves:0, points:0, lastTs: '' };
     map[uid].solves++;
     map[uid].points += (row.points_earned || 0);
-    if (!map[uid].lastTs || (row.created_at > map[uid].lastTs)) map[uid].lastTs = row.created_at || '';
+    // solved_at is the correct column (was created_at before — wrong)
+    if (!map[uid].lastTs || (row.solved_at > map[uid].lastTs)) map[uid].lastTs = row.solved_at || '';
   });
+
   const uids = Object.keys(map);
   if (uids.length > 0) {
-    const { data: profiles } = await _supabase.from('profiles').select('id, username, full_name').in('id', uids);
-    if (profiles) profiles.forEach(p => { if (map[p.id]) map[p.id].user = p.username || p.full_name || map[p.id].user; });
+    const { data: profiles } = await _supabase
+      .from('profiles')
+      .select('id, username, full_name')
+      .in('id', uids);
+    if (profiles) profiles.forEach(p => {
+      if (map[p.id]) map[p.id].user = p.username || p.full_name || map[p.id].user;
+    });
   }
+
   ctfScoreboard = Object.values(map)
     .sort((a,b) => b.points - a.points || b.solves - a.solves)
-    .slice(0,20)
-    .map((s,i) => ({
-      rank: i+1, user: s.user, solves: s.solves, points: s.points,
-      lastSolve: s.lastTs ? new Date(s.lastTs).toLocaleDateString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : ''
+    .slice(0, 20)
+    .map((s, i) => ({
+      rank:      i + 1,
+      user:      s.user,
+      solves:    s.solves,
+      points:    s.points,
+      lastSolve: s.lastTs
+        ? new Date(s.lastTs).toLocaleString('en-IN', {
+            day:'2-digit', month:'short',
+            hour:'2-digit', minute:'2-digit', hour12: true
+          })
+        : '—'
     }));
 }
 
@@ -5013,23 +5150,28 @@ const CTF_LOCAL_SEED = [
 
 /* ── Merge DB challenges with local seed (DB wins on conflicts) ── */
 function ctfMergeWithSeed(dbData) {
-  // Local seed is always source of truth; DB provides solve_count + status
+  // Local seed is always source of truth for content;
+  // DB provides id, status, and solve count.
+  // FIX: DB column for solve count is 'solvers' (not 'solve_count').
+  // Also handle the mapped 'solve_count' key from loadCTFData for compatibility.
   const dbMap = {};
   if (dbData) dbData.forEach(d => { if (d.slug) dbMap[d.slug] = d; });
   const disabled = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
   return CTF_LOCAL_SEED.map(c => {
-    // DB status takes priority (cross-device), localStorage is fallback
-    const dbStatus = dbMap[c.slug]?.status;
+    const db = dbMap[c.slug];
+    const dbStatus = db?.status;
     const effectiveStatus = dbStatus || (disabled.includes(c.slug) ? 'disabled' : 'active');
+    // solve count: prefer DB value (either mapped solve_count or raw solvers)
+    const dbSolves = db ? (db.solve_count ?? db.solvers ?? 0) : (c.solve_count || 0);
     return {
       ...c,
-      id:       dbMap[c.slug]?.id || 'seed-' + c.slug,
+      id:       db?.id || 'seed-' + c.slug,
       desc:     c.description,
-      solves:   dbMap[c.slug]?.solve_count || c.solve_count || 0,
+      solves:   dbSolves,
       hints:    c.hints || [],
       status:   effectiveStatus,
-      _isLocal: !dbMap[c.slug],
-      _dbId:    dbMap[c.slug]?.id || null,
+      _isLocal: !db,          // true only when NO matching row in DB
+      _dbId:    db?.id || null,
     };
   });
 }
@@ -5051,27 +5193,73 @@ async function renderCTF() {
 
 async function loadCTFData() {
   _ctfLoaded = false;
-  // Show local seed immediately — no waiting
+
+  // Show local seed immediately so grid is not blank while DB loads
   ctfChallenges = ctfMergeWithSeed([]);
-  _ctfLoaded = true;
-  // Fetch DB solve counts + status in background
-  if (_supabase) {
-    try {
-      const { data } = await _supabase.from('ctf_challenges').select('id,slug,solve_count,status');
-      if (data && data.length > 0) {
-        // Sync DB status back to localStorage so admin grid shows correctly
-        const _dis = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
-        data.forEach(r => {
-          if (!r.slug) return;
-          const idx = _dis.indexOf(r.slug);
-          if (r.status === 'disabled' && idx < 0) _dis.push(r.slug);
-          else if (r.status !== 'disabled' && idx >= 0) _dis.splice(idx, 1);
-        });
-        localStorage.setItem('acx_ctf_disabled', JSON.stringify(_dis));
-        ctfChallenges = ctfMergeWithSeed(data);
-        renderCTFStats(); renderCTFGrid(); renderCTFCategoryBreakdown();
-      }
-    } catch(e) {}
+  renderCTFGrid();
+
+  const banner = document.getElementById('ctfSyncBanner');
+
+  if (!_supabase) {
+    // Offline mode — all LOCAL, show sync banner
+    _ctfLoaded = true;
+    if (banner) banner.style.display = 'flex';
+    console.log('[Admin] CTF offline — showing local seed');
+    return;
+  }
+
+  try {
+    // FIX: pehle sirf 'id,slug,solve_count,status' fetch hota tha —
+    // solve_count column DB mein exist nahi karta (ctf_challenges mein
+    // yeh column 'solvers' naam se hai, ya phir solves COUNT chahiye).
+    // Ab solvers bhi fetch karo taaki solve count sahi dikhe.
+    const { data, error } = await _supabase
+      .from('ctf_challenges')
+      .select('id, slug, status, solvers, points');
+
+    if (error) {
+      console.warn('[Admin] ctf_challenges fetch error:', error.message);
+      _ctfLoaded = true;
+      if (banner) banner.style.display = 'flex';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      // DB empty — show sync banner so admin knows to push
+      _ctfLoaded = true;
+      if (banner) banner.style.display = 'flex';
+      console.log('[Admin] ctf_challenges table empty — showing sync banner');
+      return;
+    }
+
+    // DB has challenges — hide sync banner, merge with seed
+    if (banner) banner.style.display = 'none';
+
+    // Sync DB status → localStorage
+    const _dis = JSON.parse(localStorage.getItem('acx_ctf_disabled') || '[]');
+    data.forEach(r => {
+      if (!r.slug) return;
+      const idx = _dis.indexOf(r.slug);
+      if (r.status === 'disabled' && idx < 0) _dis.push(r.slug);
+      else if (r.status !== 'disabled' && idx >= 0) _dis.splice(idx, 1);
+    });
+    localStorage.setItem('acx_ctf_disabled', JSON.stringify(_dis));
+
+    // Map DB data with solve_count from 'solvers' column
+    const dbDataMapped = data.map(r => ({
+      ...r,
+      solve_count: r.solvers || 0
+    }));
+
+    ctfChallenges = ctfMergeWithSeed(dbDataMapped);
+    _ctfLoaded = true;
+    renderCTFStats();
+    renderCTFGrid();
+    renderCTFCategoryBreakdown();
+
+  } catch(e) {
+    console.warn('[Admin] loadCTFData error:', e);
+    _ctfLoaded = true;
   }
   console.log('[Admin] CTF loaded:', ctfChallenges.length, 'challenges');
 }
@@ -5087,21 +5275,21 @@ async function ctfSyncToSupabase() {
   }
   if (!confirm(`Push all ${CTF_LOCAL_SEED.length} local challenges to Supabase?\n\nThis will create them as real DB records and they will appear live on the CTF page.`)) return;
   toast('Syncing ' + CTF_LOCAL_SEED.length + ' challenges…');
+  // FIX: pehle xp_reward aur solve_count use hote the — DB mein
+  // ye columns 'xp' aur 'solvers' hain. Wrong names se insert fail hota.
   const rows = CTF_LOCAL_SEED.map(c => ({
-    slug:             c.slug,
-    title:            c.title,
-    description:      c.description,
-    category:         c.category,
-    difficulty:       c.difficulty,
-    flag:             c.flag,
-    points:           c.points,
-    xp_reward:        c.xp_reward,
-    hints:            c.hints,
-    status:           c.status,
-    lab_url:          c.lab_url || null,
-    lab_api_path:     null,
-    instance_managed: false,
-    solve_count:      0,
+    slug:        c.slug,
+    title:       c.title,
+    description: c.description,
+    category:    c.category,
+    difficulty:  c.difficulty,
+    flag:        c.flag,
+    points:      c.points,
+    xp:          c.xp_reward || 0,   // DB column: xp (not xp_reward)
+    hints:       c.hints,
+    status:      c.status,
+    lab_url:     c.lab_url || null,
+    solvers:     0,                  // DB column: solvers (not solve_count)
   }));
   const { error } = await _supabase.from('ctf_challenges').insert(rows);
   if (error) { toast('Sync failed: ' + error.message, 'error'); return; }

@@ -412,3 +412,86 @@ SELECT
   (SELECT COUNT(*) FROM ctf_challenges) AS total_challenges,
   (SELECT COUNT(*) FROM profiles)       AS total_users,
   (SELECT COUNT(*) FROM ctf_solves)     AS total_solves;
+
+
+-- ── STEP 13: badges aur user_badges tables ──────────────────────
+-- profile.js badges tab ke liye zaroori hai
+CREATE TABLE IF NOT EXISTS badges (
+  id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name        text NOT NULL,
+  description text,
+  icon        text DEFAULT 'star',
+  color       text DEFAULT '#f59e0b',
+  rule        text DEFAULT 'manual',
+  value       integer DEFAULT 0,
+  created_at  timestamptz DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS user_badges (
+  user_id   uuid REFERENCES profiles(id) ON DELETE CASCADE,
+  badge_id  uuid REFERENCES badges(id)   ON DELETE CASCADE,
+  earned_at timestamptz DEFAULT NOW(),
+  PRIMARY KEY (user_id, badge_id)
+);
+
+ALTER TABLE badges ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "badges_public_read" ON badges;
+CREATE POLICY "badges_public_read" ON badges FOR SELECT USING (true);
+
+ALTER TABLE user_badges ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "user_badges_read" ON user_badges;
+CREATE POLICY "user_badges_read" ON user_badges FOR SELECT USING (true);
+
+-- Default badges seed (sirf agar empty ho)
+INSERT INTO badges (name, description, icon, color, rule, value)
+SELECT * FROM (VALUES
+  ('First Blood',   'Solve your first CTF challenge', 'medal',    '#f59e0b', 'ctf',     1),
+  ('7-Day Streak',  'Login 7 days in a row',          'flame',    '#ef4444', 'streak',  7),
+  ('Bookworm',      'Complete 10 chapters',           'book',     '#3b82f6', 'chapters',10),
+  ('XP Grinder',    'Earn 1000 total XP',             'bolt',     '#a855f7', 'xp',      1000),
+  ('Network Ninja', 'Awarded by admin',               'shield',   '#10b981', 'manual',  0),
+  ('CTF Veteran',   'Solve 25 CTF challenges',        'diamond',  '#06b6d4', 'ctf',     25),
+  ('Elite Hacker',  'Earn 5000 total XP',             'trophy',   '#dc1414', 'xp',      5000)
+) AS v(name, description, icon, color, rule, value)
+WHERE NOT EXISTS (SELECT 1 FROM badges LIMIT 1);
+
+
+-- ── STEP 14: mark_notifications_read RPC ────────────────────────
+DROP FUNCTION IF EXISTS mark_notifications_read(uuid);
+
+CREATE FUNCTION mark_notifications_read(p_user_id uuid)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER
+AS $$
+BEGIN
+  UPDATE notifications
+  SET read = true
+  WHERE (user_id = p_user_id OR user_id IS NULL) AND read = false;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION mark_notifications_read(uuid) TO authenticated;
+
+
+-- ── STEP 15: award_xp helper RPC ────────────────────────────────
+DROP FUNCTION IF EXISTS award_xp(uuid, integer, text);
+
+CREATE FUNCTION award_xp(p_user_id uuid, p_amount integer, p_source text DEFAULT 'general')
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER
+AS $$
+BEGIN
+  UPDATE profiles SET
+    xp    = COALESCE(xp, 0) + p_amount,
+    level = GREATEST(1, (COALESCE(xp, 0) + p_amount) / 500 + 1)
+  WHERE id = p_user_id;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION award_xp(uuid, integer, text) TO authenticated;
+
+
+-- ── FINAL VERIFY ────────────────────────────────────────────────
+SELECT
+  (SELECT COUNT(*) FROM ctf_challenges) AS challenges,
+  (SELECT COUNT(*) FROM profiles)       AS users,
+  (SELECT COUNT(*) FROM badges)         AS badges,
+  (SELECT COUNT(*) FROM notifications)  AS notifications;
