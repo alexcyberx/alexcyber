@@ -1,0 +1,13 @@
+{"ts":"2026-06-15T05:08:45.156Z","lab":"WEB-01","ip":"127.0.0.1","payload":"SELECT * FROM users WHERE username = '' OR '1'='1' --' AND password = 'anything'","result":"bypass_success"}
+{"ts":"2026-06-15T10:11:54.962Z","lab":"HIDDEN","ip":"127.0.0.1","payload":"ACX{c0mments_ar3_n0t_s3cr3t}","result":"correct"}
+{"ts":"2026-06-15T23:20:26.876Z","lab":"HIDDEN","ip":"127.0.0.1","payload":"ACX{c0mm3nts_4r3_n0t_s3cr3t}","result":"correct"}
+{"ts":"2026-06-15T23:31:35.301Z","lab":"COOKIE","ip":"127.0.0.1","payload":"login:john","result":"ok"}
+{"ts":"2026-06-16T05:11:56.679Z","lab":"ROBOTS","ip":"127.0.0.1","payload":"GET /internal/backup/","result":"dir_accessed"}
+{"ts":"2026-06-16T05:11:56.691Z","lab":"ROBOTS","ip":"127.0.0.1","payload":"GET /internal/backup/yxjjagl2zq.dat","result":"file_accessed"}
+{"ts":"2026-06-16T05:11:56.827Z","lab":"ROBOTS","ip":"127.0.0.1","payload":"ACX{r0b0ts_txt_l34ks_s3cr3ts}","result":"correct"}
+{"ts":"2026-06-16T05:20:32.338Z","lab":"PACKET","ip":"127.0.0.1","payload":"GET /download","result":"pcap_downloaded"}
+{"ts":"2026-06-16T05:20:32.366Z","lab":"PACKET","ip":"127.0.0.1","payload":"ACX{dns_3xf1ltr4t10n_d3t3ct3d}","result":"correct"}
+{"ts":"2026-06-16T05:37:48.940Z","lab":"METADATA","ip":"127.0.0.1","payload":"GET /download","result":"image_downloaded"}
+{"ts":"2026-06-16T05:37:49.129Z","lab":"METADATA","ip":"127.0.0.1","payload":"ACX{3x1f_d4t4_l34ks_l0c4t10n}","result":"correct"}
+{"ts":"2026-06-16T10:32:42.735Z","lab":"HIDDEN","ip":"127.0.0.1","payload":"instance_restart","result":"ok"}
+{"ts":"2026-06-16T10:32:42.757Z","lab":"HIDDEN","ip":"127.0.0.1","payload":"ACX{c0mm3nts_4r3_n0t_s3cr3t}","result":"correct"}

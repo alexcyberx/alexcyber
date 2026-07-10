@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hidden in Plain Sight | alexcyberx Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#fafafa;--surface:#ffffff;--surface2:#f4f4f6;
+  --border:#e4e4e9;--border-soft:#ececef;
+  --accent:#dc2626;--accent-dim:#fef2f2;--accent-border:#fecaca;
+  --text:#18181f;--text-dim:#6b6b78;--text-faint:#9999a6;
+  --green:#16a34a;--green-dim:#f0fdf4;--green-border:#bbf7d0;
+  --blue:#2563eb;--blue-dim:#eff6ff;--blue-border:#bfdbfe;
+  --orange:#d97706;--orange-dim:#fffbeb;--orange-border:#fde68a;
+  --code-bg:#1e1e2a;--code-text:#c8c8d4;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+  /* legacy aliases so existing rules below keep working unchanged */
+  --red:var(--accent);--dim:var(--text-dim);--white:var(--text);--green-dim-old:var(--green-dim);
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px;position:sticky;top:0;z-index:100;}
+.topbar-left{display:flex;align-items:center;gap:12px;min-width:0;flex:1;}
+.back-link{display:flex;align-items:center;gap:6px;color:var(--text-dim);font-size:13px;font-weight:500;text-decoration:none;cursor:pointer;transition:color 0.15s;}
+.back-link:hover{color:var(--text);}
+.topbar-sep{width:1px;height:16px;background:var(--border);}
+.topbar-id{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.5px;background:var(--accent-dim);padding:2px 8px;border-radius:4px;}
+.topbar-title{font-size:14px;font-weight:600;color:var(--text);}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.diff-badge{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:4px 11px;border-radius:20px;background:var(--green-dim);border:1px solid var(--green-border);color:var(--green);}
+.timer-wrap{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;}
+.timer-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--text-faint);text-transform:uppercase;}
+.timer-val{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text);min-width:52px;text-align:center;}
+.timer-wrap.idle .timer-val{color:var(--text-faint);}
+.timer-wrap.running .timer-val{color:var(--green);}
+.timer-wrap.warn .timer-val{color:var(--orange);}
+.timer-wrap.expired .timer-val{color:var(--accent);}
+
+
+.lab-wrap{max-width:100%;margin:0;padding:0;display:block;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 2px rgba(20,20,30,0.03);}
+.card-head{padding:12px 16px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;gap:8px;}
+.card-head-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+.card-head-title{font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--text-faint);text-transform:uppercase;}
+.card-body{padding:16px;}
+
+/* picoCTF-style description block */
+.desc-meta-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.meta-tag{font-size:10px;font-weight:700;letter-spacing:0.5px;padding:3px 10px;border-radius:12px;text-transform:uppercase;}
+.meta-tag.diff{background:var(--accent-dim);color:var(--accent);}
+.meta-tag.cat{background:var(--blue-dim);color:var(--blue);}
+.meta-tag.edition{background:var(--blue-dim);color:var(--blue);}
+.author-line{font-size:10px;color:var(--text-faint);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px;font-weight:600;}
+.desc-text{font-size:13px;color:var(--text-dim);line-height:1.85;}
+.desc-text strong{color:var(--text);font-weight:600;}
+.desc-text p{margin-bottom:10px;}
+.desc-text p:last-child{margin-bottom:0;}
+.desc-link{color:var(--blue);text-decoration:underline;cursor:pointer;font-weight:500;}
+.desc-link:hover{color:#1d4ed8;}
+.debug-line{font-family:var(--mono);font-size:9.5px;color:var(--text-faint);font-style:italic;margin:10px 0;}
+
+/* Instance status block */
+.instance-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px;}
+.instance-status-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-dim);margin-bottom:8px;}
+.instance-status-row strong{color:var(--text);}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.status-dot.running{background:var(--green);box-shadow:0 0 0 3px var(--green-dim);}
+.status-dot.stopped{background:var(--text-faint);}
+.status-dot.expiring{background:var(--orange);}
+.instance-time-row{display:none;font-size:12.5px;color:var(--text-dim);margin-bottom:12px;}
+.lab-running .instance-time-row{display:block;}
+.instance-time-val{font-family:var(--mono);font-weight:600;color:var(--text);}
+.instance-time-val.warn{color:var(--orange);}
+.instance-time-val.danger{color:var(--accent);}
+.restart-btn{display:none;align-items:center;justify-content:center;gap:8px;width:100%;background:var(--text);color:#fff;border:none;border-radius:8px;padding:10px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:opacity 0.15s;}
+.lab-running .restart-btn{display:flex;}
+.restart-btn:hover{opacity:0.85;}
+.restart-btn:disabled{opacity:0.4;cursor:not-allowed;}
+
+.info-label{font-size:10.5px;font-weight:600;letter-spacing:1px;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;margin-top:14px;}
+.info-label:first-child{margin-top:0;}
+
+.code-block{background:var(--code-bg);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:13px 15px;font-family:var(--mono);font-size:11.5px;line-height:1.9;color:var(--code-text);overflow-x:auto;}
+.kw{color:#7aa2f7;}.val{color:#9ece6a;}.str{color:#9ece6a;}.cmt{color:#6b6b80;font-style:italic;}.hi{color:#e0af68;}
+
+.obj-list{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.obj-item{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;color:var(--text-dim);line-height:1.5;}
+.obj-num{width:20px;height:20px;border-radius:6px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text-faint);flex-shrink:0;transition:all 0.3s;font-family:var(--mono);}
+.obj-item.done .obj-num{background:var(--green-dim);border-color:var(--green-border);color:var(--green);}
+.obj-item.done .obj-text{color:var(--text);}
+
+/* picoCTF-style hint tabs */
+.hint-tabs{display:flex;gap:8px;margin-bottom:10px;}
+.hint-tab-btn{flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all 0.15s;}
+.hint-tab-btn:hover{border-color:var(--text-faint);color:var(--text);}
+.hint-tab-btn.active{background:var(--blue-dim);border-color:var(--blue-border);color:var(--blue);}
+.hint-tab-btn.used{background:var(--orange-dim);border-color:var(--orange-border);color:var(--orange);}
+.hint-panel{display:none;background:var(--orange-dim);border:1px solid var(--orange-border);border-radius:8px;padding:14px;font-size:12.5px;color:var(--text-dim);line-height:1.75;}
+.hint-panel.active{display:block;}
+.hint-panel code{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,0.05);border-radius:3px;padding:1px 5px;color:var(--text);}
+.hint-cost{font-size:9.5px;color:var(--orange);font-weight:700;margin-bottom:8px;letter-spacing:0.5px;text-transform:uppercase;}
+
+.right-col{display:flex;flex-direction:column;gap:0;width:100%;position:relative;}
+
+.lock-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center;}
+.lab-running .lock-overlay{display:none;}
+.lock-overlay-inner{text-align:center;padding:40px;max-width:320px;}
+.lock-icon-box{width:56px;height:56px;border-radius:14px;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+.lock-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px;}
+.lock-desc{font-size:12.5px;color:var(--text-dim);line-height:1.6;margin-bottom:20px;}
+.lock-start-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.lock-start-btn:hover{background:#b91c1c;}
+
+/* Expired overlay */
+.expired-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.97);z-index:999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:18px;text-align:center;padding:24px;}
+.expired-overlay.show{display:flex;}
+.expired-icon-box{width:64px;height:64px;border-radius:16px;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;}
+.expired-title{font-size:18px;font-weight:700;color:var(--text);}
+.expired-desc{font-size:13px;color:var(--text-dim);max-width:340px;line-height:1.6;}
+.expired-restart-btn{display:flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:12px 28px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);}
+.expired-restart-btn:hover{background:#b91c1c;}
+
+/* Solved celebration popup */
+.solved-popup{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-20px);background:linear-gradient(135deg,#10c876,#0ea968);color:#fff;padding:18px 24px;border-radius:12px;display:none;align-items:center;gap:14px;box-shadow:0 12px 40px rgba(16,200,118,0.3);z-index:1000;max-width:420px;opacity:0;transition:opacity 0.3s,transform 0.3s;}
+.solved-popup.show{display:flex;opacity:1;transform:translateX(-50%) translateY(0);}
+.solved-icon{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.solved-text{flex:1;}
+.solved-title{font-size:14px;font-weight:700;margin-bottom:2px;}
+.solved-sub{font-size:11.5px;opacity:0.9;}
+.solved-close{background:none;border:none;color:#fff;opacity:0.7;cursor:pointer;flex-shrink:0;padding:4px;}
+.solved-close:hover{opacity:1;}
+
+.view-source-btn:hover{background:#dbeafe;}
+.lang-btn{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 13px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.lang-btn:hover{background:#eaeaee;}
+.site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}
+
+.source-close:hover{color:var(--text);}
+
+.flag-box{display:none;background:var(--green-dim);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;}
+.flag-box.show{display:block;}
+.flag-head{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--green-border);}
+.flag-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.flag-head-label{font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--green);text-transform:uppercase;}
+.flag-body{padding:16px;}
+.flag-value{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green);letter-spacing:0.5px;margin-bottom:6px;}
+.flag-note{font-size:11.5px;color:#15803d;line-height:1.5;opacity:0.8;}
+
+.req-log-clear:hover{color:var(--text);}
+
+.log-status.ok{color:var(--green);}
+.log-status.err{color:var(--accent);}
+.log-status.warn{color:var(--orange);}
+
+/* ── RESPONSIVE SYSTEM ── */
+
+/* Tablet: 768px - 1024px */
+@media(max-width:1024px){
+  .lab-wrap{max-width:100%;margin:0;padding:0;display:block;}
+  .site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}
+  
+  .topbar{padding:0 16px;}
+}
+
+/* Mobile / Small Tablet: ≤768px */
+@media(max-width:768px){
+  .topbar{padding:0 14px;height:52px;}
+  .topbar-title{display:none;}
+  .topbar-sep{display:none;}
+  .timer-label{display:none;}
+  .timer-val{font-size:13px;min-width:44px;}
+  .timer-wrap{padding:5px 10px;gap:6px;}
+  .diff-badge{display:none;}
+  .lang-btn span{display:none;}
+  .lang-btn{padding:6px 9px;}
+
+  .lab-wrap{max-width:100%;margin:0;padding:0;display:block;}
+  
+  .target-url-bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  .site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}
+
+  .card{margin-bottom:12px;}
+  .card-body{padding:13px;}
+  .code-block{font-size:10.5px;padding:11px 13px;overflow-x:auto;}
+
+  
+  
+
+  .obj-item{font-size:12px;}
+
+  .solved-popup{width:90%;max-width:340px;padding:14px 16px;gap:10px;top:14px;}
+  .solved-title{font-size:13px;}
+  .solved-sub{font-size:11px;}
+
+  .expired-title{font-size:16px;}
+  .expired-desc{font-size:12.5px;}
+
+  .lock-overlay-inner{padding:28px 20px;}
+  .lock-title{font-size:14px;}
+  .lock-desc{font-size:12px;}
+
+  
+
+  
+}
+
+/* Very small phones: ≤400px */
+@media(max-width:400px){
+  .topbar{padding:0 10px;height:48px;}
+  .back-link{font-size:12px;}
+  .topbar-id{font-size:10px;padding:2px 6px;}
+
+  .lab-wrap{max-width:100%;margin:0;padding:0;display:block;}
+
+  .site-frame{width:100%;height:calc(100vh - 56px);border:none;background:#fff;display:block;}
+
+  .card-body{padding:11px 12px;}
+
+  .hint-tab-btn{font-size:11px;padding:7px 6px;}
+
+  .flag-value{font-size:13.5px;word-break:break-all;}
+
+  
+  
+}
+
+
+.lock-overlay{position:absolute;inset:0;background:rgba(250,250,250,0.96);backdrop-filter:blur(6px);z-index:50;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+.lab-running .lock-overlay{display:none;}
+.lock-overlay-icon{width:52px;height:52px;border-radius:14px;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;}
+.lock-overlay-title{font-size:15px;font-weight:600;color:var(--text);}
+.lock-overlay-desc{font-size:12.5px;color:var(--text-dim);max-width:280px;text-align:center;line-height:1.6;}
+.lock-overlay-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.lock-overlay-btn:hover{background:#b91c1c;}
+
+.topbar-restart-btn{display:none;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:6px 13px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all 0.15s;}
+.topbar-restart-btn:hover{border-color:var(--accent);color:var(--accent);}
+.lab-running .topbar-restart-btn{display:flex;}
+</style>
+</head>
+<body id="labBody">
+
+<div class="solved-popup" id="solvedPopup">
+  <div class="solved-icon">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9.5l3.5 3.5L14 5.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div class="solved-text">
+    <div class="solved-title">Hurray! You solved this challenge.</div>
+    <div class="solved-sub">Flag captured and verified by the server.</div>
+  </div>
+  <button class="solved-close" onclick="closeSolvedPopup()">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3l-8 8" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </button>
+</div>
+
+<div class="expired-overlay" id="expiredOverlay">
+  <div class="expired-icon-box">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none"><circle cx="15" cy="15" r="11" stroke="#dc1414" stroke-width="1.6"/><path d="M15 8v7l5 3" stroke="#dc1414" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div class="expired-title">Instance Expired</div>
+  <div class="expired-desc">Your 30 minute instance window has ended. Restart to get a fresh instance and continue working on this challenge.</div>
+  <button class="expired-restart-btn" onclick="restartInstance()">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5a4.5 4.5 0 018-2.8M11 6.5a4.5 4.5 0 01-8 2.8" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/><path d="M10 2v2.5H7.5M3 11v-2.5h2.5" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Restart Instance
+  </button>
+</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back-link" href="#" onclick="labGoBack(); return false;">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Labs
+    </a>
+    <div class="topbar-sep"></div>
+    <span class="topbar-id">WEB01</span>
+    <span class="topbar-title">Hidden in Plain Sight</span>
+  </div>
+  <div class="topbar-right">
+    <button class="topbar-restart-btn" onclick="restartInstance()" title="Restart Instance">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6a4 4 0 017-2.6M10 6a4 4 0 01-7 2.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M9 2v2.5H6.5M3 10V7.5h2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Restart
+      </button>
+    <button class="lang-btn" onclick="showLangModal()" title="Change Language">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.1"/><path d="M1 6h10M6 1c1.6 1.4 1.6 8.6 0 10M6 1c-1.6 1.4-1.6 8.6 0 10" stroke="currentColor" stroke-width="1.1"/></svg>
+      <span id="mLangLabel">English</span>
+    </button>
+    <span class="diff-badge">Easy</span>
+  </div>
+</div>
+
+<div class="lab-wrap">
+<div class="right-col">
+
+    <div class="lock-overlay" id="lockOverlay">
+      <div class="lock-overlay-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="10" width="18" height="12" rx="2.5" stroke="#dc2626" stroke-width="1.5"/><path d="M7 10V7a5 5 0 0110 0v3" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="lock-overlay-title">Instance Not Running</div>
+      <div class="lock-overlay-desc">Start the instance to launch the target website and begin the challenge.</div>
+      <button class="lock-overlay-btn" onclick="startChallenge()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M3 2.5l7 4-7 4V2.5z" fill="#fff"/></svg>
+        Start Instance
+      </button>
+    </div>
+    <iframe class="site-frame" id="siteFrame" src="" sandbox="allow-same-origin allow-scripts"></iframe>
+
+    <div class="flag-box" id="flagBox">
+      <div class="flag-head"><div class="flag-dot"></div><span class="flag-head-label">Flag Captured</span></div>
+      <div class="flag-body">
+        <div class="flag-value" id="flagValue"></div>
+        <div class="flag-note">Flag found across HTML source, HTTP header, and a JS file. Developers leave traces in places browsers never show users.</div>
+      </div>
+    </div>
+
+</div>
+
+<!-- ═══════════ LANGUAGE SELECTOR MODAL ═══════════ -->
+<div id="langModal" style="position:fixed;inset:0;z-index:99999;background:rgba(6,6,8,0.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);display:none;align-items:center;justify-content:center;">
+  <div id="langCard" style="background:#0c0c0f;border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:28px 24px 22px;max-width:480px;width:92%;box-shadow:0 32px 80px rgba(0,0,0,0.85);position:relative;">
+    <style>@keyframes langIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}</style>
+    <button onclick="hideLangModal()" style="position:absolute;top:12px;right:12px;width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1L1 9" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:#dc1414;box-shadow:0 0 8px rgba(220,20,20,0.6);"></div>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#f4f4f5;letter-spacing:1px;">Alex <span style="color:#dc1414;">CyberX</span></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">
+      <div style="font-family:'Inter',sans-serif;font-size:19px;font-weight:700;color:#f4f4f5;">Choose Your Language</div>
+    </div>
+    <div style="font-family:'Inter',sans-serif;font-size:11px;color:#4a4a5a;margin-bottom:18px;">Website is language mein translate ho jaayegi.</div>
+    <div id="langGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px;"></div>
+    <button id="langApplyBtn" onclick="applyLanguage()" style="width:100%;padding:11px;background:#dc1414;border:1px solid #dc1414;color:#fff;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;gap:7px;">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="langApplyTxt">Continue</span>
+    </button>
+  </div>
+</div>
+
+<script src="/js/i18n.js"></script>
+<script src="/js/translate.js"></script>
+
+<script>
+/* ── ACCESS TOKEN VALIDATION ──
+   Lab sirf tab accessible hai jab modal se Start button daba ke aaya ho.
+   Direct URL se access block hai — lekin tab open rehne tak refresh allow hai.
+
+   Flow:
+   1. Pehli baar: URL mein acx_token aata hai (modal ne diya) + sessionStorage mein match hota hai → valid
+      - Token URL se hata do (clean URL), lekin sessionStorage mein RAKHO taaki refresh kaam kare
+      - acx_lab_active_<id> = '1' set karo — yahi "tab active hai" ka signal hai
+
+   2. Refresh: URL mein token nahi hoga, lekin acx_lab_active_<id> sessionStorage mein hai → valid
+      (sessionStorage tab close hone par khud delete ho jaata hai — yahi real CTF behaviour hai)
+
+   3. Direct URL (dusra tab/window): na token URL mein, na active flag → Access Denied ✓
+
+   4. Flag submit / instance expire par: acx_lab_active_<id> delete karo → refresh pe Denied ✓
+*/
+const _labChallengeId = 'web-01';
+const _labActiveKey = 'acx_lab_active_' + _labChallengeId;
+
+const _labAccessGranted = (function validateLabAccess() {
+  const params = new URLSearchParams(window.location.search);
+  const urlToken = params.get('acx_token');
+  const storedToken = (() => { try { return sessionStorage.getItem('acx_lab_token_' + _labChallengeId); } catch(e) { return null; } })();
+  const isActive = (() => { try { return sessionStorage.getItem(_labActiveKey) === '1'; } catch(e) { return false; } })();
+
+  // Case 1: Fresh launch — URL token matches sessionStorage token
+  if (urlToken && storedToken && urlToken === storedToken) {
+    // Mark this tab as active (survives refresh, dies when tab closes)
+    try { sessionStorage.setItem(_labActiveKey, '1'); } catch(e) {}
+    // Token can now be removed from sessionStorage (active flag replaces it)
+    try { sessionStorage.removeItem('acx_lab_token_' + _labChallengeId); } catch(e) {}
+    // Clean token from URL bar
+    try { history.replaceState(null, '', window.location.pathname); } catch(e) {}
+    return true;
+  }
+
+  // Case 2: Refresh — tab was already active (sessionStorage survives F5)
+  if (isActive) {
+    return true;
+  }
+
+  // Case 3: Direct URL / different tab → Access Denied
+  window.addEventListener('DOMContentLoaded', function() {
+    document.body.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:#fafafa;font-family:'Inter',sans-serif;color:#18181f;text-align:center;padding:24px;">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:20px;"><circle cx="24" cy="24" r="20" stroke="#dc2626" stroke-width="1.8"/><path d="M16 16l16 16M32 16L16 32" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg>
+        <div style="font-size:20px;font-weight:700;margin-bottom:8px;">Access Denied</div>
+        <div style="font-size:13px;color:#6b6b78;margin-bottom:24px;max-width:340px;">Yeh lab sirf CTF platform ke through accessible hai.<br>Start button dabao aur tab lab khulegi.</div>
+        <a href="/" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:12px 28px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;">CTF Platform Par Jao</a>
+      </div>`;
+  }, { once: true });
+  return false;
+})();
+
+const SESSION_ID = (function() {
+  try {
+    let sid = sessionStorage.getItem('acx_lab_hidden_session');
+    if (!sid) {
+      sid = 'sess_' + Math.random().toString(36).substring(2, 10);
+      sessionStorage.setItem('acx_lab_hidden_session', sid);
+    }
+    return sid;
+  } catch (e) {
+    return 'sess_' + Math.random().toString(36).substring(2, 10);
+  }
+})();
+const BASE = window.location.origin;
+
+// iframe <src> can't carry custom headers, so the lab session id is passed as
+// a query param here. The server checks this as a fallback to the
+// X-Lab-Session header so the iframe-rendered page and this page's own
+// fetch() calls (status polling, restart, submit) resolve to the same
+// server-side instance instead of the iframe silently falling back to
+// req.ip and tracking a completely different session.
+document.getElementById('siteFrame').src = `/api/lab/hidden/page?session=${encodeURIComponent(SESSION_ID)}`;
+const _targetUrlEl = document.getElementById('targetUrlText');
+if (_targetUrlEl) _targetUrlEl.textContent = window.location.host + '/api/lab/hidden/page';
+let sourceLoaded = false;
+let sourceVisible = false;
+let isRunning = false;
+let pollInterval = null;
+let solvedShown = false;
+
+// This is a standalone lab page (not part of index.html's SPA). i18n.js / translate.js
+// expect these globals to exist on every page - declare safe defaults so language
+// switching doesn't throw on this page.
+let currentPage = 'lab';
+let currentChapter = 0;
+let currentCyberChapter = 0;
+
+const LAB_TRANSLATE_BOXES = ['labDescBox', 'labObjList', 'labLockDesc', 'labHintsBox'];
+let _labOriginals = null;
+
+function storeLabOriginals() {
+  if (_labOriginals) return;
+  _labOriginals = {};
+  LAB_TRANSLATE_BOXES.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) _labOriginals[id] = el.innerHTML;
+  });
+}
+
+function restoreLabTranslation() {
+  // If nothing has been translated yet, original content is already showing —
+  // this is a no-op, not a failure. Don't bail silently in a way that looks
+  // like the function did nothing on purpose; just confirm there's nothing to do.
+  if (!_labOriginals) return;
+  LAB_TRANSLATE_BOXES.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && _labOriginals[id] !== undefined) el.innerHTML = _labOriginals[id];
+  });
+}
+
+async function applyLabTranslation(lang) {
+  if (lang === 'hl') { restoreLabTranslation(); return; }
+  storeLabOriginals();
+  const langName = (typeof LANG_NAMES !== 'undefined' && LANG_NAMES[lang]) || lang;
+  for (const id of LAB_TRANSLATE_BOXES) {
+    const el = document.getElementById(id);
+    // Use undefined-check, not truthiness — an originally-empty box ('') is
+    // still a valid stored original and shouldn't be skipped, otherwise that
+    // box is left untranslated while the others change (partial restore/translate).
+    if (!el || _labOriginals[id] === undefined) continue;
+    const translated = await doTranslate(_labOriginals[id], lang, langName, 'lab_hidden_' + id + '_' + lang);
+    injectTranslated(el, translated);
+  }
+}
+
+function ts() { return new Date().toTimeString().substring(0,8); }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function completeObj(id) {
+  const el = document.getElementById(id);
+  if (el && !el.classList.contains('done')) el.classList.add('done');
+}
+
+function {
+  const body = document.getElementById('reqLogBody');
+  const e = document.createElement('div');
+  e.className = 'log-entry';
+  e.innerHTML = `<span class="log-method">${method}</span><span class="log-path">${path}</span><span class="log-status ${cls}">${status}</span><span class="log-time">${ts()}</span>`;
+  body.prepend(e);
+}
+function { document.getElementById('reqLogBody').innerHTML = ''; }
+
+function showHint(n) {
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById('hintPanel'+i).classList.remove('active');
+    document.getElementById('hintTabBtn'+i).classList.remove('active');
+  }
+  document.getElementById('hintPanel'+n).classList.add('active');
+  const btn = document.getElementById('hintTabBtn'+n);
+  btn.classList.add('active');
+  btn.classList.add('used');
+  }
+
+function formatTime(sec) {
+  const m = String(Math.floor(sec/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  return m+':'+s;
+}
+
+async function fetchInstanceStatus() {
+  try {
+    const res = await fetch(`${BASE}/api/lab/hidden/instance/status`, {
+      headers: { 'X-Lab-Session': SESSION_ID }
+    });
+    const data = await res.json();
+    return data;
+  } catch(e) {
+    return null;
+  }
+}
+
+function applyInstanceStatus(data) {
+  if (!data) return;
+
+  // Instance box removed from lab page (moved to modal)
+  // Just handle expired state
+  if (!data.running) {
+    if (isRunning) {
+      stopChallenge();
+      invalidateLabSession(); // Real CTF: expire hone par refresh pe Access Denied
+      const exp = document.getElementById('expiredOverlay');
+      if (exp) exp.classList.add('show');
+    }
+  }
+
+  if (data.solved && !solvedShown) {
+    solvedShown = true;
+    showSolvedPopup();
+  }
+}
+
+function showSolvedPopup() {
+  playSolveSound();
+  const popup = document.getElementById('solvedPopup');
+  popup.classList.add('show');
+  setTimeout(() => { popup.classList.remove('show'); }, 6000);
+}
+
+function closeSolvedPopup() {
+  document.getElementById('solvedPopup').classList.remove('show');
+}
+
+function startPolling() {
+  if (pollInterval) clearInterval(pollInterval);
+  pollInterval = setInterval(async () => {
+    const data = await fetchInstanceStatus();
+    applyInstanceStatus(data);
+  }, 5000);
+}
+
+function startChallenge() {
+  if (isRunning) return;
+  isRunning = true;
+  document.getElementById('labBody').classList.add('lab-running');
+  document.getElementById('expiredOverlay').classList.remove('show');
+  startPolling();
+}
+
+function stopChallenge() {
+  if (!isRunning) return;
+  isRunning = false;
+  document.getElementById('labBody').classList.remove('lab-running');
+  }
+
+async function restartInstance() {
+  const btn = document.querySelector('.expired-restart-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Restarting...'; }
+
+  try {
+    const res = await fetch(`${BASE}/api/lab/hidden/instance/restart`, {
+      method: 'POST',
+      headers: { 'X-Lab-Session': SESSION_ID }
+    });
+
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+
+    const data = await res.json();
+    solvedShown = false;
+    sourceLoaded = false;
+    document.getElementById('expiredOverlay').classList.remove('show');
+    document.getElementById('flagBox').classList.remove('show');
+
+    // Reset objectives
+    for (let i = 1; i <= 5; i++) {
+      const el = document.getElementById('obj' + i);
+      if (el) el.classList.remove('done');
+    }
+
+    if (!isRunning) startChallenge();
+
+    // Reload iframe with fresh page
+    document.getElementById('siteFrame').src = `/api/lab/hidden/page?session=${encodeURIComponent(SESSION_ID)}&_=${Date.now()}`;
+
+  } catch(err) {
+    // Show error inside expired overlay
+    const desc = document.querySelector('.expired-desc');
+    if (desc) desc.textContent = 'Restart failed: ' + err.message + ' — Please refresh the page.';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Restart Instance'; }
+  }
+}
+
+function colorizeSource(raw) {
+  return escHtml(raw)
+    .replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span style="color:#e53e3e;font-weight:600;">$1</span>');
+}
+
+async function loadSource() {
+  if (sourceLoaded) return;
+  try {
+    const res = await fetch(`${BASE}/api/lab/hidden/page`, { headers: { 'X-Lab-Session': SESSION_ID } });
+    const text = await res.text();
+    document.getElementById('sourceBody').innerHTML = colorizeSource(text);
+    sourceLoaded = true;
+    completeObj('obj1');
+    if (text.includes('QUNYe')) completeObj('obj2');
+  } catch (err) {
+    document.getElementById('sourceBody').textContent = 'Error loading source: ' + err.message;
+  }
+
+  // Recon continues: check robots.txt-disallowed /internal/ path for the
+  // HTTP header part, and the linked JS file for the hex-encoded part.
+  // These run alongside the source fetch so obj3/obj4 reflect real recon
+  // instead of being rubber-stamped on flag submit.
+  try {
+    const internalRes = await fetch(`${BASE}/api/lab/hidden/internal/`, { headers: { 'X-Lab-Session': SESSION_ID } });
+    if (internalRes.headers.get('X-Debug-Token')) completeObj('obj3');
+  } catch (err) {
+    }
+
+  try {
+    const jsRes = await fetch(`${BASE}/api/lab/hidden/static/portal.js`, { headers: { 'X-Lab-Session': SESSION_ID } });
+    const jsText = await jsRes.text();
+    if (/0x[0-9a-f]{16,}/i.test(jsText)) completeObj('obj4');
+  } catch (err) {
+    }
+}
+
+function toggleSource() {
+  const panel = document.getElementById('sourcePanel');
+  sourceVisible = !sourceVisible;
+  if (sourceVisible) { panel.classList.add('visible'); loadSource(); }
+  else { panel.classList.remove('visible'); }
+}
+
+
+// flagInput lives in CTF room modal — lab page submit panel removed
+
+/* ── LAB SESSION HELPERS ── */
+// Back button: Lab tab band karo, CTF page ka main tab modal khol le
+// Lab se wapas main CTF page par jaana
+function labGoBack() {
+  // Strategy 1: window.opener available (lab was opened via window.open from main tab)
+  // Directly call the opener's handler — no localStorage needed
+  try {
+    if (window.opener && !window.opener.closed) {
+      if (typeof window.opener.acxLabReturn === 'function') {
+        window.opener.acxLabReturn(_labChallengeId);
+      } else {
+        window.opener.focus();
+      }
+      window.close();
+      return;
+    }
+  } catch(e) {}
+
+  // Strategy 2: window.close() attempt (script-opened tab)
+  // Set localStorage signal BEFORE close so the still-open main tab's storage event fires
+  try {
+    localStorage.setItem('acx_return_to_modal', _labChallengeId);
+    localStorage.setItem('acx_return_ts', Date.now().toString());
+  } catch(e) {}
+  try { window.close(); } catch(e) {}
+
+  // Strategy 3: Tab didn't close (mobile or user-opened tab)
+  // Use sessionStorage flag so the freshly-loaded page knows to go to CTF+modal
+  // Do NOT use acx_return_to_modal here — it causes stale modal on manual CTF click
+  setTimeout(() => {
+    try {
+      sessionStorage.setItem('acx_back_to_ctf', _labChallengeId);
+      sessionStorage.setItem('acx_back_ts', Date.now().toString());
+    } catch(e) {}
+    window.location.href = '/';
+  }, 350);
+}
+
+// Lab session invalidate karo (expire ya solve hone par)
+// Iske baad refresh pe Access Denied aayega — real CTF behaviour
+function invalidateLabSession() {
+  try { sessionStorage.removeItem(_labActiveKey); } catch(e) {}
+  try { sessionStorage.removeItem('acx_lab_hidden_session'); } catch(e) {}
+}
+
+// CTF page se "stop" message aaye to instance expire kar do
+// Yeh tab hota hai jab user doosra challenge start kare
+window.addEventListener('message', function(event) {
+  // Only accept messages from the opener (our CTF page)
+  if (event.source !== window.opener) return;
+  const msg = event.data;
+  if (!msg || msg.type !== 'ACX_LAB_STOP') return;
+  if (msg.challengeId !== _labChallengeId) return;
+
+  // Invalidate session — expired overlay show hogi
+  invalidateLabSession();
+  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+
+  // Show expired overlay with a custom message
+  const overlay = document.getElementById('expiredOverlay');
+  if (overlay) {
+    const desc = overlay.querySelector('.expired-desc');
+    if (desc) desc.textContent = 'Aapne doosra challenge start kar diya. Yeh instance band ho gaya.';
+    overlay.classList.add('show');
+  }
+});
+
+document.getElementById('siteFrame').addEventListener('load', () => {
+  if (!_labAccessGranted) return;
+  completeObj('obj1');
+  });
+
+// Auto-start challenge on page load (user already clicked Start in modal)
+if (_labAccessGranted) {
+  (async () => {
+    startChallenge();
+    const data = await fetchInstanceStatus();
+    applyInstanceStatus(data);
+  })();
+}
+
+function playSolveSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const start = now + i * 0.09;
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(0.22, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.4);
+    });
+    setTimeout(() => { try { ctx.close(); } catch(e) {} }, 900);
+  } catch(e) {}
+}
+
+</script>
+</body>
+</html>

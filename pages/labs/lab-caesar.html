@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caesar's Secret - alexcyberx Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#07070f;--surface:#0d0d1a;--surface2:#111120;
+  --border:rgba(255,255,255,0.06);--red:#dc1414;
+  --white:#f0f0f8;--dim:#505068;--green:#4ade80;
+  --blue:#63b3ed;--orange:#fb923c;--yellow:#fbbf24;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+}
+body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:100vh;}
+
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;position:sticky;top:0;z-index:100;gap:10px;}
+.topbar-left{display:flex;align-items:center;gap:12px;min-width:0;}
+.back-link{display:flex;align-items:center;gap:5px;color:var(--dim);font-size:12px;font-weight:500;text-decoration:none;white-space:nowrap;transition:color 0.15s;}
+.back-link:hover{color:var(--white);}
+.topbar-sep{width:1px;height:16px;background:var(--border);flex-shrink:0;}
+.topbar-id{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--red);letter-spacing:0.5px;white-space:nowrap;}
+.topbar-title{font-size:13px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.diff-badge{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 9px;border-radius:4px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green);white-space:nowrap;}
+.timer-wrap{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 12px;}
+.timer-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
+.timer-val{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--dim);min-width:44px;text-align:center;}
+.timer-val.running{color:var(--green);}
+
+.lab-wrap{max-width:860px;margin:0 auto;padding:20px 16px 40px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.card-head{padding:10px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.card-head-dot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;}
+.card-head-title{font-size:10px;font-weight:700;letter-spacing:1.3px;color:var(--dim);text-transform:uppercase;}
+.card-body{padding:15px;}
+
+.points-strip{display:flex;gap:8px;margin-bottom:14px;}
+.pts-box{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center;}
+.pts-val{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--white);}
+.pts-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+
+/* Intercept banner */
+.intercept-banner{background:rgba(220,20,20,0.04);border:1px solid rgba(220,20,20,0.15);border-radius:12px;padding:14px 16px;margin-bottom:14px;display:flex;gap:12px;align-items:flex-start;}
+.intercept-icon{width:36px;height:36px;border-radius:9px;background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.intercept-text{flex:1;}
+.intercept-title{font-size:12px;font-weight:700;color:var(--red);letter-spacing:0.5px;margin-bottom:4px;text-transform:uppercase;}
+.intercept-sub{font-size:11.5px;color:#8888a0;line-height:1.7;}
+.intercept-meta{display:flex;gap:16px;margin-top:8px;}
+.meta-item{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--dim);}
+.meta-dot{width:5px;height:5px;border-radius:50%;background:var(--red);}
+
+/* Ciphertext block */
+.cipher-block{background:#030309;border:1px solid rgba(220,20,20,0.12);border-radius:10px;overflow:hidden;margin-bottom:0;}
+.cipher-head{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.04);background:#05050e;}
+.cipher-head-left{display:flex;align-items:center;gap:8px;}
+.cipher-dots{display:flex;gap:5px;}
+.cipher-dots span{width:9px;height:9px;border-radius:50%;}
+.cipher-dots span:nth-child(1){background:#f87171;}
+.cipher-dots span:nth-child(2){background:#fb923c;}
+.cipher-dots span:nth-child(3){background:#4ade80;}
+.cipher-label{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.5px;}
+.copy-btn{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:5px;padding:4px 10px;font-size:10px;font-weight:600;color:var(--dim);cursor:pointer;font-family:var(--sans);transition:color 0.15s;}
+.copy-btn:hover{color:var(--white);}
+.cipher-body{padding:16px;font-family:var(--mono);font-size:12px;line-height:2;color:#7070a0;white-space:pre-wrap;word-break:break-all;}
+.cipher-highlight{color:var(--red);font-weight:600;}
+
+/* Tool note */
+.tool-note{background:rgba(99,179,237,0.04);border:1px solid rgba(99,179,237,0.14);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px;}
+.tool-note-text{font-size:12px;color:#8888a0;line-height:1.75;}
+.tool-note-text strong{color:var(--blue);}
+.tool-note-text code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
+.tool-note-text a{color:var(--blue);text-decoration:none;}
+.tool-note-text a:hover{text-decoration:underline;}
+
+/* Caesar explanation */
+.cipher-explain{display:flex;gap:12px;align-items:center;padding:12px;background:#050510;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;}
+.cipher-explain-text{font-size:12px;color:var(--dim);line-height:1.65;}
+.cipher-explain-text strong{color:var(--white);}
+.alphabet-row{display:flex;flex-wrap:wrap;gap:2px;margin-top:8px;}
+.alpha-pair{display:flex;flex-direction:column;align-items:center;width:22px;}
+.alpha-plain{font-family:var(--mono);font-size:9px;color:var(--dim);}
+.alpha-cipher{font-family:var(--mono);font-size:9px;color:var(--red);}
+
+/* Hints */
+.hint-item{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px;}
+.hint-item:last-child{margin-bottom:0;}
+.hint-btn{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;cursor:pointer;background:var(--surface2);border:none;width:100%;font-family:var(--sans);transition:background 0.15s;}
+.hint-btn:hover{background:rgba(255,255,255,0.025);}
+.hint-btn-left{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:500;color:var(--dim);}
+.hint-icon{width:22px;height:22px;border-radius:5px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hint-pill{font-size:10px;font-weight:600;color:var(--yellow);background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.14);border-radius:4px;padding:1px 7px;}
+.hint-body{display:none;padding:11px 13px;border-top:1px solid var(--border);font-size:12px;color:#8888a0;line-height:1.75;background:rgba(251,191,36,0.02);}
+.hint-body.open{display:block;}
+.hint-body code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
+.hint-body a{color:var(--blue);text-decoration:none;}
+.hint-body a:hover{text-decoration:underline;}
+
+/* Submit */
+.submit-row{display:flex;gap:8px;}
+.flag-input{flex:1;background:#050510;border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-family:var(--mono);font-size:12px;color:var(--white);outline:none;transition:border-color 0.15s;}
+.flag-input:focus{border-color:rgba(220,20,20,0.4);}
+.flag-input::placeholder{color:var(--dim);}
+.submit-btn{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;white-space:nowrap;}
+.submit-btn:hover{background:#c01010;}
+.submit-result{display:none;font-size:12px;padding:9px 12px;border-radius:6px;font-family:var(--mono);line-height:1.5;margin-top:10px;}
+.submit-result.ok{display:block;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);color:var(--green);}
+.submit-result.err{display:block;background:rgba(220,20,20,0.06);border:1px solid rgba(220,20,20,0.2);color:var(--red);}
+
+/* Flag box */
+.flag-box{display:none;background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.15);border-radius:12px;overflow:hidden;margin-top:14px;}
+.flag-box.show{display:block;}
+.flag-head{display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid rgba(74,222,128,0.1);}
+.flag-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.flag-head-label{font-size:10px;font-weight:700;letter-spacing:1.3px;color:var(--green);text-transform:uppercase;}
+.flag-body{padding:15px;}
+.flag-value{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--green);letter-spacing:0.5px;margin-bottom:8px;word-break:break-all;}
+.flag-note{font-size:11.5px;color:rgba(74,222,128,0.5);line-height:1.6;}
+
+/* Lock overlay */
+.lock-outer{position:relative;}
+.lock-overlay{position:absolute;inset:0;background:rgba(7,7,15,0.92);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center;border-radius:10px;}
+.lock-inner{text-align:center;padding:28px 24px;max-width:280px;}
+.lock-icon{width:48px;height:48px;border-radius:12px;background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 13px;}
+.lock-title{font-size:14px;font-weight:600;color:var(--white);margin-bottom:6px;}
+.lock-desc{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:16px;}
+.lock-start{display:inline-flex;align-items:center;gap:7px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.lock-start:hover{background:#c01010;}
+
+@media(max-width:600px){
+  .topbar-title{display:none;}
+  .points-strip{flex-wrap:wrap;}
+  .submit-row{flex-direction:column;}
+  .submit-btn{width:100%;}
+  .intercept-meta{flex-wrap:wrap;gap:10px;}
+  .alphabet-row{gap:1px;}
+  .alpha-pair{width:18px;}
+  .alpha-plain,.alpha-cipher{font-size:8px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back-link" href="javascript:history.back()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Labs
+    </a>
+    <div class="topbar-sep"></div>
+    <span class="topbar-id">CRY-01</span>
+    <span class="topbar-title">Caesar's Secret</span>
+  </div>
+  <div class="topbar-right">
+    <span class="diff-badge">Easy</span>
+    <div class="timer-wrap">
+      <span class="timer-label">Time</span>
+      <span class="timer-val" id="timerVal">00:00</span>
+    </div>
+  </div>
+</div>
+
+<div class="lab-wrap">
+
+  <!-- Points -->
+  <div class="points-strip">
+    <div class="pts-box"><div class="pts-val">50</div><div class="pts-label">Points</div></div>
+    <div class="pts-box"><div class="pts-val">80</div><div class="pts-label">XP</div></div>
+    <div class="pts-box"><div class="pts-val">CRYPTO</div><div class="pts-label">Category</div></div>
+  </div>
+
+  <!-- Intercept banner -->
+  <div class="intercept-banner">
+    <div class="intercept-icon">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M9 2L2 6v6l7 4 7-4V6L9 2z" stroke="#dc1414" stroke-width="1.3" stroke-linejoin="round"/>
+        <path d="M9 2v10M2 6l7 4 7-4" stroke="#dc1414" stroke-width="1.3" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="intercept-text">
+      <div class="intercept-title">Intercepted Transmission</div>
+      <div class="intercept-sub">An encrypted message was captured on a monitored dark web channel known to be used by the underground group <strong style="color:#f0f0f8;">RedCell</strong>. The message appears to be internal communication. Decrypt it and extract the verification token.</div>
+      <div class="intercept-meta">
+        <div class="meta-item"><div class="meta-dot"></div>Source: RedCell secure channel</div>
+        <div class="meta-item"><div class="meta-dot"></div>Captured: 2024-11-14 03:17 UTC</div>
+        <div class="meta-item"><div class="meta-dot"></div>Cipher: Unknown</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ciphertext -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-dot"></div>
+      <span class="card-head-title">Encrypted Message</span>
+    </div>
+    <div class="card-body" style="padding:0;">
+      <div class="lock-outer" id="cipherLockOuter">
+        <div class="lock-overlay" id="lockOverlay">
+          <div class="lock-inner">
+            <div class="lock-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="10" width="12" height="8" rx="2" stroke="#dc1414" stroke-width="1.3"/><path d="M7 10V7a3 3 0 016 0v3" stroke="#dc1414" stroke-width="1.3"/></svg>
+            </div>
+            <div class="lock-title">Transmission Locked</div>
+            <div class="lock-desc">Start the challenge to reveal the intercepted ciphertext.</div>
+            <button class="lock-start" onclick="startChallenge()">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M3 2l6 3.5L3 9V2z" fill="#fff"/></svg>
+              Start Challenge
+            </button>
+          </div>
+        </div>
+        <div class="cipher-block">
+          <div class="cipher-head">
+            <div class="cipher-head-left">
+              <div class="cipher-dots"><span></span><span></span><span></span></div>
+              <span class="cipher-label">REDCELL_TRANSMISSION_0x4F.txt</span>
+            </div>
+            <button class="copy-btn" onclick="copyCipher()">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="1" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M3 3V2a1 1 0 011-1h5a1 1 0 011 1v5a1 1 0 01-1 1H8" stroke="currentColor" stroke-width="1.1"/></svg>
+              <span id="copyLabel">Copy</span>
+            </button>
+          </div>
+          <div class="cipher-body" id="cipherText">UHGFHOO VHFXUH FKDQQHO - WUDQVPLVVLRQ 0a4I
+WLPHVWDPS: 2024-11-14 03:17:22 XWF
+SULRULWB: FULWLFDO
+
+Wr doo dfwlyh fhoov:
+
+Wkh rshudwlrq kdv ehhq frpsurplvhg. Deruw fxuuhqw skdvh
+dqg sxujh orfdo dvvhwv lpphgldwhob. Qhz uhqghcyrxv srlqw
+zloo eh wudqvplwwhg wkurxjk wkh xvxdo ghdg gurs.
+
+Gr qrw frqwdfw frppdqg xqwlo ixuwkhu qrwlfh.
+Gr qrw xvh sulpdub fkdqqhov.
+
+Yhulilfdwlrq wrnhq iru dxwkhqwlflwb:
+<span class="cipher-highlight">DFA{yhql_ylgl_ylfl_vkliw3}</span>
+
+Vwdb gdun. Vwdb vlohqw.
+
+-- UF-CHUR</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Caesar explanation -->
+  <div class="card">
+    <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">About Caesar Cipher</span></div>
+    <div class="card-body">
+      <div class="cipher-explain">
+        <div class="cipher-explain-text">
+          <strong>Caesar cipher</strong> shifts each letter in the alphabet by a fixed number of positions. With a shift of 3: A becomes D, B becomes E, Z wraps around to C. Numbers and special characters stay unchanged. There are only 25 possible shifts -- try each one until the plaintext makes sense.
+          <div class="alphabet-row" id="alphaRow"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tool note -->
+  <div class="tool-note">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px;"><circle cx="8" cy="8" r="6.5" stroke="#63b3ed" stroke-width="1.2"/><path d="M8 5v.5M8 7v4" stroke="#63b3ed" stroke-width="1.3" stroke-linecap="round"/></svg>
+    <div class="tool-note-text">
+      Decode online with <strong>CyberChef</strong> at <a href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener">gchq.github.io/CyberChef</a> using the "ROT13" or "Caesar Cipher Decode" recipe, or use any Caesar solver. On Linux: <code>echo "CIPHERTEXT" | tr 'A-Za-z' 'N-ZA-Mn-za-m'</code> for ROT13, or write a one-liner with a custom shift.
+    </div>
+  </div>
+
+  <!-- Hints -->
+  <div class="card">
+    <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Hints</span></div>
+    <div class="card-body" style="padding:12px;">
+      <div class="hint-item">
+        <button class="hint-btn" onclick="toggleHint(1)">
+          <div class="hint-btn-left">
+            <div class="hint-icon">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="#fbbf24" stroke-width="1.2"/><path d="M6.5 4v.4M6.5 6v3" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            Hint 1 — Which cipher is this?
+          </div>
+          <span class="hint-pill">-5 pts</span>
+        </button>
+        <div class="hint-body" id="hb1">
+          Look at the challenge title. The cipher is named after Julius Caesar. He used it to protect military communications. The shift value he personally favoured is historically documented and is a single digit.
+        </div>
+      </div>
+      <div class="hint-item">
+        <button class="hint-btn" onclick="toggleHint(2)">
+          <div class="hint-btn-left">
+            <div class="hint-icon">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="#fbbf24" stroke-width="1.2"/><path d="M6.5 4v.4M6.5 6v3" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            Hint 2 — The shift value
+          </div>
+          <span class="hint-pill">-15 pts</span>
+        </button>
+        <div class="hint-body" id="hb2">
+          The shift is 3. Julius Caesar used ROT-3 in his own correspondence. Decode the ciphertext with shift 3 (subtract 3 from each letter) or use CyberChef with the Caesar Cipher Decode recipe and shift set to 3.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="card">
+    <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Submit Flag</span></div>
+    <div class="card-body">
+      <div class="submit-row">
+        <input class="flag-input" id="flagInput" type="text" placeholder="ACX{...}" autocomplete="off" spellcheck="false">
+        <button class="submit-btn" onclick="submitFlag()">Submit</button>
+      </div>
+      <div class="submit-result" id="submitResult"></div>
+    </div>
+  </div>
+
+  <!-- Flag box -->
+  <div class="flag-box" id="flagBox">
+    <div class="flag-head">
+      <div class="flag-dot"></div>
+      <span class="flag-head-label">Flag Captured</span>
+    </div>
+    <div class="flag-body">
+      <div class="flag-value" id="flagValue"></div>
+      <div class="flag-note" id="flagNote"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const BASE = window.location.origin;
+let elapsed = 0;
+let timerInterval = null;
+let isStarted = false;
+
+function startChallenge() {
+  if (isStarted) return;
+  isStarted = true;
+  document.getElementById('lockOverlay').style.display = 'none';
+  const tv = document.getElementById('timerVal');
+  tv.classList.add('running');
+  timerInterval = setInterval(function() {
+    elapsed++;
+    const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    tv.textContent = m + ':' + s;
+  }, 1000);
+}
+
+function toggleHint(n) {
+  document.getElementById('hb' + n).classList.toggle('open');
+}
+
+function copyCipher() {
+  const text = document.getElementById('cipherText').innerText;
+  navigator.clipboard.writeText(text).then(function() {
+    const lbl = document.getElementById('copyLabel');
+    lbl.textContent = 'Copied';
+    setTimeout(function() { lbl.textContent = 'Copy'; }, 1800);
+  }).catch(function() {});
+}
+
+// Build alphabet shift reference (shift 3 example shown)
+(function buildAlpha() {
+  const plain  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const cipher = 'DEFGHIJKLMNOPQRSTUVWXYZABC'.split('');
+  const row = document.getElementById('alphaRow');
+  plain.forEach(function(p, i) {
+    const pair = document.createElement('div');
+    pair.className = 'alpha-pair';
+    pair.innerHTML = '<div class="alpha-plain">' + p + '</div><div class="alpha-cipher">' + cipher[i] + '</div>';
+    row.appendChild(pair);
+  });
+})();
+
+async function submitFlag() {
+  const flag = document.getElementById('flagInput').value.trim();
+  const resultEl = document.getElementById('submitResult');
+  if (!flag) {
+    resultEl.textContent = 'Flag field is empty.';
+    resultEl.className = 'submit-result err';
+    return;
+  }
+  try {
+    const res = await fetch(BASE + '/api/lab/caesar/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ flag })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      resultEl.textContent = 'Correct flag.';
+      resultEl.className = 'submit-result ok';
+      document.getElementById('flagBox').classList.add('show');
+      playSolveSound();
+      document.getElementById('flagValue').textContent = data.flag;
+      document.getElementById('flagNote').textContent = data.message;
+      clearInterval(timerInterval);
+    } else {
+      resultEl.textContent = data.message || 'Incorrect flag.';
+      resultEl.className = 'submit-result err';
+    }
+  } catch(err) {
+    resultEl.textContent = 'Request failed: ' + err.message;
+    resultEl.className = 'submit-result err';
+  }
+}
+
+document.getElementById('flagInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') submitFlag();
+});
+
+function playSolveSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const start = now + i * 0.09;
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(0.22, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.4);
+    });
+    setTimeout(() => { try { ctx.close(); } catch(e) {} }, 900);
+  } catch(e) {}
+}
+
+</script>
+
+</body>
+</html>

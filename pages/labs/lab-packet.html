@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script>
+  // Pass through any query params (acx_token etc) then redirect to target
+  const params = window.location.search;
+  window.location.replace('/api/lab/packet/page' + params);
+</script>
+</head>
+<body></body>
+</html>

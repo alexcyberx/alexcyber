@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MITM Attack @alex.cyberx</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@600;700&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{ --G:#4ade80; --W:#ffffff; --BG:#0f0f13; --DIM:#333333; }
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:auto;background:var(--BG);font-family:'Segoe UI',Arial,sans-serif;overflow:hidden;}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pktMove{from{left:8%;}to{left:78%;}}
+@keyframes pulse{0%,100%{opacity:.6;}50%{opacity:1;}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+@keyframes borderAnim{0%{background-position:0%;}100%{background-position:200%;}}
+
+.wrap{
+  width:100%; max-width:430px; margin:0 auto; background:var(--BG);
+  display:flex; flex-direction:column; align-items:center;
+  padding:24px 18px 28px; box-sizing:border-box;
+}
+.header{text-align:center;margin-bottom:16px;}
+.eyebrow{font-size:10px;letter-spacing:4px;color:#555;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:6px;}
+.h1{font-size:clamp(24px,7vw,34px);font-weight:900;color:var(--W);letter-spacing:-0.5px;font-family:'Inter',sans-serif;line-height:1.1;}
+.h1 span{color:var(--G);}
+.sub{color:#555;font-size:11px;margin-top:5px;letter-spacing:3px;}
+
+.dots{display:flex;gap:8px;margin-bottom:18px;}
+.dot{height:8px;border-radius:4px;background:#ffffff15;transition:all .3s ease;cursor:pointer;width:8px;}
+.dot.active{width:28px;background:var(--G);}
+.dot.done{background:var(--G);}
+
+.card{
+  width:100%; background:#ffffff08; border:1px solid #ffffff22; border-left:3px solid #ffffff;
+  border-radius:16px; padding:18px 14px; display:flex; flex-direction:column; gap:12px;
+  animation:slideIn .35s ease; overflow:hidden;
+}
+.step-head{display:flex;align-items:center;gap:10px;}
+.step-num{
+  width:28px;height:28px;border-radius:50%;background:rgba(74,222,128,0.13);
+  border:1.5px solid var(--G); display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;color:var(--G);font-family:'Inter',sans-serif;flex-shrink:0;
+}
+.step-title{font-size:15px;font-weight:700;color:var(--W);font-family:'Inter',sans-serif;line-height:1.2;}
+
+.diagram-row{display:flex;align-items:center;justify-content:space-between;gap:4px;}
+.node{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:68px;}
+.icon-box{width:60px;height:60px;border-radius:12px;background:#16161d;border:1.5px solid #ffffff33;display:flex;align-items:center;justify-content:center;}
+.node-label{font-size:10px;color:var(--W);font-weight:700;text-align:center;white-space:pre-line;line-height:1.3;}
+
+.mid-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.arrow-row{display:flex;align-items:center;justify-content:center;position:relative;width:100%;height:20px;}
+.arrow-label{font-size:8px;color:#ffffff88;font-weight:600;letter-spacing:0.5px;text-align:center;}
+
+.pkt{
+  position:absolute; top:3px; width:38px; height:14px; border-radius:4px; background:var(--G);
+  display:flex; align-items:center; justify-content:center; font-size:6px; color:var(--BG); font-weight:bold;
+  animation:pktMove 1.2s ease-in-out forwards; left:8%;
+}
+
+.attacker-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:4px;}
+.attacker-label{font-size:8px;color:var(--W);font-weight:600;letter-spacing:1px;}
+.attacker-box{width:60px;height:60px;border-radius:12px;background:#0f0f13;border:1.5px solid var(--G);display:flex;align-items:center;justify-content:center;animation:pulse 1.5s ease-in-out infinite;}
+.steal-chip{display:flex;align-items:center;gap:4px;border:1px solid rgba(74,222,128,0.27);border-radius:6px;padding:3px 8px;}
+.steal-text{font-size:9px;color:var(--G);font-weight:700;}
+.hijack-chip{border:1px solid rgba(74,222,128,0.27);border-radius:6px;padding:3px 8px;font-size:9px;color:var(--G);font-weight:700;animation:blink 1s ease-in-out infinite;}
+
+.explain{border-left:3px solid #ffffff22;padding-left:10px;}
+.explain-text{font-size:12px;color:#cccccc;line-height:1.65;font-family:'Inter',sans-serif;}
+
+.btn-wrap{position:relative;width:100%;margin-top:14px;}
+.btn-glow{
+  position:absolute; inset:-2px; border-radius:14px;
+  background:linear-gradient(90deg,#ffffff22,var(--G),#ffffff22);
+  background-size:200% 100%; animation:borderAnim 2s linear infinite; z-index:0;
+}
+.btn{
+  position:relative;z-index:1;background:var(--BG);color:var(--W);border:none;border-radius:12px;
+  padding:16px 0;font-size:19px;font-weight:900;letter-spacing:4px;cursor:pointer;
+  font-family:'Bebas Neue','Rajdhani',Impact,sans-serif;width:100%;text-transform:uppercase;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.footer{margin-top:12px;color:#333;font-size:10px;letter-spacing:2px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="header">
+    <div class="eyebrow">ATTACK EXPLAINED</div>
+    <div class="h1">Man-in-the-<span>Middle</span></div>
+    <div class="sub">MITM ATTACK STEP BY STEP</div>
+  </div>
+
+  <div class="dots" id="dots"></div>
+
+  <div class="card" id="card"></div>
+
+  <div class="btn-wrap">
+    <div class="btn-glow"></div>
+    <button class="btn" id="nextBtn" onclick="next()">
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><polygon points="2,1 13,7 2,13" fill="#ffffff"/></svg>
+      <span id="btnLabel">Next Step</span>
+    </button>
+  </div>
+
+  <div class="footer">@Alex.cyberx</div>
+</div>
+
+<script>
+const G = "#4ade80";
+const W = "#ffffff";
+const BG = "#0f0f13";
+
+const ICONS = {
+  laptop: `<svg width="38" height="38" viewBox="0 0 48 48" fill="none">
+    <rect x="5" y="7" width="38" height="25" rx="3" fill="#1a1a2e" stroke="${W}" stroke-width="1.8"/>
+    <rect x="9" y="11" width="30" height="17" rx="1" fill="#ffffff18"/>
+    <rect x="13" y="14" width="14" height="1.5" rx="0.7" fill="#ffffff88"/>
+    <rect x="13" y="17.5" width="10" height="1.5" rx="0.7" fill="#ffffff55"/>
+    <rect x="13" y="21" width="18" height="1.5" rx="0.7" fill="#ffffff55"/>
+    <rect x="1" y="32" width="46" height="4" rx="2" fill="#111" stroke="#333" stroke-width="1"/>
+    <rect x="17" y="32" width="14" height="2" rx="1" fill="#222"/>
+  </svg>`,
+  attacker: `<svg width="42" height="42" viewBox="0 0 52 52" fill="none">
+    <circle cx="26" cy="17" r="10" fill="#1a1a2e" stroke="${G}" stroke-width="1.8"/>
+    <circle cx="22" cy="16" r="2.2" fill="${G}" opacity="0.9"/>
+    <circle cx="30" cy="16" r="2.2" fill="${G}" opacity="0.9"/>
+    <path d="M22 21 Q26 24.5 30 21" stroke="${G}" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M14 22 Q15 11 26 8 Q37 11 38 22 Q33 16 26 16 Q19 16 14 22Z" fill="${G}33"/>
+    <path d="M10 48 Q10 36 26 36 Q42 36 42 48" fill="#1a1a2e" stroke="${G}" stroke-width="1.2"/>
+    <rect x="18" y="38" width="16" height="10" rx="2" fill="${BG}" stroke="${G}" stroke-width="1"/>
+    <rect x="20" y="40" width="12" height="6" rx="0.5" fill="${G}22"/>
+    <rect x="21" y="41" width="5" height="1" rx="0.5" fill="${G}66"/>
+    <rect x="21" y="43" width="8" height="1" rx="0.5" fill="${G}44"/>
+  </svg>`,
+  server: `<svg width="38" height="38" viewBox="0 0 48 48" fill="none">
+    <rect x="4" y="5" width="40" height="11" rx="2.5" fill="#1a1a2e" stroke="${W}66" stroke-width="1.5"/>
+    <circle cx="38" cy="10.5" r="2.5" fill="${W}"/>
+    <rect x="8" y="9" width="16" height="1.5" rx="0.7" fill="#ffffff44"/>
+    <rect x="4" y="20" width="40" height="11" rx="2.5" fill="#1a1a2e" stroke="#ffffff22" stroke-width="1.5"/>
+    <circle cx="38" cy="25.5" r="2.5" fill="#ffffff44"/>
+    <rect x="8" y="24" width="12" height="1.5" rx="0.7" fill="#ffffff22"/>
+    <rect x="4" y="35" width="40" height="8" rx="2" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
+  </svg>`,
+  shield: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path d="M12 2 L20 6 L20 13 Q20 18 12 22 Q4 18 4 13 L4 6 Z" fill="${G}22" stroke="${G}" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M8 12 L11 15 L16 9" stroke="${G}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+};
+
+function arrowSVG(dashed){
+  return `<svg width="48" height="20" viewBox="0 0 48 20" fill="none">
+    <line x1="4" y1="10" x2="38" y2="10" stroke="${G}66" stroke-width="1.8" stroke-dasharray="${dashed ? '4,3' : 'none'}"/>
+    <polygon points="36,6 44,10 36,14" fill="${G}66"/>
+  </svg>`;
+}
+
+const STEPS = [
+  { title:"Normal Connection", hint:"Sab kuch normal lagta hai. Victim website open karta hai aur request bhejta hai. Use pata nahi ki koi unhe dekh raha hai.",
+    victimLabel:"Victim", serverLabel:"Bank Server", showAttacker:false, arrowDashed:true, arrowLabel:"Normal request" },
+  { title:"Attacker Gets In the Middle", hint:"Attacker fake hotspot banata hai ya ARP table poison karta hai. Ab victim ka har packet pehle attacker ke machine se guzarta hai.",
+    victimLabel:"Victim", serverLabel:"Bank Server", showAttacker:true, arrowDashed:false, arrowLabel:"INTERCEPTED" },
+  { title:"Victim Enters Credentials", hint:"Victim ko bank login page dikhta hai aur wo password type karta hai. Wo packet directly attacker ke paas jaata hai, server tak pahunchne se pehle.",
+    victimLabel:"Victim types\\ncredentials", serverLabel:"Bank Server", showAttacker:true, arrowDashed:false, arrowLabel:"Packet captured", showPacket:true },
+  { title:"Attacker Reads the Data", hint:"Attacker credentials log karta hai aur fir request real server ko forward kar deta hai. Login successful ho jaata hai. Kisi ko kuch pata nahi chalta.",
+    victimLabel:"Victim", serverLabel:"Bank Server", showAttacker:true, arrowDashed:false, arrowLabel:"Silently forwarded", showSteal:true },
+  { title:"Victim Has No Idea", hint:"Victim login ho gaya. Sab normal lagta hai. Lekin attacker ke paas ab poori session copy hai jo wo baad mein use kar sakta hai.",
+    victimLabel:"Victim\\n(thinks: ok)", serverLabel:"Bank Server", showAttacker:true, arrowDashed:false, arrowLabel:"200 OK (fake)", showHijack:true },
+];
+
+let step = 0;
+
+function renderDots(){
+  const dotsEl = document.getElementById('dots');
+  dotsEl.innerHTML = STEPS.map((_,i)=>{
+    let cls = 'dot';
+    if(i === step) cls += ' active';
+    else if(i < step) cls += ' done';
+    return `<div class="${cls}" onclick="goTo(${i})"></div>`;
+  }).join('');
+}
+
+function goTo(i){ step = i; render(); }
+
+function next(){
+  if(step < STEPS.length - 1){ step++; }
+  else { step = 0; }
+  render();
+}
+
+function render(){
+  const s = STEPS[step];
+  renderDots();
+
+  let pktHtml = '';
+  if(s.showPacket){
+    pktHtml = `<div class="pkt">password</div>`;
+  }
+
+  let attackerHtml = '';
+  if(s.showAttacker){
+    let label = s.showSteal ? "READING DATA" : s.showHijack ? "SESSION STOLEN" : "ATTACKER";
+    let extra = '';
+    if(s.showSteal){
+      extra = `<div class="steal-chip"><span class="steal-text">password: abc123</span></div>`;
+    }
+    if(s.showHijack){
+      extra = `<div class="hijack-chip">Session hijacked</div>`;
+    }
+    attackerHtml = `
+      <div class="attacker-wrap">
+        <div class="attacker-label">${label}</div>
+        <div class="attacker-box">${ICONS.attacker}</div>
+        ${extra}
+      </div>`;
+  }
+
+  document.getElementById('card').innerHTML = `
+    <div class="step-head">
+      <div class="step-num">${step+1}</div>
+      <div class="step-title">${s.title}</div>
+    </div>
+    <div class="diagram-row">
+      <div class="node">
+        <div class="icon-box">${ICONS.laptop}</div>
+        <div class="node-label">${s.victimLabel}</div>
+        ${ICONS.shield}
+      </div>
+      <div class="mid-col">
+        <div class="arrow-row">
+          ${arrowSVG(s.arrowDashed)}
+          ${pktHtml}
+        </div>
+        <div class="arrow-label">${s.arrowLabel}</div>
+        ${attackerHtml}
+      </div>
+      <div class="node">
+        <div class="icon-box">${ICONS.server}</div>
+        <div class="node-label">${s.serverLabel}</div>
+        ${ICONS.shield}
+      </div>
+    </div>
+    <div class="explain">
+      <div class="explain-text">${s.hint}</div>
+    </div>
+  `;
+
+  document.getElementById('btnLabel').textContent = (step === STEPS.length-1) ? "Restart" : "Next Step";
+}
+
+render();
+</script>
+</body>
+</html>
+<script>
+(function(){
+  function sendHeight(){
+    var h = Math.ceil(document.body.offsetHeight) + 40;
+    window.parent.postMessage({type:'acx-diagram-height', height:h}, '*');
+  }
+  window.addEventListener('load', sendHeight);
+  window.addEventListener('resize', sendHeight);
+  if (window.ResizeObserver) {
+    new ResizeObserver(sendHeight).observe(document.body);
+  }
+  setTimeout(sendHeight, 50);
+  setTimeout(sendHeight, 300);
+  setTimeout(sendHeight, 1000);
+})();
+</script>

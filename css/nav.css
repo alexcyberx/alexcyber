@@ -1,0 +1,541 @@
+/* ═══════════════════════════════════════════
+   NAV SHARED
+═══════════════════════════════════════════ */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(6,6,8,0.92);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-sizing: border-box;
+  max-width: 100vw;
+  overflow: visible;
+}
+
+.nav-logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  padding: 0 !important;
+}
+.logo-text {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--white);
+  background: transparent;
+}
+.logo-text em { color: var(--red); font-style: normal; }
+
+.nav-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  pointer-events: auto;
+}
+
+.nav-link {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Inter', sans-serif;
+}
+.nav-link:hover { color: var(--white); background: rgba(255,255,255,0.04); }
+.nav-link.active { color: var(--white); }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* "More" dropdown (Blog / Resources / Community) */
+.nav-dropdown { position: relative; }
+.nav-dropdown-trigger { display: flex; align-items: center; gap: 4px; }
+.nav-dropdown-trigger svg { transition: transform 0.2s; }
+.nav-dropdown.open .nav-dropdown-trigger svg { transform: rotate(180deg); }
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px);
+  min-width: 180px;
+  background: rgba(10,10,13,0.98);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+  backdrop-filter: blur(20px);
+  z-index: 950;
+}
+.nav-dropdown.open .nav-dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+.nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.15s, color 0.15s;
+}
+.nav-dropdown-item:hover { background: rgba(255,255,255,0.05); color: var(--white); }
+.nav-dropdown-item svg { flex-shrink: 0; color: var(--red); opacity: 0.85; }
+
+.nav-btn {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  text-decoration: none;
+  padding: 7px 16px;
+  border-radius: 7px;
+  transition: all 0.2s;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  border: none;
+}
+.nav-btn.ghost { color: var(--text-dim); border: 1px solid var(--border); background: transparent; }
+.nav-btn.ghost:hover { color: var(--white); border-color: var(--border-hover); }
+.nav-btn.fill { color: #fff; background: var(--red); border: 1px solid var(--red); }
+.nav-btn.fill:hover { background: #e81818; }
+
+/* Learn page nav extras */
+.nav-left { display: flex; align-items: center; gap: 16px; }
+.sidebar-toggle {
+  width: 32px; height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.sidebar-toggle:hover { border-color: var(--border-hover); background: rgba(255,255,255,0.04); }
+.nav-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.nav-breadcrumb span { color: #2a2a2a; }
+.nav-breadcrumb a {
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  padding: 0;
+}
+.nav-breadcrumb a:hover { color: var(--white); }
+
+/* Hamburger */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.hamburger:hover { background: rgba(255,255,255,0.05); }
+.hamburger span {
+  display: block;
+  width: 20px; height: 1.5px;
+  background: #888;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); background: #bbb; }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); background: #bbb; }
+
+/* Mobile right group: search + hamburger */
+.nav-mobile-right {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+/* ─── Small desktop / laptop (1024px – 1366px): .nav-center is
+   position:absolute + centered, so it never yields space to
+   .nav-right. Jab CTF link add hua, .nav-center wider ho gaya aur
+   .nav-right (search pill + lang + login + signup + avatar) ke
+   upar chadhne laga in-between widths par. Fix: is range mein
+   nav-right ko compact karo + search pill collapse rakho taaki
+   center group ke saath collide na ho. ─── */
+@media (max-width: 1366px) and (min-width: 1024px) {
+  .nav-search-pill.expanded { width: 160px; }
+  .nav-right { gap: 6px; }
+  .nav-btn { padding: 7px 12px; }
+  #langNavBtn span { display: none; }
+  #langNavBtn { padding: 7px 10px !important; }
+  .nav-avatar-name { display: none; }
+  /* Safety net: agar i18n strings phir bhi lambi ho jayein aur
+     .nav-center apni max width se zyada maange, to overlap ki jagah
+     horizontal scroll ho, taaki kabhi bhi search/buttons ke upar na chadhe. */
+  .nav-center {
+    max-width: 46vw;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .nav-center::-webkit-scrollbar { display: none; }
+}
+
+/* ─── Tablet (769px – 1023px): hide long labels, keep buttons ─── */
+@media (max-width: 1023px) and (min-width: 769px) {
+  nav { padding: 0 16px; }
+
+  /* FIX: .nav-center pehle position:absolute + centered rehta tha bina
+     available space check kiye. Tablet range mein .nav-right (search+
+     login+avatar) ke saath overlap/squeeze ho jaata tha kyunki dono
+     apni full desktop width maang rahe the. Ab dono ko static flex flow
+     mein rakha hai is range ke liye, taaki wo ek doosre ko push karein
+     na ki overlap karein. */
+  nav { justify-content: space-between; }
+  .nav-center {
+    position: static;
+    transform: none;
+    gap: 0;
+    flex-shrink: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .nav-center::-webkit-scrollbar { display: none; }
+  .nav-link { padding: 6px 8px; font-size: 11px; white-space: nowrap; }
+
+  /* Desktop search pill: bahut jagah leta tha, tablet pe compact karo */
+  .nav-search-desktop { max-width: 130px; }
+  .nav-search-pill { padding: 6px 8px; }
+  #desktopSearchInput { width: 60px; font-size: 11px; }
+
+  #langNavBtn span { display: none; }
+  #langNavBtn { padding: 7px 10px !important; }
+  .nav-btn { padding: 7px 10px; font-size: 11px; white-space: nowrap; }
+  .nav-right { gap: 5px; flex-shrink: 0; }
+  .nav-avatar-name { display: none; } /* naam chhupao, sirf avatar pic dikhao, jagah bachao */
+}
+
+/* ─── Mobile (≤768px): hamburger layout ─── */
+@media (max-width: 768px) {
+  nav {
+    padding: 0 16px;
+    height: var(--nav-h);
+  }
+  .nav-center { display: none; }
+  .nav-right  { display: none; }
+  .nav-mobile-right { display: flex; }
+
+  /* Search wrap inside mobile-right should not overflow */
+  .nav-search-wrap { position: static; }
+  .hamburger { display: flex; }
+}
+
+/* ─── Small mobile (≤480px) ─── */
+@media (max-width: 480px) {
+  nav { padding: 0 12px; }
+  .logo-text { font-size: 17px; }
+}
+
+/* Mobile Menu */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: var(--nav-h);
+  left: 0; right: 0;
+  background: rgba(6,6,8,0.98);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  z-index: 899;
+  flex-direction: column;
+  gap: 2px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  max-height: calc(100vh - var(--nav-h));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  animation: mobileMenuIn 0.2s ease;
+}
+@keyframes mobileMenuIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.mobile-menu.show { display: flex; }
+.mobile-menu a, .mobile-menu button.m-nav {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 13px 12px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  background: none;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  text-align: left;
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+.mobile-menu a:hover, .mobile-menu button.m-nav:hover,
+.mobile-menu a:active, .mobile-menu button.m-nav:active {
+  color: var(--white);
+  background: rgba(255,255,255,0.05);
+}
+.m-divider { height: 1px; background: var(--border); margin: 6px 0; }
+.m-auth { display: flex; gap: 8px; padding-top: 4px; }
+.m-auth a, .m-auth button {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: 8px;
+  padding: 12px 0;
+  min-height: 44px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s;
+}
+.m-auth .ml { border: 1px solid var(--border); color: var(--text-dim); background: transparent; }
+.m-auth .ml:hover, .m-auth .ml:active { color: var(--white); border-color: var(--border-hover); }
+.m-auth .ms { background: var(--red); color: #fff; border: 1px solid var(--red); }
+.m-auth .ms:hover, .m-auth .ms:active { background: #e81818; }
+
+/* ═══════════════════════════════════════════
+   PAGE SWITCH
+═══════════════════════════════════════════ */
+.page { display: none; }
+.page.active { display: block; }
+
+
+/* ═══════════════════════════════════════════
+   NAV SEARCH
+═══════════════════════════════════════════ */
+.nav-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  /* Always visible — sits inside nav-mobile-right on mobile, or nav on desktop */
+}
+
+.nav-search-icon-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  padding: 4px;
+}
+.nav-search-icon-btn:hover svg circle,
+.nav-search-icon-btn:hover svg path {
+  stroke: #ccc;
+}
+
+/* Expanded input — drops BELOW the navbar */
+.nav-search-expanded {
+  position: fixed;
+  top: var(--nav-h);
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  background: rgba(10,10,14,0.98);
+  border-bottom: 1px solid rgba(220,20,20,0.35);
+  height: 48px;
+  gap: 0;
+  backdrop-filter: blur(20px);
+  animation: navSearchExpand 0.18s ease;
+  z-index: 898;
+}
+@keyframes navSearchExpand {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.nav-search-expanded input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e0e0e0;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  padding: 0 12px;
+  min-width: 0;
+}
+.nav-search-expanded input::placeholder { color: #444; }
+
+/* Search dropdown — below the expanded search bar */
+.nav-search-wrap .search-results-dropdown {
+  position: fixed;
+  top: calc(var(--nav-h) + 48px);
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  background: #111118;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 897;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.7);
+  max-height: 320px;
+  overflow-y: auto;
+}
+.nav-search-wrap .search-results-dropdown::-webkit-scrollbar { width: 4px; }
+.nav-search-wrap .search-results-dropdown::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* Mobile: full-width search in mobile menu */
+.mobile-search-row {
+  padding: 4px 4px 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 4px;
+}
+.mobile-search-row svg { flex-shrink: 0; margin-left: 10px; }
+.mobile-search-row input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e0e0e0;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  padding: 6px 0;
+}
+.mobile-search-row input::placeholder { color: #444; }
+
+/* ═══════════════════════════════════════════
+   DESKTOP SEARCH — always-visible pill
+═══════════════════════════════════════════ */
+.nav-search-desktop {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nav-search-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 5px 9px;
+  width: 32px;
+  overflow: hidden;
+  transition: width 0.22s ease, background 0.2s, border-color 0.2s;
+  cursor: text;
+}
+.nav-search-pill.expanded {
+  width: 200px;
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.14);
+}
+.nav-search-pill input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #e0e0e0;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  min-width: 0;
+  width: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: text;
+}
+.nav-search-pill.expanded input {
+  width: auto;
+  opacity: 1;
+}
+.nav-search-pill input::placeholder { color: #555; }
+
+.nav-search-desktop-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 280px;
+  background: #0d0d12;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 999;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.8);
+  max-height: 320px;
+  overflow-y: auto;
+}
+.nav-search-desktop-results::-webkit-scrollbar { width: 4px; }
+.nav-search-desktop-results::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }

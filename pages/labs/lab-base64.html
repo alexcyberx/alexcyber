@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base64 Bonanza - alexcyberx Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#07070f;--surface:#0d0d1a;--surface2:#111120;
+  --border:rgba(255,255,255,0.06);--red:#dc1414;
+  --white:#f0f0f8;--dim:#505068;--green:#4ade80;
+  --blue:#63b3ed;--orange:#fb923c;--yellow:#fbbf24;
+  --purple:#c084fc;
+  --mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;
+}
+body{background:var(--bg);color:var(--white);font-family:var(--sans);min-height:100vh;}
+
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;position:sticky;top:0;z-index:100;gap:10px;}
+.topbar-left{display:flex;align-items:center;gap:12px;min-width:0;}
+.back-link{display:flex;align-items:center;gap:5px;color:var(--dim);font-size:12px;font-weight:500;text-decoration:none;white-space:nowrap;transition:color 0.15s;}
+.back-link:hover{color:var(--white);}
+.topbar-sep{width:1px;height:16px;background:var(--border);flex-shrink:0;}
+.topbar-id{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--red);letter-spacing:0.5px;white-space:nowrap;}
+.topbar-title{font-size:13px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.diff-badge{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:3px 9px;border-radius:4px;background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green);white-space:nowrap;}
+.timer-wrap{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 12px;}
+.timer-label{font-size:10px;font-weight:600;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
+.timer-val{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--dim);min-width:44px;text-align:center;}
+.timer-val.running{color:var(--green);}
+
+.lab-wrap{max-width:860px;margin:0 auto;padding:20px 16px 40px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.card-head{padding:10px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.card-head-dot{width:5px;height:5px;border-radius:50%;background:var(--red);flex-shrink:0;}
+.card-head-title{font-size:10px;font-weight:700;letter-spacing:1.3px;color:var(--dim);text-transform:uppercase;}
+.card-body{padding:15px;}
+
+.points-strip{display:flex;gap:8px;margin-bottom:14px;}
+.pts-box{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center;}
+.pts-val{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--white);}
+.pts-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+
+/* NovaSat banner */
+.novasat-banner{background:rgba(99,179,237,0.03);border:1px solid rgba(99,179,237,0.12);border-radius:12px;padding:14px 16px;margin-bottom:14px;display:flex;gap:12px;align-items:flex-start;}
+.novasat-icon{width:38px;height:38px;border-radius:9px;background:rgba(99,179,237,0.07);border:1px solid rgba(99,179,237,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.novasat-text{flex:1;}
+.novasat-title{font-size:12px;font-weight:700;color:var(--blue);letter-spacing:0.5px;margin-bottom:4px;text-transform:uppercase;}
+.novasat-sub{font-size:11.5px;color:#8888a0;line-height:1.7;}
+.novasat-meta{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap;}
+.meta-item{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--dim);}
+.meta-dot{width:5px;height:5px;border-radius:50%;background:var(--blue);}
+
+/* Scenario */
+.scenario-text{font-size:12.5px;color:#8888a0;line-height:1.85;border-left:2px solid var(--red);padding-left:12px;}
+.scenario-text strong{color:var(--white);}
+
+/* File download */
+.lock-outer{position:relative;}
+.lock-overlay{position:absolute;inset:0;background:rgba(7,7,15,0.92);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center;border-radius:12px;}
+.lock-inner{text-align:center;padding:28px 24px;max-width:280px;}
+.lock-icon{width:48px;height:48px;border-radius:12px;background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 13px;}
+.lock-title{font-size:14px;font-weight:600;color:var(--white);margin-bottom:6px;}
+.lock-desc{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:16px;}
+.lock-start{display:inline-flex;align-items:center;gap:7px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:9px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.lock-start:hover{background:#c01010;}
+
+.file-row{display:flex;align-items:center;gap:14px;padding:4px 0;}
+.file-icon{width:44px;height:44px;border-radius:10px;background:rgba(192,132,252,0.07);border:1px solid rgba(192,132,252,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.file-meta{flex:1;min-width:0;}
+.file-name{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--white);margin-bottom:3px;}
+.file-sub{font-size:11px;color:var(--dim);}
+.dl-btn{display:flex;align-items:center;gap:7px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;white-space:nowrap;flex-shrink:0;}
+.dl-btn:hover{background:#c01010;}
+
+/* Warning note */
+.warn-note{background:rgba(251,146,60,0.04);border:1px solid rgba(251,146,60,0.15);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px;}
+.warn-note-text{font-size:12px;color:#8888a0;line-height:1.75;}
+.warn-note-text strong{color:var(--orange);}
+.warn-note-text code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
+
+/* Tool note */
+.tool-note{background:rgba(99,179,237,0.04);border:1px solid rgba(99,179,237,0.14);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px;}
+.tool-note-text{font-size:12px;color:#8888a0;line-height:1.75;}
+.tool-note-text strong{color:var(--blue);}
+.tool-note-text code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
+.tool-note-text a{color:var(--blue);text-decoration:none;}
+.tool-note-text a:hover{text-decoration:underline;}
+
+/* Steps */
+.steps{display:flex;flex-direction:column;gap:8px;}
+.step-row{display:flex;gap:12px;padding:12px;background:#050510;border:1px solid var(--border);border-radius:8px;}
+.step-num{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,0.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--dim);flex-shrink:0;margin-top:1px;}
+.step-content{flex:1;}
+.step-title{font-size:12px;font-weight:600;color:var(--white);margin-bottom:3px;}
+.step-desc{font-size:11.5px;color:var(--dim);line-height:1.65;}
+.step-desc code{font-family:var(--mono);font-size:10.5px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
+
+/* Hints */
+.hint-item{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px;}
+.hint-item:last-child{margin-bottom:0;}
+.hint-btn{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;cursor:pointer;background:var(--surface2);border:none;width:100%;font-family:var(--sans);transition:background 0.15s;}
+.hint-btn:hover{background:rgba(255,255,255,0.025);}
+.hint-btn-left{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:500;color:var(--dim);}
+.hint-icon{width:22px;height:22px;border-radius:5px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.hint-pill{font-size:10px;font-weight:600;color:var(--yellow);background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.14);border-radius:4px;padding:1px 7px;}
+.hint-body{display:none;padding:11px 13px;border-top:1px solid var(--border);font-size:12px;color:#8888a0;line-height:1.75;background:rgba(251,191,36,0.02);}
+.hint-body.open{display:block;}
+.hint-body code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,0.05);border-radius:3px;padding:1px 5px;color:#c0c0d8;}
+.hint-body a{color:var(--blue);text-decoration:none;}
+.hint-body a:hover{text-decoration:underline;}
+
+/* Submit */
+.submit-row{display:flex;gap:8px;}
+.flag-input{flex:1;background:#050510;border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-family:var(--mono);font-size:12px;color:var(--white);outline:none;transition:border-color 0.15s;}
+.flag-input:focus{border-color:rgba(220,20,20,0.4);}
+.flag-input::placeholder{color:var(--dim);}
+.submit-btn{background:var(--red);color:#fff;border:none;border-radius:8px;padding:10px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;white-space:nowrap;}
+.submit-btn:hover{background:#c01010;}
+.submit-result{display:none;font-size:12px;padding:9px 12px;border-radius:6px;font-family:var(--mono);line-height:1.5;margin-top:10px;}
+.submit-result.ok{display:block;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);color:var(--green);}
+.submit-result.err{display:block;background:rgba(220,20,20,0.06);border:1px solid rgba(220,20,20,0.2);color:var(--red);}
+
+/* Flag box */
+.flag-box{display:none;background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.15);border-radius:12px;overflow:hidden;margin-top:14px;}
+.flag-box.show{display:block;}
+.flag-head{display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid rgba(74,222,128,0.1);}
+.flag-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.flag-head-label{font-size:10px;font-weight:700;letter-spacing:1.3px;color:var(--green);text-transform:uppercase;}
+.flag-body{padding:15px;}
+.flag-value{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--green);letter-spacing:0.5px;margin-bottom:8px;word-break:break-all;}
+.flag-note{font-size:11.5px;color:rgba(74,222,128,0.5);line-height:1.6;}
+
+@media(max-width:600px){
+  .topbar-title{display:none;}
+  .points-strip{flex-wrap:wrap;}
+  .submit-row{flex-direction:column;}
+  .submit-btn{width:100%;}
+  .file-row{flex-wrap:wrap;}
+  .dl-btn{width:100%;}
+  .novasat-meta{gap:8px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back-link" href="javascript:history.back()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Labs
+    </a>
+    <div class="topbar-sep"></div>
+    <span class="topbar-id">CRY-02</span>
+    <span class="topbar-title">Base64 Bonanza</span>
+  </div>
+  <div class="topbar-right">
+    <span class="diff-badge">Easy</span>
+    <div class="timer-wrap">
+      <span class="timer-label">Time</span>
+      <span class="timer-val" id="timerVal">00:00</span>
+    </div>
+  </div>
+</div>
+
+<div class="lab-wrap">
+
+  <!-- Points -->
+  <div class="points-strip">
+    <div class="pts-box"><div class="pts-val">50</div><div class="pts-label">Points</div></div>
+    <div class="pts-box"><div class="pts-val">80</div><div class="pts-label">XP</div></div>
+    <div class="pts-box"><div class="pts-val">CRYPTO</div><div class="pts-label">Category</div></div>
+  </div>
+
+  <!-- NovaSat banner -->
+  <div class="novasat-banner">
+    <div class="novasat-icon">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="10" r="3" stroke="#63b3ed" stroke-width="1.3"/>
+        <path d="M10 2v3M10 15v3M2 10h3M15 10h3" stroke="#63b3ed" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M4.93 4.93l2.12 2.12M12.95 12.95l2.12 2.12M4.93 15.07l2.12-2.12M12.95 7.05l2.12-2.12" stroke="#63b3ed" stroke-width="1.1" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="novasat-text">
+      <div class="novasat-title">NovaSat Ground Station</div>
+      <div class="novasat-sub">A telemetry snapshot file from satellite <strong style="color:#f0f0f8;">NS-7 ORION</strong> was flagged during a routine audit. The file was exported as a JPEG image but its contents do not match the expected format. Something is off.</div>
+      <div class="novasat-meta">
+        <div class="meta-item"><div class="meta-dot"></div>Satellite: NS-7 ORION</div>
+        <div class="meta-item"><div class="meta-dot"></div>Captured: 2024-11-21 02:44 UTC</div>
+        <div class="meta-item"><div class="meta-dot"></div>Operator: ground-ctrl-04</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scenario -->
+  <div class="card">
+    <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Scenario</span></div>
+    <div class="card-body">
+      <p class="scenario-text">
+        NovaSat security team found a suspicious file in the NS-7 telemetry export directory. The file is named <strong>ns7_telemetry_snapshot.jpg</strong> but opening it in an image viewer shows nothing -- it is not a real image.<br><br>
+        Open the file as plain text. What you find inside is encoded, and that encoded data hides something encoded again. Peel back both layers to find the flag.
+      </p>
+    </div>
+  </div>
+
+  <!-- Download -->
+  <div class="card">
+    <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Suspicious File</span></div>
+    <div class="card-body">
+      <div class="lock-outer" id="downloadLockOuter">
+        <div class="lock-overlay" id="lockOverlay">
+          <div class="lock-inner">
+            <div class="lock-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="10" width="12" height="8" rx="2" stroke="#dc1414" stroke-width="1.3"/><path d="M7 10V7a3 3 0 016 0v3" stroke="#dc1414" stroke-width="1.3"/></svg>
+            </div>
+            <div class="lock-title">Challenge Locked</div>
+            <div class="lock-desc">Start the challenge to access the suspicious telemetry file.</div>
+            <button class="lock-start" onclick="startChallenge()">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M3 2l6 3.5L3 9V2z" fill="#fff"/></svg>
+              Start Challenge
+            </button>
+          </div>
+        </div>
+        <div class="file-row">
+          <div class="file-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <rect x="3" y="3" width="16" height="16" rx="2" stroke="#c084fc" stroke-width="1.3"/>
+              <circle cx="8" cy="8" r="1.5" stroke="#c084fc" stroke-width="1.1"/>
+              <path d="M3 14l4-4 3 3 3-4 4 5" stroke="#c084fc" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="file-meta">
+            <div class="file-name">ns7_telemetry_snapshot.jpg</div>
+            <div class="file-sub" id="fileSubDisplay">Loading file info...</div>
+          </div>
+          <button class="dl-btn" onclick="downloadFile()">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 6l3.5 3.5L10 6M2 11h9" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Download
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Warning -->
+  <div class="warn-note">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px;"><path d="M8 2L1.5 13h13L8 2z" stroke="#fb923c" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 6v3M8 11v.5" stroke="#fb923c" stroke-width="1.3" stroke-linecap="round"/></svg>
+    <div class="warn-note-text">
+      <strong>Do not open in an image viewer.</strong> The file extension is <code>.jpg</code> but the content is plain text. Open it with a text editor (Notepad, VS Code, nano, cat) or use <code>cat ns7_telemetry_snapshot.jpg</code> in terminal to see what is actually inside.
+    </div>
+  </div>
+
+  <!-- Steps -->
+  <div class="card">
+    <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Analysis Path</span></div>
+    <div class="card-body">
+      <div class="steps">
+        <div class="step-row">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Open the file as plain text</div>
+            <div class="step-desc">Use a text editor or <code>cat ns7_telemetry_snapshot.jpg</code>. You will see a long string of characters -- not image data. Copy the entire string.</div>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">First decode -- the file content</div>
+            <div class="step-desc">The string is Base64 encoded. Decode it using CyberChef, Python (<code>base64.b64decode()</code>), or any online tool. You will get a readable telemetry message.</div>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Read the telemetry message carefully</div>
+            <div class="step-desc">Inside the decoded text you will find a section marked <code>=== ENCODED PAYLOAD ===</code>. Extract the string between those markers -- that is your second encoded value.</div>
+          </div>
+        </div>
+        <div class="step-row">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <div class="step-title">Second decode -- the payload</div>
+            <div class="step-desc">Decode the extracted payload string once more with Base64. This gives you the flag in <code>ACX{...}</code> format.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tool note -->
+  <div class="tool-note">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:1px;"><circle cx="8" cy="8" r="6.5" stroke="#63b3ed" stroke-width="1.2"/><path d="M8 5v.5M8 7v4" stroke="#63b3ed" stroke-width="1.3" stroke-linecap="round"/></svg>
+    <div class="tool-note-text">
+      Fastest method: <a href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener">CyberChef</a> with two "From Base64" recipes chained. Python: <code>import base64; base64.b64decode(base64.b64decode(data))</code> where <code>data</code> is the raw file content. Terminal: <code>cat ns7_telemetry_snapshot.jpg | base64 -d</code> for the first layer.
+    </div>
+  </div>
+
+  <!-- Hints -->
+  <div class="card">
+    <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Hints</span></div>
+    <div class="card-body" style="padding:12px;">
+      <div class="hint-item">
+        <button class="hint-btn" onclick="toggleHint(1)">
+          <div class="hint-btn-left">
+            <div class="hint-icon">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="#fbbf24" stroke-width="1.2"/><path d="M6.5 4v.4M6.5 6v3" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            Hint 1 — File is not an image
+          </div>
+          <span class="hint-pill">-5 pts</span>
+        </button>
+        <div class="hint-body" id="hb1">
+          Open the file with <code>cat</code> or any text editor. You will see a single long string of letters, numbers, plus signs, and equals signs. This is the hallmark of Base64 encoding. The <code>.jpg</code> extension is misleading.
+        </div>
+      </div>
+      <div class="hint-item">
+        <button class="hint-btn" onclick="toggleHint(2)">
+          <div class="hint-btn-left">
+            <div class="hint-icon">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="#fbbf24" stroke-width="1.2"/><path d="M6.5 4v.4M6.5 6v3" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            Hint 2 — Two layers
+          </div>
+          <span class="hint-pill">-10 pts</span>
+        </button>
+        <div class="hint-body" id="hb2">
+          Decoding the file gives you a text message, not the flag. Inside that message, between the <code>=== ENCODED PAYLOAD ===</code> markers, is another Base64 string. Decode that second string to get the flag.
+        </div>
+      </div>
+      <div class="hint-item">
+        <button class="hint-btn" onclick="toggleHint(3)">
+          <div class="hint-btn-left">
+            <div class="hint-icon">
+              <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="#fbbf24" stroke-width="1.2"/><path d="M6.5 4v.4M6.5 6v3" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </div>
+            Hint 3 — Quick Python method
+          </div>
+          <span class="hint-pill">-15 pts</span>
+        </button>
+        <div class="hint-body" id="hb3">
+          <code>python3 -c "import base64; d=open('ns7_telemetry_snapshot.jpg').read(); print(base64.b64decode(d).decode())"</code> -- this prints the telemetry message. Then copy the payload string and run <code>base64.b64decode('PAYLOAD_HERE').decode()</code> to get the flag.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div class="card">
+    <div class="card-head"><div class="card-head-dot"></div><span class="card-head-title">Submit Flag</span></div>
+    <div class="card-body">
+      <div class="submit-row">
+        <input class="flag-input" id="flagInput" type="text" placeholder="ACX{...}" autocomplete="off" spellcheck="false">
+        <button class="submit-btn" onclick="submitFlag()">Submit</button>
+      </div>
+      <div class="submit-result" id="submitResult"></div>
+    </div>
+  </div>
+
+  <!-- Flag box -->
+  <div class="flag-box" id="flagBox">
+    <div class="flag-head">
+      <div class="flag-dot"></div>
+      <span class="flag-head-label">Flag Captured</span>
+    </div>
+    <div class="flag-body">
+      <div class="flag-value" id="flagValue"></div>
+      <div class="flag-note" id="flagNote"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const BASE = window.location.origin;
+let elapsed = 0;
+let timerInterval = null;
+let isStarted = false;
+
+function startChallenge() {
+  if (isStarted) return;
+  isStarted = true;
+  document.getElementById('lockOverlay').style.display = 'none';
+  const tv = document.getElementById('timerVal');
+  tv.classList.add('running');
+  timerInterval = setInterval(function() {
+    elapsed++;
+    const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    tv.textContent = m + ':' + s;
+  }, 1000);
+}
+
+function toggleHint(n) {
+  document.getElementById('hb' + n).classList.toggle('open');
+}
+
+async function loadInfo() {
+  try {
+    const res = await fetch(BASE + '/api/lab/base64/info');
+    const data = await res.json();
+    document.getElementById('fileSubDisplay').textContent =
+      data.size_bytes + ' bytes, JPEG extension, ' + data.captured.split('T')[0];
+  } catch(e) {
+    document.getElementById('fileSubDisplay').textContent = 'Telemetry file, NS-7 ORION';
+  }
+}
+loadInfo();
+
+function downloadFile() {
+  if (!isStarted) startChallenge();
+  window.location.href = BASE + '/api/lab/base64/download';
+}
+
+async function submitFlag() {
+  const flag = document.getElementById('flagInput').value.trim();
+  const resultEl = document.getElementById('submitResult');
+  if (!flag) {
+    resultEl.textContent = 'Flag field is empty.';
+    resultEl.className = 'submit-result err';
+    return;
+  }
+  try {
+    const res = await fetch(BASE + '/api/lab/base64/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ flag })
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      resultEl.textContent = 'Correct flag.';
+      resultEl.className = 'submit-result ok';
+      document.getElementById('flagBox').classList.add('show');
+      playSolveSound();
+      document.getElementById('flagValue').textContent = data.flag;
+      document.getElementById('flagNote').textContent = data.message;
+      clearInterval(timerInterval);
+    } else {
+      resultEl.textContent = data.message || 'Incorrect flag.';
+      resultEl.className = 'submit-result err';
+    }
+  } catch(err) {
+    resultEl.textContent = 'Request failed: ' + err.message;
+    resultEl.className = 'submit-result err';
+  }
+}
+
+document.getElementById('flagInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') submitFlag();
+});
+
+function playSolveSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const start = now + i * 0.09;
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(0.22, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.4);
+    });
+    setTimeout(() => { try { ctx.close(); } catch(e) {} }, 900);
+  } catch(e) {}
+}
+
+</script>
+
+</body>
+</html>

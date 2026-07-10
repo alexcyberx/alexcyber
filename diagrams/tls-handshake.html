@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TLS Handshake @alex.cyberx</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;background:#080810;font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;}
+.wrap{background:#080810;display:flex;flex-direction:column;align-items:center;padding:16px 16px 20px;}
+.header{text-align:center;margin-bottom:4px;}
+.h1{margin:0;font-size:clamp(22px,5vw,34px);font-weight:900;color:#fff;letter-spacing:-1px;line-height:1.1;}
+.h1 span{color:#44aaff;}
+.sub{color:#444;font-size:10px;margin:4px 0 0;letter-spacing:3px;}
+.svgwrap{width:100%;max-width:420px;line-height:0;}
+.steplabel{width:100%;max-width:420px;height:30px;margin-bottom:4px;display:flex;align-items:center;justify-content:center;}
+.steplabel-chip{padding:5px 16px;border-radius:8px;background:#ffffff0a;font-size:10px;font-weight:bold;letter-spacing:0.5px;font-family:'Inter',sans-serif;}
+.secured-chip{padding:5px 16px;border-radius:8px;background:#44ff8811;border:1px solid #44ff8833;color:#44ff88;font-size:10px;font-weight:bold;font-family:'Inter',sans-serif;}
+.cards{display:flex;flex-direction:column;gap:8px;width:100%;max-width:420px;margin-top:4px;}
+.card-tls{background:#000d1a;border:1px solid #44aaff30;border-left:3px solid #44aaff;border-radius:8px;padding:10px 12px;display:flex;align-items:center;gap:12px;}
+.card-tls-title{color:#44aaff;font-size:10px;font-weight:bold;letter-spacing:1px;}
+.card-tls-body{color:#aaa;font-size:9px;margin-top:2px;}
+.card-tls-body span{color:#44ff88;}
+.card-prot{background:#03100a;border:1px solid #44ff8825;border-left:3px solid #44ff88;border-radius:8px;padding:10px 12px;}
+.prot-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.prot-head span{color:#44ff88;font-size:10px;font-weight:bold;letter-spacing:1px;}
+.prot-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.prot-tag{font-size:9px;padding:3px 8px;border-radius:4px;font-weight:bold;letter-spacing:0.5px;}
+.btn-wrap{position:relative;width:100%;max-width:420px;margin-top:14px;}
+.btn-glow{position:absolute;inset:-2px;border-radius:14px;background:linear-gradient(90deg,#44aaff,#44ff88,#44aaff);background-size:200% 100%;animation:borderAnimGreen 2s linear infinite;z-index:0;}
+.btn{position:relative;z-index:1;background:#00080f;color:#44aaff;border:none;border-radius:12px;padding:14px 0;font-size:18px;font-weight:900;letter-spacing:6px;cursor:pointer;font-family:'Bebas Neue','Rajdhani',Impact,sans-serif;width:100%;text-transform:uppercase;transition:all .3s ease;display:flex;align-items:center;justify-content:center;gap:12px;}
+.btn[disabled]{cursor:not-allowed;}
+.footer{margin-top:12px;color:#333;font-size:10px;letter-spacing:2px;font-weight:600;}
+@keyframes borderAnimGreen{0%{background-position:0% 0%;}100%{background-position:200% 0%;}}
+@keyframes btnPulseGreen{0%,100%{transform:scale(1);opacity:.4;}50%{transform:scale(1.6);opacity:1;}}
+@keyframes secureGlow{0%,100%{opacity:.4;}50%{opacity:1;}}
+.pulse-dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:#44aaff;animation:btnPulseGreen 0.8s ease-in-out infinite;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1 class="h1"><span>TLS</span> Handshake</h1>
+    <p class="sub">TRANSPORT LAYER SECURITY</p>
+  </div>
+
+  <div class="svgwrap">
+    <svg id="svg" viewBox="0 140 500 240" style="width:100%;display:block;">
+      <defs>
+        <marker id="arrBlue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 Z" fill="#44aaff"/></marker>
+      </defs>
+      <line id="connLine" x1="140" y1="250" x2="360" y2="250" stroke="#ffffff11" stroke-width="1"/>
+      <line id="glowLine" x1="140" y1="250" x2="360" y2="250" stroke="#44ff8866" stroke-width="16" stroke-linecap="round" style="display:none;"/>
+      <g id="stepArrows"></g>
+      <g id="packets"></g>
+
+      <circle id="clientCircle" cx="100" cy="250" r="30" fill="#ffffff" stroke="#ffffff" stroke-width="1.5"/>
+      <foreignObject x="86" y="236" width="28" height="28">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
+          <svg width="28" height="28" viewBox="0 0 44 44" fill="none">
+            <rect x="6" y="8" width="32" height="22" rx="3" fill="#222" stroke="#111" stroke-width="1.5"/>
+            <rect x="10" y="12" width="24" height="14" rx="1" fill="#1a3a5c"/>
+            <rect x="16" y="30" width="12" height="3" rx="1" fill="#333"/>
+            <rect x="12" y="33" width="20" height="2" rx="1" fill="#444"/>
+            <circle cx="29" cy="16" r="2" fill="#44aaff" opacity="0.8"/>
+          </svg>
+        </div>
+      </foreignObject>
+      <text id="clientLabel" x="100" y="270" text-anchor="middle" font-size="8" font-weight="bold" fill="#333" font-family="Segoe UI, sans-serif">CLIENT</text>
+
+      <circle id="serverCircle" cx="400" cy="250" r="38" fill="#ffffff" stroke="#ffffff" stroke-width="1.5"/>
+      <circle id="serverGlowRing" cx="400" cy="250" r="38" fill="none" stroke="#44ff8822" stroke-width="12" style="display:none;"/>
+      <foreignObject x="370" y="220" width="60" height="60">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
+          <div id="serverIcon"></div>
+        </div>
+      </foreignObject>
+      <text id="serverLabel" x="400" y="278" text-anchor="middle" font-size="9" font-weight="bold" fill="#333" font-family="Segoe UI, sans-serif">SERVER</text>
+
+      <text x="100" y="208" text-anchor="middle" font-size="8" fill="#888" font-family="Segoe UI, sans-serif">Browser</text>
+      <text x="400" y="200" text-anchor="middle" font-size="8" fill="#888" font-family="Segoe UI, sans-serif">example.com</text>
+    </svg>
+  </div>
+
+  <div class="steplabel" id="stepLabel"></div>
+
+  <div class="cards">
+    <div class="card-tls">
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+        <rect x="3" y="3" width="26" height="26" rx="4" fill="#001020" stroke="#44aaff" stroke-width="1.5"/>
+        <text x="16" y="22" text-anchor="middle" font-size="12" fill="#44aaff" font-weight="bold" font-family="monospace">TLS</text>
+      </svg>
+      <div>
+        <div class="card-tls-title">MAN IN THE MIDDLE, BLOCKED</div>
+        <div class="card-tls-body">Bina TLS ke, attacker sab data padh sakta hai. TLS ke saath, data <span>fully encrypted</span> hota hai</div>
+      </div>
+    </div>
+    <div class="card-prot">
+      <div class="prot-head">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <path d="M10 2 L17 5 L17 10 Q17 15 10 18 Q3 15 3 10 L3 5 Z" fill="#003300" stroke="#44ff88" stroke-width="1.2"/>
+          <path d="M7 10 L9 12 L13 8" stroke="#44ff88" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>PROTECTION</span>
+      </div>
+      <div class="prot-tags">
+        <span class="prot-tag" style="background:#44ff8818;border:1px solid #44ff8844;color:#44ff88;">TLS 1.3</span>
+        <span class="prot-tag" style="background:#44aaff18;border:1px solid #44aaff44;color:#44aaff;">HSTS</span>
+        <span class="prot-tag" style="background:#aa44ff18;border:1px solid #aa44ff44;color:#aa44ff;">Valid Cert</span>
+        <span class="prot-tag" style="background:#ffaa4418;border:1px solid #ffaa4444;color:#ffaa44;">Cert Pinning</span>
+        <span class="prot-tag" style="background:#ff44aa18;border:1px solid #ff44aa44;color:#ff44aa;">OCSP Stapling</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-wrap">
+    <div class="btn-glow" id="btnGlow"></div>
+    <button class="btn" id="goBtn" onclick="startHandshake()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" id="btnIcon"><polygon points="2,1 13,7 2,13" fill="#44aaff"/></svg>
+      <span id="btnText">SIMULATE HANDSHAKE</span>
+    </button>
+  </div>
+
+  <div class="footer">@Alex.cyberx</div>
+</div>
+
+<script>
+const TLS_STEPS = [
+  { id:0, from:"client", label:"Client Hello",  sublabel:"TLS version + cipher list",   color:"#44aaff" },
+  { id:1, from:"server", label:"Server Hello",  sublabel:"Chosen cipher + session ID",  color:"#aa44ff" },
+  { id:2, from:"server", label:"Certificate",   sublabel:"Server identity proof",        color:"#ff8844" },
+  { id:3, from:"client", label:"Key Exchange",  sublabel:"Encrypted pre-master secret", color:"#44ffaa" },
+  { id:4, from:"both",   label:"Session Keys",  sublabel:"Symmetric keys generated",    color:"#ffdd44" },
+  { id:5, from:"both",   label:"Secure Tunnel", sublabel:"Encrypted data flows",        color:"#44ff88" },
+];
+
+const CLIENT_X = 100, SERVER_X = 400, MID_Y = 250;
+
+function serverIconSVG(secure, handshaking){
+  const topFill = secure ? "#001a0d" : handshaking ? "#001020" : "#222";
+  const topStroke = secure ? "#44ff88" : handshaking ? "#44aaff" : "#444";
+  const dot1 = secure ? "#44ff88" : handshaking ? "#44aaff" : "#444";
+  const midStroke = secure ? "#44ff8844" : "#333";
+  const dot2 = secure ? "#44ff88" : "#444";
+  const bar1 = secure ? "#44ff8866" : "#555";
+  let cert = '';
+  if(secure){
+    cert = `<g><path d="M28 3 L36 6 L36 10 Q36 14 28 16 Q20 14 20 10 L20 6 Z" fill="#002200" stroke="#44ff88" stroke-width="1.2"/>
+      <path d="M25 10 L27 12 L31 8" stroke="#44ff88" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+  }
+  return `<svg width="60" height="60" viewBox="0 0 64 64" fill="none">
+    <rect x="8" y="10" width="48" height="14" rx="3" fill="${topFill}" stroke="${topStroke}" stroke-width="1.5"/>
+    <circle cx="48" cy="17" r="3" fill="${dot1}"/>
+    <rect x="8" y="28" width="48" height="14" rx="3" fill="#1a1a1a" stroke="${midStroke}" stroke-width="1.5"/>
+    <circle cx="48" cy="35" r="3" fill="${dot2}"/>
+    <rect x="8" y="46" width="48" height="8" rx="2" fill="#111" stroke="#333" stroke-width="1"/>
+    <rect x="12" y="13" width="16" height="2" rx="1" fill="${bar1}"/>
+    <rect x="12" y="31" width="16" height="2" rx="1" fill="#555"/>
+    ${cert}
+  </svg>`;
+}
+
+let phase = "idle";
+let currentStep = -1;
+let packets = [];
+let packetId = 0;
+let tickInterval = null;
+
+function renderStepArrows(){
+  const g = document.getElementById('stepArrows');
+  // arrows from y=170 to y=320, step interval=25 — fits inside viewBox 140..380
+  g.innerHTML = TLS_STEPS.map((step,i) => {
+    const y = 175 + i*22;
+    const isActive = currentStep === i;
+    const isDone = phase === "secured" || currentStep > i;
+    const fromX = step.from === "server" ? SERVER_X - 28 : CLIENT_X + 28;
+    const toX   = step.from === "server" ? CLIENT_X + 28 : SERVER_X - 28;
+    const opacity = isActive ? 1 : isDone ? 0.5 : 0.15;
+    const sw = isActive ? "2" : "1.2";
+    const textColor = isActive ? step.color : "#666";
+    const fontWeight = isActive ? "bold" : "normal";
+    return `<g opacity="${opacity}">
+      <line x1="${fromX}" y1="${y}" x2="${toX}" y2="${y}" stroke="${step.color}" stroke-width="${sw}" marker-end="url(#arrBlue)"/>
+      <text x="${(fromX+toX)/2}" y="${y-4}" text-anchor="middle" font-size="7" font-weight="${fontWeight}" fill="${textColor}" font-family="Segoe UI, sans-serif">${step.label}</text>
+    </g>`;
+  }).join('');
+}
+
+function renderPackets(){
+  const g = document.getElementById('packets');
+  g.innerHTML = packets.map(p => {
+    const x = p.startX + (p.endX - p.startX) * p.progress;
+    const opacity = 1 - p.progress * 0.3;
+    return `<g opacity="${opacity}">
+      <rect x="${x-8}" y="${p.y-5}" width="16" height="10" rx="3" fill="${p.color}" opacity="0.9"/>
+      <text x="${x}" y="${p.y+3.5}" text-anchor="middle" font-size="5" fill="#000" font-weight="bold">TLS</text>
+    </g>`;
+  }).join('');
+}
+
+function updateNodes(){
+  const connLine = document.getElementById('connLine');
+  const glowLine = document.getElementById('glowLine');
+  const clientCircle = document.getElementById('clientCircle');
+  const clientLabel = document.getElementById('clientLabel');
+  const serverCircle = document.getElementById('serverCircle');
+  const serverGlowRing = document.getElementById('serverGlowRing');
+  const serverLabel = document.getElementById('serverLabel');
+
+  if(phase === "secured"){
+    connLine.setAttribute('stroke','#44ff8833');
+    connLine.setAttribute('stroke-width','3');
+    glowLine.style.display = '';
+    glowLine.style.animation = 'secureGlow 1.5s ease-in-out infinite';
+  } else {
+    connLine.setAttribute('stroke','#ffffff11');
+    connLine.setAttribute('stroke-width','1');
+    glowLine.style.display = 'none';
+  }
+
+  clientCircle.setAttribute('stroke', phase === "secured" ? "#44ff88" : "#ffffff");
+  clientLabel.textContent = phase === "secured" ? "SECURE" : "CLIENT";
+  clientLabel.setAttribute('fill', phase === "secured" ? "#44ff88" : "#333");
+
+  serverCircle.setAttribute('stroke', phase === "secured" ? "#44ff88" : phase === "handshaking" ? "#44aaff" : "#ffffff");
+  serverCircle.setAttribute('stroke-width', phase === "secured" ? "2.5" : "1.5");
+  serverGlowRing.style.display = phase === "secured" ? '' : 'none';
+  document.getElementById('serverIcon').innerHTML = serverIconSVG(phase === "secured", phase === "handshaking");
+  serverLabel.textContent = phase === "secured" ? "SECURED" : phase === "handshaking" ? "VERIFYING" : "SERVER";
+  serverLabel.setAttribute('fill', phase === "secured" ? "#44ff88" : phase === "handshaking" ? "#44aaff" : "#333");
+}
+
+function renderStepLabel(){
+  const el = document.getElementById('stepLabel');
+  if(currentStep >= 0 && currentStep < TLS_STEPS.length){
+    const s = TLS_STEPS[currentStep];
+    el.innerHTML = `<div class="steplabel-chip" style="border:1px solid ${s.color}44;color:${s.color};">${s.sublabel}</div>`;
+  } else if(phase === "secured"){
+    el.innerHTML = `<div class="secured-chip">Encrypted tunnel established</div>`;
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+function setBtnState(){
+  const btn = document.getElementById('goBtn');
+  const glow = document.getElementById('btnGlow');
+  const txt = document.getElementById('btnText');
+  const icon = document.getElementById('btnIcon');
+
+  if(phase === "idle"){
+    btn.style.background = "#00080f";
+    btn.style.color = "#44aaff";
+    btn.removeAttribute('disabled');
+    glow.style.display = '';
+    icon.style.display = '';
+    txt.textContent = "SIMULATE HANDSHAKE";
+  } else if(phase === "handshaking"){
+    btn.style.background = "linear-gradient(135deg, #000d1a 0%, #00080f 100%)";
+    btn.style.color = "#44aaffaa";
+    btn.setAttribute('disabled','');
+    glow.style.display = 'none';
+    icon.style.display = 'none';
+    txt.innerHTML = `<span style="display:inline-flex;gap:4px;align-items:center;">
+      <span class="pulse-dot" style="animation-delay:0s;"></span>
+      <span class="pulse-dot" style="animation-delay:0.2s;"></span>
+      <span class="pulse-dot" style="animation-delay:0.4s;"></span>
+    </span> HANDSHAKING...`;
+  } else if(phase === "secured"){
+    btn.style.background = "#00080f";
+    btn.style.color = "#44ff88cc";
+    btn.setAttribute('disabled','');
+    glow.style.display = 'none';
+    icon.style.display = 'none';
+    txt.textContent = "TUNNEL SECURED";
+  }
+}
+
+function startHandshake(){
+  if(phase !== "idle") return;
+  phase = "handshaking";
+  currentStep = -1;
+  packets = [];
+  updateNodes();
+  renderStepArrows();
+  renderStepLabel();
+  setBtnState();
+
+  TLS_STEPS.forEach((step,i) => {
+    setTimeout(() => {
+      currentStep = i;
+      const fromX = step.from === "server" ? SERVER_X : CLIENT_X;
+      const toX = step.from === "server" ? CLIENT_X : SERVER_X;
+      packets.push({ id:packetId++, startX:fromX, endX:toX, y: 175 + i*22, progress:0, color:step.color });
+      renderStepArrows();
+      renderStepLabel();
+    }, i*900);
+  });
+
+  setTimeout(() => {
+    phase = "secured";
+    currentStep = -1;
+    updateNodes();
+    renderStepArrows();
+    renderStepLabel();
+    setBtnState();
+  }, TLS_STEPS.length*900 + 400);
+
+  setTimeout(() => {
+    phase = "idle";
+    packets = [];
+    renderPackets();
+    updateNodes();
+    renderStepArrows();
+    renderStepLabel();
+    setBtnState();
+  }, TLS_STEPS.length*900 + 3000);
+
+  tickInterval = setInterval(() => {
+    packets = packets.map(p => ({...p, progress: Math.min(p.progress + 0.03, 1)})).filter(p => p.progress < 1);
+    renderPackets();
+  }, 40);
+
+  setTimeout(() => { clearInterval(tickInterval); }, TLS_STEPS.length*900 + 3000);
+}
+
+updateNodes();
+renderStepArrows();
+renderStepLabel();
+setBtnState();
+</script>
+</body>
+</html>
+<script>
+(function(){
+  function sendHeight(){
+    var h = Math.ceil(document.body.getBoundingClientRect().height);
+    window.parent.postMessage({type:'acx-diagram-height', height:h}, '*');
+  }
+  window.addEventListener('load', sendHeight);
+  setTimeout(sendHeight, 500);
+})();
+</script>

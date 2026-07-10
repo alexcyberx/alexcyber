@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Injection - alexcyberx Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #07070f;
+  --surface:  #0d0d1a;
+  --surface2: #111120;
+  --border:   rgba(255,255,255,0.06);
+  --red:      #dc1414;
+  --red-dim:  rgba(220,20,20,0.08);
+  --white:    #f0f0f8;
+  --dim:      #505068;
+  --green:    #4ade80;
+  --green-dim:rgba(74,222,128,0.06);
+  --blue:     #63b3ed;
+  --orange:   #fb923c;
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Inter', sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--sans);
+  min-height: 100vh;
+}
+
+/* Topbar */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 52px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--dim);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.back-link:hover { color: var(--white); }
+.topbar-sep { width: 1px; height: 16px; background: var(--border); }
+.topbar-id {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--red);
+  letter-spacing: 0.5px;
+}
+.topbar-title { font-size: 13px; font-weight: 600; color: var(--white); }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+
+.diff-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: rgba(251,191,36,0.1);
+  border: 1px solid rgba(251,191,36,0.2);
+  color: #fbbf24;
+}
+
+.timer-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 14px;
+}
+.timer-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+.timer-val {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--white);
+  min-width: 52px;
+  text-align: center;
+}
+.timer-val.warn   { color: var(--orange); }
+.timer-val.danger { color: var(--red); animation: blink 1s infinite; }
+.timer-val.done   { color: var(--green); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* Layout */
+.lab-wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.card-head {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-head-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+}
+.card-head-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+.card-body { padding: 16px; }
+
+/* Scenario */
+.scenario-text {
+  font-size: 12.5px;
+  color: #8888a0;
+  line-height: 1.8;
+  border-left: 2px solid var(--red);
+  padding-left: 12px;
+}
+.scenario-text strong { color: var(--white); }
+
+/* Objectives */
+.obj-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.obj-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  color: #8888a0;
+  line-height: 1.5;
+}
+.obj-num {
+  width: 20px; height: 20px;
+  border-radius: 5px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--dim);
+  flex-shrink: 0;
+  transition: all 0.3s;
+  font-family: var(--mono);
+}
+.obj-item.done .obj-num {
+  background: rgba(74,222,128,0.1);
+  border-color: rgba(74,222,128,0.25);
+  color: var(--green);
+}
+.obj-item.done .obj-text { color: var(--green); }
+
+/* Code block */
+.code-block {
+  background: #050510;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 8px;
+  padding: 13px 15px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.9;
+  color: var(--dim);
+  overflow-x: auto;
+}
+.code-block .kw  { color: var(--blue); }
+.code-block .str { color: #68d391; }
+.code-block .val { color: var(--white); }
+.code-block .cmt { color: #2a2a44; }
+.code-block .inj { color: var(--red); font-weight: 600; }
+
+.info-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  margin-top: 14px;
+}
+.info-label:first-child { margin-top: 0; }
+
+/* DB schema pills */
+.schema-table {
+  background: #050510;
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.schema-table-head {
+  padding: 8px 12px;
+  background: rgba(220,20,20,0.07);
+  border-bottom: 1px solid rgba(220,20,20,0.1);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.schema-cols {
+  padding: 8px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.schema-col {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  color: var(--dim);
+}
+.schema-col.pk  { color: #fbbf24; border-color: rgba(251,191,36,0.15); background: rgba(251,191,36,0.05); }
+.schema-col.sensitive { color: var(--red); border-color: rgba(220,20,20,0.15); background: var(--red-dim); }
+
+/* Hints */
+.hint-item { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+.hint-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 13px;
+  cursor: pointer;
+  background: var(--surface2);
+  border: none;
+  width: 100%;
+  font-family: var(--sans);
+  transition: background 0.15s;
+}
+.hint-btn:hover { background: rgba(255,255,255,0.025); }
+.hint-btn-left {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--dim);
+}
+.hint-icon {
+  width: 22px; height: 22px;
+  border-radius: 5px;
+  background: rgba(251,191,36,0.07);
+  border: 1px solid rgba(251,191,36,0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.hint-pill {
+  font-size: 10px;
+  font-weight: 600;
+  color: #fbbf24;
+  background: rgba(251,191,36,0.07);
+  border: 1px solid rgba(251,191,36,0.14);
+  border-radius: 4px;
+  padding: 1px 7px;
+}
+.hint-body {
+  display: none;
+  padding: 12px 13px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: #8888a0;
+  line-height: 1.75;
+  background: rgba(251,191,36,0.02);
+}
+.hint-body.open { display: block; }
+.hint-body code {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: #c0c0d8;
+}
+
+/* Right panel */
+.right-col { display: flex; flex-direction: column; gap: 0; }
+
+/* Burp Suite intercept panel */
+.burp-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.burp-tabs {
+  display: flex;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.burp-tab {
+  padding: 10px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--dim);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+  font-family: var(--sans);
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  letter-spacing: 0.3px;
+}
+.burp-tab.active { color: var(--white); border-bottom-color: var(--red); }
+.burp-tab:hover:not(.active) { color: #8888a0; }
+
+.burp-pane { display: none; }
+.burp-pane.active { display: block; }
+
+/* Raw HTTP request editor */
+.http-editor-wrap { position: relative; }
+.http-editor {
+  width: 100%;
+  background: #050510;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--white);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  padding: 16px;
+  outline: none;
+  resize: none;
+  min-height: 220px;
+  tab-size: 2;
+}
+.http-editor::placeholder { color: #2a2a40; }
+.http-editor:focus { border-color: rgba(220,20,20,0.2); }
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.01);
+}
+.editor-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toolbar-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+.send-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: background 0.15s;
+  letter-spacing: 0.3px;
+}
+.send-btn:hover { background: #c01010; }
+.send-btn:disabled { background: #2a2a40; cursor: not-allowed; }
+
+/* Response panel */
+.response-wrap {
+  min-height: 180px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 16px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.75;
+  color: var(--dim);
+  background: #050510;
+}
+.response-placeholder {
+  color: #2a2a40;
+  font-size: 11px;
+  font-style: italic;
+  font-family: var(--sans);
+}
+
+.response-status-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.status-code {
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+.status-code.s200 { background: rgba(74,222,128,0.1); color: var(--green); border: 1px solid rgba(74,222,128,0.2); }
+.status-code.s401 { background: rgba(220,20,20,0.1); color: var(--red); border: 1px solid rgba(220,20,20,0.2); }
+.status-code.s429 { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.2); }
+.status-code.s500 { background: rgba(251,146,60,0.1); color: var(--orange); border: 1px solid rgba(251,146,60,0.2); }
+.status-code.s000 { background: rgba(255,255,255,0.04); color: var(--dim); border: 1px solid var(--border); }
+.status-time { color: var(--dim); }
+.status-size { color: var(--dim); }
+
+/* JSON response coloring */
+.json-key    { color: var(--blue); }
+.json-str    { color: #68d391; }
+.json-num    { color: #f6ad55; }
+.json-bool   { color: #fc8181; }
+.json-flag   { color: var(--green); font-weight: 700; }
+.json-err    { color: var(--red); }
+.json-query  { color: #a78bfa; }
+
+/* Target info bar */
+.target-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.target-method {
+  font-weight: 700;
+  color: var(--orange);
+  font-size: 11px;
+}
+.target-url { color: var(--dim); flex: 1; }
+.target-pill {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  background: rgba(220,20,20,0.1);
+  border: 1px solid rgba(220,20,20,0.2);
+  color: var(--red);
+}
+
+/* Request log */
+.req-log {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.req-log-head {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.req-log-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+.req-log-clear {
+  font-size: 10px;
+  color: var(--dim);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: var(--sans);
+  transition: color 0.15s;
+}
+.req-log-clear:hover { color: var(--red); }
+.req-log-body {
+  padding: 10px 12px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  max-height: 160px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.log-entry {
+  display: grid;
+  grid-template-columns: 38px 1fr 50px 60px;
+  gap: 8px;
+  align-items: center;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+}
+.log-method { color: var(--blue); font-weight: 700; }
+.log-path   { color: #3a3a5a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.log-status.ok  { color: var(--green); }
+.log-status.err { color: var(--red); }
+.log-status.warn { color: var(--orange); }
+.log-time   { color: #2a2a44; text-align: right; }
+
+/* Flag box */
+.flag-box {
+  display: none;
+  background: var(--green-dim);
+  border: 1px solid rgba(74,222,128,0.2);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.flag-box.show { display: block; }
+.flag-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.flag-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse-flag 1.5s ease-in-out infinite;
+}
+@keyframes pulse-flag {
+  0%,100%{ box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
+  50%    { box-shadow: 0 0 0 6px rgba(74,222,128,0); }
+}
+.flag-head-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+  color: var(--green);
+  text-transform: uppercase;
+}
+.flag-value {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--green);
+  word-break: break-all;
+  letter-spacing: 0.3px;
+}
+.flag-user-info {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(74,222,128,0.1);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #4a8a60;
+  line-height: 1.7;
+}
+
+/* Expired overlay */
+.expired-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(7,7,15,0.96);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+  padding: 24px;
+}
+.expired-overlay.show { display: flex; }
+.expired-title {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.expired-sub { font-size: 13px; color: var(--dim); max-width: 320px; line-height: 1.6; }
+.expired-btn {
+  padding: 10px 24px;
+  background: transparent;
+  color: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: border-color 0.15s;
+  margin-top: 4px;
+}
+.expired-btn:hover { border-color: rgba(255,255,255,0.2); }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 4px; }
+
+/* Mobile */
+@media (max-width: 720px) {
+  .topbar { padding: 0 14px; }
+  .topbar-title { display: none; }
+  .lab-wrap { grid-template-columns: 1fr; padding: 14px 12px 48px; }
+  .timer-label { display: none; }
+}
+
+.launch-btn{display:flex;align-items:center;gap:7px;background:var(--green);color:#07070f;border:none;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.launch-btn:hover{background:#3dd673;}
+.stop-btn{display:none;align-items:center;gap:7px;background:rgba(220,20,20,0.1);color:var(--red);border:1px solid rgba(220,20,20,0.3);border-radius:8px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.stop-btn:hover{background:rgba(220,20,20,0.18);}
+.lab-running .launch-btn{display:none;}
+.lab-running .stop-btn{display:flex;}
+.timer-wrap.idle .timer-val{color:var(--dim);}
+.timer-wrap.running .timer-val{color:var(--green);}
+.right-col{display:flex;flex-direction:column;gap:0;width:100%;position:relative;}
+.lock-overlay{position:absolute;inset:0;background:rgba(7,7,15,0.88);backdrop-filter:blur(3px);z-index:50;display:flex;align-items:center;justify-content:center;}
+.lab-running .lock-overlay{display:none;}
+.lock-overlay-inner{text-align:center;padding:40px;max-width:320px;}
+.lock-icon-box{width:56px;height:56px;border-radius:14px;background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+.lock-title{font-size:15px;font-weight:600;color:var(--white);margin-bottom:8px;}
+.lock-desc{font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:20px;}
+.lock-start-btn{display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.lock-start-btn:hover{background:#c01010;}
+
+.lock-overlay{position:absolute;inset:0;background:rgba(250,250,250,0.96);backdrop-filter:blur(6px);z-index:50;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
+.lab-running .lock-overlay{display:none;}
+.lock-overlay-icon{width:52px;height:52px;border-radius:14px;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;}
+.lock-overlay-title{font-size:15px;font-weight:600;color:var(--text);}
+.lock-overlay-desc{font-size:12.5px;color:var(--text-dim);max-width:280px;text-align:center;line-height:1.6;}
+.lock-overlay-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:background 0.15s;}
+.lock-overlay-btn:hover{background:#b91c1c;}
+
+.topbar-restart-btn{display:none;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);padding:6px 13px;border-radius:6px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all 0.15s;}
+.topbar-restart-btn:hover{border-color:var(--accent);color:var(--accent);}
+.lab-running .topbar-restart-btn{display:flex;}
+</style>
+</head>
+<body id="labBody">
+
+<!-- Expired overlay -->
+<div class="expired-overlay" id="expiredOverlay">
+  <div class="expired-title">TIME EXPIRED</div>
+  <div class="expired-sub">Session ended. No progress saved. Start a new session to try again.</div>
+  <button class="expired-btn" onclick="document.getElementById('expiredOverlay').classList.remove('show')">Back to Lab</button>
+</div>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back-link" href="/pages/ctf.html#challenge=web-03" onclick="sessionStorage.setItem('ctf_return_id','web-03')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M9 11L5 7l4-4" stroke="#505068" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Labs
+    </a>
+    <div class="topbar-sep"></div>
+    <span class="topbar-id">WEB-01</span>
+    <span class="topbar-title">SQL Injection</span>
+  </div>
+  <div class="topbar-right">
+    <button class="topbar-restart-btn" onclick="restartInstance()" title="Restart Instance">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6a4 4 0 017-2.6M10 6a4 4 0 01-7 2.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M9 2v2.5H6.5M3 10V7.5h2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Restart
+      </button>
+    <span class="diff-badge">Medium</span>
+    <div class="timer-wrap idle">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <circle cx="6" cy="6" r="5" stroke="#505068" stroke-width="1.2"/>
+        <path d="M6 3.5V6l1.5 1.5" stroke="#505068" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <span class="timer-label">Time</span>
+      <span class="timer-val" id="timerDisplay">45:00</span>
+    </div>
+  </div>
+    <button class="launch-btn" id="launchBtn" onclick="startChallenge()">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M3 2l6 3.5L3 9V2z" fill="#07070f"/></svg>
+      Start Challenge
+    </button>
+    <button class="stop-btn" id="stopBtn" onclick="stopChallenge()">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="2.5" y="2.5" width="6" height="6" fill="#dc1414"/></svg>
+      Stop
+    </button>
+</div>
+
+<!-- Main layout -->
+<div class="lab-wrap">
+
+  <!-- LEFT column -->
+  <div class="left-col">
+
+    <!-- Scenario -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-dot"></div>
+        <span class="card-head-title">Scenario</span>
+      </div>
+      <div class="card-body">
+        <p class="scenario-text">
+          A corporate internal portal was found exposed on the network during a red team engagement.
+          The login form passes user-supplied input <strong>directly into a SQL query</strong> with no sanitization.
+          Your goal is to bypass authentication and extract the flag from the secrets table.
+          Use Burp Suite to intercept and modify the login request.
+        </p>
+      </div>
+    </div>
+
+    <!-- Objectives -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-dot"></div>
+        <span class="card-head-title">Objectives</span>
+      </div>
+      <div class="card-body">
+        <ul class="obj-list">
+          <li class="obj-item" id="obj1">
+            <div class="obj-num">1</div>
+            <span class="obj-text">Identify the injectable parameter in the login request</span>
+          </li>
+          <li class="obj-item" id="obj2">
+            <div class="obj-num">2</div>
+            <span class="obj-text">Cause a SQL error to confirm injection is possible</span>
+          </li>
+          <li class="obj-item" id="obj3">
+            <div class="obj-num">3</div>
+            <span class="obj-text">Craft a payload that bypasses authentication as admin</span>
+          </li>
+          <li class="obj-item" id="obj4">
+            <div class="obj-num">4</div>
+            <span class="obj-text">Extract the flag from the secrets table</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-dot"></div>
+        <span class="card-head-title">Information</span>
+      </div>
+      <div class="card-body">
+
+        <div class="info-label">Database Schema</div>
+
+        <div class="schema-table">
+          <div class="schema-table-head">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <rect x="1" y="1" width="8" height="8" rx="1" stroke="#dc1414" stroke-width="1.2"/>
+              <path d="M1 4h8" stroke="#dc1414" stroke-width="1.2"/>
+            </svg>
+            users
+          </div>
+          <div class="schema-cols">
+            <span class="schema-col pk">id</span>
+            <span class="schema-col">username</span>
+            <span class="schema-col sensitive">password</span>
+            <span class="schema-col">role</span>
+            <span class="schema-col">email</span>
+          </div>
+        </div>
+
+        <div class="schema-table">
+          <div class="schema-table-head">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <rect x="1" y="1" width="8" height="8" rx="1" stroke="#dc1414" stroke-width="1.2"/>
+              <path d="M1 4h8" stroke="#dc1414" stroke-width="1.2"/>
+            </svg>
+            secrets
+          </div>
+          <div class="schema-cols">
+            <span class="schema-col pk">id</span>
+            <span class="schema-col sensitive">flag</span>
+            <span class="schema-col">note</span>
+          </div>
+        </div>
+
+        <div class="info-label" style="margin-top:16px;">Vulnerable Code</div>
+        <div class="code-block">
+<span class="cmt">// server-side — Node.js + SQLite</span>
+<span class="kw">const</span> query = <span class="str">`SELECT * FROM users
+  WHERE username = '<span class="inj">${username}</span>'
+  AND password = '<span class="inj">${password}</span>'`</span>;
+
+db.<span class="kw">prepare</span>(query).<span class="kw">all</span>();
+        </div>
+
+        <div class="info-label" style="margin-top:14px;">Target Endpoint</div>
+        <div class="code-block">
+<span class="kw">POST</span>  <span class="val">/api/lab/web01/login</span>
+<span class="kw">Host</span>: <span class="val">TARGET_HOST</span>
+<span class="kw">Content-Type</span>: <span class="val">application/x-www-form-urlencoded</span>
+
+<span class="str">username=admin&password=test</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Hints -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-dot"></div>
+        <span class="card-head-title">Hints</span>
+      </div>
+      <div class="card-body" style="padding:10px;">
+
+        <div class="hint-item">
+          <button class="hint-btn" onclick="toggleHint(1)">
+            <div class="hint-btn-left">
+              <div class="hint-icon">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <path d="M5.5 1a2.5 2.5 0 010 5v1M5.5 9v.5" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              Hint 1 — Concept
+            </div>
+            <span class="hint-pill" id="hpill1">Unlock</span>
+          </button>
+          <div class="hint-body" id="hbody1">
+            The login query is built by directly embedding your input into a SQL string. A single quote character <code>'</code> in your input will break the query syntax. Send a single quote as the username and observe the server response carefully — if you get a database error back, you have confirmed the injection point.
+          </div>
+        </div>
+
+        <div class="hint-item">
+          <button class="hint-btn" onclick="toggleHint(2)">
+            <div class="hint-btn-left">
+              <div class="hint-icon">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <path d="M5.5 1a2.5 2.5 0 010 5v1M5.5 9v.5" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              Hint 2 — Technique
+            </div>
+            <span class="hint-pill" id="hpill2">Unlock</span>
+          </button>
+          <div class="hint-body" id="hbody2">
+            SQL injection in a WHERE clause lets you change the logic of the condition. Think about how you can make the WHERE clause always evaluate to true regardless of what the password column contains. SQL comments can also be useful — they let you ignore the rest of the query after your injection. The goal is to match an admin-role user without knowing their real password.
+          </div>
+        </div>
+
+        <div class="hint-item">
+          <button class="hint-btn" onclick="toggleHint(3)">
+            <div class="hint-btn-left">
+              <div class="hint-icon">
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <path d="M5.5 1a2.5 2.5 0 010 5v1M5.5 9v.5" stroke="#fbbf24" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              Hint 3 — Structure
+            </div>
+            <span class="hint-pill" id="hpill3">Unlock</span>
+          </button>
+          <div class="hint-body" id="hbody3">
+            Your payload goes in the <code>username</code> field. You want to close the opening single quote, inject a condition that makes the WHERE clause true for a specific user, then comment out the remaining SQL so the password check is never evaluated. Consider targeting a user whose role you already know from the schema. The flag will only appear in the response if the bypassed account has the admin role.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT column -->
+  <div class="right-col">
+
+    <div class="lock-overlay" id="lockOverlay">
+      <div class="lock-overlay-inner">
+        <div class="lock-icon-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#dc1414" stroke-width="1.4"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#dc1414" stroke-width="1.4"/></svg>
+        </div>
+        <div class="lock-title">Challenge Locked</div>
+        <div class="lock-desc">Click start when you are ready. The timer begins the moment you start, and the interactive area unlocks.</div>
+        <button class="lock-start-btn" onclick="startChallenge()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M3.5 2l7 4.5-7 4.5V2z" fill="#fff"/></svg>
+          Start Challenge
+        </button>
+      </div>
+    </div>
+
+
+    <!-- Flag box — shown on solve -->
+    <div class="flag-box" id="flagBox">
+      <div class="flag-head">
+        <div class="flag-dot"></div>
+        <span class="flag-head-label">Authentication Bypassed — Flag Captured</span>
+      </div>
+      <div class="flag-value" id="flagValue"></div>
+      <div class="flag-user-info" id="flagUserInfo"></div>
+    </div>
+
+    <!-- Burp Suite style panel -->
+    <div class="burp-panel">
+
+      <!-- Target bar -->
+      <div class="target-bar">
+        <span class="target-method">POST</span>
+        <span class="target-url" id="targetUrl">/api/lab/web01/login</span>
+        <span class="target-pill">VULNERABLE</span>
+      </div>
+
+      <!-- Tabs -->
+      <div class="burp-tabs">
+        <button class="burp-tab active" onclick="switchTab('request')">Request</button>
+        <button class="burp-tab" onclick="switchTab('response')">Response</button>
+        <button class="burp-tab" onclick="switchTab('decoded')">Decoded</button>
+      </div>
+
+      <!-- Request tab -->
+      <div class="burp-pane active" id="pane-request">
+        <div class="editor-toolbar">
+          <div class="editor-toolbar-left">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <rect x="1" y="1" width="10" height="10" rx="1.5" stroke="#505068" stroke-width="1.2"/>
+              <path d="M3 4h6M3 6h4M3 8h5" stroke="#505068" stroke-width="1.1" stroke-linecap="round"/>
+            </svg>
+            <span class="toolbar-label">Raw HTTP Request</span>
+          </div>
+          <button class="send-btn" id="sendBtn" onclick="sendRequest()">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M1.5 6h9M7 2.5L10.5 6 7 9.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Send
+          </button>
+        </div>
+        <div class="http-editor-wrap">
+          <textarea class="http-editor" id="httpEditor" spellcheck="false" oninput="startTimer()" placeholder="Edit the HTTP request below and click Send..."></textarea>
+        </div>
+      </div>
+
+      <!-- Response tab -->
+      <div class="burp-pane" id="pane-response">
+        <div class="response-status-bar" id="statusBar" style="display:none;">
+          <span class="status-code s000" id="statusCode">—</span>
+          <span class="status-time" id="statusTime"></span>
+          <span class="status-size" id="statusSize"></span>
+        </div>
+        <div class="response-wrap" id="responseWrap">
+          <span class="response-placeholder">Send a request to see the response here</span>
+        </div>
+      </div>
+
+      <!-- Decoded tab -->
+      <div class="burp-pane" id="pane-decoded">
+        <div class="response-wrap" id="decodedWrap" style="min-height:220px;">
+          <span class="response-placeholder">Decoded body will appear here after a successful send</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Request history log -->
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── WEB-01 SQLi — AlexCyberX ──────────────────────────── */
+
+// Detect server base URL automatically
+const BASE_URL = window.location.origin;
+const LOGIN_ENDPOINT = BASE_URL + '/api/lab/web01/login';
+
+// Pre-fill the request editor with a realistic HTTP request template
+const DEFAULT_REQUEST =
+`POST /api/lab/web01/login HTTP/1.1
+Host: ${window.location.host}
+Content-Type: application/x-www-form-urlencoded
+X-Lab-Session: web01
+Connection: close
+
+username=admin&password=password`;
+
+document.getElementById('httpEditor').value = DEFAULT_REQUEST;
+
+// Update target URL display
+document.getElementById('targetUrl').textContent = '/api/lab/web01/login';
+
+// ── Timer ────────────────────────────────────────────────
+let secsLeft     = 45 * 60;
+let timerStarted = false;
+let timerInt     = null;
+let labSolved    = false;
+let isRunning    = false;
+
+function updateTimerDisplay() {
+  const m  = Math.floor(secsLeft / 60);
+  const s  = secsLeft % 60;
+  const el = document.getElementById('timerDisplay');
+  el.textContent = m + ':' + String(s).padStart(2, '0');
+  if      (secsLeft <= 300 && secsLeft > 60) el.className = 'timer-val warn';
+  else if (secsLeft <= 60 && secsLeft > 0)   el.className = 'timer-val danger';
+}
+
+function startChallenge() {
+  if (isRunning) return;
+  isRunning = true;
+  timerStarted = true;
+  document.getElementById('labBody').classList.add('lab-running');
+  const tw = document.querySelector('.timer-wrap');
+  if (tw) { tw.classList.remove('idle'); tw.classList.add('running'); }
+
+  timerInt = setInterval(() => {
+    secsLeft--;
+    updateTimerDisplay();
+    if (secsLeft <= 0) {
+      clearInterval(timerInt);
+      isRunning = false;
+      if (!labSolved) document.getElementById('expiredOverlay').classList.add('show');
+    }
+  }, 1000);
+}
+
+function stopChallenge() {
+  if (!isRunning) return;
+  isRunning = false;
+  document.getElementById('labBody').classList.remove('lab-running');
+  const tw = document.querySelector('.timer-wrap');
+  if (tw) { tw.classList.add('idle'); tw.classList.remove('running'); }
+  clearInterval(timerInt);
+}
+
+// Legacy alias — old code calls startTimer(), now a no-op redirect
+function startTimer() { /* disabled: use startChallenge() via Start button */ }
+
+// ── Tab switching ────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.burp-tab').forEach((t, i) => {
+    const names = ['request', 'response', 'decoded'];
+    t.classList.toggle('active', names[i] === tab);
+  });
+  document.querySelectorAll('.burp-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('pane-' + tab).classList.add('active');
+}
+
+// ── Parse raw HTTP request from editor ──────────────────
+function parseRawRequest(raw) {
+  const lines = raw.split('\n').map(l => l.replace(/\r/, ''));
+  const firstLine = lines[0] || '';
+  const parts = firstLine.split(' ');
+
+  // Find blank line separating headers from body
+  let bodyStart = -1;
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i].trim() === '') { bodyStart = i + 1; break; }
+  }
+
+  const bodyLine = bodyStart >= 0 ? lines.slice(bodyStart).join('\n').trim() : '';
+
+  // Parse body params
+  const params = {};
+  if (bodyLine) {
+    bodyLine.split('&').forEach(pair => {
+      const [k, ...v] = pair.split('=');
+      if (k) params[decodeURIComponent(k)] = decodeURIComponent(v.join('='));
+    });
+  }
+
+  return {
+    method: parts[0] || 'POST',
+    body:   bodyLine,
+    params: params
+  };
+}
+
+// ── Send request to real backend ────────────────────────
+let attemptCount = 0;
+
+async function sendRequest() {
+  startTimer();
+
+  const raw    = document.getElementById('httpEditor').value;
+  const parsed = parseRawRequest(raw);
+  const btn    = document.getElementById('sendBtn');
+
+  if (!parsed.body) {
+    showResponse(400, 0, 0, { error: 'Request body is empty. Add username and password params.' });
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  const t0 = performance.now();
+  attemptCount++;
+
+  let respStatus = 0;
+  let data       = null;
+
+  try {
+    const resp = await fetch(LOGIN_ENDPOINT, {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/x-www-form-urlencoded',
+        'X-Lab-Session': 'web01'
+      },
+      body: parsed.body
+    });
+
+    const elapsed = Math.round(performance.now() - t0);
+    respStatus    = resp.status;
+    const text    = await resp.text();
+    let size      = new TextEncoder().encode(text).length;
+
+    try { data = JSON.parse(text); } catch { data = { raw: text }; }
+
+    showResponse(respStatus, elapsed, size, data);
+    processResult(data, respStatus, parsed.params);
+
+  } catch (err) {
+    const elapsed = Math.round(performance.now() - t0);
+    data = { error: 'Network error — is the server running?', detail: err.message };
+    showResponse(0, elapsed, 0, data);
+    }
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1.5 6h9M7 2.5L10.5 6 7 9.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Send`;
+}
+
+// ── Process server response for objectives and flag ──────
+function processResult(data, status, params) {
+  const username = params.username || '';
+  const password = params.password || '';
+
+  // Obj 1 — any attempt with meaningful input
+  if (username || password) markObj(1);
+
+  // Obj 2 — SQL error received (confirmed injection)
+  if (status === 500 && data.details && data.details.toLowerCase().includes('sql')) {
+    markObj(2);
+  }
+
+  // Obj 3 + 4 — successful injection as admin
+  if (data.success && data.injected) {
+    markObj(1); markObj(2); markObj(3); markObj(4);
+    revealFlag(data);
+  }
+}
+
+// ── Render response in Burp-style panels ────────────────
+function showResponse(status, ms, bytes, data) {
+  switchTab('response');
+
+  // Status bar
+  const statusBar  = document.getElementById('statusBar');
+  const statusCode = document.getElementById('statusCode');
+  const statusTime = document.getElementById('statusTime');
+  const statusSize = document.getElementById('statusSize');
+
+  statusBar.style.display = 'flex';
+  statusCode.textContent  = status || 'ERR';
+  statusTime.textContent  = ms + ' ms';
+  statusSize.textContent  = bytes + ' B';
+
+  statusCode.className = 'status-code';
+  if      (status === 200) statusCode.classList.add('s200');
+  else if (status === 401) statusCode.classList.add('s401');
+  else if (status === 429) statusCode.classList.add('s429');
+  else if (status === 500) statusCode.classList.add('s500');
+  else                     statusCode.classList.add('s000');
+
+  // Raw response
+  const wrap = document.getElementById('responseWrap');
+  const raw  = JSON.stringify(data, null, 2);
+  wrap.innerHTML = syntaxHighlight(raw, data);
+
+  // Decoded tab — pretty human-readable
+  const decoded = document.getElementById('decodedWrap');
+  decoded.innerHTML = buildDecodedView(data, status);
+}
+
+function syntaxHighlight(json, data) {
+  return json
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"(flag|ACX\{[^}]*\})"/g, '<span class="json-flag">"$1"</span>')
+    .replace(/"(error|details)":/g, '<span class="json-err">"$1"</span>:')
+    .replace(/"(query)":/g, '<span class="json-query">"$1"</span>:')
+    .replace(/("(?:username|password|role|email|message|success|injected|note|id)":)/g, '<span class="json-key">$1</span>')
+    .replace(/: ("(?!ACX)[^"]*")/g, ': <span class="json-str">$1</span>')
+    .replace(/: (\d+)/g, ': <span class="json-num">$1</span>')
+    .replace(/: (true|false)/g, ': <span class="json-bool">$1</span>');
+}
+
+function buildDecodedView(data, status) {
+  if (!data) return '<span class="response-placeholder">Empty response</span>';
+
+  let html = '';
+
+  if (data.error) {
+    html += `<div style="color:var(--red);font-size:12px;margin-bottom:8px;">${escHtml(data.error)}</div>`;
+    if (data.details) {
+      html += `<div style="color:var(--orange);font-size:11px;margin-bottom:8px;font-family:var(--mono);">DB Error: ${escHtml(data.details)}</div>`;
+    }
+  }
+
+  if (data.query) {
+    html += `<div style="color:#505068;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Executed Query</div>`;
+    html += `<div style="font-family:var(--mono);font-size:11px;color:#a78bfa;background:#050510;border:1px solid rgba(167,139,250,0.12);border-radius:6px;padding:10px 12px;margin-bottom:12px;word-break:break-all;line-height:1.7;">${escHtml(data.query)}</div>`;
+  }
+
+  if (data.success && data.user) {
+    html += `<div style="color:#505068;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Authenticated User</div>`;
+    html += `<div style="font-family:var(--mono);font-size:11px;color:#8888a0;background:#050510;border:1px solid var(--border);border-radius:6px;padding:10px 12px;line-height:1.9;">`;
+    html += `id: <span style="color:var(--white);">${data.user.id}</span><br>`;
+    html += `username: <span style="color:var(--white);">${escHtml(data.user.username)}</span><br>`;
+    html += `role: <span style="color:${data.user.role === 'admin' ? 'var(--red)' : 'var(--dim)'};">${escHtml(data.user.role)}</span><br>`;
+    html += `email: <span style="color:var(--white);">${escHtml(data.user.email || '')}</span>`;
+    html += `</div>`;
+  }
+
+  if (data.flag) {
+    html += `<div style="margin-top:12px;color:#505068;font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;">Captured Flag</div>`;
+    html += `<div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--green);background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:6px;padding:10px 12px;">${escHtml(data.flag)}</div>`;
+  }
+
+  return html || `<div style="color:var(--dim);font-size:12px;">${escHtml(data.message || 'No parseable content.')}</div>`;
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ── Objectives ───────────────────────────────────────────
+function markObj(n) {
+  const el = document.getElementById('obj' + n);
+  if (!el || el.classList.contains('done')) return;
+  el.classList.add('done');
+  el.querySelector('.obj-num').textContent = '✓';
+}
+
+// ── Flag reveal ──────────────────────────────────────────
+function revealFlag(data) {
+  if (labSolved) return;
+  labSolved = true;
+  clearInterval(timerInt);
+
+  const el = document.getElementById('timerDisplay');
+  el.textContent = 'DONE';
+  el.className   = 'timer-val done';
+
+  const box = document.getElementById('flagBox');
+  box.classList.add('show');
+  playSolveSound();
+  document.getElementById('flagValue').textContent = data.flag;
+  document.getElementById('flagUserInfo').innerHTML =
+    `Logged in as: ${escHtml(data.user.username)} &nbsp;|&nbsp; role: ${escHtml(data.user.role)} &nbsp;|&nbsp; email: ${escHtml(data.user.email || '')}`;
+
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── Hints ────────────────────────────────────────────────
+const hintUnlocked = {};
+function toggleHint(n) {
+  startTimer();
+  const body = document.getElementById('hbody' + n);
+  if (!hintUnlocked[n]) {
+    hintUnlocked[n] = true;
+    body.classList.add('open');
+    const pill = document.getElementById('hpill' + n);
+    if (pill) {
+      pill.textContent        = 'Unlocked';
+      pill.style.color        = '#4ade80';
+      pill.style.borderColor  = 'rgba(74,222,128,0.2)';
+      pill.style.background   = 'rgba(74,222,128,0.07)';
+    }
+  } else {
+    body.classList.toggle('open');
+  }
+}
+
+// ── Request log ──────────────────────────────────────────
+function {
+  const el = document.getElementById('reqLog');
+  const placeholder = el.querySelector('div[style]');
+  if (placeholder) el.innerHTML = '';
+
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+
+  let statusClass = 'ok';
+  if      (status === 0)   statusClass = 'warn';
+  else if (status >= 400)  statusClass = 'err';
+  else if (status >= 200)  statusClass = 'ok';
+
+  entry.innerHTML =
+    `<span class="log-method">${method}</span>` +
+    `<span class="log-path">${path}</span>` +
+    `<span class="log-status ${statusClass}">${status || 'ERR'}</span>` +
+    `<span class="log-time">${ms}ms</span>`;
+
+  el.appendChild(entry);
+  el.scrollTop = el.scrollHeight;
+}
+
+function {
+  document.getElementById('reqLog').innerHTML =
+    '<div style="color:#2a2a40;font-size:11px;font-family:var(--sans);">Cleared</div>';
+}
+
+function playSolveSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    const now = ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.50];
+    notes.forEach((freq, i) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const start = now + i * 0.09;
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(0.22, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.4);
+    });
+    setTimeout(() => { try { ctx.close(); } catch(e) {} }, 900);
+  } catch(e) {}
+}
+
+</script>
+
+// Auto-stop: jab CTF page se doosra challenge start ho
+window.addEventListener('message', function(e) {
+  if (e.source !== window.opener) return;
+  const msg = e.data;
+  if (!msg || msg.type !== 'ACX_LAB_STOP') return;
+  if (msg.challengeId !== 'web-03') return;
+  const overlay = document.getElementById('expiredOverlay');
+  if (overlay) {
+    const desc = overlay.querySelector('.expired-desc, p, .expired-text');
+    if (desc) desc.textContent = 'Aapne doosra challenge start kar diya. Yeh instance band ho gaya.';
+    overlay.classList.add('show');
+  }
+  setTimeout(() => { try { window.close(); } catch(e) {} }, 1200);
+});
+
+</body>
+</html>

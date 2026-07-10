@@ -1,0 +1,7 @@
+# AlexSync — Windows background app dependencies
+# Install with: pip install -r requirements.txt
+
+requests==2.31.0          # for calling the Supabase REST/RPC endpoints
+pystray==0.19.5           # system tray icon + menu
+Pillow==10.2.0            # needed by pystray to build the tray icon image
+pywin32==306              # Windows Task Scheduler access (win32com)

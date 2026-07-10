@@ -1,0 +1,91 @@
+<div id="profilePage" class="page">
+  <div class="pf-wrap">
+
+    <!-- ── HERO CARD ─────────────────────────────── -->
+    <div class="pf-hero-card">
+      <div class="pf-hero-bg"></div>
+      <div class="pf-hero-body">
+        <div class="pf-avatar" id="profileAvatarBig">A</div>
+        <div class="pf-hero-info">
+          <div class="pf-hero-name"  id="profileDisplayName">Alex Cyberx</div>
+          <div class="pf-hero-meta">
+            <span id="profileDisplayEmail">user@example.com</span>
+            <span class="pf-hero-sep">·</span>
+            <span id="pfUsernameTag" style="color:var(--red)">@username</span>
+          </div>
+          <div id="pfBioDisplay" style="font-size:13px;color:#8a8a9a;margin-top:4px;max-width:340px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TABS ───────────────────────────────────── -->
+    <div class="pf-tabs">
+      <button class="pf-tab active"        data-tab="notifications"  onclick="pfShowTab('notifications')">
+        Notifications <span id="pfNotifDot" class="pf-notif-dot" style="display:none"></span>
+      </button>
+      <button class="pf-tab"               data-tab="resources"      onclick="pfShowTab('resources')">Resources</button>
+      <button class="pf-tab"               data-tab="settings"       onclick="pfShowTab('settings')">Settings</button>
+    </div>
+
+    <!-- ── TAB: NOTIFICATIONS ────────────────────── -->
+    <div class="pf-tab-panel active" id="pfTab-notifications">
+      <div class="pf-card">
+        <div class="pf-card-title-row">
+          <div class="pf-card-title">Notifications</div>
+          <button class="pf-mark-read-btn" onclick="pfMarkNotifsRead()">Mark all read</button>
+        </div>
+        <div id="pfNotifList"><div class="pf-empty">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- ── TAB: RESOURCES ─────────────────────────── -->
+    <div class="pf-tab-panel" id="pfTab-resources">
+      <div class="pf-card">
+        <div class="pf-card-title">Resources</div>
+        <div id="pfResourceList"><div class="pf-empty">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- ── TAB: SETTINGS ─────────────────────────── -->
+    <div class="pf-tab-panel" id="pfTab-settings">
+      <div class="pf-card">
+        <div class="pf-card-title">Personal Information</div>
+        <div class="profile-field">
+          <label class="profile-label">Full Name</label>
+          <input class="profile-input" id="profileName" type="text" placeholder="Aapka naam"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Email Address</label>
+          <input class="profile-input" id="profileEmail" type="email" disabled/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Username</label>
+          <input class="profile-input" id="profileUsername" type="text" placeholder="Aapka username"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Bio</label>
+          <input class="profile-input" id="profileBio" type="text" placeholder="Khud ke baare mein kuch likho..."/>
+        </div>
+
+        <div class="profile-divider"></div>
+        <div class="pf-card-title">Change Password</div>
+        <div class="profile-field">
+          <label class="profile-label">New Password</label>
+          <input class="profile-input" id="profileNewPw" type="password" placeholder="Naya password (optional)"/>
+        </div>
+        <div class="profile-field">
+          <label class="profile-label">Confirm Password</label>
+          <input class="profile-input" id="profileConfirmPw" type="password" placeholder="Dobara dalo"/>
+        </div>
+
+        <div class="profile-divider"></div>
+        <div class="profile-msg" id="profileMsg"></div>
+        <button class="profile-save-btn"   onclick="saveProfile()">Save Changes</button>
+        <button class="profile-logout-btn" onclick="doLogout()">Sign Out</button>
+      </div>
+    </div>
+
+    <!-- bottom padding -->
+    <div style="height:32px"></div>
+  </div>
+</div>
