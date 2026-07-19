@@ -90,11 +90,7 @@
   }
   .back-btn:hover{ border-color:rgba(68,56,232,0.3); color:var(--accent-ink); }
 
-  .wrap{ max-width:920px; margin:0 auto; padding:clamp(16px,4vw,32px); min-height:100vh; display:flex; flex-direction:column; justify-content:center; }
-
-  @media (min-width:1400px){
-    .wrap{ max-width:1080px; }
-  }
+  .wrap{ margin:0; padding:0; min-height:100vh; display:flex; flex-direction:column; }
 
   /* ══════ HERO ══════ */
   .hero{ margin-bottom:28px; }
@@ -129,19 +125,22 @@
 
   /* ══════ CONSOLE ══════ */
   .console{
-    margin-top:26px; border-radius:var(--r-xl); position:relative; overflow:hidden;
+    flex:1; margin:0; border-radius:0; position:relative; overflow:auto;
     background:linear-gradient(178deg, var(--console-1) 0%, var(--console-2) 60%);
-    box-shadow:var(--shadow-console);
-    border:1px solid rgba(255,255,255,0.07);
+    border:none;
+    display:flex; flex-direction:column;
+  }
   }
   .console::before{
     content:''; position:absolute; inset:0; pointer-events:none;
     background:radial-gradient(560px 210px at 10% -15%, rgba(108,90,255,0.28), transparent 60%),
                radial-gradient(420px 190px at 100% 0%, rgba(68,56,232,0.18), transparent 55%);
   }
+  .console-head-outer{ border-bottom:1px solid var(--console-line); }
   .console-head{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:16px clamp(16px,4vw,22px); border-bottom:1px solid var(--console-line); position:relative; flex-wrap:wrap;
+    padding:20px clamp(16px,4vw,22px); position:relative; flex-wrap:wrap;
+    max-width:760px; margin:0 auto; width:100%;
   }
   .console-file{ display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:11px; color:var(--console-dim); min-width:0; overflow:hidden; }
   .console-file span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -154,7 +153,7 @@
   .status-pill.live{ color:#3ee08a; background:rgba(62,224,138,0.12); border-color:rgba(62,224,138,0.28); }
   .status-pill .dot{ width:5px; height:5px; border-radius:50%; background:currentColor; }
 
-  .console-body{ padding:clamp(16px,4vw,22px); position:relative; }
+  .console-body{ padding:clamp(24px,5vw,48px); position:relative; max-width:760px; margin:0 auto; width:100%; flex:1; }
 
   .cipher-block{
     font-family:var(--font-mono); font-size:clamp(11.5px,3vw,13.5px); color:#ffc466;
@@ -341,12 +340,14 @@
 
   <!-- ═══ CONSOLE ═══ -->
   <div class="console">
+    <div class="console-head-outer">
     <div class="console-head">
       <div class="console-file">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
         <span>redcell_intercept_0417.txt</span>
       </div>
       <div class="status-pill" id="statusPill"><span class="dot"></span> intercepted</div>
+    </div>
     </div>
 
     <div class="console-body">
