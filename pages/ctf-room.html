@@ -615,7 +615,7 @@ async function submitRoomFlag(challengeId) {
 
   // Server-side flag check via RPC, flag never exposed to client
   const { data: rpcData, error: rpcErr } = await _supabase.rpc('submit_ctf_flag', {
-    p_challenge_id: challengeId,
+    p_slug: c.slug,
     p_flag: flag
   });
 
