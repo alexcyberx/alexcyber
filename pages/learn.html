@@ -1,0 +1,145 @@
+<div id="learnPage" class="page">
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="learn-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">Network Forensics</div>
+    <div class="chapter-list" id="chapterList">
+      <a class="chapter-item active" onclick="loadChapter(0)">
+        <span class="chapter-num">01</span><span style="flex:1">Network Forensics Introduction</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(1)">
+        <span class="chapter-num">02</span><span style="flex:1">Networking Fundamentals</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(2)">
+        <span class="chapter-num">03</span><span style="flex:1">OSI & TCP/IP Deep Analysis</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(3)">
+        <span class="chapter-num">04</span><span style="flex:1">Packet Analysis Basics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(4)">
+        <span class="chapter-num">05</span><span style="flex:1">Wireshark Mastery</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(5)">
+        <span class="chapter-num">06</span><span style="flex:1">TCP/UDP/ICMP Investigation</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(6)">
+        <span class="chapter-num">07</span><span style="flex:1">DNS & HTTP Forensics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(7)">
+        <span class="chapter-num">08</span><span style="flex:1">HTTPS/TLS Analysis</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(8)">
+        <span class="chapter-num">09</span><span style="flex:1">Email Forensics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(9)">
+        <span class="chapter-num">10</span><span style="flex:1">PCAP Investigation Workflow</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(10)">
+        <span class="chapter-num">11</span><span style="flex:1">Malware Traffic Analysis</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(11)">
+        <span class="chapter-num">12</span><span style="flex:1">Intrusion Detection</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(12)">
+        <span class="chapter-num">13</span><span style="flex:1">Log Correlation</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(13)">
+        <span class="chapter-num">14</span><span style="flex:1">Threat Hunting</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(14)">
+        <span class="chapter-num">15</span><span style="flex:1">Memory + Network Correlation</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(15)">
+        <span class="chapter-num">16</span><span style="flex:1">Wireless Network Forensics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(16)">
+        <span class="chapter-num">17</span><span style="flex:1">Cloud Network Forensics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(17)">
+        <span class="chapter-num">18</span><span style="flex:1">SIEM & Enterprise Investigation</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(18)">
+        <span class="chapter-num">19</span><span style="flex:1">Real Incident Case Studies</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(19)">
+        <span class="chapter-num">20.1</span><span style="flex:1">Career Reality & Roles</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(20)">
+        <span class="chapter-num">20.2</span><span style="flex:1">Home Lab From Scratch</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(21)">
+        <span class="chapter-num">20.3</span><span style="flex:1">Wireshark & PCAP Mastery</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(22)">
+        <span class="chapter-num">20.4</span><span style="flex:1">Threat Hunting Mastery</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(23)">
+        <span class="chapter-num">20.5</span><span style="flex:1">DFIR & Incident Response</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(24)">
+        <span class="chapter-num">20.6</span><span style="flex:1">Certifications & Career Plan</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <!-- LEARN MAIN -->
+  <main class="learn-main" id="learnMain">
+    <div class="content-area">
+      <div class="topic-banner">
+        <div class="topic-banner-tag" data-i18n="learn.tag">Network Forensics</div>
+        <h1 data-i18n="learn.title">Network Forensics</h1>
+        <p data-i18n="learn.desc">Network traffic analyze karke digital evidence collect karna seekho. PCAP, Wireshark, malware traffic complete guide Hinglish mein.</p>
+      </div>
+
+      <div class="content" id="chapterContent">
+        <h2>What is Network Forensics?</h2>
+        <p>Network Forensics matlab hai network mein aane-jaane wale data ko collect, monitor, analyze aur investigate karna. Sidebar se Chapter 1 select karo aur Part 1 ka full content padho.</p>
+        <div class="info-box">
+          <p><strong>Note:</strong> Sidebar se koi bhi chapter select karo aur padhna shuru karo. Chapters sequence mein follow karne se best experience milega.</p>
+        </div>
+      </div>
+
+      <div class="chapter-nav" id="chapterNav">
+        <button class="chapter-nav-btn prev" id="prevBtn" style="visibility:hidden;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L5 7l4 5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div><span class="label">Previous</span><span class="title" id="prevTitle">-</span></div>
+        </button>
+        <button class="chapter-nav-btn next" id="nextBtn" onclick="loadChapter(1)">
+          <div style="text-align:right"><span class="label">Next</span><span class="title" id="nextTitle">Networking Fundamentals</span></div>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l4 5-4 5" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+</div><!-- end #learnPage -->
+

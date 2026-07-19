@@ -1,0 +1,59 @@
+/* ═══════════════════════════════════════════════════════════
+   ALEXRECON - responsive layout rules
+   Base layout (max-width, colors, etc.) is set inline in index.html
+   for the AlexRecon section; this file only handles breakpoint
+   adjustments so the page uses available width well on both large
+   monitors and small screens instead of sitting in a narrow column.
+═══════════════════════════════════════════════════════════ */
+
+/* Large desktop: give the report room to breathe, two-column feel
+   for the section cards without changing the underlying HTML. */
+@media (min-width: 1024px) {
+  #arReport .ar-section-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  #arReport .ar-section-grid .ar-section {
+    margin-bottom: 0 !important;
+  }
+}
+
+/* Tablet and below: drop side padding down from the desktop 24px
+   so content isn't squeezed, and let the export buttons wrap onto
+   more rows cleanly instead of overflowing. */
+@media (max-width: 768px) {
+  #alexReconPage .ar-wrap {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+  #arExportBar {
+    gap: 6px !important;
+  }
+  .ar-export-btn {
+    flex: 1 1 calc(50% - 6px);
+    text-align: center;
+  }
+}
+
+/* Small phones: tighten further and stack the schedule form fields
+   (target input / frequency / button) instead of squeezing them
+   onto one row. */
+@media (max-width: 480px) {
+  #alexReconPage .ar-wrap {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+  #alexReconPage .ar-box > div[style*="flex-end"] {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+  #alexReconPage .ar-box > div[style*="flex-end"] > div,
+  #alexReconPage .ar-box > div[style*="flex-end"] > button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  #arGraphCanvas {
+    height: 320px !important;
+  }
+}

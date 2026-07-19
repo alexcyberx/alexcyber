@@ -1,0 +1,31 @@
+{
+  "name": "alexcyberx-ctf",
+  "version": "1.0.0",
+  "description": "AlexCyberX CTF Platform",
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "cashfree-pg": "^5.0.4",
+    "cors": "^2.8.5",
+    "exifr": "^7.1.3",
+    "express": "^4.18.3",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "multer": "^2.2.0",
+    "resend": "^4.0.0",
+    "sql.js": "^1.12.0",
+    "standardwebhooks": "^1.0.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

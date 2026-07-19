@@ -1,0 +1,136 @@
+<div id="learn3Page" class="page">
+
+<div class="overlay" id="overlay3" onclick="toggleEthicalSidebar()"></div>
+
+<div class="learn-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="ethicalSidebar">
+    <div class="sidebar-header">Ethical Hacking Complete Course</div>
+    <div class="chapter-list" id="ethicalChapterList">
+      <a class="ethical-chapter-item chapter-item active" onclick="loadEthicalChapter(0)">
+        <span class="chapter-num">01</span><span style="flex:1">Introduction to Ethical Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(1)">
+        <span class="chapter-num">02</span><span style="flex:1">Footprinting and Reconnaissance</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(2)">
+        <span class="chapter-num">03</span><span style="flex:1">Scanning Networks</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(3)">
+        <span class="chapter-num">04</span><span style="flex:1">Enumeration</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(4)">
+        <span class="chapter-num">05</span><span style="flex:1">Vulnerability Analysis</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(5)">
+        <span class="chapter-num">06</span><span style="flex:1">System Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(6)">
+        <span class="chapter-num">07</span><span style="flex:1">Malware Threats</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(7)">
+        <span class="chapter-num">08</span><span style="flex:1">Sniffing</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(8)">
+        <span class="chapter-num">09</span><span style="flex:1">Social Engineering</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(9)">
+        <span class="chapter-num">10</span><span style="flex:1">Denial of Service</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(10)">
+        <span class="chapter-num">11</span><span style="flex:1">Session Hijacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(11)">
+        <span class="chapter-num">12</span><span style="flex:1">Evading IDS, Firewalls and Honeypots</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(12)">
+        <span class="chapter-num">13</span><span style="flex:1">Web Server Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(13)">
+        <span class="chapter-num">14</span><span style="flex:1">Web Application Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(14)">
+        <span class="chapter-num">15</span><span style="flex:1">SQL Injection</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(15)">
+        <span class="chapter-num">16</span><span style="flex:1">Wireless Network Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(16)">
+        <span class="chapter-num">17</span><span style="flex:1">Mobile Platform Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(17)">
+        <span class="chapter-num">18</span><span style="flex:1">IoT and OT Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(18)">
+        <span class="chapter-num">19</span><span style="flex:1">Cloud Computing Security</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(19)">
+        <span class="chapter-num">20</span><span style="flex:1">Cryptography</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(20)">
+        <span class="chapter-num">21</span><span style="flex:1">AI Security</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(21)">
+        <span class="chapter-num">22</span><span style="flex:1">Cloud Native Security</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(22)">
+        <span class="chapter-num">23</span><span style="flex:1">Advanced IoT and OT Security</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <!-- LEARN MAIN -->
+  <main class="learn-main" id="ethicalLearnMain">
+    <div class="content-area">
+      <div class="topic-banner">
+        <div class="topic-banner-tag" data-i18n="learn3.tag">Ethical Hacking Complete Course</div>
+        <h1 data-i18n="learn3.title">Ethical Hacking Complete Course</h1>
+        <p data-i18n="learn3.desc">Complete CEH v13 based Ethical Hacking course, basic to advance, plus AI Security, Cloud Native Security and IoT Security, complete Hinglish mein.</p>
+      </div>
+
+      <div class="content" id="ethicalChapterContent">
+        <h2>Ethical Hacking Complete Course</h2>
+        <p>Ethical Hacking ka poora course yahan hai, basic se advance tak, CEH v13 syllabus ke hisaab se aur naye tech modules ke saath. Sidebar se Chapter 1 select karo aur shuru karo.</p>
+        <div class="info-box">
+          <p><strong>Note:</strong> Sidebar se koi bhi chapter select karo aur padhna shuru karo. Chapters sequence mein follow karne se best experience milega.</p>
+        </div>
+      </div>
+
+      <div class="chapter-nav" id="ethicalChapterNav">
+        <button class="chapter-nav-btn prev" id="ethicalPrevBtn" style="visibility:hidden;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L5 7l4 5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div><span class="label">Previous</span><span class="title" id="ethicalPrevTitle">-</span></div>
+        </button>
+        <button class="chapter-nav-btn next" id="ethicalNextBtn" onclick="loadEthicalChapter(1)">
+          <div style="text-align:right"><span class="label">Next</span><span class="title" id="ethicalNextTitle">Footprinting and Reconnaissance</span></div>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l4 5-4 5" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+</div><!-- end #learn3Page -->

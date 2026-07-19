@@ -1,0 +1,10 @@
+# Never commit real secrets - Cashfree keys, Supabase service role key,
+# webhook secrets, Resend API key. Set these as environment variables on
+# Render instead (see .env.example for what's needed and where to get it).
+.env
+.env.*
+!.env.example
+
+node_modules/
+*.log
+.DS_Store

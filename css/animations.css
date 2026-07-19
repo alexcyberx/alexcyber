@@ -1,0 +1,117 @@
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATIONS — AlexCyberX
+   Subtle, professional motion: page transitions, scroll reveal,
+   and staggered card entrances. Respects prefers-reduced-motion.
+═══════════════════════════════════════════════════════════════ */
+
+/* ── PAGE TRANSITIONS ──────────────────────────────────────────
+   .page already toggles display:none/block via JS (router.js).
+   We layer a fade on top of that using the .active class, so every
+   existing page gets this for free with no JS changes.
+
+   Deliberately opacity-only, no transform: a `transform` on .page
+   (even from a finished animation with fill-mode) creates a new
+   containing block, which traps any position:fixed/absolute
+   descendant (nav dropdowns, modals, sidebars) inside .page instead
+   of the viewport/nearest positioned ancestor. That silently breaks
+   fixed positioning and dropdown menus. Keeping this transform-free
+   avoids the whole bug class for every page, current and future. */
+.page {
+  opacity: 0;
+}
+.page.active {
+  opacity: 1;
+  animation: acx-page-in 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes acx-page-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── SCROLL REVEAL ────────────────────────────────────────────
+   Add data-reveal to any element; acx-init.js observes it and
+   toggles .is-visible when it enters the viewport. */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Optional stagger — pair data-reveal with data-reveal-delay="1|2|3|4" */
+[data-reveal][data-reveal-delay="1"] { transition-delay: 0.08s; }
+[data-reveal][data-reveal-delay="2"] { transition-delay: 0.16s; }
+[data-reveal][data-reveal-delay="3"] { transition-delay: 0.24s; }
+[data-reveal][data-reveal-delay="4"] { transition-delay: 0.32s; }
+[data-reveal][data-reveal-delay="5"] { transition-delay: 0.40s; }
+[data-reveal][data-reveal-delay="6"] { transition-delay: 0.48s; }
+
+/* ── CARD GRID ENTRANCE ──────────────────────────────────────────
+   For dynamically-rendered grids (CTF cards, blog cards, resource
+   cards, tool cards) — a soft staggered fade-in each time the grid
+   re-renders, driven purely by CSS animation on mount. */
+.ctf-card,
+.blog-card,
+.comm-thread-row {
+  animation: acx-card-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.ctf-grid .ctf-card:nth-child(1),  .blog-grid .blog-card:nth-child(1)  { animation-delay: 0.02s; }
+.ctf-grid .ctf-card:nth-child(2),  .blog-grid .blog-card:nth-child(2)  { animation-delay: 0.06s; }
+.ctf-grid .ctf-card:nth-child(3),  .blog-grid .blog-card:nth-child(3)  { animation-delay: 0.10s; }
+.ctf-grid .ctf-card:nth-child(4),  .blog-grid .blog-card:nth-child(4)  { animation-delay: 0.14s; }
+.ctf-grid .ctf-card:nth-child(5),  .blog-grid .blog-card:nth-child(5)  { animation-delay: 0.18s; }
+.ctf-grid .ctf-card:nth-child(6),  .blog-grid .blog-card:nth-child(6)  { animation-delay: 0.22s; }
+.ctf-grid .ctf-card:nth-child(7),  .blog-grid .blog-card:nth-child(7)  { animation-delay: 0.26s; }
+.ctf-grid .ctf-card:nth-child(8),  .blog-grid .blog-card:nth-child(8)  { animation-delay: 0.30s; }
+.ctf-grid .ctf-card:nth-child(n+9),.blog-grid .blog-card:nth-child(n+9) { animation-delay: 0.34s; }
+
+@keyframes acx-card-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── BUTTON / INTERACTIVE MICRO-INTERACTIONS ─────────────────── */
+.nav-btn,
+.blog-filter-btn,
+.comm-vote-btn,
+.pf-tab,
+button.profile-save-btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.nav-btn:active,
+button.profile-save-btn:active {
+  transform: scale(0.97);
+}
+/* .ctf-card / .blog-card already define their own hover transform+border
+   transitions inline — left untouched here to avoid redundant overrides. */
+
+/* ── MODAL / OVERLAY ENTRANCE ────────────────────────────────── */
+.auth-overlay.active .auth-card,
+.ctf-modal-overlay.active .ctf-modal {
+  animation: acx-modal-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes acx-modal-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── ACCESSIBILITY: respect reduced motion ────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .page,
+  .page.active,
+  [data-reveal],
+  [data-reveal].is-visible,
+  .ctf-card, .blog-card, .comm-thread-row,
+  .auth-overlay.active .auth-card,
+  .ctf-modal-overlay.active .ctf-modal {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
