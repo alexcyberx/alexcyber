@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>NovaSat API :: AlexCyberX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #ffffff;
+    --line: #dcdce0;
+    --ink: #111114;
+    --ink-dim: #85858c;
+    --accent: #b45309;
+    --get: #0d7d5f;
+    --bad: #b91c1c;
+    --key: #6d28d9;
+    --str: #92400e;
+    --sans: 'IBM Plex Sans', 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', Consolas, monospace;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; min-height:100vh; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); font-size:13.5px;
+  }
+
+  .wrap{ max-width:600px; margin:0 auto; padding:28px 18px 60px; }
+
+  .title{ font-size:15px; font-weight:600; margin:0 0 3px; }
+  .subtitle{ font-size:11.5px; color:var(--ink-dim); font-family:var(--mono); margin:0 0 24px; }
+
+  .req{ border-top:1px solid var(--line); padding:16px 0; }
+  .req:last-child{ border-bottom:1px solid var(--line); }
+
+  .reqline{ display:flex; align-items:baseline; gap:9px; font-family:var(--mono); font-size:12.5px; }
+  .verb{ color:var(--get); font-weight:600; }
+  .path{ color:var(--ink); }
+
+  .field{ margin:11px 0 0; }
+  .field-label{ font-family:var(--mono); font-size:10.5px; color:var(--ink-dim); margin-bottom:4px; }
+  .field-value{
+    font-family:var(--mono); font-size:12px; color:var(--ink);
+    background:#fafafb; border:1px solid var(--line); padding:8px 10px;
+    word-break:break-all; min-height:16px;
+  }
+  .field-value.empty{ color:#b3b3ba; font-style:italic; }
+
+  .runbtn{
+    margin-top:10px; font-family:var(--mono); font-size:12px; font-weight:600;
+    background:none; border:1px solid var(--ink); color:var(--ink);
+    padding:6px 14px; cursor:pointer;
+  }
+  .runbtn:hover{ background:var(--ink); color:#fff; }
+  .runbtn:disabled{ opacity:0.4; cursor:default; background:none; color:var(--ink); }
+
+  .out{ margin-top:12px; display:none; }
+  .out.show{ display:block; }
+  .outline{ font-family:var(--mono); font-size:11px; color:var(--ink-dim); margin-bottom:4px; }
+  .outline .status{ font-weight:600; }
+  .outline .status.ok{ color:var(--get); }
+  .outline .status.err{ color:var(--bad); }
+  .outbody{
+    font-family:var(--mono); font-size:12px; white-space:pre-wrap; word-break:break-all;
+    background:#fafafb; border:1px solid var(--line); padding:9px 10px; color:var(--ink);
+  }
+  .outbody .k{ color:var(--key); }
+  .outbody .s{ color:var(--str); }
+  .outbody .flag{ color:var(--get); font-weight:600; user-select:all; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="title">NovaSat / member-session</div>
+  <div class="subtitle">host: novasat.internal &middot; env: staging</div>
+
+  <div class="req">
+    <div class="reqline"><span class="verb">GET</span><span class="path">/api/lab/deserialize-medium/init</span></div>
+    <div class="field">
+      <div class="field-label">cookie: acx_session_v2</div>
+      <div class="field-value empty" id="cookieBox">unset</div>
+    </div>
+    <button class="runbtn" id="initBtn" type="button">run</button>
+  </div>
+
+  <div class="req">
+    <div class="reqline"><span class="verb">GET</span><span class="path">/api/lab/deserialize-medium/check</span></div>
+    <button class="runbtn" id="checkBtn" type="button">run</button>
+    <div class="out" id="responseWrap">
+      <div class="outline"><span class="status" id="statusLabel"></span></div>
+      <div class="outbody" id="responseBox"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+function getSession() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('session') || '';
+}
+
+function readCookie(name) {
+  const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+}
+
+function renderCookie() {
+  const box = document.getElementById('cookieBox');
+  const raw = readCookie('acx_session_v2');
+  if (!raw) {
+    box.className = 'field-value empty';
+    box.textContent = 'unset';
+    return;
+  }
+  box.className = 'field-value';
+  box.textContent = raw;
+}
+
+function renderJson(obj) {
+  const lines = Object.entries(obj).map(([k, v]) => {
+    let vHtml;
+    if (k === 'flag' && v) {
+      vHtml = '<span class="flag">"' + escapeHtml(v) + '"</span>';
+    } else if (typeof v === 'string') {
+      vHtml = '<span class="s">"' + escapeHtml(v) + '"</span>';
+    } else if (v === null) {
+      vHtml = 'null';
+    } else {
+      vHtml = escapeHtml(JSON.stringify(v));
+    }
+    return '  <span class="k">"' + k + '"</span>: ' + vHtml;
+  });
+  return '{\n' + lines.join(',\n') + '\n}';
+}
+
+async function callInit() {
+  const btn = document.getElementById('initBtn');
+  btn.disabled = true;
+  const original = btn.textContent;
+  btn.textContent = 'sending';
+  try {
+    await fetch('/api/lab/deserialize-medium/init?session=' + encodeURIComponent(getSession()), {
+      credentials: 'include',
+      headers: { 'X-Lab-Session': getSession() }
+    });
+    renderCookie();
+  } catch (e) {
+    console.warn('[DeserializeMedium] init failed', e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
+
+async function callCheck() {
+  const btn = document.getElementById('checkBtn');
+  const wrap = document.getElementById('responseWrap');
+  const statusLabel = document.getElementById('statusLabel');
+  const box = document.getElementById('responseBox');
+  btn.disabled = true;
+  const original = btn.textContent;
+  btn.textContent = 'sending';
+  try {
+    const res = await fetch('/api/lab/deserialize-medium/check?session=' + encodeURIComponent(getSession()), {
+      credentials: 'include',
+      headers: { 'X-Lab-Session': getSession() }
+    });
+    const data = await res.json();
+
+    wrap.classList.add('show');
+    statusLabel.className = 'status ' + (res.ok ? 'ok' : 'err');
+    statusLabel.textContent = res.status + ' ' + (res.ok ? 'OK' : 'ERROR');
+    box.innerHTML = renderJson(data);
+  } catch (e) {
+    console.warn('[DeserializeMedium] check failed', e);
+    wrap.classList.add('show');
+    statusLabel.className = 'status err';
+    statusLabel.textContent = 'ERR';
+    box.textContent = 'request failed, could not reach host';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
+
+document.getElementById('initBtn').addEventListener('click', callInit);
+document.getElementById('checkBtn').addEventListener('click', callCheck);
+
+renderCookie();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>cry-01 :: Caesar's Secret :: AlexCyberX</title>
+<style>
+  :root{
+    --bg: #0b0d14;
+    --panel: #12151f;
+    --panel-2: #171b28;
+    --line: #232838;
+    --ink: #d7dae4;
+    --ink-dim: #7d8397;
+    --accent: #7c8cff;
+    --amber: #e8a33d;
+    --good: #3ddc84;
+    --bad: #ff5d6c;
+    --mono: 'JetBrains Mono', 'Consolas', 'SFMono-Regular', Menlo, monospace;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; min-height:100vh; background:var(--bg); color:var(--ink);
+    font-family:var(--mono); font-size:14px; line-height:1.5;
+  }
+  a{ color:inherit; }
+
+  .wrap{ width:100%; margin:0; padding:0; }
+
+  /* ── File-style console box ── */
+  .console{
+    width:100%; overflow:hidden;
+    background:transparent; border:none;
+  }
+  .console-head{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:14px 16px; border-bottom:1px solid var(--line);
+  }
+  .console-file{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-dim); }
+  .console-file svg{ flex-shrink:0; opacity:0.7; }
+  .status{
+    display:inline-flex; align-items:center; gap:6px; font-size:10px; font-weight:600; letter-spacing:0.05em;
+    color:var(--amber); background:rgba(232,163,61,0.1); border:1px solid rgba(232,163,61,0.25);
+    padding:4px 9px; border-radius:999px; text-transform:uppercase;
+  }
+  .status.live{ color:var(--good); background:rgba(61,220,132,0.1); border-color:rgba(61,220,132,0.25); }
+  .status .dot{ width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+  .console-body{ padding:16px 16px 24px; }
+
+  .ciphertext{
+    font-size:13.5px; color:var(--amber); word-break:break-all; background:var(--panel-2);
+    border:1px solid var(--line); border-radius:6px; padding:12px 14px; letter-spacing:0.02em;
+  }
+  .ciphertext.loading{ color:var(--ink-dim); }
+
+  /* Frequency bars (cosmetic tuner visualization) */
+  .bars{ display:flex; align-items:flex-end; justify-content:center; gap:3px; height:34px; margin:18px 0 6px; }
+  .bars .bar{ width:4px; border-radius:3px 3px 0 0; background:rgba(255,255,255,0.09); transition:height .18s ease, background .18s ease; }
+  .bars .bar.active{ background:linear-gradient(180deg, #8b7cff, var(--accent)); }
+
+  .shiftblock{ margin-top:6px; }
+  .label{ font-size:10.5px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px; }
+  .shiftrow{ display:flex; align-items:center; gap:10px; }
+  .shiftbtn{
+    width:32px; height:32px; border-radius:6px; border:1px solid var(--line); background:var(--panel-2);
+    color:var(--ink); cursor:pointer; font-size:15px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .shiftbtn:hover{ border-color:var(--accent); color:var(--accent); }
+  .shiftval{ min-width:24px; text-align:center; font-size:15px; font-weight:600; }
+  input[type=range]{ flex:1; accent-color:var(--accent); }
+
+  .output-label{
+    display:flex; align-items:center; gap:7px; font-size:10.5px; color:var(--ink-dim);
+    letter-spacing:0.06em; text-transform:uppercase; margin:18px 0 8px;
+  }
+  .output{
+    font-size:13.5px; color:var(--ink); word-break:break-all; background:var(--panel-2);
+    border:1px solid var(--line); border-radius:6px; padding:12px 14px; min-height:20px;
+  }
+
+  .overlay{
+    display:none; position:fixed; inset:0; z-index:99; background:rgba(0,0,0,0.72);
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .overlay.show{ display:flex; }
+  .ocard{ background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:22px; max-width:360px; text-align:center; }
+  .ocard h2{ font-size:15px; margin:0 0 8px; color:var(--bad); }
+  .ocard p{ font-size:12.5px; color:var(--ink-dim); margin:0 0 16px; line-height:1.6; }
+  .ocard-btn{
+    display:inline-block; color:#fff; text-decoration:none; font-size:12.5px; font-weight:600;
+    border:none; border-radius:8px; padding:10px 18px; cursor:pointer; background:var(--accent);
+    font-family:var(--mono);
+  }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="inactiveOverlay">
+  <div class="ocard">
+    <h2>Instance stopped</h2>
+    <p>Another challenge was started, so this instance is no longer live. Go back and relaunch cry-01 if needed.</p>
+    <button class="ocard-btn" onclick="goBack()">Back to CTF</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="console">
+    <div class="console-head">
+      <div class="console-file">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        redcell_intercept_0417.txt
+      </div>
+      <div class="status" id="statusEl"><span class="dot"></span> loading</div>
+    </div>
+
+    <div class="console-body">
+      <div class="ciphertext loading" id="cipherEl">loading...</div>
+
+      <div class="bars" id="barsEl"></div>
+
+      <div class="shiftblock">
+        <div class="label">Shift</div>
+        <div class="shiftrow">
+          <button class="shiftbtn" id="shiftDown" type="button">-</button>
+          <div class="shiftval" id="shiftVal">0</div>
+          <button class="shiftbtn" id="shiftUp" type="button">+</button>
+          <input type="range" id="shiftSlider" min="0" max="25" value="0" step="1">
+        </div>
+      </div>
+
+      <div class="output-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
+        Live decode at this shift
+      </div>
+      <div class="output" id="decodedEl">&mdash;</div>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+function getSession() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('session') || '';
+}
+
+function getChallengeId() {
+  return 'cry-01';
+}
+
+function goBack() {
+  const challengeId = getChallengeId();
+  try {
+    if (window.opener && !window.opener.closed && typeof window.opener.acxLabReturn === 'function') {
+      window.opener.acxLabReturn(challengeId);
+      window.close();
+      return;
+    }
+  } catch (e) {}
+  try {
+    localStorage.setItem('acx_return_to_modal', challengeId);
+    localStorage.setItem('acx_return_ts', String(Date.now()));
+  } catch (e) {}
+  try {
+    sessionStorage.setItem('acx_back_to_ctf', challengeId);
+    sessionStorage.setItem('acx_back_ts', String(Date.now()));
+  } catch (e) {}
+  window.location.href = '/rooms';
+}
+
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'ACX_LAB_STOP') showInactive();
+});
+
+function showInactive() {
+  const overlay = document.getElementById('inactiveOverlay');
+  if (overlay) overlay.classList.add('show');
+}
+
+function checkStillActive() {
+  try {
+    const active = localStorage.getItem('acx_active_challenge');
+    if (active && active !== getChallengeId()) showInactive();
+  } catch (e) {}
+}
+window.addEventListener('storage', function(e) {
+  if (e.key === 'acx_active_challenge') checkStillActive();
+});
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) checkStillActive();
+});
+window.addEventListener('focus', checkStillActive);
+checkStillActive();
+
+/* ── Frequency bars (cosmetic tuner visualization) ── */
+const BAR_COUNT = 28;
+(function buildBars() {
+  const wrap = document.getElementById('barsEl');
+  for (let i = 0; i < BAR_COUNT; i++) {
+    const b = document.createElement('div');
+    b.className = 'bar';
+    b.style.height = '4px';
+    wrap.appendChild(b);
+  }
+})();
+
+function updateBars(shift) {
+  const bars = document.querySelectorAll('#barsEl .bar');
+  const activeCount = Math.round((shift / 25) * BAR_COUNT);
+  bars.forEach(function(bar, i) {
+    // deterministic pseudo-random heights seeded by index, so it looks alive but is stable
+    const seed = Math.sin(i * 12.9898) * 43758.5453;
+    const frac = seed - Math.floor(seed);
+    const h = 4 + Math.round(frac * 26);
+    bar.style.height = h + 'px';
+    bar.classList.toggle('active', i < activeCount);
+  });
+}
+updateBars(0);
+
+/* ── Cipher logic ── */
+let ciphertextRaw = '';
+
+function caesarShift(str, shift) {
+  return str.replace(/[a-zA-Z]/g, function(ch) {
+    const base = ch === ch.toUpperCase() ? 65 : 97;
+    return String.fromCharCode(((ch.charCodeAt(0) - base + shift) % 26 + 26) % 26 + base);
+  });
+}
+
+function renderDecoded(shift) {
+  const el = document.getElementById('decodedEl');
+  if (!ciphertextRaw) { el.textContent = '\u2014'; return; }
+  el.textContent = caesarShift(ciphertextRaw, shift);
+}
+
+function setShift(val) {
+  val = Math.max(0, Math.min(25, val));
+  document.getElementById('shiftVal').textContent = val;
+  document.getElementById('shiftSlider').value = val;
+  updateBars(val);
+  renderDecoded(val);
+}
+
+document.getElementById('shiftSlider').addEventListener('input', function(e) {
+  setShift(parseInt(e.target.value, 10));
+});
+document.getElementById('shiftUp').addEventListener('click', function() {
+  setShift(parseInt(document.getElementById('shiftSlider').value, 10) + 1);
+});
+document.getElementById('shiftDown').addEventListener('click', function() {
+  setShift(parseInt(document.getElementById('shiftSlider').value, 10) - 1);
+});
+
+async function loadCiphertext() {
+  const el = document.getElementById('cipherEl');
+  const status = document.getElementById('statusEl');
+  try {
+    const res = await fetch('/api/lab/caesar/info?session=' + encodeURIComponent(getSession()), {
+      headers: { 'X-Lab-Session': getSession() }
+    });
+    if (!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+    if (data.ciphertext) {
+      ciphertextRaw = data.ciphertext;
+      el.textContent = data.ciphertext;
+      el.classList.remove('loading');
+      status.classList.add('live');
+      status.innerHTML = '<span class="dot"></span> intercepted';
+      setShift(0);
+    } else {
+      throw new Error('no ciphertext in response');
+    }
+  } catch (e) {
+    console.warn('[Caesar] info fetch failed', e);
+    el.textContent = 'Could not load ciphertext. Refresh to retry.';
+  }
+}
+
+loadCiphertext();
+</script>
+
+</body>
+</html>

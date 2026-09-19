@@ -1,0 +1,25 @@
+# AlexCyberX
+
+> Free cybersecurity education platform, in Hindi and English, by Pavan Kumar (AlexCyberX). Covers Ethical Hacking, Network Forensics, and Cyber Attack techniques, with hands-on CTF (Capture The Flag) labs.
+
+Pavan Kumar is the founder of AlexCyberX. He is a Certified Ethical Hacker (CEH) and a BCA student at the University of Kota, from Jhalawar, Rajasthan, India. He also creates cybersecurity content on Instagram as @alex.cyberx and on GitHub as alexcyberx.
+
+## About
+- [About AlexCyberX](https://alexcyberx.com/#about): Founder bio, mission, and credentials
+
+## Learn
+- [Ethical Hacking Tutorials](https://alexcyberx.com/tutorials/ethical-hacking): Structured course on ethical hacking methodology
+- [Cyber Attacks Tutorials](https://alexcyberx.com/tutorials/cyber-attacks): Course covering common cyber attack techniques
+
+## CTF Labs
+- [CTF Rooms](https://alexcyberx.com/rooms): Hands-on labs covering SQL Injection, XSS, cookie/session attacks, insecure deserialization, packet/forensics analysis, log hunting, and cryptography challenges
+
+## Tools
+- [AlexTrace](https://alexcyberx.com/tools/alextrace): Free digital-footprint / self-OSINT audit tool - checks username exposure, breach history, and image metadata for your own accounts
+- [AlexRecon](https://alexcyberx.com/tools/alexrecon): Web and network reconnaissance tool (DNS, ports, SSL, asset discovery)
+- [AlexUtils](https://alexcyberx.com/tools/alexutils): CVE lookup, MAC/IP/DNS utilities
+- [AlexSync](https://alexcyberx.com/tools/alexsync): Windows companion app that wakes a sleeping PC on a schedule and plays music
+
+## Optional
+- [Privacy Policy](https://alexcyberx.com/privacy-policy)
+- [Terms of Service](https://alexcyberx.com/terms-of-service)

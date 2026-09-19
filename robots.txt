@@ -1,0 +1,64 @@
+# AlexCyberX - robots.txt
+# https://alexcyberx.com
+
+User-agent: *
+Allow: /
+Disallow: /secret-panel
+Disallow: /flag-storage
+Disallow: /hidden/ACX{robots_txt_not_a_security_measure}
+
+# Sitemap
+Sitemap: https://alexcyberx.com/sitemap.xml
+
+# AI Crawlers - Allow full indexing for AEO/GEO/LLMO
+# (2026 bot names - each vendor now splits training vs. live-answer/search
+#  crawlers; both are allowed here so the site is eligible for training
+#  AND for being cited in real-time AI answers)
+
+# OpenAI
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic (anthropic-ai / Claude-Web are retired names - replaced below)
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+# Google (Google-Extended = AI training only, doesn't affect normal Google
+# search ranking, which Googlebot already handles above)
+User-agent: Google-Extended
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# Apple
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+# LLM content guide
+LLMs: https://alexcyberx.com/llms.txt

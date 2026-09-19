@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DoS Attack @alex.cyberx</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;height:auto;background:#080810;overflow:hidden;font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;}
+.wrap{background:#080810;display:flex;flex-direction:column;align-items:center;padding:24px 16px 40px;}
+.header{text-align:center;margin-bottom:24px;}
+.h1{margin:0;font-size:clamp(26px,6vw,40px);font-weight:900;color:#fff;letter-spacing:-1px;line-height:1.1;}
+.h1 span{color:#ff2222;}
+.sub{color:#444;font-size:11px;margin:5px 0 0;letter-spacing:3px;}
+.svgwrap{width:100%;max-width:420px;}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:420px;margin-top:4px;}
+.card-zip{background:#0d0005;border:1px solid #ff222230;border-left:3px solid #ff2222;border-radius:8px;padding:12px;grid-column:1 / -1;display:flex;align-items:center;gap:12px;}
+.card-zip-title{color:#ff4444;font-size:11px;font-weight:bold;letter-spacing:1px;}
+.card-zip-body{color:#aaa;font-size:10px;margin-top:3px;}
+.card-zip-body span{color:#ff2222;}
+.card-prev{background:#03100a;border:1px solid #44ff8825;border-left:3px solid #44ff88;border-radius:8px;padding:12px;grid-column:1 / -1;}
+.prev-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.prev-head span{color:#44ff88;font-size:11px;font-weight:bold;letter-spacing:1px;}
+.prev-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.prev-tag{font-size:10px;padding:3px 9px;border-radius:4px;font-weight:bold;letter-spacing:0.5px;}
+.btn-wrap{position:relative;width:100%;max-width:420px;margin-top:20px;}
+.btn-glow{position:absolute;inset:-2px;border-radius:14px;background:linear-gradient(90deg,#ff2222,#ff6600,#ff2222);background-size:200% 100%;animation:borderAnim 2s linear infinite;z-index:0;}
+.btn{position:relative;z-index:1;background:#0a0000;color:#ff3333;border:none;border-radius:12px;padding:16px 0;font-size:20px;font-weight:900;letter-spacing:6px;cursor:pointer;font-family:'Bebas Neue','Rajdhani',Impact,sans-serif;width:100%;text-transform:uppercase;transition:all .3s ease;display:flex;align-items:center;justify-content:center;gap:12px;}
+.btn[disabled]{cursor:not-allowed;}
+.footer{margin-top:16px;color:#333;font-size:10px;letter-spacing:2px;font-weight:600;}
+@keyframes borderAnim{0%{background-position:0% 0%;}100%{background-position:200% 0%;}}
+@keyframes btnPulse{0%,100%{transform:scale(1);opacity:.4;}50%{transform:scale(1.6);opacity:1;}}
+.pulse-dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:#ff4400;animation:btnPulse 0.8s ease-in-out infinite;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1 class="h1"><span>DoS</span> Attack</h1>
+    <p class="sub">DENIAL OF SERVICE</p>
+  </div>
+
+  <div class="svgwrap">
+    <svg id="svg" viewBox="0 0 500 500" style="width:100%;overflow:hidden;display:block;">
+      <defs>
+        <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+          <path d="M0,0 L0,7 L7,3.5 Z" fill="#ffffff"/>
+        </marker>
+      </defs>
+      <g id="arrows"></g>
+      <g id="packets"></g>
+      <g id="attackers"></g>
+      <circle id="serverCircle" cx="250" cy="250" r="54" fill="#ffffff" stroke="#ffffff" stroke-width="1.5"/>
+      <circle id="crashRing" cx="250" cy="250" r="54" fill="none" stroke="#ff222233" stroke-width="14" style="display:none;"/>
+      <foreignObject x="218" y="210" width="64" height="64">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">
+          <div id="serverIcon"></div>
+        </div>
+      </foreignObject>
+      <text id="serverLabel" x="250" y="280" text-anchor="middle" font-size="9" font-weight="bold" fill="#333" font-family="Segoe UI, sans-serif">SERVER</text>
+    </svg>
+  </div>
+
+  <div class="cards">
+    <div class="card-zip">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <rect x="4" y="2" width="18" height="28" rx="2" fill="#fff0f0" stroke="#ff2222" stroke-width="1.5"/>
+        <path d="M22 2 L28 8 L22 8 Z" fill="#ff2222"/>
+        <rect x="22" y="8" width="6" height="22" rx="1" fill="#ff4444"/>
+        <rect x="10" y="6" width="6" height="3" rx="1" fill="#ff2222"/>
+        <rect x="12" y="9" width="6" height="3" rx="1" fill="#ff4444"/>
+        <rect x="10" y="12" width="6" height="3" rx="1" fill="#ff2222"/>
+        <rect x="12" y="15" width="6" height="3" rx="1" fill="#ff4444"/>
+        <text x="7" y="26" font-size="6" fill="#ff2222" font-weight="bold" font-family="monospace">ZIP</text>
+      </svg>
+      <div>
+        <div class="card-zip-title">ZIP BOMB &#8594; 42.zip</div>
+        <div class="card-zip-body">42 KB file expands to <span>4.5 Petabytes</span> &#8594; server storage instantly crash ho jaata hai</div>
+      </div>
+    </div>
+    <div class="card-prev">
+      <div class="prev-head">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 2 L17 5 L17 10 Q17 15 10 18 Q3 15 3 10 L3 5 Z" fill="#003300" stroke="#44ff88" stroke-width="1.2"/>
+          <path d="M7 10 L9 12 L13 8" stroke="#44ff88" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>PREVENTION</span>
+      </div>
+      <div class="prev-tags">
+        <span class="prev-tag" style="background:#44ff8818;border:1px solid #44ff8844;color:#44ff88;">Rate Limit</span>
+        <span class="prev-tag" style="background:#44aaff18;border:1px solid #44aaff44;color:#44aaff;">Firewall</span>
+        <span class="prev-tag" style="background:#aa44ff18;border:1px solid #aa44ff44;color:#aa44ff;">CDN</span>
+        <span class="prev-tag" style="background:#ffaa4418;border:1px solid #ffaa4444;color:#ffaa44;">Captcha</span>
+        <span class="prev-tag" style="background:#ff44aa18;border:1px solid #ff44aa44;color:#ff44aa;">Load Balancer</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-wrap">
+    <div class="btn-glow" id="btnGlow"></div>
+    <button class="btn" id="attackBtn" onclick="startAttack()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" id="btnIcon"><polygon points="2,1 13,7 2,13" fill="#ff3333"/></svg>
+      <span id="btnText">SIMULATE ATTACK</span>
+    </button>
+  </div>
+
+  <div class="footer">@Alex.cyberx</div>
+</div>
+
+<script>
+const ATTACKERS = [
+  { id:0, angle:270, label:"ZIP Bomb",      sublabel:"42.zip \u2192 4.5 PB",        type:"zip" },
+  { id:1, angle:330, label:"Request Flood", sublabel:"Millions of fake reqs",   type:"flood" },
+  { id:2, angle:30,  label:"HTTP Flood",    sublabel:"GET/POST overload",       type:"flood" },
+  { id:3, angle:90,  label:"Ping of Death", sublabel:"Oversized ICMP pkts",     type:"ping" },
+  { id:4, angle:150, label:"SYN Flood",     sublabel:"Incomplete TCP shake",    type:"syn" },
+  { id:5, angle:210, label:"UDP Flood",     sublabel:"Bandwidth exhaustion",    type:"flood" },
+];
+
+const CX=250, CY=250, R=130;
+
+function polarToXY(cx,cy,r,angleDeg){
+  const rad = (angleDeg-90)*Math.PI/180;
+  return { x: cx + r*Math.cos(rad), y: cy + r*Math.sin(rad) };
+}
+
+const attackerIconSVG = `<svg width="28" height="28" viewBox="0 0 44 44" fill="none">
+  <circle cx="22" cy="14" r="8" fill="#222222" stroke="#111111" stroke-width="1"/>
+  <circle cx="18" cy="13" r="1.5" fill="#ffffff"/>
+  <circle cx="26" cy="13" r="1.5" fill="#ffffff"/>
+  <path d="M18 18 Q22 21 26 18" stroke="#ffffff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <path d="M8 36 Q8 26 22 26 Q36 26 36 36" fill="#222222" stroke="#111111" stroke-width="1"/>
+  <rect x="16" y="26" width="12" height="8" rx="2" fill="#333333"/>
+  <rect x="18" y="28" width="8" height="4" rx="1" fill="#555555"/>
+</svg>`;
+
+function serverIconSVG(crashed, overloaded){
+  const topFill = crashed ? "#ff2222" : overloaded ? "#ff8800" : "#222";
+  const topStroke = crashed ? "#ff4444" : overloaded ? "#ffaa00" : "#444";
+  const dot1 = crashed ? "#ff6666" : overloaded ? "#ffcc44" : "#44ff88";
+  const midFill = crashed ? "#1a0000" : "#1a1a1a";
+  const midStroke = crashed ? "#ff2222" : "#333";
+  const dot2 = crashed ? "#ff2222" : "#444";
+  let cracks = "";
+  if(crashed){
+    cracks = `<line x1="26" y1="4" x2="30" y2="10" stroke="#ff2222" stroke-width="2" stroke-linecap="round"/>
+      <line x1="34" y1="2" x2="34" y2="9" stroke="#ff4444" stroke-width="2" stroke-linecap="round"/>
+      <line x1="40" y1="4" x2="37" y2="10" stroke="#ff2222" stroke-width="2" stroke-linecap="round"/>`;
+  }
+  return `<svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+    <rect x="8" y="10" width="48" height="14" rx="3" fill="${topFill}" stroke="${topStroke}" stroke-width="1.5"/>
+    <circle cx="48" cy="17" r="3" fill="${dot1}"/>
+    <rect x="8" y="28" width="48" height="14" rx="3" fill="${midFill}" stroke="${midStroke}" stroke-width="1.5"/>
+    <circle cx="48" cy="35" r="3" fill="${dot2}"/>
+    <rect x="8" y="46" width="48" height="8" rx="2" fill="#111" stroke="#333" stroke-width="1"/>
+    <rect x="12" y="13" width="16" height="2" rx="1" fill="#555"/>
+    <rect x="12" y="31" width="16" height="2" rx="1" fill="#555"/>
+    ${cracks}
+  </svg>`;
+}
+
+// Static arrows + attacker circles (drawn once)
+function initStatic(){
+  const arrowsG = document.getElementById('arrows');
+  const attackersG = document.getElementById('attackers');
+
+  ATTACKERS.forEach(a => {
+    const from = polarToXY(CX,CY,R-23,a.angle);
+    const to = polarToXY(CX,CY,56,a.angle);
+    arrowsG.innerHTML += `<line x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}" stroke="#ffffff" stroke-width="1.3" marker-end="url(#arr)"/>`;
+
+    const pos = polarToXY(CX,CY,R,a.angle);
+    const lPos = polarToXY(CX,CY,R+54,a.angle);
+    attackersG.innerHTML += `
+      <g>
+        <circle cx="${pos.x}" cy="${pos.y}" r="22" fill="#ffffff" stroke="#ffffff" stroke-width="1.5"/>
+        <foreignObject x="${pos.x-14}" y="${pos.y-14}" width="28" height="28">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;">${attackerIconSVG}</div>
+        </foreignObject>
+        <text x="${lPos.x}" y="${lPos.y-5}" text-anchor="middle" font-size="8" font-weight="bold" fill="#ffffff" font-family="Segoe UI, sans-serif">${a.label}</text>
+        <text x="${lPos.x}" y="${lPos.y+7}" text-anchor="middle" font-size="6.5" fill="#aaaaaa" font-family="Segoe UI, sans-serif">${a.sublabel}</text>
+      </g>`;
+  });
+
+  updateServer(false,false);
+}
+
+function updateServer(crashed, overloaded){
+  document.getElementById('serverIcon').innerHTML = serverIconSVG(crashed, overloaded);
+  const circ = document.getElementById('serverCircle');
+  circ.setAttribute('stroke', crashed ? '#ff2222' : overloaded ? '#ff8800' : '#ffffff');
+  circ.setAttribute('stroke-width', crashed ? '2.5' : '1.5');
+  document.getElementById('crashRing').style.display = crashed ? '' : 'none';
+  const label = document.getElementById('serverLabel');
+  label.textContent = crashed ? "CRASHED" : overloaded ? "OVERLOADED" : "SERVER";
+  label.setAttribute('fill', crashed ? '#ff2222' : overloaded ? '#ff8800' : '#333');
+}
+
+let packets = [];
+let packetId = 0;
+let phase = "idle";
+let spawnInterval = null;
+let tickInterval = null;
+
+function spawnPacket(attacker){
+  const pos = polarToXY(CX,CY,R,attacker.angle);
+  packets.push({ id: packetId++, startX: pos.x, startY: pos.y, progress: 0, type: attacker.type });
+}
+
+function renderPackets(){
+  const pg = document.getElementById('packets');
+  pg.innerHTML = packets.map(p => {
+    const x = p.startX + (CX - p.startX) * p.progress;
+    const y = p.startY + (CY - p.startY) * p.progress;
+    const size = p.type === "zip" ? 11 : 7;
+    const color = p.type === "zip" ? "#ff2222" : p.type === "syn" ? "#ff8800" : "#ff4444";
+    const opacity = 1 - p.progress * 0.5;
+    let zText = '';
+    if(p.type === "zip") zText = `<text x="${x}" y="${y+3.5}" text-anchor="middle" font-size="5.5" fill="#fff" font-weight="bold">Z</text>`;
+    return `<g opacity="${opacity}">
+      <rect x="${x-size/2}" y="${y-size/2}" width="${size}" height="${size}" rx="2" fill="${color}"/>
+      ${zText}
+    </g>`;
+  }).join('');
+}
+
+function setBtnState(){
+  const btn = document.getElementById('attackBtn');
+  const glow = document.getElementById('btnGlow');
+  const txt = document.getElementById('btnText');
+  const icon = document.getElementById('btnIcon');
+
+  if(phase === "idle"){
+    btn.style.background = "#0a0000";
+    btn.style.color = "#ff3333";
+    btn.removeAttribute('disabled');
+    glow.style.display = '';
+    txt.textContent = "SIMULATE ATTACK";
+    icon.style.display = '';
+  } else if(phase === "attacking"){
+    btn.style.background = "linear-gradient(135deg, #150000 0%, #0a0000 100%)";
+    btn.style.color = "#ff4400aa";
+    btn.setAttribute('disabled','');
+    glow.style.display = 'none';
+    icon.style.display = 'none';
+    txt.innerHTML = `<span style="display:inline-flex;gap:4px;align-items:center;">
+      <span class="pulse-dot" style="animation-delay:0s;"></span>
+      <span class="pulse-dot" style="animation-delay:0.2s;"></span>
+      <span class="pulse-dot" style="animation-delay:0.4s;"></span>
+    </span> ATTACKING SERVER...`;
+  } else if(phase === "crashed"){
+    btn.style.background = "#0a0000";
+    btn.style.color = "#ff222255";
+    btn.setAttribute('disabled','');
+    glow.style.display = 'none';
+    icon.style.display = 'none';
+    txt.textContent = "SERVER DOWN, RECOVERING...";
+  }
+}
+
+function startAttack(){
+  if(phase === "attacking" || phase === "crashed") return;
+  phase = "attacking";
+  packets = [];
+  updateServer(false,false);
+  setBtnState();
+
+  let count = 0;
+  spawnInterval = setInterval(() => {
+    if(count >= 36){ clearInterval(spawnInterval); return; }
+    spawnPacket(ATTACKERS[count % ATTACKERS.length]);
+    count++;
+  }, 100);
+
+  setTimeout(() => updateServer(false, true), 1800);
+  setTimeout(() => { phase = "crashed"; updateServer(true, true); setBtnState(); }, 3200);
+  setTimeout(() => {
+    updateServer(false,false);
+    packets = [];
+    renderPackets();
+    phase = "idle";
+    setBtnState();
+  }, 5800);
+
+  tickInterval = setInterval(() => {
+    packets = packets.map(p => ({...p, progress: p.progress + 0.032})).filter(p => p.progress < 1);
+    renderPackets();
+  }, 40);
+
+  setTimeout(() => { clearInterval(tickInterval); }, 5800);
+}
+
+initStatic();
+setBtnState();
+</script>
+</body>
+</html>
+<script>
+(function(){
+  function sendHeight(){
+    var h = Math.ceil(document.body.offsetHeight) + 40;
+    window.parent.postMessage({type:'acx-diagram-height', height:h}, '*');
+  }
+  window.addEventListener('load', sendHeight);
+  window.addEventListener('resize', sendHeight);
+  if (window.ResizeObserver) {
+    new ResizeObserver(sendHeight).observe(document.body);
+  }
+  setTimeout(sendHeight, 50);
+  setTimeout(sendHeight, 300);
+  setTimeout(sendHeight, 1000);
+})();
+</script>

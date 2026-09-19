@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log Hunter, CorpX Incident Review, AlexCyberX</title>
+<style>
+  :root{
+    --lh-bg-top: #eef2ff;
+    --lh-bg-bottom: #ffffff;
+    --lh-ink: #0f1729;
+    --lh-ink-dim: #5b6478;
+    --lh-blue: #2b3ef2;
+    --lh-blue-deep: #1420b8;
+    --lh-violet: #7c3aed;
+    --lh-line: #e2e6f5;
+    --lh-card: #ffffff;
+    --lh-mono-bg: #0f1424;
+    --lh-mono-text: #d7ddf5;
+    --lh-mono-dim: #7d87ac;
+    --lh-good: #12805c;
+    --lh-warn: #b3550a;
+    --lh-bad: #c0273c;
+    --font-display: 'Rajdhani', 'Inter', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    color:var(--lh-ink);
+    background:
+      radial-gradient(1200px 520px at 15% -10%, #dfe6ff 0%, transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, #e9e2ff 0%, transparent 55%),
+      linear-gradient(180deg, var(--lh-bg-top) 0%, var(--lh-bg-bottom) 420px);
+    min-height:100vh;
+  }
+
+  h1,h2,h3{
+    font-family:var(--font-display);
+    font-weight:700;
+    margin:0;
+  }
+
+  a{color:inherit;}
+
+  /* ── TOP BAR ── */
+  .lh-nav{
+    position:sticky;
+    top:0;
+    z-index:40;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    padding:16px 32px;
+    background:#ffffffdd;
+    -webkit-backdrop-filter:blur(10px);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--lh-line);
+  }
+  .lh-nav-inner{
+    max-width:1180px;
+    margin:0 auto;
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+  }
+  .lh-brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:19px;
+    letter-spacing:0.02em;
+    text-decoration:none;
+    color:var(--lh-ink);
+    flex-shrink:0;
+  }
+  .lh-brand svg{flex-shrink:0;}
+
+  .lh-nav-links{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .lh-nav-link{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--lh-ink-dim);
+    text-decoration:none;
+    padding:9px 14px;
+    border-radius:10px;
+  }
+  .lh-nav-link:hover{color:var(--lh-blue-deep); background:#eef0fe;}
+  .lh-nav-link.active{color:var(--lh-blue-deep); background:#e7eaff;}
+
+  .lh-nav-cta{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:13px;
+    font-weight:700;
+    color:#ffffff;
+    text-decoration:none;
+    padding:9px 16px;
+    border-radius:999px;
+    background:linear-gradient(100deg, var(--lh-blue) 0%, var(--lh-blue-deep) 100%);
+    flex-shrink:0;
+    box-shadow:0 10px 22px -12px rgba(43,62,242,0.55);
+  }
+  .lh-nav-cta:hover{transform:translateY(-1px);}
+
+  .lh-nav-toggle{
+    display:none;
+    align-items:center;
+    justify-content:center;
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    border:1px solid var(--lh-line);
+    background:#ffffff;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+
+  .lh-nav-mobile-panel{
+    display:none;
+  }
+
+  /* ── HERO ── */
+  .lh-hero{
+    max-width:1180px;
+    margin:0 auto;
+    padding:28px 32px 12px;
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:40px;
+    align-items:center;
+  }
+  .lh-eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--lh-blue-deep);
+    background:#e7eaff;
+    border:1px solid #cdd4ff;
+    padding:6px 12px;
+    border-radius:999px;
+    margin-bottom:18px;
+  }
+  .lh-hero h1{
+    font-size:44px;
+    line-height:1.08;
+    color:var(--lh-ink);
+  }
+  .lh-hero h1 .accent{
+    display:block;
+    background:linear-gradient(100deg, var(--lh-blue) 0%, var(--lh-violet) 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .lh-hero p.lead{
+    font-size:16px;
+    line-height:1.65;
+    color:var(--lh-ink-dim);
+    margin-top:18px;
+    max-width:52ch;
+  }
+  .lh-hero-meta{
+    display:flex;
+    gap:22px;
+    margin-top:24px;
+    flex-wrap:wrap;
+  }
+  .lh-hero-meta div{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .lh-hero-meta .num{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:22px;
+  }
+  .lh-hero-meta .lbl{
+    font-size:12px;
+    color:var(--lh-ink-dim);
+  }
+
+  /* ── MOCKUP CARD ── */
+  .lh-mockup{
+    background:var(--lh-card);
+    border-radius:20px;
+    box-shadow:0 30px 60px -20px rgba(30,40,100,0.28), 0 4px 16px rgba(30,40,100,0.08);
+    border:1px solid var(--lh-line);
+    overflow:hidden;
+    transform:rotate(1.2deg);
+  }
+  .lh-mockup-bar{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:12px 14px;
+    background:#f4f5fb;
+    border-bottom:1px solid var(--lh-line);
+  }
+  .lh-mockup-dot{width:10px; height:10px; border-radius:50%;}
+  .lh-mockup-bar .lh-mockup-title{
+    margin-left:8px;
+    font-size:12px;
+    color:var(--lh-ink-dim);
+    font-family:var(--font-mono);
+  }
+  .lh-mockup-body{
+    background:var(--lh-mono-bg);
+    padding:16px 18px;
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    line-height:1.9;
+    color:var(--lh-mono-text);
+    max-height:300px;
+    overflow:hidden;
+  }
+  .lh-mockup-body .ip{color:#8fb2ff;}
+  .lh-mockup-body .status-ok{color:#5fd899;}
+  .lh-mockup-body .status-bad{color:#ff8f8f;}
+  .lh-mockup-body .path{color:#ffd479;}
+  .lh-mockup-body .ua{color:var(--lh-mono-dim);}
+
+  /* ── SECTION SHELL ── */
+  .lh-section{
+    max-width:1180px;
+    margin:0 auto;
+    padding:36px 32px;
+    scroll-margin-top:88px;
+  }
+  .lh-section-head{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .lh-section-head h2{font-size:24px;}
+  .lh-section-head p{
+    color:var(--lh-ink-dim);
+    font-size:13.5px;
+    margin-top:6px;
+  }
+
+  /* ── BRIEFING CARD ── */
+  .lh-brief{
+    background:var(--lh-card);
+    border:1px solid var(--lh-line);
+    border-radius:18px;
+    padding:28px;
+    box-shadow:0 18px 40px -24px rgba(30,40,100,0.25);
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:0;
+  }
+  .lh-brief-col{
+    padding:0 24px;
+    border-right:1px solid var(--lh-line);
+  }
+  .lh-brief-col:first-child{padding-left:0;}
+  .lh-brief-col:last-child{border-right:none; padding-right:0;}
+  .lh-brief-col .icon-wrap{
+    width:38px; height:38px;
+    border-radius:11px;
+    background:#e7eaff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:14px;
+  }
+  .lh-brief-col h3{font-size:15px; margin-bottom:8px;}
+  .lh-brief-col p{
+    font-size:13px;
+    line-height:1.65;
+    color:var(--lh-ink-dim);
+    margin:0;
+  }
+
+  /* ── FILE PANEL ── */
+  .lh-filepanel{
+    background:var(--lh-card);
+    border:1px solid var(--lh-line);
+    border-radius:18px;
+    box-shadow:0 18px 40px -24px rgba(30,40,100,0.25);
+    display:grid;
+    grid-template-columns:1.3fr 1fr;
+  }
+  .lh-file-info{
+    padding:28px;
+    border-right:1px solid var(--lh-line);
+  }
+  .lh-file-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:11px 0;
+    border-bottom:1px dashed var(--lh-line);
+    font-size:13px;
+  }
+  .lh-file-row:last-child{border-bottom:none;}
+  .lh-file-row .k{color:var(--lh-ink-dim);}
+  .lh-file-row .v{font-family:var(--font-mono); font-weight:600;}
+  .lh-download-panel{
+    padding:28px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-start;
+    gap:14px;
+    background:linear-gradient(160deg, #f2f4ff 0%, #ffffff 100%);
+  }
+  .lh-download-panel h3{font-size:16px;}
+  .lh-download-panel p{
+    font-size:12.5px;
+    color:var(--lh-ink-dim);
+    line-height:1.6;
+    margin:0;
+  }
+
+  .lh-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:14.5px;
+    padding:13px 22px;
+    border-radius:999px;
+    border:none;
+    cursor:pointer;
+    text-decoration:none;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .lh-btn-primary{
+    background:linear-gradient(100deg, var(--lh-blue) 0%, var(--lh-blue-deep) 100%);
+    color:#ffffff;
+    box-shadow:0 14px 28px -12px rgba(43,62,242,0.55);
+  }
+  .lh-btn-primary:hover{transform:translateY(-1px); box-shadow:0 18px 34px -12px rgba(43,62,242,0.6);}
+  .lh-btn-primary:disabled{opacity:0.6; cursor:default; transform:none;}
+  .lh-btn-ghost{
+    background:#ffffff;
+    color:var(--lh-ink);
+    border:1px solid var(--lh-line);
+  }
+  .lh-btn-ghost:hover{border-color:var(--lh-blue);}
+  .lh-btn svg{flex-shrink:0;}
+
+  .lh-status-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-size:12px;
+    font-weight:600;
+    padding:6px 12px;
+    border-radius:999px;
+    background:#e9fbf3;
+    color:var(--lh-good);
+    border:1px solid #bdeed9;
+  }
+
+  /* ── METHOD STEPS ── */
+  .lh-steps{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:18px;
+  }
+  .lh-step{
+    background:var(--lh-card);
+    border:1px solid var(--lh-line);
+    border-radius:16px;
+    padding:22px;
+    box-shadow:0 14px 30px -22px rgba(30,40,100,0.25);
+  }
+  .lh-step .icon-wrap{
+    width:36px; height:36px;
+    border-radius:10px;
+    background:#f0eaff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:14px;
+  }
+  .lh-step h3{font-size:14.5px; margin-bottom:8px;}
+  .lh-step p{
+    font-size:12.5px;
+    line-height:1.65;
+    color:var(--lh-ink-dim);
+    margin:0;
+  }
+  .lh-step code{
+    display:block;
+    margin-top:10px;
+    background:var(--lh-mono-bg);
+    color:var(--lh-mono-text);
+    font-family:var(--font-mono);
+    font-size:11px;
+    padding:10px 12px;
+    border-radius:8px;
+    overflow-x:auto;
+    white-space:pre;
+  }
+
+  /* ── HINT ── */
+  .lh-hint-note{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    background:#ffffff;
+    border:1px solid var(--lh-line);
+    border-radius:16px;
+    padding:20px 22px;
+    margin-top:20px;
+    box-shadow:0 14px 30px -24px rgba(30,40,100,0.25);
+  }
+  .lh-hint-note .icon-wrap{
+    width:32px; height:32px;
+    border-radius:9px;
+    background:#f0f1f8;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .lh-hint-note p{
+    font-size:13px;
+    line-height:1.6;
+    color:var(--lh-ink);
+    margin:0;
+  }
+  .lh-hint-note strong{color:var(--lh-ink);}
+
+  footer.lh-footer{
+    text-align:center;
+    padding:30px 32px 50px;
+    font-size:12px;
+    color:var(--lh-ink-dim);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px){
+    .lh-nav-links{display:none;}
+    .lh-nav-toggle{display:flex;}
+    .lh-nav{padding:14px 20px;}
+    .lh-nav-cta{padding:8px 13px; font-size:12px;}
+    .lh-nav-mobile-panel.open{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      padding:10px 20px 16px;
+      border-bottom:1px solid var(--lh-line);
+      background:#ffffff;
+    }
+    .lh-nav-mobile-panel .lh-nav-link{
+      padding:12px 14px;
+      border-radius:10px;
+    }
+
+    .lh-hero{grid-template-columns:1fr; gap:24px; padding-top:24px;}
+    .lh-hero h1{font-size:30px;}
+    .lh-hero .lead{font-size:14.5px;}
+    .lh-hero-meta{gap:16px;}
+    .lh-hero-meta .num{font-size:19px;}
+
+    .lh-mockup{transform:none;}
+    .lh-mockup-body{
+      font-size:10.5px;
+      line-height:1.7;
+      white-space:pre-wrap;
+      word-break:break-word;
+      max-height:none;
+    }
+
+    .lh-section{padding:26px 20px;}
+    .lh-section-head h2{font-size:20px;}
+
+    .lh-brief{grid-template-columns:1fr; gap:22px; padding:22px;}
+    .lh-brief-col{border-right:none; border-bottom:1px solid var(--lh-line); padding:0 0 20px 0; margin-bottom:0;}
+    .lh-brief-col:last-child{border-bottom:none; padding-bottom:0;}
+
+    .lh-filepanel{grid-template-columns:1fr;}
+    .lh-file-info{border-right:none; border-bottom:1px solid var(--lh-line); padding:22px;}
+    .lh-download-panel{padding:22px;}
+
+    .lh-steps{grid-template-columns:1fr;}
+    .lh-step code{font-size:10px; word-break:break-word; white-space:pre-wrap;}
+
+    .lh-hint-note{padding:18px; flex-direction:column;}
+
+    .lh-brand span.lh-brand-full{display:none;}
+  }
+
+  @media (max-width: 480px){
+    .lh-hero h1{font-size:26px;}
+    .lh-hero-meta{gap:12px;}
+    .lh-btn{width:100%; justify-content:center;}
+    .lh-download-panel .lh-btn{width:100%;}
+  }
+
+  :focus-visible{
+    outline:2px solid var(--lh-blue);
+    outline-offset:2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+    html{scroll-behavior:auto;}
+  }
+
+  /* ── INSTANCE NOT ACTIVE OVERLAY ── */
+  .lh-inactive-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:999;
+    background:#0f1729ee;
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .lh-inactive-overlay.show{
+    display:flex;
+  }
+  .lh-inactive-card{
+    background:#ffffff;
+    border-radius:20px;
+    padding:40px 36px;
+    max-width:440px;
+    width:100%;
+    text-align:center;
+    box-shadow:0 30px 70px -20px rgba(0,0,0,0.5);
+  }
+  .lh-inactive-icon{
+    width:56px;
+    height:56px;
+    border-radius:16px;
+    background:#fdeaea;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:0 auto 20px;
+  }
+  .lh-inactive-card h2{
+    font-size:20px;
+    color:var(--lh-ink);
+    margin-bottom:10px;
+  }
+  .lh-inactive-card p{
+    font-size:13.5px;
+    line-height:1.65;
+    color:var(--lh-ink-dim);
+    margin-bottom:24px;
+  }
+  .lh-inactive-card .lh-btn{
+    width:100%;
+    justify-content:center;
+  }
+</style>
+</head>
+<body>
+
+<div class="lh-inactive-overlay" id="lhInactiveOverlay">
+  <div class="lh-inactive-card">
+    <div class="lh-inactive-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#c0273c" stroke-width="2"/><path d="M12 8v5M12 16h.01" stroke="#c0273c" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+    <h2>Instance Not Active</h2>
+    <p>This lab instance is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p>
+    <button class="lh-btn lh-btn-primary" onclick="labGoBackClick(event)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to CTF
+    </button>
+  </div>
+</div>
+
+<nav class="lh-nav">
+  <div class="lh-nav-inner">
+    <a href="#top" class="lh-brand">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <rect x="1" y="1" width="24" height="24" rx="7" stroke="#2b3ef2" stroke-width="1.6"/>
+        <path d="M8 13.5L11.2 16.7L18 9.3" stroke="#2b3ef2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="lh-brand-full">AlexCyberX</span>
+    </a>
+
+    <ul class="lh-nav-links">
+      <li><a href="#briefing" class="lh-nav-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M21 21l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        The briefing
+      </a></li>
+      <li><a href="#get-the-log" class="lh-nav-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3v13m0 0l-4-4m4 4l4-4M4 21h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Get the log
+      </a></li>
+      <li><a href="#where-to-look" class="lh-nav-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Where to look
+      </a></li>
+    </ul>
+
+    <a href="/rooms" class="lh-nav-cta" onclick="return labGoBackClick(event)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to CTF
+    </a>
+
+    <button class="lh-nav-toggle" id="lhNavToggle" onclick="lhToggleNav()" aria-label="Toggle navigation" aria-expanded="false">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="#0f1729" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="lh-nav-mobile-panel" id="lhNavMobilePanel">
+  <a href="#briefing" class="lh-nav-link">The briefing</a>
+  <a href="#get-the-log" class="lh-nav-link">Get the log</a>
+  <a href="#where-to-look" class="lh-nav-link">Where to look</a>
+</div>
+
+
+
+
+<section class="lh-hero">
+  <div>
+    <div class="lh-eyebrow">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Incident Response, Forensics
+    </div>
+    <h1>Something crawled<span class="accent">CorpX before it broke in.</span></h1>
+    <p class="lead">CorpX's public web server logged unusual traffic on the night of November 8. The security team pulled the access log before rotating it out. Read it the way an analyst would, line by line, IP by IP, and find the moment recon turned into exploitation.</p>
+    <div class="lh-hero-meta">
+      <div><span class="num">2,156</span><span class="lbl">log lines</span></div>
+      <div><span class="num">1</span><span class="lbl">attacker IP</span></div>
+      <div><span class="num">2</span><span class="lbl">tools used</span></div>
+    </div>
+  </div>
+
+  <div class="lh-mockup">
+    <div class="lh-mockup-bar">
+      <div class="lh-mockup-dot" style="background:#ff5f57;"></div>
+      <div class="lh-mockup-dot" style="background:#febc2e;"></div>
+      <div class="lh-mockup-dot" style="background:#28c840;"></div>
+      <span class="lh-mockup-title">corpx_access.log</span>
+    </div>
+    <div class="lh-mockup-body">
+<span class="ip">45.33.32.156</span> - - [08/Nov/2024:05:02:00] "GET <span class="path">/admin/login.php</span>" <span class="status-ok">200</span>
+<span class="ua">"gobuster/3.6"</span>
+
+<span class="ip">45.33.32.156</span> - - [08/Nov/2024:05:02:01] "GET <span class="path">/admin/config.php</span>" <span class="status-ok">200</span>
+<span class="ua">"gobuster/3.6"</span>
+
+<span class="ip">45.33.32.156</span> - - [08/Nov/2024:08:07:16] "GET <span class="path">/admin/config.php?id=1'</span>" <span class="status-bad">500</span>
+<span class="ua">"sqlmap/1.8.3#stable"</span>
+
+<span class="ip">45.33.32.156</span> - - [08/Nov/2024:08:07:36] "GET <span class="path">/admin/config.php?id=1 ORDER BY 1--</span>" <span class="status-bad">500</span>
+<span class="ua">"sqlmap/1.8.3#stable"</span>
+    </div>
+  </div>
+</section>
+
+<section class="lh-section" id="briefing">
+  <div class="lh-section-head">
+    <div>
+      <h2>The briefing</h2>
+      <p>What the security team already knows, and what they are asking you to confirm.</p>
+    </div>
+  </div>
+  <div class="lh-brief">
+    <div class="lh-brief-col">
+      <div class="icon-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#2b3ef2" stroke-width="2"/><path d="M21 21l-3.5-3.5" stroke="#2b3ef2" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <h3>What happened</h3>
+      <p>On the night of November 8, the CorpX web server saw a burst of requests to paths that do not exist on the normal site, followed by requests carrying SQL syntax against a real page. Someone mapped the server, then attacked what they found.</p>
+    </div>
+    <div class="lh-brief-col">
+      <div class="icon-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="2" stroke="#2b3ef2" stroke-width="2"/><path d="M3 9h18M8 4v5" stroke="#2b3ef2" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <h3>What you have</h3>
+      <p>The full Apache combined-format access log for that day, 2,156 lines. It is unfiltered, real traffic mixed with the attack, so you will need to separate normal visitors and bots from the one IP that mattered.</p>
+    </div>
+    <div class="lh-brief-col">
+      <div class="icon-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="#2b3ef2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="#2b3ef2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h3>What you need to find</h3>
+      <p>Three things: the attacker's IP address, the tool that was used to break in (not the recon tool, the one that actually exploited the page), and the exact path it exploited.</p>
+    </div>
+  </div>
+</section>
+
+<section class="lh-section" id="get-the-log">
+  <div class="lh-section-head">
+    <div>
+      <h2>Get the log</h2>
+      <p>Same file the security team pulled, untouched.</p>
+    </div>
+  </div>
+  <div class="lh-filepanel">
+    <div class="lh-file-info">
+      <div class="lh-file-row"><span class="k">Filename</span><span class="v" id="lhFilename">corpx_access.log</span></div>
+      <div class="lh-file-row"><span class="k">Format</span><span class="v" id="lhFormat">Apache Combined Log</span></div>
+      <div class="lh-file-row"><span class="k">Lines</span><span class="v" id="lhLines">2156</span></div>
+      <div class="lh-file-row"><span class="k">Date captured</span><span class="v" id="lhDate">2024-11-08</span></div>
+    </div>
+    <div class="lh-download-panel">
+      <span class="lh-status-pill">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M8 12l2.5 2.5L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Log available
+      </span>
+      <h3>Download the access log</h3>
+      <p>Open it in a text editor, or use grep and awk if you want to work the way the security team does.</p>
+      <button class="lh-btn lh-btn-primary" id="lhDownloadBtn" onclick="lhDownloadLog()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3v13m0 0l-4-4m4 4l4-4M4 21h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download corpx_access.log
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="lh-section" id="where-to-look">
+  <div class="lh-section-head">
+    <div>
+      <h2>Where to start looking</h2>
+      <p>Not the answer, just a sane way into 2,156 lines.</p>
+    </div>
+  </div>
+  <div class="lh-steps">
+    <div class="lh-step">
+      <div class="icon-wrap">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <h3>Isolate the failures</h3>
+      <p>Legitimate visitors mostly get 200s. A source hammering 403s and 404s across dozens of paths in the same second is not a person browsing the site.</p>
+      <code>grep " 403 \| 404 " corpx_access.log</code>
+    </div>
+    <div class="lh-step">
+      <div class="icon-wrap">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#7c3aed" stroke-width="2"/><path d="M12 7v5l3 3" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <h3>Read the user agent</h3>
+      <p>Real browsers announce themselves as Chrome, Safari, Firefox. Scanning and exploitation tools usually announce themselves too, just not to a browser.</p>
+      <code>awk -F'"' '{print $6}' corpx_access.log | sort -u</code>
+    </div>
+    <div class="lh-step">
+      <div class="icon-wrap">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 4l16 16M4 20L20 4" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <h3>Follow one IP forward in time</h3>
+      <p>Once you find the address behind the noisy requests, pull every line from that IP in order. The story changes partway through, from mapping the server to attacking one specific page.</p>
+      <code>grep "45.33.32.156" corpx_access.log | less</code>
+    </div>
+  </div>
+
+  <div class="lh-hint-note">
+    <div class="icon-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.7c.6.5 1 1.3 1 2.1v.2h6v-.2c0-.8.4-1.6 1-2.1A7 7 0 0012 2z" stroke="#0f1729" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p><strong>Read carefully:</strong> the same IP uses two different tools at two different times. The first tool only looks for pages that exist. The second tool sends SQL syntax to one of the pages the first tool found. The flag wants the tool that actually got results, not the one that just went looking.</p>
+  </div>
+</section>
+
+<footer class="lh-footer">
+  AlexCyberX, CTF Labs. corpx_access.log is a fixture built for this challenge, no real system was involved.
+</footer>
+
+<script>
+'use strict';
+
+function lhToggleNav() {
+  const panel = document.getElementById('lhNavMobilePanel');
+  const btn = document.getElementById('lhNavToggle');
+  const isOpen = panel.classList.toggle('open');
+  btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+}
+
+function getSessionHeader() {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('acx_token');
+  return token || '';
+}
+
+/* Challenge id for this lab. Falls back to the static id if the token
+   does not carry one (older token formats, or token missing). */
+function lhGetChallengeId() {
+  const token = getSessionHeader();
+  const match = token.match(/^acx_([a-z0-9]+-[0-9]+)_/i);
+  if (match) return match[1];
+  return 'for-03';
+}
+
+/* Return-to-CTF handshake. Mirrors the contract documented in ctf.html:
+   Strategy 1, if this tab was opened via window.open() from the CTF page,
+   call the opener directly so its modal reopens instantly.
+   Strategy 2, write a localStorage signal so any other open CTF tab picks
+   it up via its storage event listener.
+   Strategy 3, fallback, stash the challenge id in sessionStorage and
+   navigate to the CTF room, ctf.html reads this on load and auto-opens
+   the matching modal. */
+function labGoBack() {
+  const challengeId = lhGetChallengeId();
+
+  try {
+    if (window.opener && !window.opener.closed && typeof window.opener.acxLabReturn === 'function') {
+      window.opener.acxLabReturn(challengeId);
+      window.close();
+      return;
+    }
+  } catch (e) {}
+
+  try {
+    localStorage.setItem('acx_return_to_modal', challengeId);
+    localStorage.setItem('acx_return_ts', String(Date.now()));
+  } catch (e) {}
+
+  try {
+    sessionStorage.setItem('acx_back_to_ctf', challengeId);
+    sessionStorage.setItem('acx_back_ts', String(Date.now()));
+  } catch (e) {}
+
+  window.location.href = '/rooms';
+}
+
+function labGoBackClick(e) {
+  if (e) e.preventDefault();
+  labGoBack();
+  return false;
+}
+
+/* CTF page sends this via postMessage right before starting a different
+   challenge. This tab is no longer the active instance, so show an
+   Instance Not Active state instead of leaving the lab usable. Mirrors
+   the contract in ctf.html's ctfStopRunningInstance. */
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'ACX_LAB_STOP') {
+    lhShowInactive();
+  }
+});
+
+function lhShowInactive() {
+  const overlay = document.getElementById('lhInactiveOverlay');
+  if (overlay) overlay.classList.add('show');
+}
+
+/* Backup for the postMessage handshake, covers the case where this tab
+   was still loading when ACX_LAB_STOP was sent and missed the message.
+   localStorage is shared across tabs on the same origin, so the CTF
+   page's ctfSetRunningChallenge() writes here are visible from this tab. */
+function lhCheckStillActive() {
+  try {
+    const active = localStorage.getItem('acx_active_challenge');
+    if (active && active !== lhGetChallengeId()) {
+      lhShowInactive();
+    }
+  } catch (e) {}
+}
+
+window.addEventListener('storage', function(e) {
+  if (e.key === 'acx_active_challenge') lhCheckStillActive();
+});
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) lhCheckStillActive();
+});
+window.addEventListener('focus', lhCheckStillActive);
+lhCheckStillActive();
+
+async function lhLoadInfo() {
+  try {
+    const res = await fetch('/api/lab/loghunter/info', {
+      headers: { 'X-Lab-Session': getSessionHeader() }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.filename) document.getElementById('lhFilename').textContent = data.filename;
+    if (data.format) document.getElementById('lhFormat').textContent = data.format;
+    if (data.lines) document.getElementById('lhLines').textContent = data.lines;
+    if (data.date) document.getElementById('lhDate').textContent = data.date;
+  } catch (e) {
+    console.warn('[LogHunter] info fetch failed', e);
+  }
+}
+
+function lhDownloadLog() {
+  const btn = document.getElementById('lhDownloadBtn');
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = 'Preparing download...';
+
+  const token = getSessionHeader();
+  const url = '/api/lab/loghunter/download' + (token ? ('?session=' + encodeURIComponent(token)) : '');
+
+  fetch(url, { headers: { 'X-Lab-Session': token } })
+    .then(res => {
+      if (res.status === 403) { lhShowInactive(); throw new Error('Instance not active'); }
+      if (!res.ok) throw new Error('Download failed');
+      return res.blob();
+    })
+    .then(blob => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'corpx_access.log';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    })
+    .catch(err => {
+      console.error('[LogHunter] download error', err);
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = original;
+    });
+}
+
+lhLoadInfo();
+</script>
+
+</body>
+</html>
