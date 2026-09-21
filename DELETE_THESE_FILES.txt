@@ -1,0 +1,19 @@
+Ye 2 files apne repo se DELETE kar dena (dead code tha, kahin load hi nahi ho raha tha):
+
+  js/admin.js
+  js/bugfix-patch.js
+
+Baaki sab files is zip mein hain, seedha apne project folder mein
+same path pe overwrite kar dena:
+
+  server/index.js
+  server/payments/alexsync/routes.js
+  panel-1b47c1ab561e.html
+  index.html
+  js/ctf-sync.js
+  js/admin-supabase.js
+  .gitignore   (naya file, pehle nahi tha)
+
+Note: RLS fix (profiles table admin policies) database-side hai,
+Supabase pe already directly apply ho chuka hai - koi file iske
+liye zip mein nahi hai.

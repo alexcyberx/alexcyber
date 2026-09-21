@@ -1,0 +1,12 @@
+# AlexSync — Windows background app dependencies
+# Install with: pip install -r requirements.txt
+#
+# Versions are not strictly pinned (minimum versions only) so pip picks
+# builds compatible with whatever Python version is installed. Older pins
+# (e.g. Pillow 10.2.0) don't have prebuilt wheels for newer Python
+# releases and fail trying to compile from source.
+
+requests>=2.31.0          # for calling the Supabase REST/RPC endpoints
+pystray>=0.19.5           # system tray icon + menu
+Pillow>=10.4.0             # needed by pystray to build the tray icon image
+pywin32>=306               # Windows Task Scheduler access (win32com)

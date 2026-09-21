@@ -1,0 +1,39 @@
+# ═══════════════════════════════════════════════════════════
+#  AlexCyberX — Security Headers Reference
+#  Jab bhi deploy karo, apne server par yeh headers lagao.
+# ═══════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────
+# OPTION A: Apache (.htaccess)
+# ─────────────────────────────────────────
+# <IfModule mod_headers.c>
+#   Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+#   Header always set X-Frame-Options "SAMEORIGIN"
+#   Header always set X-Content-Type-Options "nosniff"
+#   Header always set Referrer-Policy "strict-origin-when-cross-origin"
+#   Header always set X-XSS-Protection "1; mode=block"
+#   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+#   Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://*.googleapis.com; connect-src 'self' https://*.supabase.co https://api.anthropic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-ancestors 'self';"
+# </IfModule>
+
+# ─────────────────────────────────────────
+# OPTION B: Nginx (nginx.conf or site config)
+# ─────────────────────────────────────────
+# add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+# add_header X-Frame-Options "SAMEORIGIN" always;
+# add_header X-Content-Type-Options "nosniff" always;
+# add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+# add_header X-XSS-Protection "1; mode=block" always;
+# add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()" always;
+# add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://*.googleapis.com; connect-src 'self' https://*.supabase.co https://api.anthropic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-ancestors 'self';" always;
+
+# ─────────────────────────────────────────
+# OPTION C: Netlify (netlify.toml — already configured)
+# ─────────────────────────────────────────
+# See netlify.toml — already has all headers set.
+
+# ═══════════════════════════════════════════════════════════
+#  NOTE: Jab Supabase URL final ho jaye, CSP mein
+#  https://*.supabase.co ko apni exact Supabase project
+#  URL se replace karo — e.g. https://xyzabc.supabase.co
+# ═══════════════════════════════════════════════════════════
