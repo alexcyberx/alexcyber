@@ -1,0 +1,36 @@
+<!-- ═══════════ LANGUAGE SELECTOR MODAL ═══════════ -->
+<div id="langModal" style="position:fixed;inset:0;z-index:99999;background:rgba(6,6,8,0.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);display:none;align-items:center;justify-content:center;">
+  <div id="langCard" style="background:#0c0c0f;border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:28px 24px 22px;max-width:480px;width:92%;box-shadow:0 32px 80px rgba(0,0,0,0.85);position:relative;">
+
+    <style>@keyframes langIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}</style>
+
+    <!-- Close -->
+    <button onclick="hideLangModal()" style="position:absolute;top:12px;right:12px;width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1L1 9" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:#dc1414;box-shadow:0 0 8px rgba(220,20,20,0.6);"></div>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#f4f4f5;letter-spacing:1px;">Alex <span style="color:#dc1414;">CyberX</span></span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#dc1414" stroke-width="1.3"/><ellipse cx="10" cy="10" rx="3.8" ry="8.5" stroke="#dc1414" stroke-width="1.3"/><line x1="1.8" y1="6.5" x2="18.2" y2="6.5" stroke="#dc1414" stroke-width="1.1"/><line x1="1.8" y1="13.5" x2="18.2" y2="13.5" stroke="#dc1414" stroke-width="1.1"/></svg>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;color:#f4f4f5;" data-i18n="modal.title">Choose Your Language</div>
+    </div>
+    <div style="font-family:'Inter',sans-serif;font-size:11px;color:#4a4a5a;margin-bottom:18px;" data-i18n="modal.sub">Website is language mein translate ho jaayegi. Nav bar se baad mein bhi change kar sakte ho.</div>
+
+    <!-- Grid -->
+    <div id="langGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px;"></div>
+
+    <!-- Continue -->
+    <button id="langApplyBtn" onclick="applyLanguage()" style="width:100%;padding:11px;background:#dc1414;border:1px solid #dc1414;color:#fff;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;gap:7px;" onmouseover="this.style.background='#e81818'" onmouseout="this.style.background='#dc1414'">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="langApplyTxt" data-i18n="modal.continue">Continue</span>
+    </button>
+  </div>
+</div>
+
+<!-- Translation overlay removed (offline dictionary used) -->
+

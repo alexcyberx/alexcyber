@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>CorpX IT Helpdesk :: AlexCyberX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --page: #eceef6;
+    --bg: #f6f6f9;
+    --card: #ffffff;
+    --bot: #ebebf1;
+    --line: #e2e2ea;
+    --text: #15151c;
+    --dim: #767686;
+    --accent: #6c5ce7;
+    --accent-soft: rgba(108,92,231,0.10);
+    --danger: #d12b2b;
+    --font: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html, body{ height:100%; }
+  body{
+    margin:0; color:var(--text); font-family:var(--font); font-size:14.5px; line-height:1.55;
+    background:var(--page); -webkit-font-smoothing:antialiased;
+  }
+  button, textarea{ font-family:inherit; }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  /* App shell: full screen on phones, floating card on larger screens */
+  .app{
+    display:flex; flex-direction:column; background:var(--bg);
+    height:100vh; height:100dvh; width:100%; overflow:hidden;
+  }
+  @media (min-width: 700px){
+    body{ display:flex; align-items:center; justify-content:center; padding:24px;
+      background:radial-gradient(circle at 15% 10%, #f8e9f6 0, transparent 40%), radial-gradient(circle at 85% 90%, #e4e8ff 0, transparent 45%), var(--page); }
+    .app{ max-width:760px; height:min(860px, calc(100dvh - 48px)); border-radius:30px;
+      box-shadow:0 30px 80px rgba(60,50,120,0.16), 0 2px 8px rgba(60,50,120,0.06); }
+  }
+
+  /* AlexCyberX mark (letter A with a red crossbar) */
+  .logo{ display:block; flex-shrink:0; line-height:0; border-radius:22.5%; }
+  .logo svg{ display:block; width:100%; height:100%; }
+
+  /* Header */
+  .head{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:calc(12px + env(safe-area-inset-top)) 16px 12px; background:var(--card);
+    border-bottom:1px solid var(--line); flex-shrink:0;
+  }
+  .brand{ display:flex; align-items:center; gap:10px; min-width:0; }
+  .brand .logo{ width:38px; height:38px; box-shadow:0 4px 12px rgba(21,21,28,0.28); }
+  .brand-title{ font-weight:600; font-size:14.5px; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .brand-sub{ color:var(--dim); font-size:12px; line-height:1.25; white-space:nowrap; }
+  .brand-sub b{ color:var(--text); font-weight:600; }
+  .brand-sub .x{ color:var(--danger); }
+  .head-right{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .left-count{ font-size:12px; color:var(--accent); background:var(--accent-soft); padding:4px 10px; border-radius:999px; white-space:nowrap; font-weight:500; }
+  .left-count[hidden]{ display:none; }
+  .ghost-btn{
+    display:inline-flex; align-items:center; gap:6px; background:var(--card); color:var(--text);
+    border:1px solid var(--line); border-radius:999px; padding:7px 12px; font-size:12.5px; cursor:pointer;
+  }
+  .ghost-btn:hover{ background:var(--bg); }
+  .ghost-btn:disabled{ opacity:0.4; cursor:not-allowed; }
+  @media (max-width: 520px){
+    .ghost-btn span{ display:none; }
+    .ghost-btn{ padding:9px; }
+    .brand-title{ font-size:14px; }
+  }
+  @media (max-width: 380px){
+    .left-count{ display:none; }
+  }
+
+  .preview-bar{ background:var(--accent-soft); color:var(--accent); font-size:12px; padding:6px 16px; flex-shrink:0; text-align:center; }
+  .preview-bar[hidden]{ display:none; }
+
+  /* Transcript */
+  .log{ flex:1; overflow-y:auto; padding:8px 16px 16px; }
+  .col{ width:100%; max-width:640px; margin:0 auto; min-height:100%; display:flex; flex-direction:column; }
+
+  /* Welcome hero */
+  .hero{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:16px 4px; gap:6px; }
+  .hero[hidden]{ display:none; }
+  .hero-logo-wrap{ position:relative; margin-bottom:14px; }
+  .hero .logo{ width:clamp(96px, 26vw, 128px); height:clamp(96px, 26vw, 128px); box-shadow:0 12px 30px rgba(21,21,28,0.30); animation:floaty 4.5s ease-in-out infinite; }
+  .hello{
+    position:absolute; left:-46px; top:-16px; background:var(--card); border-radius:16px 16px 16px 4px;
+    padding:5px 14px; font-weight:500; font-size:13.5px; box-shadow:0 6px 18px rgba(60,50,120,0.12);
+  }
+  .hero h1{ margin:0; font-size:clamp(22px, 5.5vw, 30px); line-height:1.25; font-weight:600; }
+  .hero h1 em{ font-style:normal; color:var(--accent); }
+  .hero p{ margin:4px 0 0; color:var(--dim); font-size:13.5px; max-width:340px; }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:16px; }
+  .chip{
+    background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:999px;
+    padding:9px 16px; font-size:13px; cursor:pointer; box-shadow:0 2px 8px rgba(60,50,120,0.05);
+  }
+  .chip:hover{ border-color:var(--accent); color:var(--accent); }
+  @keyframes floaty{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-8px); } }
+
+  /* Messages */
+  .msg{ display:flex; gap:10px; margin:14px 0; max-width:88%; }
+  .msg.bot{ align-items:flex-start; }
+  .msg.user{ margin-left:auto; flex-direction:column; align-items:flex-end; }
+  .msg .logo{ width:30px; height:30px; margin-top:2px; box-shadow:0 3px 8px rgba(21,21,28,0.22); }
+  .stack{ display:flex; flex-direction:column; min-width:0; }
+  .msg.user .stack{ align-items:flex-end; }
+  .meta{ font-size:11.5px; color:var(--dim); margin:0 4px 3px; }
+  .meta b{ color:var(--text); font-weight:600; }
+  .body{ white-space:pre-wrap; overflow-wrap:anywhere; padding:10px 15px; border-radius:18px; }
+  .msg.bot .body{ background:var(--bot); border-top-left-radius:6px; }
+  .msg.user .body{ background:var(--card); border-top-right-radius:6px; box-shadow:0 3px 14px rgba(60,50,120,0.08); }
+
+  .note{
+    display:flex; align-items:flex-start; gap:8px; margin:14px 0; padding:10px 14px;
+    background:var(--card); border:1px solid var(--line); border-radius:14px; font-size:13px;
+  }
+  .note svg{ flex-shrink:0; margin-top:3px; color:var(--danger); }
+
+  .typing .body{ color:var(--dim); }
+  .typing .dots{ display:inline-flex; gap:4px; vertical-align:middle; margin-left:2px; }
+  .typing .dots i{ width:5px; height:5px; border-radius:50%; background:var(--accent); opacity:0.3; animation:blink 1.1s infinite; }
+  .typing .dots i:nth-child(2){ animation-delay:0.18s; }
+  .typing .dots i:nth-child(3){ animation-delay:0.36s; }
+  @keyframes blink{ 0%,80%,100%{ opacity:0.25; } 40%{ opacity:1; } }
+  @media (prefers-reduced-motion: reduce){
+    .hero .logo{ animation:none; }
+    .typing .dots i{ animation:none; opacity:0.7; }
+  }
+
+  /* Composer */
+  .composer{ padding:10px 16px calc(10px + env(safe-area-inset-bottom)); background:var(--bg); flex-shrink:0; }
+  .row{ display:flex; gap:8px; align-items:flex-end; background:var(--card); border:1px solid var(--line); border-radius:26px; padding:6px 6px 6px 16px; box-shadow:0 4px 20px rgba(60,50,120,0.07); }
+  .row:focus-within{ border-color:var(--accent); }
+  textarea{
+    flex:1; resize:none; min-height:36px; max-height:112px; padding:8px 0; border:none; outline:none; background:transparent;
+    color:var(--text); font-size:16px; line-height:1.45;
+  }
+  textarea:focus, textarea:focus-visible{ outline:none; box-shadow:none; }
+  .row:focus-within{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft), 0 4px 20px rgba(60,50,120,0.07); }
+  textarea::placeholder{ color:var(--dim); }
+  .send{
+    width:40px; height:40px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    background:var(--accent); color:#fff; border:none; border-radius:50%; cursor:pointer;
+  }
+  .send:hover{ background:#5a4bd6; }
+  .send:disabled{ opacity:0.35; cursor:not-allowed; background:var(--accent); }
+  .fine{ margin-top:8px; font-size:11.5px; color:var(--dim); text-align:center; }
+  .fine b{ color:var(--text); font-weight:600; }
+  .fine .x{ color:var(--danger); }
+
+  /* Inactive overlay (same behaviour as other labs) */
+  .overlay{ display:none; position:fixed; inset:0; z-index:99; background:rgba(20,20,40,0.55); align-items:center; justify-content:center; padding:20px; }
+  .overlay.show{ display:flex; }
+  .ocard{ background:#fff; border-radius:20px; padding:24px; max-width:360px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.25); }
+  .ocard h2{ font-size:16px; margin:0 0 8px; }
+  .ocard p{ font-size:13.5px; color:var(--dim); margin:0 0 16px; line-height:1.6; }
+  .ocard-btn{ color:#fff; font-size:13.5px; font-weight:600; border:none; border-radius:999px; padding:10px 20px; cursor:pointer; background:var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="inactiveOverlay">
+  <div class="ocard">
+    <h2>Instance stopped</h2>
+    <p>Another challenge was started, so this instance is no longer live. Go back and relaunch it if needed.</p>
+    <button class="ocard-btn" type="button" onclick="goBack()">Back to CTF</button>
+  </div>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="cx-logo" viewBox="0 0 40 40">
+    <clipPath id="cx-clip"><rect width="40" height="32.5"/></clipPath>
+    <rect width="40" height="40" rx="9" fill="#15151c"/>
+    <path d="M15 26H25" fill="none" style="stroke:var(--danger)" stroke-width="3.2"/>
+    <path d="M9.9 35L20 11.8L30.1 35" fill="none" stroke="#ffffff" stroke-width="4.6" stroke-linejoin="miter" stroke-miterlimit="6" clip-path="url(#cx-clip)"/>
+  </symbol>
+</svg>
+
+<div class="app">
+  <header class="head">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"><svg viewBox="0 0 40 40"><use href="#cx-logo"/></svg></span>
+      <div style="min-width:0">
+        <div class="brand-title">CorpX IT Helpdesk</div>
+        <div class="brand-sub"><b>Alex Cyber<span class="x">X</span></b> AI Lab</div>
+      </div>
+    </div>
+    <div class="head-right">
+      <span class="left-count" id="leftEl" hidden></span>
+      <button class="ghost-btn" id="resetBtn" type="button" aria-label="Reset chat">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 12a8 8 0 11-2.6-5.9M20 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Reset chat</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="preview-bar" id="previewBar" hidden>Preview mode: replies are placeholders, no backend is connected.</div>
+
+  <main class="log" id="logEl" aria-live="polite" aria-label="Chat transcript">
+    <div class="col">
+      <section class="hero" id="heroEl">
+        <div class="hero-logo-wrap">
+          <div class="hello" aria-hidden="true">Hello!</div>
+          <span class="logo" aria-hidden="true"><svg viewBox="0 0 40 40"><use href="#cx-logo"/></svg></span>
+        </div>
+        <h1>Your <em>IT Helpdesk</em><br>assistant</h1>
+        <p>Get instant help with password resets, VPN access and software requests.</p>
+        <div class="chips">
+          <button class="chip" type="button" data-q="I need a password reset">Password reset</button>
+          <button class="chip" type="button" data-q="I need VPN access">VPN access</button>
+          <button class="chip" type="button" data-q="I need a software installed">Software request</button>
+        </div>
+      </section>
+      <div id="colEl"></div>
+    </div>
+  </main>
+
+  <footer class="composer">
+    <div class="col" style="min-height:0">
+      <div class="row">
+        <textarea id="inputEl" rows="1" maxlength="500" placeholder="Type your message" aria-label="Message"></textarea>
+        <button class="send" id="sendBtn" type="button" aria-label="Send message">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12l16-8-6 16-2.5-6.5L4 12z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="fine">Powered by <b>Alex Cyber<span class="x">X</span></b>. Conversations with this assistant are logged.</div>
+    </div>
+  </footer>
+</div>
+
+<script>
+'use strict';
+
+/* ── Lab plumbing (same pattern as the other lab pages) ── */
+function getSession() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('session') || '';
+}
+
+function getChallengeId() {
+  return 'ai-01';
+}
+
+function goBack() {
+  const challengeId = getChallengeId();
+  try {
+    if (window.opener && !window.opener.closed && typeof window.opener.acxLabReturn === 'function') {
+      window.opener.acxLabReturn(challengeId);
+      window.close();
+      return;
+    }
+  } catch (e) {}
+  try {
+    localStorage.setItem('acx_return_to_modal', challengeId);
+    localStorage.setItem('acx_return_ts', String(Date.now()));
+  } catch (e) {}
+  try {
+    sessionStorage.setItem('acx_back_to_ctf', challengeId);
+    sessionStorage.setItem('acx_back_ts', String(Date.now()));
+  } catch (e) {}
+  window.location.href = '/rooms';
+}
+
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'ACX_LAB_STOP') showInactive();
+});
+
+function showInactive() {
+  const overlay = document.getElementById('inactiveOverlay');
+  if (overlay) overlay.classList.add('show');
+}
+
+function checkStillActive() {
+  try {
+    const active = localStorage.getItem('acx_active_challenge');
+    if (active && active !== getChallengeId()) showInactive();
+  } catch (e) {}
+}
+window.addEventListener('storage', function(e) {
+  if (e.key === 'acx_active_challenge') checkStillActive();
+});
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) checkStillActive();
+});
+window.addEventListener('focus', checkStillActive);
+checkStillActive();
+
+/* ── Chat ── */
+const API = '/api/lab/aichat-easy';
+const PREVIEW = new URLSearchParams(window.location.search).get('preview') === '1';
+
+const colEl    = document.getElementById('colEl');
+const heroEl   = document.getElementById('heroEl');
+const logEl    = document.getElementById('logEl');
+const inputEl  = document.getElementById('inputEl');
+const sendBtn  = document.getElementById('sendBtn');
+const resetBtn = document.getElementById('resetBtn');
+const leftEl   = document.getElementById('leftEl');
+
+let busy = false;
+let typingEl = null;
+
+function scrollDown() {
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function nowTime() {
+  try { return new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+  catch (e) { return ''; }
+}
+
+function makeLogo() {
+  const o = document.createElement('span');
+  o.className = 'logo';
+  o.setAttribute('aria-hidden', 'true');
+  o.innerHTML = '<svg viewBox="0 0 40 40"><use href="#cx-logo"/></svg>';
+  return o;
+}
+
+function addMsg(role, text) {
+  heroEl.hidden = true;
+  const isUser = role === 'user';
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ' + (isUser ? 'user' : 'bot');
+
+  const stack = document.createElement('div');
+  stack.className = 'stack';
+
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  const name = document.createElement('b');
+  name.textContent = isUser ? 'You' : 'CorpX Assistant';
+  meta.appendChild(name);
+  meta.appendChild(document.createTextNode('  ' + nowTime()));
+
+  const body = document.createElement('div');
+  body.className = 'body';
+  body.textContent = text;           // textContent on purpose: model output is never treated as HTML
+
+  stack.appendChild(meta);
+  stack.appendChild(body);
+  if (!isUser) wrap.appendChild(makeLogo());
+  wrap.appendChild(stack);
+  colEl.appendChild(wrap);
+  scrollDown();
+}
+
+function addNote(text) {
+  heroEl.hidden = true;
+  const n = document.createElement('div');
+  n.className = 'note';
+  n.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5M12 16.5v.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  const s = document.createElement('span');
+  s.textContent = text;
+  n.appendChild(s);
+  colEl.appendChild(n);
+  scrollDown();
+}
+
+function showTyping() {
+  typingEl = document.createElement('div');
+  typingEl.className = 'msg bot typing';
+  typingEl.appendChild(makeLogo());
+  const stack = document.createElement('div');
+  stack.className = 'stack';
+  stack.innerHTML = '<div class="meta"><b>CorpX Assistant</b></div><div class="body">typing <span class="dots"><i></i><i></i><i></i></span></div>';
+  typingEl.appendChild(stack);
+  colEl.appendChild(typingEl);
+  scrollDown();
+}
+
+function hideTyping() {
+  if (typingEl) { typingEl.remove(); typingEl = null; }
+}
+
+function setBusy(v) {
+  busy = v;
+  sendBtn.disabled = v;
+  resetBtn.disabled = v;
+}
+
+function setLeft(n) {
+  if (typeof n === 'number' && n >= 0) {
+    leftEl.textContent = n + (n === 1 ? ' message left' : ' messages left');
+    leftEl.hidden = false;
+  } else {
+    leftEl.hidden = true;
+  }
+}
+
+function autosize() {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 112) + 'px';
+}
+
+function apiFetch(path, body) {
+  return fetch(API + path + '?session=' + encodeURIComponent(getSession()), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Lab-Session': getSession() },
+    body: JSON.stringify(body || {})
+  });
+}
+
+/* Preview mode only: placeholder replies so the UI can be checked without a backend. */
+const PREVIEW_REPLIES = [
+  'I can help with that. Which account is this for?',
+  'Password resets go through the self-service portal. I can walk you through it.',
+  'For VPN access I need to know which team you are on.',
+  'Software requests usually take one working day. What do you need installed?'
+];
+let previewIdx = 0;
+function previewReply() {
+  return new Promise(function(resolve) {
+    setTimeout(function() {
+      resolve(PREVIEW_REPLIES[previewIdx++ % PREVIEW_REPLIES.length]);
+    }, 900);
+  });
+}
+
+async function send() {
+  const text = inputEl.value.trim();
+  if (!text || busy) return;
+
+  addMsg('user', text);
+  inputEl.value = '';
+  autosize();
+  setBusy(true);
+  showTyping();
+
+  try {
+    if (PREVIEW) {
+      const reply = await previewReply();
+      hideTyping();
+      addMsg('bot', reply);
+    } else {
+      const res = await apiFetch('/chat', { message: text });
+      let data = {};
+      try { data = await res.json(); } catch (e) {}
+      hideTyping();
+      if (res.status === 429) {
+        addNote(data.error || 'Too many messages. Wait a moment, then try again.');
+      } else if (!res.ok) {
+        addNote(data.error || 'The assistant is not available right now. Try again in a moment.');
+      } else if (typeof data.reply === 'string' && data.reply) {
+        addMsg('bot', data.reply);
+        setLeft(data.remaining);
+      } else {
+        addNote('The assistant sent an empty reply. Try sending your message again.');
+      }
+    }
+  } catch (e) {
+    console.warn('[AI lab] chat request failed', e);
+    hideTyping();
+    addNote('Could not reach the server. Check your connection and try again.');
+  }
+
+  setBusy(false);
+  inputEl.focus();
+}
+
+function startFresh() {
+  colEl.innerHTML = '';
+  typingEl = null;
+  heroEl.hidden = false;
+  setLeft(null);
+}
+
+async function resetChat() {
+  if (busy) return;
+  setBusy(true);
+  if (!PREVIEW) {
+    try {
+      const res = await apiFetch('/reset');
+      if (!res.ok) throw new Error('reset failed');
+    } catch (e) {
+      addNote('Could not reset the conversation. Try again.');
+      setBusy(false);
+      return;
+    }
+  }
+  startFresh();
+  setBusy(false);
+  inputEl.focus();
+}
+
+sendBtn.addEventListener('click', send);
+resetBtn.addEventListener('click', resetChat);
+inputEl.addEventListener('input', autosize);
+inputEl.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+    e.preventDefault();
+    send();
+  }
+});
+document.querySelectorAll('.chip').forEach(function(c) {
+  c.addEventListener('click', function() {
+    inputEl.value = c.getAttribute('data-q') || '';
+    send();
+  });
+});
+
+/* Page load: show the welcome screen and clear any old server-side history so
+   what the player sees always matches what the assistant remembers. */
+startFresh();
+if (PREVIEW) {
+  document.getElementById('previewBar').hidden = false;
+} else {
+  apiFetch('/reset').catch(function() {});
+}
+inputEl.focus();
+</script>
+
+</body>
+</html>

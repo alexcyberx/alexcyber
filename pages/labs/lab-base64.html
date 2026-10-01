@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ns7_telemetry_snapshot.jpg :: AlexCyberX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #060907;
+    --ink: #f2fbf4;
+    --ink-dim: #8fa398;
+    --green: #4ade80;
+    --green-2: #22c55e;
+    --glow: rgba(74,222,128,0.32);
+    --line: rgba(255,255,255,0.08);
+    --font-display: 'Sora', 'Inter', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; min-height:100vh; background:var(--bg); color:var(--ink);
+    font-family:var(--font-body);
+  }
+  a{ color:inherit; text-decoration:none; }
+
+  /* ── NAV (decorative, non-functional) ── */
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 32px; border-bottom:1px solid var(--line);
+  }
+  .logo{ display:flex; align-items:center; gap:8px; font-family:var(--font-display); font-weight:600; font-size:17px; }
+  .logo svg{ flex-shrink:0; }
+  .nav-links{ display:flex; gap:28px; }
+  .nav-links a{ font-size:13.5px; color:var(--ink-dim); }
+  .nav-links a:hover{ color:var(--ink); }
+  .nav-right{ display:flex; align-items:center; gap:16px; }
+  .nav-login{ font-size:13px; color:var(--ink-dim); }
+  .nav-login:hover{ color:var(--ink); }
+  .nav-signup{
+    background:linear-gradient(135deg, var(--green), var(--green-2));
+    color:#06210f; font-size:13px; font-weight:700;
+    padding:9px 18px; border-radius:999px;
+  }
+  @media (max-width:900px){ .nav-links{ display:none; } }
+
+  /* ── HERO ── */
+  .hero{
+    position:relative; text-align:center; padding:100px 24px 70px; overflow:hidden;
+  }
+  .hero-glow{
+    position:absolute; top:-160px; left:50%; transform:translateX(-50%);
+    width:760px; height:760px; border-radius:50%;
+    background:radial-gradient(circle, var(--glow) 0%, rgba(34,197,94,0.16) 45%, transparent 70%);
+    pointer-events:none;
+  }
+  .hero-icon{
+    position:relative; width:110px; height:110px; margin:0 auto 36px;
+    border-radius:22px; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(155deg, #142418 0%, #0a0c0a 100%);
+    border:1px solid var(--line);
+    box-shadow:0 20px 60px -18px var(--glow);
+  }
+  .hero h1{
+    position:relative; font-family:var(--font-display); font-weight:500;
+    font-size:36px; line-height:1.25; margin:0; letter-spacing:-0.5px;
+  }
+  .hero h1 .file{
+    display:block; margin-top:10px; font-family:var(--font-mono); font-weight:500;
+    font-size:0.56em; letter-spacing:0; color:var(--green);
+    word-break:break-all;
+  }
+  .hero p.sub{
+    position:relative; font-size:14.5px; color:var(--ink-dim); line-height:1.7;
+    max-width:46ch; margin:18px auto 0;
+  }
+
+  .dl-row{ position:relative; margin-top:34px; display:flex; justify-content:center; }
+  .dl-btn{
+    display:inline-flex; align-items:center; gap:10px;
+    background:linear-gradient(135deg, var(--green), var(--green-2));
+    color:#06210f; font-weight:700; font-size:14.5px;
+    padding:14px 30px; border-radius:999px; border:none; cursor:pointer;
+    box-shadow:0 16px 40px -14px var(--glow);
+  }
+  .dl-btn:hover{ filter:brightness(1.06); }
+  .dl-btn:disabled{ opacity:0.6; cursor:default; }
+  .dl-btn svg{ flex-shrink:0; }
+
+  .meta-line{
+    position:relative; margin-top:16px; font-size:12px; color:var(--ink-dim);
+  }
+  .meta-line span{ color:var(--ink); font-weight:600; }
+
+  /* ── FOOTER STRIP (decorative brand repeat, like the reference) ── */
+  .brand-strip{ text-align:center; padding:60px 24px 70px; }
+  .brand-strip .logo{ justify-content:center; font-size:19px; margin-bottom:14px; }
+  .brand-strip .tagline{
+    font-family:var(--font-display); font-weight:500; font-size:24px;
+    color:var(--ink-dim); letter-spacing:-0.3px;
+  }
+  .brand-strip .tagline em{
+    font-style:normal; color:var(--green);
+  }
+
+  footer{
+    text-align:center; padding:22px; border-top:1px solid var(--line);
+    font-size:11.5px; color:var(--ink-dim);
+  }
+
+  .overlay{
+    display:none; position:fixed; inset:0; z-index:99; background:rgba(0,0,0,0.75);
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .overlay.show{ display:flex; }
+  .ocard{ background:#0c0c0f; border:1px solid var(--line); border-radius:12px; padding:26px; max-width:360px; text-align:center; }
+  .ocard h2{ font-family:var(--font-display); font-size:16px; margin:0 0 8px; color:var(--green); }
+  .ocard p{ font-size:12.5px; color:var(--ink-dim); margin:0 0 18px; line-height:1.6; }
+  .ocard-btn{
+    display:inline-block; color:#06210f; font-size:12.5px; font-weight:700;
+    border:none; border-radius:999px; padding:10px 22px; cursor:pointer;
+    background:linear-gradient(135deg, var(--green), var(--green-2));
+  }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="inactiveOverlay">
+  <div class="ocard">
+    <h2>Instance stopped</h2>
+    <p>Another challenge was started, so this instance is no longer live. Go back and relaunch cry-02 if needed.</p>
+    <button class="ocard-btn" onclick="goBack()">Back to CTF</button>
+  </div>
+</div>
+
+<nav>
+  <a class="logo" href="/rooms">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" fill="url(#navGrad)"/><defs><linearGradient id="navGrad" x1="4" y1="2" x2="20" y2="22"><stop stop-color="#4ade80"/><stop offset="1" stop-color="#22c55e"/></linearGradient></defs></svg>
+    Alex CyberX
+  </a>
+  <div class="nav-links">
+    <a href="#">Products</a>
+    <a href="#">Company</a>
+    <a href="#">Pricing</a>
+    <a href="#">Docs</a>
+    <a href="#">Changelog</a>
+  </div>
+  <div class="nav-right">
+    <a href="#" class="nav-login">Log in</a>
+    <a href="#" class="nav-signup">Sign up</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-icon">
+    <svg width="46" height="46" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="url(#iconGrad)" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="url(#iconGrad)" stroke-width="1.6" stroke-linejoin="round"/><defs><linearGradient id="iconGrad" x1="4" y1="2" x2="20" y2="22"><stop stop-color="#4ade80"/><stop offset="1" stop-color="#22c55e"/></linearGradient></defs></svg>
+  </div>
+  <h1>Download the intercepted file<span class="file" id="fileName">ns7_telemetry_snapshot.jpg</span></h1>
+  <p class="sub">Exported from the NS-7 ORION telemetry archive. Extension does not guarantee file type, inspect the contents yourself.</p>
+
+  <div class="dl-row">
+    <button class="dl-btn" id="dlBtn" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3v13m0 0l-4-4m4 4l4-4M4 21h16" stroke="#06210f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Download File
+    </button>
+  </div>
+  <div class="meta-line" id="metaLine">loading file info...</div>
+</section>
+
+<div class="brand-strip">
+  <div class="logo">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" fill="url(#stripGrad)"/><defs><linearGradient id="stripGrad" x1="4" y1="2" x2="20" y2="22"><stop stop-color="#4ade80"/><stop offset="1" stop-color="#22c55e"/></linearGradient></defs></svg>
+    Alex CyberX
+  </div>
+  <div class="tagline">Decode it. <em>Crack it.</em> Keep going.</div>
+</div>
+
+<footer>Alex CyberX, CTF Labs</footer>
+
+<script>
+'use strict';
+
+function getSession() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('session') || '';
+}
+
+function getChallengeId() {
+  return 'cry-02';
+}
+
+function goBack() {
+  const challengeId = getChallengeId();
+  try {
+    if (window.opener && !window.opener.closed && typeof window.opener.acxLabReturn === 'function') {
+      window.opener.acxLabReturn(challengeId);
+      window.close();
+      return;
+    }
+  } catch (e) {}
+  try {
+    localStorage.setItem('acx_return_to_modal', challengeId);
+    localStorage.setItem('acx_return_ts', String(Date.now()));
+  } catch (e) {}
+  try {
+    sessionStorage.setItem('acx_back_to_ctf', challengeId);
+    sessionStorage.setItem('acx_back_ts', String(Date.now()));
+  } catch (e) {}
+  window.location.href = '/rooms';
+}
+
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'ACX_LAB_STOP') showInactive();
+});
+
+function showInactive() {
+  const overlay = document.getElementById('inactiveOverlay');
+  if (overlay) overlay.classList.add('show');
+}
+
+function checkStillActive() {
+  try {
+    const active = localStorage.getItem('acx_active_challenge');
+    if (active && active !== getChallengeId()) showInactive();
+  } catch (e) {}
+}
+window.addEventListener('storage', function(e) {
+  if (e.key === 'acx_active_challenge') checkStillActive();
+});
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) checkStillActive();
+});
+window.addEventListener('focus', checkStillActive);
+checkStillActive();
+
+async function loadInfo() {
+  try {
+    const res = await fetch('/api/lab/base64/info?session=' + encodeURIComponent(getSession()), {
+      headers: { 'X-Lab-Session': getSession() }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.filename) document.getElementById('fileName').textContent = data.filename;
+    if (data.size_bytes) {
+      document.getElementById('metaLine').innerHTML = '<span>' + data.size_bytes + ' bytes</span> &middot; single file';
+    }
+  } catch (e) {
+    console.warn('[Base64] info fetch failed', e);
+    document.getElementById('metaLine').textContent = 'Could not load file info.';
+  }
+}
+
+function downloadFile() {
+  const btn = document.getElementById('dlBtn');
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.textContent = 'Preparing...';
+
+  const session = getSession();
+  const url = '/api/lab/base64/download?session=' + encodeURIComponent(session);
+
+  fetch(url, { headers: { 'X-Lab-Session': session } })
+    .then(res => {
+      if (res.status === 403) { showInactive(); throw new Error('Instance not active'); }
+      if (!res.ok) throw new Error('Download failed');
+      return res.blob();
+    })
+    .then(blob => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = document.getElementById('fileName').textContent || 'ns7_telemetry_snapshot.jpg';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    })
+    .catch(err => {
+      console.warn('[Base64] download error', err);
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = original;
+    });
+}
+
+document.getElementById('dlBtn').addEventListener('click', downloadFile);
+
+loadInfo();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+Ye update ek specific bug fix karta hai: home page pe course
+cards first load pe blank aana, scroll karne par dikhna.
+
+════════════════════════════════════════
+ASLI WAJAH:
+════════════════════════════════════════
+Site mein ek "scroll pe fade-in" effect hai (js/reveal.js) jo
+poore page pe use hota hai - elements shuru mein invisible
+rehte hain, jab wo screen pe aate hain to fade-in ho jaate hain.
+Ye effect page load hote hi, aur jab bhi scroll karo, check karta
+hai ki kaunse elements dikhane hain.
+
+Problem: course cards Supabase se data aane ke BAAD (thoda der
+baad) DOM mein add hote hain. Jab tak wo add hote hain, "page
+load hote hi" wala check pehle hi ho chuka hota hai - naye cards
+ko koi dekhta hi nahi, isliye wo invisible (blank) reh jaate hain.
+Sirf scroll karne par (jo alag se check karta hai) wo dikhte hain.
+Isiliye "first time blank, scroll pe show" - tumhara guess sahi
+disha mein tha (effect hi tha), bas exact wajah ye thi.
+
+════════════════════════════════════════
+BADLI HUI FILES (same path pe OVERWRITE karna hai):
+════════════════════════════════════════
+  js/reveal.js
+      -> Ek chhota sa "reCheck karo" function bahar expose kiya
+         (window.acxReScanReveal) jise koi bhi aur script bula
+         sakta hai jab naya content add kare.
+  js/courses.js
+      -> Course cards add hone ke turant baad ab isi function ko
+         khud call karta hai - matlab cards turant check ho jaate
+         hain, scroll ka wait nahi karna padta.
+
+Check kiya: ye exact pattern (data-reveal wale elements innerHTML
+se add karna) sirf isi ek jagah tha, poore project mein aur kahin
+nahi - matlab ye fix complete hai, kahin aur yahi issue nahi hai.

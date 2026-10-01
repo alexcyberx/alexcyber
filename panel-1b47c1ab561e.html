@@ -1,0 +1,3796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel - alexcyberx</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ══════════════════════════════════════════
+   VARIABLES, matches alexcyberx project
+══════════════════════════════════════════ */
+:root {
+  --red:       #dc1414;
+  --red-dim:   rgba(220,20,20,0.12);
+  --red-glow:  rgba(220,20,20,0.25);
+  --dark:      #060608;
+  --surface:   #0c0c0f;
+  --surface2:  #111115;
+  --surface3:  #16161b;
+  --border:    rgba(255,255,255,0.06);
+  --border-h:  rgba(255,255,255,0.1);
+  --text:      #b0b0b8;
+  --text-dim:  #6a6a7a;
+  --white:     #f4f4f5;
+  --green:     #22c55e;
+  --yellow:    #f59e0b;
+  --blue:      #3b82f6;
+  --purple:    #a855f7;
+  --sidebar-w: 230px;
+  --topbar-h:  56px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--dark);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* noise */
+body::after {
+  content:'';
+  position:fixed; inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:0; opacity:0.4;
+}
+
+::-webkit-scrollbar { width:3px; height:3px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#1a1a1a; border-radius:2px; }
+.sidebar::-webkit-scrollbar { width:3px; }
+.sidebar::-webkit-scrollbar-thumb { background:#2a2a3a; border-radius:2px; }
+.sidebar::-webkit-scrollbar-thumb:hover { background:#3a3a4a; }
+
+/* ══════════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════════ */
+.layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  grid-template-rows: var(--topbar-h) 1fr;
+  min-height: 100vh;
+  position: relative; z-index:1;
+}
+
+/* ══════════════════════════════════════════
+   TOPBAR
+══════════════════════════════════════════ */
+.topbar {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  height: var(--topbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px 0 0;
+  gap: 12px;
+  position: sticky; top:0; z-index:100;
+}
+
+.topbar-logo {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-right: 1px solid var(--border);
+  height: 100%;
+}
+
+.topbar-logo-icon {
+  width: 28px; height: 28px;
+  background: var(--red);
+  border-radius: 6px;
+  display: flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+
+.topbar-logo-text {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--white);
+  letter-spacing: 0.3px;
+}
+.topbar-logo-text span { color: var(--red); }
+
+.topbar-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding-left: 4px;
+}
+
+.topbar-spacer { flex: 1; }
+
+.topbar-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  width: 220px;
+  transition: border-color 0.2s;
+}
+.topbar-search:focus-within { border-color: var(--border-h); }
+.topbar-search input {
+  background: none; border:none; outline:none;
+  color: var(--text);
+  font-size: 12px; width:100%;
+}
+.topbar-search input::placeholder { color: var(--text-dim); }
+.topbar-search svg { flex-shrink:0; }
+
+.topbar-badge {
+  position: relative;
+  width: 34px; height: 34px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex; align-items:center; justify-content:center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.topbar-badge:hover { background:var(--surface3); border-color:var(--border-h); }
+.topbar-badge .dot {
+  position:absolute; top:7px; right:7px;
+  width:6px; height:6px; border-radius:50%;
+  background: var(--red);
+  border: 1.5px solid var(--surface);
+}
+
+.topbar-admin {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.topbar-admin:hover { border-color: var(--border-h); }
+.topbar-admin-avatar {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--red);
+  display: flex; align-items:center; justify-content:center;
+  font-size: 11px; font-weight: 700; color: #fff;
+}
+.topbar-admin-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--white);
+}
+.topbar-admin-role {
+  font-size: 10px;
+  color: var(--red);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* ══════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════ */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 16px 0;
+  overflow-y: auto;
+  grid-column: 1;
+  grid-row: 2;
+  height: calc(100vh - var(--topbar-h));
+  position: sticky;
+  top: var(--topbar-h);
+  align-self: start;
+}
+
+.sidebar-section {
+  padding: 6px 14px 2px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 10px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  margin: 1px 8px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+  border: 1px solid transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  position: relative;
+}
+.sidebar-item:hover {
+  background: var(--surface2);
+  color: var(--white);
+}
+.sidebar-item.active {
+  background: var(--red-dim);
+  color: var(--white);
+  border-color: rgba(220,20,20,0.2);
+}
+.sidebar-item.active svg { color: var(--red); }
+.sidebar-item svg { flex-shrink:0; opacity:0.7; transition:opacity 0.15s; }
+.sidebar-item:hover svg, .sidebar-item.active svg { opacity:1; }
+
+.sidebar-badge {
+  margin-left: auto;
+  background: var(--red);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 10px;
+  letter-spacing: 0.3px;
+}
+
+.sidebar-badge.green { background: var(--green); }
+.sidebar-badge.yellow { background: var(--yellow); color: #000; }
+
+/* ══════════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════════ */
+.main {
+  grid-column: 2;
+  grid-row: 2;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--dark);
+  min-height: 0;
+  height: calc(100vh - var(--topbar-h));
+}
+
+.section {
+  display: none;
+  padding: 28px 28px;
+  width: 100%;
+  max-width: 1400px;
+}
+.section.active { display: block; }
+
+/* PAGE HEADER */
+.page-header {
+  margin-bottom: 24px;
+}
+.page-header h1 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.3px;
+}
+.page-header p {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+
+/* BREADCRUMB */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+}
+.breadcrumb span { color: var(--red); font-weight: 500; }
+
+/* ══════════════════════════════════════════
+   STAT CARDS
+══════════════════════════════════════════ */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.stat-card:hover { border-color: var(--border-h); transform: translateY(-1px); }
+.stat-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background: var(--red);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.stat-card:hover::before { opacity:1; }
+
+.stat-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items:center; justify-content:center;
+  margin-bottom: 14px;
+}
+.stat-icon.red   { background: rgba(220,20,20,0.12); color: var(--red); }
+.stat-icon.green { background: rgba(34,197,94,0.1);  color: var(--green); }
+.stat-icon.blue  { background: rgba(59,130,246,0.1); color: var(--blue); }
+.stat-icon.purple{ background: rgba(168,85,247,0.1); color: var(--purple); }
+.stat-icon.yellow{ background: rgba(245,158,11,0.1); color: var(--yellow); }
+
+.stat-value {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+.stat-delta {
+  font-size: 10px;
+  color: var(--green);
+  font-weight: 600;
+  margin-top: 8px;
+  display: flex; align-items:center; gap:3px;
+}
+.stat-delta.down { color: var(--red); }
+
+/* ══════════════════════════════════════════
+   CHARTS / GRAPH AREA
+══════════════════════════════════════════ */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.span-2 { grid-column: span 2; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border-h); }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.card-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: 0.3px;
+}
+.card-action {
+  font-size: 11px;
+  color: var(--red);
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.2s;
+  background:none; border:none;
+}
+.card-action:hover { opacity: 0.7; }
+
+/* MINI BAR CHART */
+.mini-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 80px;
+}
+.mini-bar {
+  flex: 1;
+  background: var(--red-dim);
+  border-radius: 3px 3px 0 0;
+  border: 1px solid rgba(220,20,20,0.2);
+  transition: background 0.2s;
+  cursor: pointer;
+  position: relative;
+}
+.mini-bar:hover { background: rgba(220,20,20,0.28); }
+.mini-bar.today { background: rgba(220,20,20,0.35); border-color: rgba(220,20,20,0.5); }
+.mini-bar-label {
+  font-size: 9px; color: var(--text-dim);
+  text-align:center; margin-top: 5px;
+}
+.mini-chart-wrap .labels {
+  display: flex; gap:5px; margin-top:4px;
+}
+.mini-chart-wrap .labels span { flex:1; text-align:center; font-size:9px; color:var(--text-dim); }
+
+/* LINE GRAPH (SVG) */
+.line-graph-wrap { position:relative; height:120px; }
+.line-graph-wrap svg { width:100%; height:100%; overflow:visible; }
+.graph-line { fill:none; stroke: var(--red); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.graph-area { fill:url(#redGrad); opacity:0.6; }
+.graph-dot { fill:var(--red); stroke:var(--surface); stroke-width:2; cursor:pointer; transition:r 0.2s; }
+.graph-dot:hover { r:5; }
+.graph-labels { display:flex; justify-content:space-between; margin-top:8px; }
+.graph-labels span { font-size:9px; color:var(--text-dim); }
+
+/* ══════════════════════════════════════════
+   TABLE
+══════════════════════════════════════════ */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+thead tr {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
+thead th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+thead th:hover { color: var(--text); }
+
+tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.15s;
+}
+tbody tr:hover { background: var(--surface2); }
+tbody tr:last-child { border-bottom: none; }
+
+tbody td {
+  padding: 10px 14px;
+  color: var(--text);
+  vertical-align: middle;
+}
+
+/* AVATAR CELL */
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.user-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--red-dim);
+  border: 1px solid rgba(220,20,20,0.2);
+  display: flex; align-items:center; justify-content:center;
+  font-size: 11px; font-weight: 600; color: var(--red);
+  flex-shrink:0;
+}
+.user-name { font-weight: 500; color: var(--white); font-size:12px; }
+.user-email { font-size:10px; color:var(--text-dim); }
+
+/* STATUS BADGES */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.mob-nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; margin: 1px 6px;
+  border-radius: 7px; cursor: pointer;
+  font-size: 13px; color: var(--text);
+  transition: background .15s, color .15s;
+}
+.mob-nav-item:hover { background: var(--surface3); color: var(--white); }
+.mob-nav-item.active { background: var(--red-dim); color: var(--red); }
+.mob-nav-item svg { flex-shrink: 0; opacity: 0.7; }
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: color .2s, border-color .2s;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: #818cf8; border-bottom-color: #6366f1; }
+.badge::before {
+  content:'';
+  width:5px; height:5px; border-radius:50%;
+}
+.badge.active   { background: rgba(34,197,94,0.1);  color: var(--green);  }
+.badge.active::before { background:var(--green); }
+.badge.banned   { background: rgba(220,20,20,0.12); color: var(--red);    }
+.badge.banned::before { background:var(--red); }
+.badge.inactive { background: rgba(107,114,128,0.1);color: #6b7280;       }
+.badge.inactive::before { background:#6b7280; }
+.badge.admin    { background: rgba(168,85,247,0.1); color: var(--purple); border:1px solid rgba(168,85,247,0.2); }
+.badge.admin::before { background:var(--purple); }
+.badge.mod      { background: rgba(59,130,246,0.1); color: var(--blue);   border:1px solid rgba(59,130,246,0.2); }
+.badge.mod::before { background:var(--blue); }
+.badge.user-role{ background: rgba(255,255,255,0.05); color: var(--text); border:1px solid var(--border); }
+.badge.user-role::before { background:var(--text-dim); }
+
+/* ACTION BUTTONS */
+.action-btns { display:flex; align-items:center; gap:6px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn:hover { background:var(--surface3); border-color:var(--border-h); color:var(--white); }
+
+.btn.red    { background:var(--red-dim); border-color:rgba(220,20,20,0.25); color:var(--red); }
+.btn.red:hover { background:rgba(220,20,20,0.2); }
+
+.btn.green  { background:rgba(34,197,94,0.1); border-color:rgba(34,197,94,0.25); color:var(--green); }
+.btn.green:hover { background:rgba(34,197,94,0.18); }
+
+.btn.primary { background:var(--red); border-color:var(--red); color:#fff; }
+.btn.primary:hover { background:#c01010; }
+
+.btn.icon-only {
+  padding: 6px; width:28px; height:28px;
+  justify-content:center;
+}
+
+/* ══════════════════════════════════════════
+   TOOLBAR (search + filter row)
+══════════════════════════════════════════ */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  flex: 1;
+  min-width: 200px;
+  transition: border-color 0.2s;
+}
+.search-input:focus-within { border-color: var(--border-h); }
+.search-input input {
+  background:none; border:none; outline:none;
+  color: var(--text); font-size:12px; width:100%;
+}
+.search-input input::placeholder { color:var(--text-dim); }
+
+.select-filter {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--text);
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.select-filter:focus { border-color: var(--border-h); }
+.select-filter option { background: var(--surface2); }
+
+/* ══════════════════════════════════════════
+   RECENT SIGNUPS LIST
+══════════════════════════════════════════ */
+.signup-list { display:flex; flex-direction:column; gap:10px; }
+.signup-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px;
+  background:var(--surface2);
+  border-radius:8px;
+  border:1px solid var(--border);
+  transition:border-color 0.2s;
+}
+.signup-item:hover { border-color:var(--border-h); }
+.signup-info { flex:1; }
+.signup-name { font-size:12px; font-weight:500; color:var(--white); }
+.signup-meta { font-size:10px; color:var(--text-dim); margin-top:1px; }
+.signup-time { font-size:10px; color:var(--text-dim); white-space:nowrap; }
+
+/* ══════════════════════════════════════════
+   QUICK ACTIONS
+══════════════════════════════════════════ */
+.quick-actions { display:flex; gap:10px; flex-wrap:wrap; }
+.qa-btn {
+  display:flex; align-items:center; gap:8px;
+  padding:10px 14px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:500;
+  color:var(--text);
+  transition:all 0.15s;
+}
+.qa-btn:hover { background:var(--surface3); border-color:var(--border-h); color:var(--white); }
+.qa-btn svg { opacity:0.6; }
+.qa-btn:hover svg { opacity:1; }
+
+/* ══════════════════════════════════════════
+   CONTENT MANAGEMENT, chapter cards
+══════════════════════════════════════════ */
+.chapter-list { display:flex; flex-direction:column; gap:8px; }
+.chapter-card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  transition:border-color 0.2s;
+  cursor:grab;
+}
+.chapter-card:hover { border-color:var(--border-h); }
+.chapter-card.dragging { opacity:0.5; }
+
+.drag-handle { color:var(--text-dim); cursor:grab; flex-shrink:0; }
+.chapter-num {
+  font-family:'Rajdhani',sans-serif;
+  font-size:18px; font-weight:700;
+  color:var(--red); opacity:0.5;
+  width:28px; flex-shrink:0; text-align:center;
+}
+.chapter-info { flex:1; }
+.chapter-title { font-size:13px; font-weight:500; color:var(--white); }
+.chapter-desc  { font-size:11px; color:var(--text-dim); margin-top:2px; }
+.chapter-meta  { display:flex; gap:14px; margin-top:5px; }
+.chapter-stat  { font-size:10px; color:var(--text-dim); display:flex; align-items:center; gap:4px; }
+
+/* TOGGLE */
+.toggle {
+  position:relative;
+  display:inline-block;
+  flex:0 0 34px;
+  width:34px; min-width:34px; max-width:34px;
+  height:18px;
+  box-sizing:border-box;
+  vertical-align:middle;
+}
+.toggle input { position:absolute; opacity:0; width:0; height:0; margin:0; }
+.toggle-slider {
+  position:absolute; inset:0;
+  display:block;
+  background:rgba(255,255,255,0.08);
+  border:1px solid var(--border);
+  border-radius:20px;
+  box-sizing:border-box;
+  cursor:pointer;
+  transition:background 0.2s, border-color 0.2s;
+}
+.toggle-slider::before {
+  content:'';
+  position:absolute;
+  left:2px; top:50%; transform:translateY(-50%);
+  width:12px; height:12px;
+  background:#6a6a7a;
+  border-radius:50%;
+  transition:left 0.2s, background 0.2s;
+}
+.toggle input:checked + .toggle-slider {
+  background:rgba(220,20,20,0.15);
+  border-color:rgba(220,20,20,0.3);
+}
+.toggle input:checked + .toggle-slider::before {
+  left:18px; background:var(--red);
+}
+
+/* ══════════════════════════════════════════
+   ANALYTICS
+══════════════════════════════════════════ */
+.analytics-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+.analytics-row:last-child { border-bottom:none; }
+.analytics-page { font-size:12px; color:var(--white); font-weight:500; }
+.analytics-bar-wrap { flex:1; margin:0 14px; height:4px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; }
+.analytics-bar { height:100%; background:var(--red); border-radius:2px; }
+.analytics-val { font-size:11px; color:var(--text-dim); white-space:nowrap; font-weight:500; min-width:50px; text-align:right; }
+
+/* DONUT */
+.donut-wrap { display:flex; align-items:center; gap:20px; }
+.donut-svg { flex-shrink:0; }
+.donut-legend { display:flex; flex-direction:column; gap:8px; }
+.donut-item { display:flex; align-items:center; gap:8px; font-size:11px; color:var(--text); }
+.donut-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+/* ══════════════════════════════════════════
+   SECURITY LOGS
+══════════════════════════════════════════ */
+.log-entry {
+  display:flex; align-items:flex-start; gap:12px;
+  padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  transition:background 0.15s;
+}
+.log-entry:hover { background:var(--surface2); }
+.log-entry:last-child { border-bottom:none; }
+.log-icon {
+  width:30px; height:30px; border-radius:7px;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; margin-top:1px;
+}
+.log-icon.warn  { background:rgba(245,158,11,0.1); color:var(--yellow); }
+.log-icon.danger{ background:rgba(220,20,20,0.12); color:var(--red); }
+.log-icon.info  { background:rgba(59,130,246,0.1); color:var(--blue); }
+.log-icon.success{ background:rgba(34,197,94,0.1); color:var(--green); }
+.log-body { flex:1; }
+.log-title { font-size:12px; font-weight:500; color:var(--white); }
+.log-sub   { font-size:10px; color:var(--text-dim); margin-top:2px; }
+.log-time  { font-size:10px; color:var(--text-dim); white-space:nowrap; }
+
+/* BLOCKED IP */
+.ip-tag {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 8px;
+  background:rgba(220,20,20,0.1);
+  border:1px solid rgba(220,20,20,0.2);
+  border-radius:5px;
+  font-size:10px;
+  font-family:monospace;
+  color:var(--red);
+}
+.ip-tag .remove {
+  cursor:pointer; opacity:0.5; transition:opacity 0.15s;
+  background:none; border:none; color:var(--red); padding:0; line-height:1;
+}
+.ip-tag .remove:hover { opacity:1; }
+
+/* ══════════════════════════════════════════
+   MESSAGES / INBOX
+══════════════════════════════════════════ */
+.msg-item {
+  display:flex; align-items:flex-start; gap:12px;
+  padding:14px 16px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  transition:background 0.15s;
+  cursor:pointer;
+}
+.msg-item:hover { background:var(--surface2); }
+.msg-item.unread { background:rgba(220,20,20,0.04); }
+.msg-item.unread .msg-name { color:var(--white); }
+.unread-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--red); flex-shrink:0; margin-top:5px;
+}
+.msg-info { flex:1; }
+.msg-name  { font-size:12px; font-weight:500; color:var(--text); }
+.msg-subj  { font-size:12px; color:var(--text-dim); margin-top:2px; }
+.msg-preview{ font-size:11px; color:var(--text-dim); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:400px; }
+.msg-time  { font-size:10px; color:var(--text-dim); white-space:nowrap; }
+
+/* ══════════════════════════════════════════
+   SETTINGS
+══════════════════════════════════════════ */
+.settings-group {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  margin-bottom:16px;
+  overflow:hidden;
+}
+.settings-group-title {
+  padding:12px 18px;
+  border-bottom:1px solid var(--border);
+  font-family:'Rajdhani',sans-serif;
+  font-size:13px; font-weight:600; color:var(--white);
+  letter-spacing:0.3px;
+}
+.setting-row {
+  display:flex; align-items:center;
+  padding:14px 18px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  gap:14px;
+  flex-wrap:wrap;
+  box-sizing:border-box;
+}
+.setting-row:last-child { border-bottom:none; }
+.setting-info { flex:1 1 200px; min-width:0; }
+.setting-label { font-size:13px; color:var(--white); font-weight:500; }
+.setting-desc  { font-size:11px; color:var(--text-dim); margin-top:2px; }
+.setting-control { flex-shrink:0; margin-left:auto; display:flex; align-items:center; }
+@media (max-width: 480px) {
+  .setting-row { flex-wrap:wrap; }
+  .setting-control { margin-left:0; width:100%; justify-content:flex-start; }
+}
+
+.text-input {
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:7px 11px;
+  color:var(--text);
+  font-size:12px;
+  outline:none;
+  width:220px;
+  transition:border-color 0.2s;
+}
+.text-input:focus { border-color:var(--red); color:var(--white); }
+
+/* ══════════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════════ */
+.empty {
+  text-align:center; padding:40px 20px;
+  color:var(--text-dim); font-size:13px;
+}
+.empty svg { opacity:0.2; margin-bottom:10px; }
+
+/* ══════════════════════════════════════════
+   PAGINATION
+══════════════════════════════════════════ */
+.pagination {
+  display:flex; align-items:center; gap:6px;
+  margin-top:14px; justify-content:flex-end;
+}
+.page-btn {
+  width:28px; height:28px;
+  border-radius:6px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-size:11px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.page-btn:hover { border-color:var(--border-h); color:var(--white); }
+.page-btn.active { background:var(--red-dim); border-color:rgba(220,20,20,0.3); color:var(--white); }
+.page-info { font-size:11px; color:var(--text-dim); padding:0 6px; }
+
+/* ══════════════════════════════════════════
+   MODAL (user detail / edit)
+══════════════════════════════════════════ */
+.modal-overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.7);
+  display:flex; align-items:center; justify-content:center;
+  z-index:1000;
+  opacity:0; pointer-events:none;
+  transition:opacity 0.2s;
+}
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:24px;
+  width:460px;
+  max-width:94vw;
+  max-height:90vh;
+  overflow-y:auto;
+  transform:translateY(10px);
+  transition:transform 0.2s;
+}
+.modal-overlay.open .modal { transform:translateY(0); }
+.modal-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:20px;
+}
+.modal-title {
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px; font-weight:700; color:var(--white);
+}
+.modal-close {
+  width:28px; height:28px;
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:6px; cursor:pointer; color:var(--text);
+  display:flex; align-items:center; justify-content:center;
+  transition:all 0.15s;
+}
+.modal-close:hover { border-color:var(--border-h); color:var(--white); }
+.modal-field { margin-bottom:14px; }
+.modal-field label { display:block; font-size:11px; color:var(--text-dim); font-weight:500; margin-bottom:5px; }
+.modal-field .text-input { width:100%; }
+.modal-footer { display:flex; gap:8px; margin-top:20px; justify-content:flex-end; }
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+.toast-container {
+  position:fixed; bottom:20px; right:20px;
+  display:flex; flex-direction:column; gap:8px;
+  z-index:9999;
+}
+.toast {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 14px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-size:12px; color:var(--text);
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+  animation: slideIn 0.3s ease;
+  min-width:240px;
+}
+.toast.success { border-color:rgba(34,197,94,0.3); }
+.toast.error   { border-color:rgba(220,20,20,0.3); }
+.toast-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.toast.success .toast-dot { background:var(--green); }
+.toast.error   .toast-dot { background:var(--red); }
+
+@keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   GAMIFICATION
+══════════════════════════════════════════ */
+.xp-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.xp-config-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  transition: border-color 0.2s;
+}
+.xp-config-card:hover { border-color: var(--border-h); }
+.xp-config-label { font-size: 10px; color: var(--text-dim); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px; }
+.xp-config-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  color: var(--white);
+  font-size: 14px;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.xp-config-input:focus { border-color: var(--red); }
+
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.15s;
+}
+.leaderboard-row:hover { background: var(--surface2); }
+.leaderboard-row:last-child { border-bottom: none; }
+.lb-rank {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.lb-rank.gold   { color: #f59e0b; }
+.lb-rank.silver { color: #9ca3af; }
+.lb-rank.bronze { color: #cd7c2e; }
+.lb-rank.other  { color: var(--text-dim); font-size: 14px; }
+.lb-xp {
+  margin-left: auto;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--red);
+}
+.lb-level {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.level-beginner     { background: rgba(107,114,128,0.15); color: #9ca3af; }
+.level-intermediate { background: rgba(59,130,246,0.1);  color: #3b82f6; }
+.level-advanced     { background: rgba(168,85,247,0.1);  color: #a855f7; }
+.level-expert       { background: rgba(245,158,11,0.1);  color: #f59e0b; }
+.level-elite        { background: rgba(220,20,20,0.12);  color: #dc1414; }
+
+/* ══════════════════════════════════════════
+   CTF MANAGER
+══════════════════════════════════════════ */
+.ctf-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  transition: border-color 0.2s;
+}
+.ctf-card:hover { border-color: var(--border-h); }
+.ctf-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.ctf-title { font-size: 13px; font-weight: 600; color: var(--white); }
+.ctf-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.ctf-tag {
+  font-size: 9px; font-weight: 600; letter-spacing: 0.5px;
+  padding: 2px 7px; border-radius: 10px;
+  text-transform: uppercase;
+}
+.ctf-tag.easy   { background: rgba(34,197,94,0.12);  color: #22c55e; }
+.ctf-tag.medium { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.ctf-tag.hard   { background: rgba(220,20,20,0.12);  color: #dc1414; }
+.ctf-tag.insane { background: rgba(168,85,247,0.12); color: #a855f7; }
+.ctf-tag.cat    { background: rgba(59,130,246,0.1);  color: #3b82f6; border: 1px solid rgba(59,130,246,0.2); }
+.ctf-points { font-family: 'Rajdhani', sans-serif; font-size: 20px; font-weight: 700; color: var(--red); }
+.ctf-solves { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+.ctf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.ctf-scoreboard-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.ctf-scoreboard-row:last-child { border-bottom: none; }
+.ctf-score-name { flex: 1; font-size: 12px; color: var(--white); font-weight: 500; }
+.ctf-score-solves { font-size: 11px; color: var(--text-dim); }
+.ctf-score-pts { font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700; color: var(--yellow); min-width: 60px; text-align: right; }
+
+/* ══════════════════════════════════════════
+   PROGRESS & CERTIFICATES
+══════════════════════════════════════════ */
+.progress-bar-wrap { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+.progress-bar { height: 100%; border-radius: 3px; background: var(--red); transition: width 0.4s; }
+
+.cert-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: border-color 0.2s;
+}
+.cert-card:hover { border-color: var(--border-h); }
+.cert-icon {
+  width: 40px; height: 40px;
+  background: rgba(220,20,20,0.1);
+  border: 1px solid rgba(220,20,20,0.2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: var(--red);
+}
+.cert-info { flex: 1; }
+.cert-name  { font-size: 13px; font-weight: 500; color: var(--white); }
+.cert-meta  { font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+.cert-id    { font-size: 10px; font-family: monospace; color: var(--red); margin-top: 2px; }
+
+
+@media (max-width: 900px) {
+  :root { --sidebar-w: 52px; }
+  .sidebar-item span, .sidebar-section, .sidebar-badge { display:none; }
+  .sidebar-item { justify-content:center; padding:10px; margin:1px 4px; }
+  .topbar-logo-text { display:none; }
+  .topbar-logo { width: 52px; justify-content: center; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns:1fr 1fr; }
+  .span-2 { grid-column:span 1; }
+  .section { padding: 20px 16px; }
+}
+@media (max-width: 640px) {
+  /* Hide sidebar entirely on phones */
+  .sidebar { display: none; }
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: var(--topbar-h) 1fr;
+    min-height: 100vh;
+  }
+  .main { grid-column: 1; grid-row: 2; height: auto; overflow-y: visible; }
+  .topbar { grid-column: 1; grid-row: 1; }
+
+  /* Hamburger button */
+  #hamburgerBtn { display: flex !important; }
+
+  /* Mobile sidebar drawer */
+  #mobileSidebar {
+    display: block !important;
+    position: fixed;
+    top: 0; left: -260px;
+    width: 240px; height: 100%;
+    background: var(--surface2);
+    border-right: 1px solid var(--border);
+    z-index: 8000;
+    overflow-y: auto;
+    transition: left .25s cubic-bezier(.4,0,.2,1);
+    padding: 16px 0 32px;
+  }
+  #mobileSidebar.open { left: 0; }
+  #mobileOverlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 7999;
+    backdrop-filter: blur(2px);
+  }
+  #mobileOverlay.open { display: block; }
+
+  .section { padding: 14px; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .topbar-search { display: none; }
+
+  /* Topbar compact */
+  .topbar-admin-name { display: none; }
+  .topbar-admin-role { display: none; }
+  .topbar-admin { padding: 0; background: none; border: none; }
+}
+/* ══════════════════════════════════════════
+   GAMIFICATION / CTF / PROGRESS, additions
+══════════════════════════════════════════ */
+.xp-bar-track {
+  width:100%; height:8px; border-radius:5px;
+  background: var(--surface3); overflow:hidden;
+}
+.xp-bar-fill {
+  height:100%; border-radius:5px;
+  background: linear-gradient(90deg, var(--red), #ff5a5a);
+}
+.rank-pill {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:22px; height:22px; border-radius:6px; font-size:11px; font-weight:700;
+  background:var(--surface3); color:var(--text-dim);
+}
+.rank-pill.gold   { background:rgba(245,158,11,0.15); color:var(--yellow); }
+.rank-pill.silver { background:rgba(176,176,184,0.15); color:#cfcfd6; }
+.rank-pill.bronze { background:rgba(220,20,20,0.12); color:#e08a5a; }
+
+.ctf-card {
+  background:var(--surface2); border:1px solid var(--border); border-radius:10px;
+  padding:14px; display:flex; flex-direction:column; gap:8px;
+}
+.ctf-card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+.ctf-card .ctf-title{ font-size:13px; font-weight:600; color:var(--white); }
+.ctf-card .ctf-cat{ font-size:10px; color:var(--text-dim); }
+.ctf-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px;
+}
+.badge.diff-easy   { background:rgba(34,197,94,0.1);  color:var(--green); }
+.badge.diff-easy::before  { background:var(--green); }
+.badge.diff-medium { background:rgba(245,158,11,0.1); color:var(--yellow); }
+.badge.diff-medium::before{ background:var(--yellow); }
+.badge.diff-hard   { background:rgba(220,20,20,0.12); color:var(--red); }
+.badge.diff-hard::before  { background:var(--red); }
+.badge.cert-issued  { background:rgba(34,197,94,0.1);  color:var(--green); }
+.badge.cert-issued::before  { background:var(--green); }
+.badge.cert-revoked { background:rgba(220,20,20,0.12); color:var(--red); }
+.badge.cert-revoked::before { background:var(--red); }
+.badge.cert-pending { background:rgba(245,158,11,0.1); color:var(--yellow); }
+.badge.cert-pending::before { background:var(--yellow); }
+
+.mini-progress-wrap{ display:flex; align-items:center; gap:8px; min-width:120px; }
+.mini-progress-wrap .xp-bar-track{ flex:1; }
+.mini-progress-wrap span{ font-size:11px; color:var(--text-dim); white-space:nowrap; }
+
+.textarea-input{
+  width:100%; padding:8px; background:var(--surface3); border:1px solid var(--border);
+  border-radius:6px; color:var(--text); font-family:inherit; font-size:12px; resize:vertical;
+}
+.field-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+/* ══════════════════════════════════════════
+   ANIMATIONS, subtle, professional motion
+   for section switches, modals, tables, sidebar
+══════════════════════════════════════════ */
+
+/* Section switch (nav() toggles .section.active, same mechanism
+   the public site uses on .page, so this hooks in with no JS change) */
+.section { opacity: 0; }
+.section.active {
+  opacity: 1;
+  animation: admSectionIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes admSectionIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Modal, already has an opacity/transform transition (see .modal-overlay
+   .open above); we just switch it to a slightly nicer easing curve. */
+.modal-overlay { transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1); }
+.modal { transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Table rows, soft staggered fade-in each time a table body re-renders */
+tbody tr {
+  animation: admRowIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+tbody tr:nth-child(1)  { animation-delay: 0.01s; }
+tbody tr:nth-child(2)  { animation-delay: 0.03s; }
+tbody tr:nth-child(3)  { animation-delay: 0.05s; }
+tbody tr:nth-child(4)  { animation-delay: 0.07s; }
+tbody tr:nth-child(5)  { animation-delay: 0.09s; }
+tbody tr:nth-child(6)  { animation-delay: 0.11s; }
+tbody tr:nth-child(7)  { animation-delay: 0.13s; }
+tbody tr:nth-child(8)  { animation-delay: 0.15s; }
+tbody tr:nth-child(n+9) { animation-delay: 0.17s; }
+@keyframes admRowIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Sidebar items, quick settle-in on first paint (no stagger index used
+   since .sidebar-section labels are interspersed between .sidebar-item
+   elements, which would throw off nth-child based delays) */
+.sidebar-item {
+  animation: admSidebarIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes admSidebarIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Stat / card widgets used across Dashboard, Analytics, Gamification */
+.stat-card, .xp-config-card {
+  transition: border-color 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.stat-card:hover, .xp-config-card:hover { transform: translateY(-2px); }
+
+/* Buttons, light press feedback */
+.btn, button.btn-primary, button.btn-secondary {
+  transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.btn:active { transform: scale(0.97); }
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .section, .section.active,
+  tbody tr,
+  .sidebar-item,
+  .modal-overlay, .modal,
+  .stat-card, .xp-config-card,
+  .btn, button.btn-primary, button.btn-secondary {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════ LOGIN OVERLAY ════════════ -->
+<style>
+#loginOverlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--dark);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Inter', sans-serif;
+}
+#loginOverlay.hidden { display: none; }
+
+.login-box {
+  width: 360px;
+  background: var(--surface2);
+  border: 1px solid var(--border-h);
+  border-radius: 12px;
+  padding: 36px 32px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+}
+.login-logo {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 28px;
+}
+.login-logo-icon {
+  width: 34px; height: 34px;
+  background: var(--red);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 14px var(--red-glow);
+}
+.login-logo-text { font-family: 'Rajdhani', sans-serif; font-size: 18px; font-weight: 700; color: var(--white); }
+.login-logo-text span { color: var(--red); }
+.login-sub { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
+
+.login-title { font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 6px; }
+.login-desc  { font-size: 12px; color: var(--text-dim); margin-bottom: 24px; }
+
+.login-field { margin-bottom: 14px; }
+.login-field label { display: block; font-size: 11px; color: var(--text-dim); margin-bottom: 6px; font-weight: 500; letter-spacing: 0.4px; text-transform: uppercase; }
+.login-field input {
+  width: 100%; box-sizing: border-box;
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 10px 12px;
+  color: var(--white);
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.login-field input:focus { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-dim); }
+.login-field input.error-input { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.12); }
+
+.login-btn {
+  width: 100%; padding: 11px;
+  background: var(--red);
+  border: none; border-radius: 7px;
+  color: #fff; font-size: 13px; font-weight: 600;
+  cursor: pointer; margin-top: 6px;
+  transition: opacity .2s, box-shadow .2s;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.2px;
+}
+.login-btn:hover { opacity: 0.88; box-shadow: 0 0 18px var(--red-glow); }
+.login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.login-error {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  border-radius: 7px;
+  padding: 9px 12px;
+  font-size: 12px;
+  color: #f87171;
+  margin-bottom: 14px;
+  display: none;
+}
+.login-attempts {
+  font-size: 11px; color: var(--text-dim);
+  text-align: center; margin-top: 14px;
+}
+.login-lockout {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 7px;
+  padding: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: #f87171;
+  display: none;
+}
+#loginTimer { font-weight: 700; color: #ef4444; }
+.session-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; color: #22c55e;
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.2);
+  border-radius: 20px; padding: 3px 10px;
+  margin-top: 14px;
+}
+</style>
+
+<div id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1L2 3.5V7c0 2.8 2.2 4.5 5 5.5 2.8-1 5-2.7 5-5.5V3.5L7 1z" fill="white" opacity="0.9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="login-logo-text">Alex<span>CyberX</span></div>
+        <div class="login-sub">Admin Panel</div>
+      </div>
+    </div>
+
+    <div class="login-title">Sign in to continue</div>
+    <div class="login-desc">Restricted access. Unauthorized entry will be logged.</div>
+
+    <div class="login-error" id="loginError"></div>
+    <div class="login-lockout" id="loginLockout">
+      Too many failed attempts. Try again in <span id="loginTimer">30</span>s
+    </div>
+
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="admin@alexcyberx.com" autocomplete="email" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+    <div class="login-attempts" id="loginAttemptsMsg"></div>
+  </div>
+</div>
+<!-- ════════════ END LOGIN OVERLAY ════════════ -->
+
+<div class="layout">
+  <!-- ════════════ TOPBAR ════════════ -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-logo-icon">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1L2 3.5V7c0 2.8 2.2 4.5 5 5.5 2.8-1 5-2.7 5-5.5V3.5L7 1z" fill="white" opacity="0.9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="topbar-logo-text">Alex<span>CyberX</span></div>
+      </div>
+    </div>
+
+    <span class="topbar-title">Admin Panel</span>
+
+    <div class="topbar-spacer"></div>
+
+    <div class="topbar-search" style="position:relative;" id="globalSearchWrap">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <circle cx="5" cy="5" r="4" stroke="#6a6a7a" stroke-width="1.3"/>
+        <path d="M8.5 8.5L11 11" stroke="#6a6a7a" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <input type="text" placeholder="Search users, content…" id="globalSearch" autocomplete="off">
+      <div id="globalSearchResults" style="display:none;position:absolute;top:calc(100% + 6px);left:0;width:320px;max-height:360px;overflow-y:auto;background:var(--surface2);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 28px rgba(0,0,0,.45);z-index:500;"></div>
+    </div>
+
+    <div class="topbar-badge" title="Notifications" id="notifBellWrap" style="position:relative;" onclick="toggleNotifDropdown(event)">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1.5A4 4 0 003 5.5v1.8L2 9h10l-1-1.7V5.5A4 4 0 007 1.5z" stroke="#b0b0b8" stroke-width="1.2"/>
+        <path d="M5.5 10.5a1.5 1.5 0 003 0" stroke="#b0b0b8" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <div class="dot" id="notifDot" style="display:none;"></div>
+      <div id="notifDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;width:300px;max-height:380px;overflow-y:auto;background:var(--surface2);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 28px rgba(0,0,0,.45);z-index:500;cursor:default;"></div>
+    </div>
+
+    <div class="topbar-admin">
+      <div class="topbar-admin-avatar" id="topbarAdminAvatar">A</div>
+      <div>
+        <div class="topbar-admin-name" id="topbarAdminName">Admin</div>
+        <div class="topbar-admin-role">ADMIN</div>
+      </div>
+    </div>
+    <button onclick="adminLogout()" title="Sign out" style="background:none;border:1px solid var(--border);border-radius:7px;padding:6px 10px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;gap:5px;font-size:11px;margin-left:8px;transition:border-color .2s,color .2s;" onmouseover="this.style.borderColor='var(--red)';this.style.color='#f87171'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">
+      <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M5 7h7M9.5 4.5L12 7l-2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2H3a1 1 0 00-1 1v8a1 1 0 001 1h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Logout
+    </button>
+
+    <!-- Hamburger, mobile only -->
+    <button id="hamburgerBtn" onclick="toggleMobileSidebar()" style="display:none;background:none;border:1px solid var(--border);border-radius:7px;padding:7px 9px;color:var(--text-dim);cursor:pointer;margin-left:8px;align-items:center;justify-content:center;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </button>
+  </header>
+
+  <!-- Mobile sidebar overlay -->
+  <div id="mobileOverlay" onclick="closeMobileSidebar()"></div>
+
+  <!-- Mobile sidebar drawer (cloned nav) -->
+  <div id="mobileSidebar" style="display:none;">
+    <div style="padding:0 12px 16px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+      <div style="width:28px;height:28px;background:var(--red);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1L2 3.5V7c0 2.8 2.2 4.5 5 5.5 2.8-1 5-2.7 5-5.5V3.5L7 1z" fill="white" opacity="0.9"/></svg>
+      </div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--white);">Alex<span style="color:var(--red);">CyberX</span></div>
+    </div>
+
+    <div style="padding:0 8px;font-size:10px;color:var(--text-dim);font-weight:600;letter-spacing:0.8px;margin:8px 0 4px 6px;">MAIN</div>
+    <div class="mob-nav-item" onclick="mobileNav('dashboard')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="1.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1.5" y="8" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+      Dashboard
+    </div>
+    <div class="mob-nav-item" onclick="mobileNav('users')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5.5" cy="4" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M1 12c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M10 5.5c1.5.3 2.5 1.5 2.5 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.5 2a2 2 0 010 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      User Management
+    </div>
+    <div class="mob-nav-item" onclick="mobileNav('content')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1.5" width="10" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 5h5M4.5 7.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Course Management
+    </div>
+    <div class="mob-nav-item" onclick="mobileNav('analytics')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10L5 7l2.5 2.5L12 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Analytics
+    </div>
+
+    <div style="padding:0 8px;font-size:10px;color:var(--text-dim);font-weight:600;letter-spacing:0.8px;margin:12px 0 4px 6px;">MANAGE</div>
+    <div class="mob-nav-item" onclick="mobileNav('messages')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="2.5" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 5.5h5M4.5 8h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Messages
+    </div>
+    <div class="mob-nav-item" onclick="mobileNav('security')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L1.5 3.5v4C1.5 10.5 4 12.5 7 13c3-.5 5.5-2.5 5.5-5.5v-4L7 1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      Security
+    </div>
+
+    <div style="padding:0 8px;font-size:10px;color:var(--text-dim);font-weight:600;letter-spacing:0.8px;margin:12px 0 4px 6px;">FEATURES</div>
+    <div class="mob-nav-item" onclick="mobileNav('gamification')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 4h4l-3 2.5 1 4L7 9l-3.5 2.5 1-4L1.5 5h4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      XP System
+    </div>
+    <div class="mob-nav-item" onclick="mobileNav('ctf')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L2 3.5V7c0 2.8 2.2 4.5 5 5.5 2.8-1 5-2.7 5-5.5V3.5L7 1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M5 7l1.5 1.5L9.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      CTF Management
+    </div>
+    <div class="mob-nav-item" onclick="mobileNav('progress')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Progress &amp; Certs
+    </div>
+    <div class="mob-nav-item" onclick="mobileNav('resources')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5h10M2 7h10M2 10.5h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Resource Library
+    </div>
+    <div class="mob-nav-item" onclick="mobileNav('toolsmanager')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9.5 1.5a2.7 2.7 0 00-2.7 3.4L2 10.7a1.3 1.3 0 001.8 1.8l5.8-4.8a2.7 2.7 0 003.4-2.7l-2 2-1.5-1.5 2-2a2.7 2.7 0 00-1.9-.5z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>
+      Tools Manager
+    </div>
+    <div class="mob-nav-item" onclick="mobileNav('community')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="4.5" cy="4" r="2" stroke="currentColor" stroke-width="1.3"/><circle cx="9.5" cy="4" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M1 12c0-2 1.6-3.5 3.5-3.5s3.5 1.5 3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M9.5 8.5C11.4 8.5 13 10 13 12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Community
+    </div>
+    <div class="mob-nav-item" onclick="mobileNav('blog')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1.5" width="10" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 5h5M4.5 7.5h5M4.5 10h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Blog Manager
+    </div>
+
+    <div style="padding:0 8px;font-size:10px;color:var(--text-dim);font-weight:600;letter-spacing:0.8px;margin:12px 0 4px 6px;">SYSTEM</div>
+    <div class="mob-nav-item" onclick="mobileNav('notifications')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5A4 4 0 003 5.5V9l-1 1.5h10L11 9V5.5A4 4 0 007 1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M5.5 11a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.3"/></svg>
+      Notifications
+    </div>
+    <div class="mob-nav-item" onclick="mobileNav('settings')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Settings
+    </div>
+
+    <div style="padding:0 8px;font-size:10px;color:var(--text-dim);font-weight:600;letter-spacing:0.8px;margin:12px 0 4px 6px;">ADMIN</div>
+    <div class="mob-nav-item" onclick="mobileNav('profiles')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 12.5c0-2.5 2.4-4.5 5.5-4.5s5.5 2 5.5 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Public Profiles
+    </div>
+    <div class="mob-nav-item" onclick="mobileNav('moderation')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L1.5 3.5v4C1.5 10.5 4 12.5 7 13c3-.5 5.5-2.5 5.5-5.5v-4L7 1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M4.5 7l1.5 1.5L9.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Moderation
+    </div>
+    <div class="mob-nav-item" onclick="mobileNav('backup')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 9V2M4.5 4.5L7 2l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9.5v1.5a1 1 0 001 1h8a1 1 0 001-1V9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Backup &amp; Restore
+    </div>
+
+    <div style="padding:16px 12px 0;margin-top:8px;border-top:1px solid var(--border);">
+      <button onclick="adminLogout()" style="width:100%;background:none;border:1px solid var(--border);border-radius:7px;padding:9px;color:#f87171;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;gap:6px;">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M5 7h7M9.5 4.5L12 7l-2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2H3a1 1 0 00-1 1v8a1 1 0 001 1h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Logout
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════ SIDEBAR ════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-section">Main</div>
+
+    <div class="sidebar-item active" onclick="nav('dashboard')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="1" width="5" height="5" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+        <rect x="8" y="1" width="5" height="5" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+        <rect x="1" y="8" width="5" height="5" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+        <rect x="8" y="8" width="5" height="5" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+      </svg>
+      <span>Dashboard</span>
+    </div>
+
+    <div class="sidebar-item" onclick="nav('users')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="5" cy="4" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M1 12c0-2.2 1.8-3.5 4-3.5s4 1.3 4 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M10 6.5a2 2 0 000-4M13 12c0-2-1.3-3-3-3.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <span>Users</span>
+      <span class="sidebar-badge">1.2k</span>
+    </div>
+
+    <div class="sidebar-item" onclick="nav('content')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="2" y="1" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <span>Content</span>
+    </div>
+
+    <div class="sidebar-item" onclick="nav('analytics')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M2 11.5L5 7.5 7.5 9 11 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="11" cy="4.5" r="1" fill="currentColor"/>
+      </svg>
+      <span>Analytics</span>
+    </div>
+
+    <div class="sidebar-section">Manage</div>
+
+    <div class="sidebar-item" onclick="nav('messages')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="2" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M4 5.5l3 2.5 3-2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Messages</span>
+      <span class="sidebar-badge">3</span>
+    </div>
+
+    <div class="sidebar-item" onclick="nav('security')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1L2 3.5V7c0 2.8 2.2 4.5 5 5.5 2.8-1 5-2.7 5-5.5V3.5L7 1z" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M4.5 7l2 2L9.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Security</span>
+      <span class="sidebar-badge yellow">7</span>
+    </div>
+
+    <div class="sidebar-section">Features</div>
+
+    <div class="sidebar-item" onclick="nav('gamification')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1l1.5 3.5H12L9 6.5l1 3.5L7 8l-3 2 1-3.5L2 4.5h3.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+      </svg>
+      <span>Gamification</span>
+    </div>
+
+    <div class="sidebar-item" onclick="nav('ctf')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1.5" y="3" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M5 3V2M9 3V2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M4.5 7.5l1.5 1.5L9.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>CTF Manager</span>
+    </div>
+
+    <div class="sidebar-item" onclick="nav('progress')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M7 7V3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M7 7l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span>Progress & Certs</span>
+    </div>
+
+    <div class="sidebar-item" onclick="nav('resources')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M2 2.5h10v9H2z" stroke="currentColor" stroke-width="1.2" rx="1"/>
+        <path d="M4.5 5.5h5M4.5 7.5h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M2 2.5L7 1l5 1.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/>
+      </svg>
+      <span>Resource Library</span>
+    </div>
+
+    <div class="sidebar-item" onclick="nav('toolsmanager')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M9.5 1.5a2.7 2.7 0 00-2.7 3.4L2 10.7a1.3 1.3 0 001.8 1.8l5.8-4.8a2.7 2.7 0 003.4-2.7l-2 2-1.5-1.5 2-2a2.7 2.7 0 00-1.9-.5z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/>
+      </svg>
+      <span>Tools Manager</span>
+    </div>
+
+    <div class="sidebar-item" onclick="nav('community')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="5" cy="4.5" r="2" stroke="currentColor" stroke-width="1.2"/>
+        <circle cx="10" cy="5" r="1.5" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M1 11c0-2 1.8-3.5 4-3.5s4 1.5 4 3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M10 8c1.5 0 3 .9 3 2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <span>Community</span>
+      <span class="sidebar-badge" id="commBadge" style="display:none">0</span>
+    </div>
+
+    <div class="sidebar-item" onclick="nav('blog')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1.5" y="1.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M4 4.5h6M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <span>Blog Manager</span>
+    </div>
+
+    <div class="sidebar-section">System</div>
+
+    <div class="sidebar-item" onclick="nav('notifications')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1.5A4 4 0 003 5.5v1.8L2 9h10l-1-1.7V5.5A4 4 0 007 1.5z" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M5.5 10.5a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <span>Notifications</span>
+    </div>
+
+    <div class="sidebar-item" onclick="nav('settings')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.5 2.5l1 1M10.5 10.5l1 1M11.5 2.5l-1 1M3.5 10.5l-1 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <span>Settings</span>
+    </div>
+    <div class="sidebar-section">Admin</div>
+    <div class="sidebar-item" onclick="nav('profiles')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="7" cy="4" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M1.5 12.5c0-2.5 2.4-4.5 5.5-4.5s5.5 2 5.5 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <span>Public Profiles</span>
+    </div>
+    <div class="sidebar-item" onclick="nav('moderation')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 1L1.5 3.5v4C1.5 10.5 4 12.5 7 13c3-0.5 5.5-2.5 5.5-5.5v-4L7 1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+        <path d="M4.5 7l1.5 1.5L9.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Moderation</span>
+    </div>
+    <div class="sidebar-item" onclick="nav('backup')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 9V2M4.5 4.5L7 2l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 9.5v1.5a1 1 0 001 1h8a1 1 0 001-1V9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <span>Backup &amp; Restore</span>
+    </div>
+  </aside>
+
+  <!-- ════════════ MAIN ════════════ -->
+  <main class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="section active" id="sec-dashboard">
+      <div class="breadcrumb">Admin <span>/ Dashboard</span></div>
+      <div class="page-header">
+        <h1>Dashboard Overview</h1>
+        <p>Welcome back, Pawan. Here's what's happening today.</p>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-icon red">
+            <svg width="15" height="15" viewBox="0 0 14 14" fill="none">
+              <circle cx="5" cy="4" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M1 12c0-2.2 1.8-3.5 4-3.5s4 1.3 4 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              <path d="M10 6.5a2 2 0 000-4M13 12c0-2-1.3-3-3-3.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="stat-value" id="statTotalUsers">-</div>
+          <div class="stat-label">Total Users</div>
+          <div class="stat-delta" id="statTotalUsersDelta">&nbsp;</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg width="15" height="15" viewBox="0 0 14 14" fill="none">
+              <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M4.5 7l2 2L9.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="stat-value" id="statActiveToday">-</div>
+          <div class="stat-label">Active Today</div>
+          <div class="stat-delta" id="statActiveTodayDelta">&nbsp;</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <svg width="15" height="15" viewBox="0 0 14 14" fill="none">
+              <rect x="2" y="1" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="stat-value" id="statCtfSolves">-</div>
+          <div class="stat-label">CTF Solves</div>
+          <div class="stat-delta" id="statCtfSolvesDelta">&nbsp;</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon purple">
+            <svg width="15" height="15" viewBox="0 0 14 14" fill="none">
+              <rect x="1" y="2" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+              <path d="M4 5.5l3 2.5 3-2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="stat-value" id="statMessages">-</div>
+          <div class="stat-label">Messages</div>
+          <div class="stat-delta" id="statMessagesDelta">&nbsp;</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon yellow">
+            <svg width="15" height="15" viewBox="0 0 14 14" fill="none">
+              <path d="M2 11.5L5 7.5 7.5 9 11 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="stat-value" id="statPageViews">-</div>
+          <div class="stat-label">Page Views</div>
+          <div class="stat-delta" id="statPageViewsDelta">&nbsp;</div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW -->
+      <div class="grid-2" style="margin-bottom:20px;">
+        <!-- Visitor graph -->
+        <div class="card span-2" style="grid-column:1/-1;">
+          <div class="card-header">
+            <div class="card-title">Visitor Trend</div>
+            <div style="font-size:11px;color:var(--text-dim);">Last 7 days</div>
+          </div>
+          <div class="line-graph-wrap">
+            <svg id="visitorSvg" viewBox="0 0 600 120" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="redGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#dc1414" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#dc1414" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- JS se render hoga -->
+            </svg>
+          </div>
+          <div class="graph-labels" id="visitorGraphLabels"></div>
+        </div>
+      </div>
+
+      <!-- RECENT SIGNUPS + QUICK ACTIONS -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Recent Signups</div>
+            <button class="card-action" onclick="nav('users')">View all</button>
+          </div>
+          <div class="signup-list" id="recentSignups"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Quick Actions</div>
+          </div>
+          <div class="quick-actions">
+            <div class="qa-btn" onclick="nav('users')">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M1 13c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Add User
+            </div>
+            <div class="qa-btn" onclick="nav('content')">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 7h4M7 5v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              New Chapter
+            </div>
+            <div class="qa-btn" onclick="nav('notifications')">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1.5A4 4 0 003 5.5v1.8L2 9h10l-1-1.7V5.5A4 4 0 007 1.5z" stroke="currentColor" stroke-width="1.3"/><path d="M5.5 11a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Broadcast
+            </div>
+            <div class="qa-btn" onclick="nav('security')">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1L2 3.5V7c0 2.8 2.2 4.5 5 5.5 2.8-1 5-2.7 5-5.5V3.5L7 1z" stroke="currentColor" stroke-width="1.3"/></svg>
+              Security Logs
+            </div>
+            <div class="qa-btn" onclick="exportCSV()">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Export CSV
+            </div>
+            <div class="qa-btn" onclick="toggleMaintenance()">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Maintenance
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── USERS ── -->
+    <div class="section" id="sec-users">
+      <div class="breadcrumb">Admin <span>/ Users</span></div>
+      <div class="page-header">
+        <h1>User Management</h1>
+        <p>Manage all registered users, roles, status, and access.</p>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-input">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="#6a6a7a" stroke-width="1.3"/><path d="M8.5 8.5L11 11" stroke="#6a6a7a" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <input type="text" placeholder="Search by name, email…" oninput="filterUsers(this.value)">
+        </div>
+        <select class="select-filter" id="roleFilter" onchange="filterUsers()">
+          <option value="">All Roles</option>
+          <option value="admin">Admin</option>
+          <option value="mod">Moderator</option>
+          <option value="user">User</option>
+        </select>
+        <select class="select-filter" id="statusFilter" onchange="filterUsers()">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+          <option value="banned">Banned</option>
+        </select>
+        <button class="btn primary" onclick="openAddUser()">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Add User
+        </button>
+        <button class="btn" onclick="exportCSV()">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3.5 5.5L6 8l2.5-2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 10h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Export CSV
+        </button>
+      </div>
+
+      <div class="table-wrap">
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th onclick="sortUsers('name')">User ↕</th>
+              <th onclick="sortUsers('joined')">Joined ↕</th>
+              <th onclick="sortUsers('lastActive')">Last Active ↕</th>
+              <th>Last IP</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTbody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="userPagination"></div>
+    </div>
+
+    <!-- ── CONTENT ── -->
+    <div class="section" id="sec-content">
+      <div class="breadcrumb">Admin <span>/ Content</span></div>
+      <div class="page-header">
+        <h1>Content Management</h1>
+        <p>Manage courses and chapters, enable, reorder, or edit.</p>
+      </div>
+
+      <!-- ── COURSES ── -->
+      <div class="toolbar">
+        <div style="font-size:12px;color:var(--text-dim);">Courses shown on the home page and /tutorials listing</div>
+        <div style="margin-left:auto;">
+          <button class="btn primary" onclick="openAddCourse()">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+            New Course
+          </button>
+        </div>
+      </div>
+      <div class="chapter-list" id="courseList" style="margin-bottom:28px;"></div>
+
+      <!-- ── CHAPTERS ── -->
+      <div class="toolbar">
+        <div style="font-size:12px;color:var(--text-dim);">Drag rows to reorder chapters</div>
+        <div style="margin-left:auto;display:flex;gap:8px;">
+          <select class="select-filter" id="courseFilter" onchange="renderChapters()">
+            <option value="all">All Courses</option>
+          </select>
+          <button class="btn primary" onclick="openAddChapter()">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+            New Chapter
+          </button>
+        </div>
+      </div>
+
+      <div class="chapter-list" id="chapterList"></div>
+    </div>
+
+    <!-- ── ANALYTICS ── -->
+    <div class="section" id="sec-analytics">
+      <div class="breadcrumb">Admin <span>/ Analytics</span></div>
+      <div class="page-header">
+        <h1>Analytics</h1>
+        <p>Traffic, user growth, and engagement metrics.</p>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-icon red"></div>
+          <div class="stat-value" id="statPageViews7d" style="font-size:20px;">-</div>
+          <div class="stat-label">Page Views (7d)</div>
+          <div class="stat-delta">&nbsp;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"></div>
+          <div class="stat-value" id="statUniqueVisitors" style="font-size:20px;">-</div>
+          <div class="stat-label">Unique Visitors</div>
+          <div class="stat-delta">&nbsp;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue"></div>
+          <div class="stat-value" id="statCourseCompletion" style="font-size:20px;">-</div>
+          <div class="stat-label">Course Completion</div>
+          <div class="stat-delta">&nbsp;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow"></div>
+          <div class="stat-value" id="statAvgSession" style="font-size:20px;">-</div>
+          <div class="stat-label">Avg. Session</div>
+          <div class="stat-delta">&nbsp;</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Top pages -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Top Visited Pages</div></div>
+          <div id="topPages" style="padding:24px 10px;text-align:center;color:#5a5a6a;font-size:13px;">No page-view tracking set up yet.</div>
+        </div>
+
+        <!-- Device breakdown -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Device Breakdown</div></div>
+          <div class="donut-wrap" id="deviceBreakdown" style="padding:24px 10px;text-align:center;color:#5a5a6a;font-size:13px;">No device tracking set up yet.</div>
+        </div>
+
+        <!-- Signups per day -->
+        <div class="card span-2" style="grid-column:1/-1;">
+          <div class="card-header"><div class="card-title">New Signups, Last 14 Days</div></div>
+          <div class="line-graph-wrap">
+            <svg id="signupSvg" viewBox="0 0 600 120" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="greenGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#22c55e" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div class="graph-labels" id="signupLabels"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MESSAGES ── -->
+    <div class="section" id="sec-messages">
+      <div class="breadcrumb">Admin <span>/ Messages</span></div>
+      <div class="page-header">
+        <h1>Messages / Inbox</h1>
+        <p>Contact form submissions from visitors.</p>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-input">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="#6a6a7a" stroke-width="1.3"/><path d="M8.5 8.5L11 11" stroke="#6a6a7a" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <input type="text" placeholder="Search messages…">
+        </div>
+        <select class="select-filter">
+          <option>All Messages</option>
+          <option>Unread</option>
+          <option>Spam</option>
+        </select>
+      </div>
+
+      <div class="card" style="padding:0;">
+        <div id="messagesList"></div>
+      </div>
+    </div>
+
+    <!-- ── SECURITY ── -->
+    <div class="section" id="sec-security">
+      <div class="breadcrumb">Admin <span>/ Security</span></div>
+      <div class="page-header">
+        <h1>Security Logs</h1>
+        <p>Monitor suspicious activity, failed logins, and blocked IPs.</p>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:20px;">
+        <div class="stat-card">
+          <div class="stat-icon yellow">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 3v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="10.5" r="0.75" fill="currentColor"/></svg>
+          </div>
+          <div class="stat-value" id="statFailedLogins">-</div>
+          <div class="stat-label">Failed Logins (24h)</div>
+          <div class="stat-delta">&nbsp;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1L2 3.5V7c0 2.8 2.2 4.5 5 5.5 2.8-1 5-2.7 5-5.5V3.5L7 1z" stroke="currentColor" stroke-width="1.3"/></svg>
+          </div>
+          <div class="stat-value" id="statBlockedIPs">-</div>
+          <div class="stat-label">Blocked IPs</div>
+          <div class="stat-delta">&nbsp;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h10M2 11h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="stat-value" id="statAttackAttempts">-</div>
+          <div class="stat-label">Attack Attempts (24h)</div>
+          <div class="stat-delta">&nbsp;</div>
+        </div>
+      </div>
+
+      <!-- Blocked IPs -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div class="card-title">Blocked IPs</div>
+          <button class="btn red" onclick="blockIPPrompt()">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Block IP
+          </button>
+        </div>
+        <div id="blockedIPs" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      </div>
+
+      <!-- Admin Sessions: who's logged in now, last login, history -->
+      <div class="card" style="margin-bottom:16px;padding:0;">
+        <div class="card-header" style="padding:16px 18px 16px;">
+          <div class="card-title">Admin Sessions</div>
+        </div>
+        <div id="adminSessions" style="padding:0 18px 18px;"></div>
+      </div>
+
+      <!-- Log entries -->
+      <div class="card" style="padding:0;">
+        <div class="card-header" style="padding:16px 18px 16px;">
+          <div class="card-title">Recent Events</div>
+          <button class="btn" onclick="exportLogs()">Export Logs</button>
+        </div>
+        <div id="securityLogs"></div>
+      </div>
+    </div>
+
+    <!-- ── NOTIFICATIONS ── -->
+    <div class="section" id="sec-notifications">
+      <div class="breadcrumb">Admin <span>/ Notifications</span></div>
+      <div class="page-header">
+        <h1>Notifications</h1>
+        <p>Send announcements to all users or email broadcast.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Send Announcement</div></div>
+          <div class="modal-field">
+            <label>Title</label>
+            <input class="text-input" style="width:100%;" id="notifTitle" placeholder="Announcement title…">
+          </div>
+          <div class="modal-field">
+            <label>Message</label>
+            <textarea class="text-input" style="width:100%;height:100px;resize:vertical;padding:10px;" id="notifMsg" placeholder="Write your message…"></textarea>
+          </div>
+          <div class="modal-field">
+            <label>Audience</label>
+            <select class="select-filter" style="width:100%;padding:8px 10px;" id="notifAudience" onchange="toggleNotifUserPicker()">
+              <option>All Users</option>
+              <option>Active Only</option>
+              <option>New Users (last 7d)</option>
+              <option>Specific User</option>
+            </select>
+          </div>
+          <div class="modal-field" id="notifUserPickerWrap" style="display:none;">
+            <label>User</label>
+            <select class="select-filter" style="width:100%;padding:8px 10px;" id="notifTargetUser">
+              <option value="">Loading users…</option>
+            </select>
+          </div>
+          <div style="margin-top:14px;">
+            <button class="btn primary" onclick="sendNotification()">Send Announcement</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Broadcast History</div></div>
+          <div id="broadcastHistory" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div class="section" id="sec-settings">
+      <div class="breadcrumb">Admin <span>/ Settings</span></div>
+      <div class="page-header">
+        <h1>Settings</h1>
+        <p>Site configuration, access control, and preferences.</p>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-title">Site Configuration</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Site Name</div>
+            <div class="setting-desc">Displayed in browser tab and header</div>
+          </div>
+          <div class="setting-control">
+            <input class="text-input" id="setSiteName" value="AlexCyberX">
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Tagline</div>
+            <div class="setting-desc">Short description shown on homepage</div>
+          </div>
+          <div class="setting-control">
+            <input class="text-input" id="setTagline" value="Free Cybersecurity Education">
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Instagram Link</div>
+            <div class="setting-desc">Social profile URL</div>
+          </div>
+          <div class="setting-control">
+            <input class="text-input" id="setInstagram" value="https://instagram.com/alex.cyberx">
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">GitHub Link</div>
+            <div class="setting-desc">Social profile URL</div>
+          </div>
+          <div class="setting-control">
+            <input class="text-input" id="setGithub" value="https://github.com/alexcyberx">
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">LinkedIn Link</div>
+            <div class="setting-desc">Social profile URL</div>
+          </div>
+          <div class="setting-control">
+            <input class="text-input" id="setLinkedin" value="https://linkedin.com/in/alexcyberx">
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-title">Access Control</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">User Registration</div>
+            <div class="setting-desc">Allow new users to sign up</div>
+          </div>
+          <div class="setting-control">
+            <label class="toggle"><input type="checkbox" id="setUserRegistration" checked><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Maintenance Mode</div>
+            <div class="setting-desc">Site becomes unavailable to visitors</div>
+          </div>
+          <div class="setting-control">
+            <label class="toggle" id="maintenanceToggle"><input type="checkbox" id="maintenanceChk" onchange="toggleMaintenanceSetting()"><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Force HTTPS</div>
+            <div class="setting-desc">Redirect all HTTP traffic to HTTPS</div>
+          </div>
+          <div class="setting-control">
+            <label class="toggle"><input type="checkbox" id="setForceHttps" checked><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-title">About Page Content</div>
+        <div class="setting-row" style="align-items:flex-start;">
+          <div class="setting-info">
+            <div class="setting-label">Paragraph 1</div>
+            <div class="setting-desc">Intro line, shown at the top of "Who is AlexCyberX"</div>
+          </div>
+          <div class="setting-control" style="flex:1;">
+            <textarea class="text-input" id="setAboutP1" rows="3" style="width:100%;resize:vertical;"></textarea>
+          </div>
+        </div>
+        <div class="setting-row" style="align-items:flex-start;">
+          <div class="setting-info">
+            <div class="setting-label">Paragraph 2</div>
+            <div class="setting-desc">What you like / long-term goals</div>
+          </div>
+          <div class="setting-control" style="flex:1;">
+            <textarea class="text-input" id="setAboutP2" rows="3" style="width:100%;resize:vertical;"></textarea>
+          </div>
+        </div>
+        <div class="setting-row" style="align-items:flex-start;">
+          <div class="setting-info">
+            <div class="setting-label">Paragraph 3</div>
+            <div class="setting-desc">Instagram / community line</div>
+          </div>
+          <div class="setting-control" style="flex:1;">
+            <textarea class="text-input" id="setAboutP3" rows="3" style="width:100%;resize:vertical;"></textarea>
+          </div>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Other Languages</div>
+            <div class="setting-desc">Edit English above, then regenerate Hindi, Hinglish, Bengali, Marathi, Punjabi, Tamil, Telugu automatically</div>
+          </div>
+          <div class="setting-control">
+            <button class="btn" id="retranslateAboutBtn" onclick="retranslateAndSaveAboutBio()">Save &amp; Translate All Languages</button>
+          </div>
+        </div>
+        <div id="aboutBioStatus" style="font-size:12px;color:var(--text-dim,#888);margin-top:4px;"></div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-title">Admin Password</div>
+        <div class="setting-row">
+          <div class="setting-info">
+            <div class="setting-label">Change Password</div>
+            <div class="setting-desc">Update your admin account password</div>
+          </div>
+          <div class="setting-control">
+            <button class="btn red" onclick="openChangePassword()">Change Password</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <button class="btn primary" id="saveSettingsBtn" onclick="saveSettings()">Save Changes</button>
+      </div>
+    </div>
+
+    <!-- ── GAMIFICATION / XP SYSTEM ── -->
+    <div class="section" id="sec-gamification">
+      <div class="breadcrumb">Admin <span>/ Gamification</span></div>
+      <div class="page-header">
+        <h1>Gamification &amp; XP System</h1>
+        <p>Configure XP rewards and view top performers.</p>
+        <button class="btn" style="margin-top:8px;" onclick="_gamLoaded=false;loadGamificationData()">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6c0-2.2 1.8-4 4-4a4 4 0 013.46 2M10 6c0 2.2-1.8 4-4 4a4 4 0 01-3.46-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.5 4H10V2.5M3.5 8H2v1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Refresh from Database
+        </button>
+      </div>
+
+      <div class="grid-3">
+        <div class="stat-card">
+          <div class="stat-icon yellow">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3.5H12L9 6.5l1 3.5L7 8l-3 2 1-3.5L2 4.5h3.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="stat-value" id="gamTotalXP">0</div>
+          <div class="stat-label">Total XP Earned</div>
+          <div class="stat-delta">All users combined</div>
+        </div>
+      </div>
+
+      <!-- XP Rules -->
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div class="card-title">XP Reward Rules</div>
+          <button class="btn primary" onclick="saveXPRules()">Save Changes</button>
+        </div>
+        <div class="settings-group" style="border:none;padding:0;">
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Daily Login Reward</div>
+              <div class="setting-desc">XP awarded once per day on login</div>
+            </div>
+            <div class="setting-control"><input class="text-input" id="xpLogin" style="width:100px;text-align:center;" value="10"></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Chapter Completion</div>
+              <div class="setting-desc">XP awarded per completed chapter</div>
+            </div>
+            <div class="setting-control"><input class="text-input" id="xpChapter" style="width:100px;text-align:center;" value="25"></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">Quiz Pass Bonus</div>
+              <div class="setting-desc">Extra XP for scoring 80%+ on a quiz</div>
+            </div>
+            <div class="setting-control"><input class="text-input" id="xpQuiz" style="width:100px;text-align:center;" value="15"></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">CTF Solve (Easy)</div>
+              <div class="setting-desc">Base XP for solving an Easy challenge</div>
+            </div>
+            <div class="setting-control"><input class="text-input" id="xpCtfEasy" style="width:100px;text-align:center;" value="50"></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">CTF Solve (Medium)</div>
+              <div class="setting-desc">Base XP for solving a Medium challenge</div>
+            </div>
+            <div class="setting-control"><input class="text-input" id="xpCtfMedium" style="width:100px;text-align:center;" value="100"></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info">
+              <div class="setting-label">CTF Solve (Hard)</div>
+              <div class="setting-desc">Base XP for solving a Hard challenge</div>
+            </div>
+            <div class="setting-control"><input class="text-input" id="xpCtfHard" style="width:100px;text-align:center;" value="200"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leaderboard -->
+      <div class="card" style="padding:0;">
+        <div class="card-header" style="padding:16px 18px 16px;">
+          <div class="card-title">Leaderboard</div>
+          <div style="display:flex;gap:8px;">
+            <select class="select-filter" id="lbScope" onchange="renderLeaderboard()">
+              <option value="global">Global (All-time)</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Rank</th><th>User</th><th>Level</th><th>XP</th><th>CTF Solves</th></tr>
+            </thead>
+            <tbody id="leaderboardTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CTF CHALLENGE MANAGER ── -->
+    <div class="section" id="sec-ctf">
+      <div class="breadcrumb">Admin <span>/ CTF Manager</span></div>
+      <div class="page-header">
+        <h1>CTF Challenge Manager</h1>
+        <p>Create and manage Capture-The-Flag challenges, flags, hints and live scoreboard.</p>
+        <button class="btn" style="margin-top:10px;background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.3);color:#ef4444;" onclick="ctfResetSolverCounts()" title="Use once before going live on real hosting">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 2v3M6 2L4 4M6 2l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M9.5 6a3.5 3.5 0 11-1.2-2.65" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Reset Solver Counts
+        </button>
+      </div>
+
+      <!-- Sync banner (shown when DB empty but local challenges exist) -->
+      <div id="ctfSyncBanner" style="display:none;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <svg width="16" height="16" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="7" r="6" stroke="#f59e0b" stroke-width="1.3"/></svg>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#f59e0b;">Database empty, 20 local challenges available</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">Sync all hardcoded challenges to Supabase to make them live on the CTF page.</div>
+          </div>
+        </div>
+        <button class="btn" style="background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.4);color:#f59e0b;white-space:nowrap;" onclick="ctfSyncToSupabase()">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6c0-2.2 1.8-4 4-4a4 4 0 013.46 2M10 6c0 2.2-1.8 4-4 4a4 4 0 01-3.46-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.5 4H10V2.5M3.5 8H2v1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sync All to Database
+        </button>
+      </div>
+
+      <div class="grid-3">
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="3" width="11" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 3V2M9 3V2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </div>
+          <div class="stat-value" id="ctfTotal">0</div>
+          <div class="stat-label">Total Challenges</div>
+          <div class="stat-delta" id="ctfActiveCount">0 active</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 6l3 3 6-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="stat-value" id="ctfSolves">0</div>
+          <div class="stat-label">Total Solves</div>
+          <div class="stat-delta">Across all challenges</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3.5H12L9 6.5l1 3.5L7 8l-3 2 1-3.5L2 4.5h3.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="stat-value" id="ctfXPAwarded">0</div>
+          <div class="stat-label">XP Awarded</div>
+          <div class="stat-delta">From CTF solves</div>
+        </div>
+      </div>
+
+      <!-- Category breakdown pills -->
+      <div id="ctfCategoryBreakdown" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;"></div>
+
+      <div class="toolbar">
+        <div class="search-input">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="#6a6a7a" stroke-width="1.3"/><path d="M8.5 8.5L11 11" stroke="#6a6a7a" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <input type="text" id="ctfSearchInput" placeholder="Search challenges…" oninput="filterCTF(this.value)">
+        </div>
+        <select class="select-filter" id="ctfCategoryFilter" onchange="filterCTF()">
+          <option value="">All Categories</option>
+          <option value="web">Web</option>
+          <option value="forensics">Forensics</option>
+          <option value="crypto">Crypto</option>
+          <option value="osint">OSINT</option>
+          <option value="pwn">Pwn</option>
+          <option value="reversing">Reversing</option>
+          <option value="ai">AI Security</option>
+          <option value="misc">Misc</option>
+        </select>
+        <select class="select-filter" id="ctfDifficultyFilter" onchange="filterCTF()">
+          <option value="">All Difficulties</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <select class="select-filter" id="ctfStatusFilter" onchange="filterCTF()">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="draft">Draft</option>
+          <option value="disabled">Disabled</option>
+        </select>
+        <button class="btn" onclick="ctfSyncToSupabase()" title="Sync local challenges to Supabase" style="color:var(--yellow);border-color:rgba(245,158,11,0.3);">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6c0-2.2 1.8-4 4-4a4 4 0 013.46 2M10 6c0 2.2-1.8 4-4 4a4 4 0 01-3.46-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.5 4H10V2.5M3.5 8H2v1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Sync
+        </button>
+        <button class="btn primary" onclick="openAddCTF()">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Create Challenge
+        </button>
+      </div>
+
+      <div class="ctf-grid" id="ctfGrid"></div>
+
+      <!-- Live Scoreboard -->
+      <div class="card" style="padding:0;margin-top:16px;">
+        <div class="card-header" style="padding:16px 18px 16px;">
+          <div class="card-title">Live Scoreboard</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span id="ctfScoreboardStatus" class="badge active">● Live</span>
+            <button class="btn icon-only" title="Refresh Scoreboard" onclick="refreshCTFScoreboard()">
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 6c0-2.2 1.8-4 4-4a4 4 0 013.46 2M10 6c0 2.2-1.8 4-4 4a4 4 0 01-3.46-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.5 4H10V2.5M3.5 8H2v1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Rank</th><th>User</th><th>Solves</th><th>Total Points</th><th>Last Solve</th></tr></thead>
+            <tbody id="ctfScoreboardTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROGRESS TRACKING & CERTIFICATES ── -->
+    <div class="section" id="sec-progress">
+      <div class="breadcrumb">Admin <span>/ Progress &amp; Certificates</span></div>
+      <div class="page-header">
+        <h1>User Progress Tracking &amp; Certificates</h1>
+        <p>Monitor course progress, quiz scores, and manage issued certificates.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 7V3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M7 7l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <div class="stat-value" id="progAvgCompletion">0%</div>
+          <div class="stat-label">Avg. Completion Rate</div>
+          <div class="stat-delta">Across enrolled users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1.5" width="10" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 5h5M4.5 7.5h5M4.5 10h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="stat-value" id="progCertsIssued">0</div>
+          <div class="stat-label">Certificates Issued</div>
+          <div class="stat-delta" id="progCertsRevoked">0 revoked</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 11.5L5 7.5 7.5 9 11 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="4.5" r="1" fill="currentColor"/></svg>
+          </div>
+          <div class="stat-value" id="progInProgress">0</div>
+          <div class="stat-label">Courses In Progress</div>
+          <div class="stat-delta">Not yet completed</div>
+        </div>
+      </div>
+
+      <!-- Progress table -->
+      <div class="card" style="padding:0;margin-bottom:16px;">
+        <div class="card-header" style="padding:16px 18px 16px;">
+          <div class="card-title">User Progress</div>
+          <div class="search-input" style="width:220px;">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="#6a6a7a" stroke-width="1.3"/><path d="M8.5 8.5L11 11" stroke="#6a6a7a" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <input type="text" placeholder="Search user…" oninput="filterProgress(this.value)">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>User</th><th>Course</th><th>Progress</th><th>Time Spent</th><th>Quiz Avg</th><th>Last Activity</th><th>Resume Position</th></tr>
+            </thead>
+            <tbody id="progressTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Certificates table -->
+      <div class="card" style="padding:0;">
+        <div class="card-header" style="padding:16px 18px 16px;">
+          <div class="card-title">Certificates</div>
+          <button class="btn" onclick="exportCertLogs()">Export Logs</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Cert ID</th><th>User</th><th>Course</th><th>Issued</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="certTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ── TOOLS MANAGER ── -->
+    <div class="section" id="sec-toolsmanager">
+      <div class="breadcrumb">Admin <span>/ Tools Manager</span></div>
+      <div class="page-header">
+        <h1>Tools Manager</h1>
+        <p>Enable, disable, and monitor usage for AlexSync, Cyber Mistake Analyzer, AlexRecon, and AlexUtils.</p>
+      </div>
+
+      <div id="toolsMgrGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;">
+        <div style="grid-column:1/-1;color:var(--text-dim);font-size:13px;padding:20px 0;">Loading tools...</div>
+      </div>
+    </div>
+    <!-- END sec-toolsmanager -->
+
+    <!-- ── RESOURCE LIBRARY ── -->
+    <div class="section" id="sec-resources">
+      <div class="breadcrumb">Admin <span>/ Resource Library</span></div>
+      <div class="page-header">
+        <h1>Resource Library</h1>
+        <p>Manage cheatsheets, PCAPs, PDFs, scripts and other learning resources.</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid-4">
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1.5" width="10" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 5h5M4.5 7.5h5M4.5 10h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="stat-value" id="resTotal">0</div>
+          <div class="stat-label">Total Resources</div>
+          <div class="stat-delta" id="resActive">0 active</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v7M4 7l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </div>
+          <div class="stat-value" id="resTotalDownloads">0</div>
+          <div class="stat-label">Total Downloads</div>
+          <div class="stat-delta">All time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5l1.5 3 3.5.5-2.5 2.5.6 3.5L7 9.5 3.9 11l.6-3.5L2 5l3.5-.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="stat-value" id="resTopDownloaded">-</div>
+          <div class="stat-label">Most Downloaded</div>
+          <div class="stat-delta" id="resTopCount">0 downloads</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M2 7h7M2 10h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </div>
+          <div class="stat-value" id="resCategories">0</div>
+          <div class="stat-label">Categories</div>
+          <div class="stat-delta">Unique types</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="card" style="padding:14px 18px;margin-bottom:14px;">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <div class="search-input" style="width:240px;">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="#6a6a7a" stroke-width="1.3"/><path d="M8.5 8.5L11 11" stroke="#6a6a7a" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <input type="text" id="resSearch" placeholder="Search resources…" oninput="filterResources()">
+          </div>
+          <select class="filter-select" id="resCatFilter" onchange="filterResources()">
+            <option value="">All Types</option>
+            <option value="cheatsheet">Cheatsheet</option>
+            <option value="pcap">PCAP</option>
+            <option value="pdf">PDF</option>
+            <option value="script">Script</option>
+            <option value="wordlist">Wordlist</option>
+            <option value="other">Other</option>
+          </select>
+          <select class="filter-select" id="resStatusFilter" onchange="filterResources()">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="hidden">Hidden</option>
+          </select>
+          <div style="margin-left:auto;display:flex;gap:8px;">
+            <button class="btn" onclick="editingResId=null;_resPendingFile=null;document.getElementById('uploadResModalTitle').textContent='Upload Resource';document.getElementById('resName').value='';document.getElementById('resType').value='cheatsheet';document.getElementById('resChapterTag').value='';document.getElementById('resVisibility').value='active';document.getElementById('resFileName').textContent='Click to select file';openModal('uploadResourceModal')">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 4l3-3 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Upload Resource
+            </button>
+            <button class="btn btn-ghost" onclick="exportResourceList()">Export CSV</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resource Table -->
+      <div class="card" style="padding:0;">
+        <div class="card-header" style="padding:16px 18px;">
+          <div class="card-title">All Resources</div>
+          <span id="resCount" style="font-size:11px;color:var(--text-dim);">0 resources</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Size</th>
+                <th>Chapter Tag</th>
+                <th>Downloads</th>
+                <th>Uploaded</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="resTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════ COMMUNITY MODULE ═══════════════════ -->
+    <div class="section" id="sec-community">
+      <div class="breadcrumb">Admin <span>/ Community</span></div>
+      <div class="page-header">
+        <h1>Community</h1>
+        <p>Moderate discussions, manage reports, and keep the community healthy.</p>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="grid-4">
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v7H8l-2 2.5L4 9H2V2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="stat-value" id="commTotalThreads">0</div>
+          <div class="stat-label">Total Threads</div>
+          <div class="stat-delta" id="commOpenThreads">0 open</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2l1.2 3.6H12L9.1 7.4l1.1 3.6L7 9l-3.2 2 1.1-3.6L2 5.6h3.8z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="stat-value" id="commOpenReports">0</div>
+          <div class="stat-label">Open Reports</div>
+          <div class="stat-delta">Needs review</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 7l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="stat-value" id="commActiveUsers">0</div>
+          <div class="stat-label">Active Today</div>
+          <div class="stat-delta">Unique posters</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1.5A4 4 0 003 5.5v1.8L2 9h10l-1-1.7V5.5A4 4 0 007 1.5z" stroke="currentColor" stroke-width="1.2"/><path d="M5.5 10.5a1.5 1.5 0 003 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="stat-value" id="commPendingComments">0</div>
+          <div class="stat-label">Pending Comments</div>
+          <div class="stat-delta">Awaiting approval</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="card" style="padding:0;margin-bottom:16px;">
+        <div style="display:flex;border-bottom:1px solid var(--border);padding:0 18px;gap:0;">
+          <button class="comm-tab active" onclick="commTab('threads')" id="tab-threads" style="padding:13px 18px;background:none;border:none;color:var(--text);font-size:12px;cursor:pointer;border-bottom:2px solid var(--red);margin-bottom:-1px;font-weight:500;">Threads</button>
+          <button class="comm-tab" onclick="commTab('reports')" id="tab-reports" style="padding:13px 18px;background:none;border:none;color:var(--text-dim);font-size:12px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;">Reports</button>
+          <button class="comm-tab" onclick="commTab('comments')" id="tab-comments" style="padding:13px 18px;background:none;border:none;color:var(--text-dim);font-size:12px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;">Comment Queue</button>
+        </div>
+      </div>
+
+      <!-- Threads Panel -->
+      <div id="commPanel-threads">
+        <div class="card" style="padding:14px 18px;margin-bottom:14px;">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <div class="search-input" style="width:240px;">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="#6a6a7a" stroke-width="1.3"/><path d="M8.5 8.5L11 11" stroke="#6a6a7a" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <input type="text" id="commThreadSearch" placeholder="Search threads..." oninput="filterThreads()">
+            </div>
+            <select class="filter-select" id="commThreadStatus" onchange="filterThreads()">
+              <option value="">All Status</option>
+              <option value="open">Open</option>
+              <option value="locked">Locked</option>
+              <option value="pinned">Pinned</option>
+            </select>
+            <select class="filter-select" id="commThreadCategory" onchange="filterThreads()">
+              <option value="">All Categories</option>
+              <option value="general">General</option>
+              <option value="help">Help &amp; Questions</option>
+              <option value="ctf">CTF Discussion</option>
+              <option value="tools">Tools</option>
+              <option value="news">News</option>
+            </select>
+          </div>
+        </div>
+        <div class="card" style="padding:0;">
+          <div class="card-header" style="padding:16px 18px;">
+            <div class="card-title">Discussion Threads</div>
+            <span id="commThreadCount" style="font-size:11px;color:var(--text-dim);">0 threads</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Title</th><th>Author</th><th>Category</th><th>Replies</th><th>Votes</th><th>Posted</th><th>Status</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="commThreadTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reports Panel -->
+      <div id="commPanel-reports" style="display:none;">
+        <div class="card" style="padding:14px 18px;margin-bottom:14px;">
+          <div style="display:flex;gap:10px;align-items:center;">
+            <select class="filter-select" id="commReportFilter" onchange="filterReports()">
+              <option value="">All Reports</option>
+              <option value="pending">Pending</option>
+              <option value="resolved">Resolved</option>
+              <option value="dismissed">Dismissed</option>
+            </select>
+            <select class="filter-select" id="commReportType" onchange="filterReports()">
+              <option value="">All Types</option>
+              <option value="thread">Thread</option>
+              <option value="comment">Comment</option>
+            </select>
+          </div>
+        </div>
+        <div class="card" style="padding:0;">
+          <div class="card-header" style="padding:16px 18px;">
+            <div class="card-title">Report Queue</div>
+            <span id="commReportCount" style="font-size:11px;color:var(--text-dim);">0 reports</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Content</th><th>Type</th><th>Reported By</th><th>Reason</th><th>Date</th><th>Status</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="commReportTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comment Queue Panel -->
+      <div id="commPanel-comments" style="display:none;">
+        <div class="card" style="padding:14px 18px;margin-bottom:14px;">
+          <div style="display:flex;gap:10px;align-items:center;">
+            <div class="search-input" style="width:240px;">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="#6a6a7a" stroke-width="1.3"/><path d="M8.5 8.5L11 11" stroke="#6a6a7a" stroke-width="1.3" stroke-linecap="round"/></svg>
+              <input type="text" id="commCommentSearch" placeholder="Search comments..." oninput="filterComments()">
+            </div>
+            <select class="filter-select" id="commCommentStatus" onchange="filterComments()">
+              <option value="">All</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+        <div class="card" style="padding:0;">
+          <div class="card-header" style="padding:16px 18px;">
+            <div class="card-title">Comment Moderation Queue</div>
+            <span id="commCommentCount" style="font-size:11px;color:var(--text-dim);">0 comments</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Comment</th><th>Author</th><th>Thread</th><th>Posted</th><th>Status</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="commCommentTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END COMMUNITY -->
+
+    <!-- ═══════════════════ BLOG MANAGER ═══════════════════ -->
+    <div class="section" id="sec-blog">
+      <div class="breadcrumb">Admin <span>/ Blog Manager</span></div>
+      <div class="page-header">
+        <h1>Blog Manager</h1>
+        <p>Create, edit and publish articles, news, and tutorials for the platform.</p>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="grid-4">
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 4.5h6M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="stat-value" id="blogTotalPosts">0</div>
+          <div class="stat-label">Total Posts</div>
+          <div class="stat-delta" id="blogPublishedCount">0 published</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon yellow">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4v3.5l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="stat-value" id="blogDraftCount">0</div>
+          <div class="stat-label">Drafts</div>
+          <div class="stat-delta">Not published</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1.5 7S3.5 3 7 3s5.5 4 5.5 4-2 4-5.5 4S1.5 7 1.5 7z" stroke="currentColor" stroke-width="1.2"/><circle cx="7" cy="7" r="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+          </div>
+          <div class="stat-value" id="blogTotalViews">0</div>
+          <div class="stat-label">Total Views</div>
+          <div class="stat-delta">All time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M2 7h7M2 10h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          </div>
+          <div class="stat-value" id="blogCategories">0</div>
+          <div class="stat-label">Categories</div>
+          <div class="stat-delta">Unique</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="card" style="padding:14px 18px;margin-bottom:14px;">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <div class="search-input" style="width:240px;">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="5" cy="5" r="4" stroke="#6a6a7a" stroke-width="1.3"/><path d="M8.5 8.5L11 11" stroke="#6a6a7a" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <input type="text" id="blogSearch" placeholder="Search posts..." oninput="filterBlogPosts()">
+          </div>
+          <select class="filter-select" id="blogStatusFilter" onchange="filterBlogPosts()">
+            <option value="">All Status</option>
+            <option value="published">Published</option>
+            <option value="draft">Draft</option>
+            <option value="scheduled">Scheduled</option>
+          </select>
+          <select class="filter-select" id="blogCategoryFilter" onchange="filterBlogPosts()">
+            <option value="">All Categories</option>
+            <option value="tutorial">Tutorial</option>
+            <option value="news">News</option>
+            <option value="ctf">CTF</option>
+            <option value="tool">Tools</option>
+            <option value="career">Career</option>
+          </select>
+          <div style="margin-left:auto;display:flex;gap:8px;">
+            <button class="btn" onclick="openBlogModal(null)">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              New Post
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Posts Table -->
+      <div class="card" style="padding:0;">
+        <div class="card-header" style="padding:16px 18px;">
+          <div class="card-title">All Posts</div>
+          <span id="blogPostCount" style="font-size:11px;color:var(--text-dim);">0 posts</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th><th>Category</th><th>Tags</th><th>Views</th><th>Publish Date</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="blogTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Category Manager -->
+      <div class="card" style="margin-top:16px;">
+        <div class="card-header">
+          <div class="card-title">Categories</div>
+          <button class="btn btn-ghost" style="font-size:11px;" onclick="openBlogCatModal()">+ Add Category</button>
+        </div>
+        <div id="blogCatList" style="display:flex;flex-wrap:wrap;gap:8px;padding:14px 0 4px;"></div>
+      </div>
+    </div>
+    <!-- ═══════════════════ END BLOG MANAGER ═══════════════════ -->
+
+    <!-- ═══════════════════ PUBLIC PROFILES ═══════════════════ -->
+    <div class="section" id="sec-profiles">
+      <div class="breadcrumb">Admin <span>/ Public Profiles</span></div>
+      <div class="page-header">
+        <h1>Public Profiles</h1>
+        <p>Search any user and view their full profile card with admin controls.</p>
+      </div>
+
+      <!-- Search bar -->
+      <div class="card" style="padding:16px 18px;">
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input id="profileSearch" type="text" placeholder="Search by name or email…"
+            style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--text);font-size:13px;"
+            oninput="searchProfiles()">
+          <button class="btn-primary" onclick="searchProfiles()">Search</button>
+        </div>
+        <div id="profileSuggestions" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;"></div>
+      </div>
+
+      <!-- Profile card -->
+      <div id="profileCard" style="display:none;">
+        <div style="display:grid;grid-template-columns:1fr 320px;gap:18px;margin-top:0;">
+
+          <!-- Left: main card -->
+          <div>
+            <div class="card" style="padding:24px;">
+              <div style="display:flex;align-items:center;gap:18px;margin-bottom:20px;">
+                <div id="profileAvatar" style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff;flex-shrink:0;"></div>
+                <div>
+                  <div id="profileName" style="font-size:18px;font-weight:600;color:var(--text);"></div>
+                  <div id="profileEmail" style="font-size:12px;color:var(--text-dim);margin-top:2px;"></div>
+                  <div id="profileRole" style="margin-top:6px;"></div>
+                  <div id="profileLastIP" style="font-size:11px;color:var(--text-dim);margin-top:6px;font-family:monospace;"></div>
+                </div>
+                <div style="margin-left:auto;display:flex;gap:8px;">
+                  <button id="profileSuspendBtn" class="btn-ghost" style="font-size:12px;" onclick="profileSuspend()"></button>
+                  <button class="btn-primary" style="font-size:12px;" onclick="openAwardXPModal()">Award XP</button>
+                </div>
+              </div>
+
+              <!-- Stats row -->
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+                <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center;">
+                  <div id="profileXP" style="font-size:20px;font-weight:700;color:#6366f1;"></div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">Total XP</div>
+                </div>
+                <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center;">
+                  <div id="profileLevel" style="font-size:20px;font-weight:700;color:#10b981;"></div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">Level</div>
+                </div>
+                <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center;">
+                  <div id="profileCTFSolves" style="font-size:20px;font-weight:700;color:#ef4444;"></div>
+                  <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">CTF Solves</div>
+                </div>
+              </div>
+
+              <!-- Activity heatmap -->
+              <div style="margin-bottom:20px;">
+                <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;font-weight:500;">Activity, Last 12 Weeks</div>
+                <div id="profileHeatmap" style="display:flex;gap:3px;"></div>
+                <div style="display:flex;align-items:center;gap:6px;margin-top:8px;">
+                  <span style="font-size:10px;color:var(--text-dim);">Less</span>
+                  <div style="width:10px;height:10px;border-radius:2px;background:#1a1a2e;border:1px solid var(--border);"></div>
+                  <div style="width:10px;height:10px;border-radius:2px;background:#3730a3;"></div>
+                  <div style="width:10px;height:10px;border-radius:2px;background:#4f46e5;"></div>
+                  <div style="width:10px;height:10px;border-radius:2px;background:#6366f1;"></div>
+                  <div style="width:10px;height:10px;border-radius:2px;background:#818cf8;"></div>
+                  <span style="font-size:10px;color:var(--text-dim);">More</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- CTF History -->
+            <div class="card" style="padding:0;margin-top:0;">
+              <div class="card-header" style="padding:14px 18px;">
+                <div class="card-title">CTF History</div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Challenge</th><th>Category</th><th>Points</th><th>Solved On</th></tr></thead>
+                  <tbody id="profileCTFTbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: certs + quick actions -->
+          <div style="display:flex;flex-direction:column;gap:18px;">
+            <div class="card" style="padding:18px;">
+              <div style="font-size:13px;font-weight:600;margin-bottom:14px;">Admin Actions</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn-ghost" style="width:100%;justify-content:flex-start;gap:8px;font-size:12px;" onclick="openAwardXPModal()">
+                  <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 4h4l-3 2.5 1 4L7 9l-3.5 2.5 1-4L1.5 5h4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                  Award XP
+                </button>
+                <button id="profileSuspendBtn2" class="btn-ghost" style="width:100%;justify-content:flex-start;gap:8px;font-size:12px;color:#ef4444;" onclick="profileSuspend()">
+                  <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 4.5l5 5M9.5 4.5l-5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                  Suspend User
+                </button>
+              </div>
+            </div>
+
+            <div class="card" style="padding:18px;">
+              <div style="font-size:13px;font-weight:600;margin-bottom:14px;">Certificates</div>
+              <div id="profileCerts" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+
+            <div class="card" style="padding:18px;">
+              <div style="font-size:13px;font-weight:600;margin-bottom:14px;">Course Progress</div>
+              <div id="profileCourseProgress" style="display:flex;flex-direction:column;gap:10px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="profileEmpty" style="text-align:center;padding:60px;color:var(--text-dim);">
+        <svg width="48" height="48" viewBox="0 0 14 14" fill="none" style="opacity:.3;margin-bottom:12px;"><circle cx="7" cy="4" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 12.5c0-2.5 2.4-4.5 5.5-4.5s5.5 2 5.5 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <div style="font-size:14px;">Search a user to view their profile</div>
+      </div>
+    </div>
+    <!-- ═══════════════════ END PUBLIC PROFILES ═══════════════════ -->
+
+    <!-- ═══════════════════ MODERATION PANEL ═══════════════════ -->
+    <div class="section" id="sec-moderation">
+      <div class="breadcrumb">Admin <span>/ Moderation</span></div>
+      <div class="page-header">
+        <h1>Moderator Panel</h1>
+        <p>Handle reports, comment queues, feedback submissions, and moderator activity.</p>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stats-grid" style="margin-bottom:20px;">
+        <div class="stat-card">
+          <div class="stat-label">Open Reports</div>
+          <div class="stat-value" id="modOpenReports">0</div>
+          <div class="stat-sub">Awaiting review</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending Comments</div>
+          <div class="stat-value" id="modPendingComments">0</div>
+          <div class="stat-sub">In pre-mod queue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Feedback Submissions</div>
+          <div class="stat-value" id="modFeedbackCount">0</div>
+          <div class="stat-sub">Unread</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Actions Today</div>
+          <div class="stat-value" id="modActionsToday">0</div>
+          <div class="stat-sub">Resolved / dismissed</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:18px;">
+        <button class="tab-btn active" id="modTab-reports" onclick="switchModTab('reports')">Reports Queue</button>
+        <button class="tab-btn" id="modTab-comments" onclick="switchModTab('comments')">Comment Queue</button>
+        <button class="tab-btn" id="modTab-feedback" onclick="switchModTab('feedback')">Feedback</button>
+        <button class="tab-btn" id="modTab-log" onclick="switchModTab('log')">Activity Log</button>
+      </div>
+
+      <!-- Reports Queue -->
+      <div id="modPane-reports">
+        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+          <select id="modRepStatusFilter" onchange="renderModReports()" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:12px;">
+            <option value="all">All Status</option>
+            <option value="open">Open</option>
+            <option value="resolved">Resolved</option>
+            <option value="dismissed">Dismissed</option>
+            <option value="escalated">Escalated</option>
+          </select>
+          <select id="modRepTypeFilter" onchange="renderModReports()" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:12px;">
+            <option value="all">All Types</option>
+            <option value="spam">Spam</option>
+            <option value="abuse">Abuse</option>
+            <option value="misinformation">Misinformation</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="card" style="padding:0;">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Reported Content</th><th>Reported By</th><th>Type</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="modRepTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comment Queue -->
+      <div id="modPane-comments" style="display:none;">
+        <div style="display:flex;gap:10px;margin-bottom:14px;">
+          <input type="text" placeholder="Search comments…" id="modCommentSearch" oninput="renderModComments()"
+            style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 12px;color:var(--text);font-size:12px;">
+          <select id="modCommentFilter" onchange="renderModComments()" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:12px;">
+            <option value="all">All</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div class="card" style="padding:0;">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Comment</th><th>Author</th><th>Thread</th><th>Posted</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="modCommentTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feedback -->
+      <div id="modPane-feedback" style="display:none;">
+        <div class="card" style="padding:0;">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>User</th><th>Type</th><th>Message</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="modFeedbackTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Log -->
+      <div id="modPane-log" style="display:none;">
+        <div class="card" style="padding:0;">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Moderator</th><th>Action</th><th>Target</th><th>Timestamp</th></tr></thead>
+              <tbody id="modLogTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ═══════════════════ END MODERATION ═══════════════════ -->
+
+    <!-- ═══════════════════ BACKUP & RESTORE ═══════════════════ -->
+    <div class="section" id="sec-backup">
+      <div class="breadcrumb">Admin <span>/ Backup &amp; Restore</span></div>
+      <div class="page-header">
+        <h1>Backup &amp; Restore</h1>
+        <p>Manage data snapshots, export platform data, and restore from backups.</p>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="stats-grid" style="margin-bottom:20px;">
+        <div class="stat-card">
+          <div class="stat-label">Total Backups</div>
+          <div class="stat-value" id="bkTotalCount">0</div>
+          <div class="stat-sub">All time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Last Backup</div>
+          <div class="stat-value" id="bkLastDate" style="font-size:16px;">-</div>
+          <div class="stat-sub">Date &amp; time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Size</div>
+          <div class="stat-value" id="bkTotalSize">0 MB</div>
+          <div class="stat-sub">Stored snapshots</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Schedule</div>
+          <div class="stat-value" id="bkScheduleLabel" style="font-size:16px;">Daily</div>
+          <div class="stat-sub">Auto-backup</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 300px;gap:18px;">
+        <!-- Left: history table -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:600;">Backup History</div>
+            <button class="btn-primary" style="font-size:12px;" onclick="triggerManualBackup()">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" style="margin-right:5px;"><path d="M7 9V2M4.5 4.5L7 2l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9.5v1.5a1 1 0 001 1h8a1 1 0 001-1V9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Backup Now
+            </button>
+          </div>
+          <div class="card" style="padding:0;">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Backup ID</th><th>Date &amp; Time</th><th>Size</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="bkHistoryTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: settings + export -->
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <!-- Schedule settings -->
+          <div class="card" style="padding:18px;">
+            <div style="font-size:13px;font-weight:600;margin-bottom:14px;">Auto-Backup Schedule</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                <input type="radio" name="bkSchedule" value="daily" checked onchange="updateBkSchedule(this.value)">
+                <span style="font-size:13px;color:var(--text);">Daily</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                <input type="radio" name="bkSchedule" value="weekly" onchange="updateBkSchedule(this.value)">
+                <span style="font-size:13px;color:var(--text);">Weekly</span>
+              </label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+                <input type="radio" name="bkSchedule" value="off" onchange="updateBkSchedule(this.value)">
+                <span style="font-size:13px;color:var(--text);">Off</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Export data -->
+          <div class="card" style="padding:18px;">
+            <div style="font-size:13px;font-weight:600;margin-bottom:14px;">Export Platform Data</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <button class="btn-ghost" style="width:100%;justify-content:flex-start;gap:8px;font-size:12px;" onclick="exportData('users')">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 12.5c0-2.5 2.4-4.5 5.5-4.5s5.5 2 5.5 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                Export Users (CSV)
+              </button>
+              <button class="btn-ghost" style="width:100%;justify-content:flex-start;gap:8px;font-size:12px;" onclick="exportData('progress')">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M2 10L5 7l2.5 2.5L12 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Export Progress (CSV)
+              </button>
+              <button class="btn-ghost" style="width:100%;justify-content:flex-start;gap:8px;font-size:12px;" onclick="exportData('certs')">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><rect x="2" y="1.5" width="10" height="11" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 5h5M4.5 7.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                Export Certificates (CSV)
+              </button>
+              <button class="btn-ghost" style="width:100%;justify-content:flex-start;gap:8px;font-size:12px;" onclick="exportData('full')">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 9V2M4.5 4.5L7 2l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 9.5v1.5a1 1 0 001 1h8a1 1 0 001-1V9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                Full Export (JSON)
+              </button>
+            </div>
+          </div>
+
+          <!-- Danger zone -->
+          <div class="card" style="padding:18px;border-color:#ef444440;">
+            <div style="font-size:13px;font-weight:600;margin-bottom:4px;color:#ef4444;">Danger Zone</div>
+            <div style="font-size:11px;color:var(--text-dim);margin-bottom:12px;">These actions are irreversible.</div>
+            <button class="btn-ghost" style="width:100%;font-size:12px;color:#ef4444;border-color:#ef444440;" onclick="simulateRestore()">Restore from Backup</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ═══════════════════ END BACKUP & RESTORE ═══════════════════ -->
+
+  </main>
+</div><!-- /.layout -->
+
+<!-- ════════════ MODALS ════════════ -->
+
+<!-- User Detail Modal -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="userModalTitle">Edit User</div>
+      <button class="modal-close" onclick="closeModal('userModal')">✕</button>
+    </div>
+    <div class="modal-field">
+      <label>Full Name</label>
+      <input class="text-input" id="editName" placeholder="User name">
+    </div>
+    <div class="modal-field">
+      <label>Email</label>
+      <input class="text-input" id="editEmail" placeholder="user@email.com">
+    </div>
+    <div class="modal-field">
+      <label>Role</label>
+      <select class="select-filter" id="editRole" style="width:100%;padding:8px;">
+        <option value="user">User</option>
+        <option value="mod">Moderator</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Status</label>
+      <select class="select-filter" id="editStatus" style="width:100%;padding:8px;">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        <option value="banned">Banned</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('userModal')">Cancel</button>
+      <button class="btn primary" onclick="saveUser()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Chapter Modal -->
+<!-- ── COURSE ADD/EDIT MODAL ── -->
+<div class="modal-overlay" id="courseModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="courseModalTitle">Add New Course</div>
+      <button class="modal-close" onclick="closeModal('courseModal')">✕</button>
+    </div>
+    <div class="modal-field">
+      <label>Title</label>
+      <input class="text-input" id="crsTitle" placeholder="e.g. Web Application Security">
+    </div>
+    <div class="modal-field">
+      <label>Tag (small label shown above title)</label>
+      <input class="text-input" id="crsTag" placeholder="e.g. Web Security">
+    </div>
+    <div class="modal-field">
+      <label>Description</label>
+      <input class="text-input" id="crsDesc" placeholder="Short description shown on the card…">
+    </div>
+    <div class="modal-field">
+      <label>Icon</label>
+      <select class="select-filter" id="crsIcon" style="width:100%;padding:8px;">
+        <option value="shield">Shield</option>
+        <option value="radar">Radar</option>
+        <option value="lock">Lock</option>
+        <option value="bug">Bug</option>
+        <option value="code">Code</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Course Key (must match the "course" value used on its chapters, e.g. forensics, attacks)</label>
+      <input class="text-input" id="crsCourseKey" placeholder="e.g. webappsec">
+    </div>
+    <div class="modal-field">
+      <label>Page Key (must match a page id wired up in router.js, e.g. learn, learn2)</label>
+      <input class="text-input" id="crsPageKey" placeholder="e.g. learn3">
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('courseModal')">Cancel</button>
+      <button class="btn primary" onclick="saveCourse()">Save Course</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CHAPTER ADD/EDIT MODAL ── -->
+<div class="modal-overlay" id="chapterModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add New Chapter</div>
+      <button class="modal-close" onclick="closeModal('chapterModal')">✕</button>
+    </div>
+    <div class="modal-field">
+      <label>Chapter Title</label>
+      <input class="text-input" id="chTitle" placeholder="e.g. Packet Capture Basics">
+    </div>
+    <div class="modal-field">
+      <label>Description</label>
+      <input class="text-input" id="chDesc" placeholder="Short description…">
+    </div>
+    <div class="modal-field">
+      <label>Course</label>
+      <select class="select-filter" id="chCourse" style="width:100%;padding:8px;"></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('chapterModal')">Cancel</button>
+      <button class="btn primary" onclick="addChapter()">Add Chapter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── BLOG POST MODAL ── -->
+<div class="modal-overlay" id="blogPostModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <div class="modal-title" id="blogModalTitle">New Post</div>
+      <button class="modal-close" onclick="closeModal('blogPostModal')">✕</button>
+    </div>
+    <div class="modal-field">
+      <label>Title</label>
+      <input class="text-input" id="blogTitle" placeholder="Post title...">
+    </div>
+    <div class="modal-field">
+      <label>Slug</label>
+      <input class="text-input" id="blogSlug" placeholder="post-slug-url">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="modal-field">
+        <label>Category</label>
+        <select class="select-filter" id="blogCat" style="width:100%;padding:8px;">
+          <option value="tutorial">Tutorial</option>
+          <option value="news">News</option>
+          <option value="ctf">CTF</option>
+          <option value="tool">Tools</option>
+          <option value="career">Career</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Status</label>
+        <select class="select-filter" id="blogStatus" style="width:100%;padding:8px;" onchange="toggleBlogSchedule()">
+          <option value="draft">Draft</option>
+          <option value="published">Published</option>
+          <option value="scheduled">Scheduled</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-field" id="blogScheduleField" style="display:none;">
+      <label>Publish Date</label>
+      <input class="text-input" id="blogPublishDate" type="datetime-local">
+    </div>
+    <div class="modal-field">
+      <label>Tags (comma separated)</label>
+      <input class="text-input" id="blogTags" placeholder="security, ctf, tutorial">
+    </div>
+    <div class="modal-field">
+      <label>Featured Image URL</label>
+      <input class="text-input" id="blogImage" placeholder="https://...">
+    </div>
+    <div class="modal-field">
+      <label>Content</label>
+      <textarea class="text-input" id="blogContent" rows="8" placeholder="Write the article content here... (Markdown supported)" style="resize:vertical;min-height:140px;font-family:inherit;"></textarea>
+    </div>
+    <div class="modal-field">
+      <label>SEO Meta Title</label>
+
+      <input class="text-input" id="blogMetaTitle" placeholder="SEO title (optional)">
+    </div>
+    <div class="modal-field">
+      <label>SEO Meta Description</label>
+      <input class="text-input" id="blogMetaDesc" placeholder="Short description for search engines...">
+    </div>
+    <div class="modal-footer" style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn-ghost" onclick="closeModal('blogPostModal')">Cancel</button>
+      <button class="btn" onclick="saveBlogPost()">Save Post</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── BLOG CATEGORY MODAL ── -->
+<div class="modal-overlay" id="blogCatModal">
+  <div class="modal" style="max-width:360px;">
+    <div class="modal-header">
+      <div class="modal-title">Add Category</div>
+      <button class="modal-close" onclick="closeModal('blogCatModal')">✕</button>
+    </div>
+    <div class="modal-field">
+      <label>Category Name</label>
+      <input class="text-input" id="newCatName" placeholder="e.g. Writeups">
+    </div>
+    <div class="modal-footer" style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn-ghost" onclick="closeModal('blogCatModal')">Cancel</button>
+      <button class="btn" onclick="addBlogCategory()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CHANGE ADMIN PASSWORD MODAL ── -->
+<div class="modal-overlay" id="changePasswordModal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <div class="modal-title">Change Password</div>
+      <button class="modal-close" onclick="closeModal('changePasswordModal')">✕</button>
+    </div>
+    <div class="modal-field">
+      <label>New Password</label>
+      <input class="text-input" type="password" id="newAdminPassword" placeholder="At least 8 characters" style="width:100%;">
+    </div>
+    <div class="modal-field">
+      <label>Confirm New Password</label>
+      <input class="text-input" type="password" id="confirmAdminPassword" placeholder="Re-enter new password" style="width:100%;">
+    </div>
+    <div class="modal-footer" style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button class="btn btn-ghost" onclick="closeModal('changePasswordModal')">Cancel</button>
+      <button class="btn red" id="confirmPasswordChangeBtn" onclick="submitPasswordChange()">Update Password</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CTF CHALLENGE MODAL ── -->
+<div class="modal-overlay" id="ctfModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="ctfModalTitle">Create Challenge</div>
+      <button class="modal-close" onclick="closeModal('ctfModal')">✕</button>
+    </div>
+    <div class="modal-field">
+      <label>Challenge Title</label>
+      <input class="text-input" id="ctfTitle" placeholder="e.g. Hidden in Plain Sight">
+    </div>
+    <div class="modal-field">
+      <label>Description</label>
+      <textarea class="textarea-input" id="ctfDesc" rows="3" placeholder="Challenge description shown to users…"></textarea>
+    </div>
+    <div class="field-row">
+      <div class="modal-field">
+        <label>Category</label>
+        <select class="select-filter" id="ctfCategory" style="width:100%;padding:8px;">
+          <option value="web">Web</option>
+          <option value="forensics">Forensics</option>
+          <option value="crypto">Crypto</option>
+          <option value="osint">OSINT</option>
+          <option value="pwn">Pwn</option>
+          <option value="reversing">Reversing</option>
+          <option value="ai">AI Security</option>
+          <option value="misc">Misc</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Difficulty</label>
+        <select class="select-filter" id="ctfDifficulty" style="width:100%;padding:8px;" onchange="ctfAutoPoints()">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="modal-field">
+        <label>Flag</label>
+        <input class="text-input" id="ctfFlag" placeholder="flag{...}">
+      </div>
+      <div class="modal-field">
+        <label>XP / Points</label>
+        <input class="text-input" id="ctfPoints" placeholder="50" value="50">
+      </div>
+    </div>
+    <div class="modal-field">
+      <label>Hints (one per line)</label>
+      <textarea class="textarea-input" id="ctfHints" rows="2" placeholder="Hint 1...&#10;Hint 2..."></textarea>
+    </div>
+    <div class="field-row">
+      <div class="modal-field">
+        <label>Lab Type</label>
+        <select class="select-filter" id="ctfLabType" style="width:100%;padding:8px;" onchange="updateLabPreview()">
+          <option value="">No Lab</option>
+          <option value="sqli">SQL Injection Lab</option>
+          <option value="xss">XSS Lab</option>
+          <option value="cmdi">Command Injection Lab</option>
+          <option value="fileupload">File Upload Lab</option>
+          <option value="network">Network Analysis Lab</option>
+          <option value="steganography">Steganography Lab</option>
+          <option value="crypto">Cryptography Lab</option>
+          <option value="osint">OSINT Lab</option>
+          <option value="custom">Custom URL</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>Status</label>
+        <select class="select-filter" id="ctfStatus" style="width:100%;padding:8px;">
+          <option value="active">Active</option>
+          <option value="draft">Draft</option>
+          <option value="disabled">Disabled</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-field" id="ctfCustomLabWrap" style="display:none;">
+      <label>Custom Lab URL</label>
+      <input class="text-input" id="ctfCustomLabUrl" placeholder="/pages/lab-custom.html">
+    </div>
+    <div class="modal-field" id="ctfLabPreview" style="display:none;">
+      <div style="font-size:11px;color:var(--text-dim);background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;display:flex;align-items:center;gap:8px;">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#4ade80" stroke-width="1.2"/><path d="M4 6l1.5 1.5L8 4" stroke="#4ade80" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span style="color:#4ade80;font-weight:600;">Lab:</span>
+        <span id="ctfLabPreviewUrl" style="font-family:'Courier New',monospace;font-size:11px;"></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('ctfModal')">Cancel</button>
+      <button class="btn primary" onclick="saveCTF()">Save Challenge</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CERTIFICATE VIEW MODAL ── -->
+<div class="modal-overlay" id="certModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Certificate Details</div>
+      <button class="modal-close" onclick="closeModal('certModal')">✕</button>
+    </div>
+    <div style="text-align:center;padding:10px 0 18px;">
+      <div style="width:120px;height:120px;margin:0 auto 14px;background:var(--surface3);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-dim);">
+        QR CODE
+      </div>
+      <div id="certUserName" style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:4px;"></div>
+      <div id="certCourseName" style="font-size:12px;color:var(--text-dim);margin-bottom:8px;"></div>
+      <div id="certIdRow" style="font-size:11px;color:var(--text-dim);"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('certModal')">Close</button>
+      <button class="btn primary" onclick="downloadCertPDF()">Download PDF</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Upload Resource Modal -->
+<div class="modal-overlay" id="uploadResourceModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title" id="uploadResModalTitle">Upload Resource</div>
+      <button class="modal-close" onclick="closeModal('uploadResourceModal')">✕</button>
+    </div>
+    <div class="modal-field">
+      <label>Resource Name</label>
+      <input class="text-input" id="resName" placeholder="e.g. Wireshark Cheatsheet v2">
+    </div>
+    <div class="modal-field">
+      <label>Type</label>
+      <select class="text-input" id="resType">
+        <option value="cheatsheet">Cheatsheet</option>
+        <option value="pcap">PCAP</option>
+        <option value="pdf">PDF</option>
+        <option value="script">Script</option>
+        <option value="wordlist">Wordlist</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Chapter Tag <span style="color:var(--text-dim);font-weight:400;">(optional)</span></label>
+      <input class="text-input" id="resChapterTag" placeholder="e.g. Chapter 3, Wireshark">
+    </div>
+    <div class="modal-field">
+      <label>File</label>
+      <div style="border:1px dashed var(--border-h);border-radius:8px;padding:18px;text-align:center;cursor:pointer;background:var(--surface2);" onclick="document.getElementById('resFileInput').click()">
+        <svg width="20" height="20" viewBox="0 0 14 14" fill="none" style="margin:0 auto 6px;display:block;opacity:0.4"><path d="M7 2v7M4 5l3-3 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <div id="resFileName" style="font-size:12px;color:var(--text-dim);">Click to select file</div>
+        <input type="file" id="resFileInput" style="display:none" onchange="handleResFile(this)">
+      </div>
+    </div>
+    <div class="modal-field">
+      <label>Visibility</label>
+      <select class="text-input" id="resVisibility">
+        <option value="active">Active (Visible to users)</option>
+        <option value="hidden">Hidden</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('uploadResourceModal')">Cancel</button>
+      <button class="btn primary" onclick="saveResource()">Upload</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/admin-ai-search.js"></script>
+<script src="js/admin-panel-app.js"></script>
+<script src="js/admin-supabase.js"></script>
+</body>
+</html>

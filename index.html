@@ -1,0 +1,2579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Tells browsers this site is intentionally dark-themed already, so browser-level
+     "force dark mode" features (Samsung Internet, some Android Chrome builds) skip
+     auto-recoloring instead of overriding our red/black palette -->
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0a0f">
+<style>:root{color-scheme:dark;}</style>
+<!-- Security headers -->
+<!-- Security headers (CSP, HSTS, etc.) are set server-side in server/index.js via helmet -->
+<!-- X-Frame-Options, Referrer-Policy etc. must be HTTP headers, not meta tags -->
+<title>alexcyberx: Free Cybersecurity Education for Everyone</title>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SEO - AEO / GEO / LLMO / AISEO / E-E-A-T
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- Core SEO -->
+<meta name="description" content="AlexCyberX is a free cybersecurity education platform by Pavan Kumar, a BCA student and cybersecurity educator from Rajasthan, India. Learn Ethical Hacking, Network Forensics, and Cyber Attack techniques in Hindi with hands-on CTF labs.">
+<meta name="keywords" content="Pavan Kumar, AlexCyberX, alex cyberx, cybersecurity hindi, network forensics, ethical hacking, cyber investigation, wireshark, kali linux, burp suite, nmap, CTF, SQL injection, XSS, MITM, packet analysis, jhalawar, rajasthan cybersecurity, free cybersecurity course india">
+<meta name="author" content="Pavan Kumar (AlexCyberX)">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+
+<!-- Canonical -->
+<link rel="canonical" href="https://alexcyberx.com/">
+
+<!-- Open Graph (GEO - AI engines use OG for context) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="AlexCyberX - Free Cybersecurity Education in Hindi">
+<meta property="og:description" content="Learn Ethical Hacking, Network Forensics, SQL Injection, XSS, MITM attacks and more. Free courses and hands-on CTF labs by Pavan Kumar from Rajasthan, India.">
+<meta property="og:url" content="https://alexcyberx.com/">
+<meta property="og:site_name" content="AlexCyberX">
+<meta property="og:locale" content="en_IN">
+<meta property="og:locale:alternate" content="hi_IN">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AlexCyberX - Free Cybersecurity Education in Hindi">
+<meta name="twitter:description" content="Ethical Hacking, Network Forensics, CTF labs - free cybersecurity education platform by Pavan Kumar (AlexCyberX) from Rajasthan, India.">
+<meta name="twitter:site" content="@alexcyberx">
+<meta name="twitter:creator" content="@alexcyberx">
+
+<!-- AISEO - AI Search Optimization hints -->
+<meta name="citation_author" content="Pavan Kumar">
+<meta name="citation_title" content="AlexCyberX Cybersecurity Education Platform">
+<meta name="citation_language" content="hi, en">
+<meta name="dc.creator" content="Pavan Kumar">
+<meta name="dc.subject" content="Cybersecurity, Ethical Hacking, Network Forensics">
+<meta name="dc.language" content="hi, en">
+
+<!-- ═══ Schema.org Structured Data ═══ -->
+
+<!-- 1. WebSite + SearchAction (AEO/AISEO) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "AlexCyberX",
+  "alternateName": "Alex CyberX",
+  "url": "https://alexcyberx.com",
+  "description": "Free cybersecurity education platform covering Ethical Hacking, Network Forensics, CTF labs, and cyber attack fundamentals in Hindi and English.",
+  "inLanguage": ["hi", "en"],
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://alexcyberx.com/?q={search_term_string}"
+    },
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+<!-- 2. Person + E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Pavan Kumar",
+  "alternateName": "AlexCyberX",
+  "url": "https://alexcyberx.com",
+  "image": "https://alexcyberx.com/assets/pawan-tanwar.jpg",
+  "jobTitle": "Certified Ethical Hacker",
+  "hasCredential": {
+    "@type": "EducationalOccupationalCredential",
+    "credentialCategory": "Professional Certification",
+    "name": "Certified Ethical Hacker (CEH)",
+    "recognizedBy": {
+      "@type": "Organization",
+      "name": "EC-Council"
+    }
+  },
+  "knowsAbout": [
+    "Network Forensics",
+    "Ethical Hacking",
+    "Packet Analysis",
+    "Threat Hunting",
+    "Cyber Investigation",
+    "PCAP Analysis",
+    "Wireshark",
+    "Kali Linux",
+    "Burp Suite",
+    "Nmap",
+    "SQL Injection",
+    "Cross-Site Scripting",
+    "Man-in-the-Middle Attacks",
+    "CTF Challenges",
+    "Cyber Police Investigation"
+  ],
+  "knowsLanguage": ["hi", "en"],
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Jhalawar",
+    "addressRegion": "Rajasthan",
+    "addressCountry": "IN"
+  },
+  "sameAs": [
+    "https://www.instagram.com/alex.cyberx",
+    "https://github.com/alexcyberx"
+  ]
+}
+</script>
+
+<!-- 3. EducationalOrganization (E-E-A-T + GEO) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "AlexCyberX",
+  "url": "https://alexcyberx.com",
+  "description": "AlexCyberX is a free cybersecurity education platform founded by Pavan Kumar, a Certified Ethical Hacker. It offers structured courses on Ethical Hacking and Cyber Attacks in Hindi, along with interactive CTF labs for hands-on practice.",
+  "founder": {
+    "@type": "Person",
+    "name": "Pavan Kumar",
+    "alternateName": "AlexCyberX"
+  },
+  "foundingDate": "2023",
+  "addressCountry": "IN",
+  "inLanguage": ["hi", "en"],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Cybersecurity Courses",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Course",
+          "name": "Ethical Hacking Fundamentals",
+          "description": "Comprehensive course covering Network Forensics, Wireshark, Nmap, Burp Suite, Kali Linux, and ethical hacking methodology from beginner to advanced level.",
+          "provider": {
+            "@type": "Person",
+            "name": "Pavan Kumar"
+          },
+          "inLanguage": "hi",
+          "isAccessibleForFree": true,
+          "educationalLevel": "Beginner to Advanced",
+          "teaches": ["Network Forensics", "Wireshark", "Kali Linux", "Ethical Hacking", "Nmap", "Burp Suite"]
+        },
+        "price": "0",
+        "priceCurrency": "INR"
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Course",
+          "name": "Cyber Attacks Fundamentals",
+          "description": "Covers real-world cyber attack types including MITM, DoS/DDoS, SQL Injection, XSS, DNS Spoofing, and Ransomware with visual diagrams and practical examples.",
+          "provider": {
+            "@type": "Person",
+            "name": "Pavan Kumar"
+          },
+          "inLanguage": "hi",
+          "isAccessibleForFree": true,
+          "educationalLevel": "Beginner to Intermediate",
+          "teaches": ["SQL Injection", "XSS", "MITM", "DoS", "DNS Spoofing", "Ransomware"]
+        },
+        "price": "0",
+        "priceCurrency": "INR"
+      }
+    ]
+  }
+}
+</script>
+
+<!-- 3b. SoftwareApplication - Tools (SEO for /tools/* pages) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "AlexCyberX Cybersecurity Tools",
+  "description": "Free cybersecurity tools by AlexCyberX for reconnaissance, OSINT, utilities, and learning.",
+  "itemListElement": [
+    {
+      "@type": "SoftwareApplication",
+      "position": 1,
+      "name": "AlexRecon",
+      "url": "https://alexcyberx.com/tools/alexrecon",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Any (Web-based)",
+      "description": "Attack-surface reconnaissance tool: DNS, SSL, subdomain enumeration, port scanning, and tech stack detection for any domain.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+      "author": { "@type": "Person", "name": "Pavan Kumar" }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "position": 2,
+      "name": "AlexUtils",
+      "url": "https://alexcyberx.com/tools/alexutils",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Any (Web-based)",
+      "description": "Cybersecurity utility toolkit: IP/DNS lookup, SSL checker, hash generator, Base64 encode/decode, subnet calculator, and CVE search.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+      "author": { "@type": "Person", "name": "Pavan Kumar" }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "position": 3,
+      "name": "AlexTrace",
+      "url": "https://alexcyberx.com/tools/alextrace",
+      "applicationCategory": "SecurityApplication",
+      "operatingSystem": "Any (Web-based)",
+      "description": "Digital footprint and OSINT audit tool: cross-platform username check, email breach lookup, and photo metadata scan with an exposure score.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+      "author": { "@type": "Person", "name": "Pavan Kumar" }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "position": 4,
+      "name": "Cyber Mistake Analyzer",
+      "url": "https://alexcyberx.com/tools/mistake-analyzer",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Any (Web-based)",
+      "description": "Paste a security command and get instant feedback on what is right, what is wrong, and a corrected version.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+      "author": { "@type": "Person", "name": "Pavan Kumar" }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "position": 5,
+      "name": "AlexSync",
+      "url": "https://alexcyberx.com/tools/alexsync",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Windows",
+      "description": "Automation tool that wakes a laptop and starts music automatically at a scheduled time.",
+      "offers": { "@type": "Offer", "price": "12", "priceCurrency": "INR" },
+      "author": { "@type": "Person", "name": "Pavan Kumar" }
+    }
+  ]
+}
+</script>
+
+<!-- 4. FAQPage (AEO - Answer Engine Optimization) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "AlexCyberX kya hai?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "AlexCyberX ek free cybersecurity education platform hai jo Pavan Kumar ne banaya hai. Yahan Ethical Hacking, Network Forensics, aur Cyber Attacks ke structured courses Hindi mein milte hain, saath mein hands-on CTF labs bhi hain."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is AlexCyberX?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "AlexCyberX is a free cybersecurity education platform created by Pavan Kumar, a Certified Ethical Hacker from Rajasthan, India. It offers courses on Ethical Hacking and Cyber Attack Fundamentals in Hindi, along with interactive CTF (Capture The Flag) labs for practical learning."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is AlexCyberX free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, AlexCyberX is completely free. All courses, chapters, and CTF labs are accessible at no cost. The platform is built for students and beginners who want to learn cybersecurity without any financial barrier."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who is Pavan Kumar AlexCyberX?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Pavan Kumar, known online as AlexCyberX, is a Certified Ethical Hacker (CEH) from Jhalawar, Rajasthan, India. He specializes in Network Forensics, packet analysis, and cyber investigation. He runs the AlexCyberX platform and an Instagram community at @alex.cyberx focused on CTF writeups and real-world hacking techniques."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What topics does AlexCyberX cover?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "AlexCyberX covers Ethical Hacking fundamentals including Wireshark, Nmap, Burp Suite, Kali Linux, and network forensics. The second course covers Cyber Attack types like SQL Injection, XSS (Cross-Site Scripting), MITM (Man-in-the-Middle), DoS/DDoS, DNS Spoofing, and Ransomware. CTF labs provide hands-on practice with real vulnerability scenarios."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Cybersecurity Hindi mein kaise seekhein?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "AlexCyberX pe jao aur free courses enroll karo. Platform Hindi aur English dono mein available hai. Ethical Hacking course se start karo, phir Cyber Attacks course karo, aur CTF labs mein practice karo. Sab kuch free hai aur beginner-friendly hai."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is CTF in cybersecurity?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "CTF stands for Capture The Flag. It is a type of cybersecurity competition where participants solve security challenges to find hidden flags (text strings). AlexCyberX has an integrated CTF platform with labs covering SQL Injection, XSS, packet forensics, cookie manipulation, and OSINT challenges for hands-on learning."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is SQL Injection?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "SQL Injection is a web security vulnerability where an attacker inserts malicious SQL code into an input field to manipulate the database. It can allow attackers to bypass login, read sensitive data, or delete records. AlexCyberX covers SQL Injection in detail with a hands-on CTF lab to practice detection and exploitation safely."
+      }
+    }
+  ]
+}
+</script>
+
+<!-- 5. BreadcrumbList (AISEO - helps AI understand site structure) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://alexcyberx.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Courses",
+      "item": "https://alexcyberx.com/tutorials"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "CTF Labs",
+      "item": "https://alexcyberx.com/rooms"
+    }
+  ]
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="/css/learn.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/profile.css">
+  <link rel="stylesheet" href="/css/modal.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <link rel="stylesheet" href="/css/alexrecon.css">
+  <link rel="stylesheet" href="/css/alexutils.css">
+  <link rel="stylesheet" href="/css/alextrace.css">
+</head>
+<body>
+
+<div class="glow-orb"></div>
+
+<!-- ═══════════ MAIN NAV (always visible) ═══════════ -->
+<nav id="mainNav">
+  <button class="nav-logo" onclick="showPage('home')">
+    <div class="logo-text"><strong>Alex <em>CyberX</em></strong></div>
+  </button>
+
+  <div class="nav-center" id="homeNavCenter">
+    <button class="nav-link" onclick="showPage('home'); scrollToSection('home')">Home</button>
+    <button class="nav-link" onclick="goToTutorials()">Tutorials</button>
+    <button class="nav-link" onclick="showPage('tools')">Tools</button>
+    <button class="nav-link" onclick="showPage('ctf')">
+      CTF
+    </button>
+    <div class="nav-dropdown" id="navMoreDropdown">
+      <button class="nav-link nav-dropdown-trigger" onclick="toggleNavMoreDropdown(event)">
+        More
+        <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5l3.5 3.5 3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="nav-dropdown-menu" id="navMoreDropdownMenu">
+        <button class="nav-dropdown-item" onclick="closeNavMoreDropdown(); showPage('leaderboard')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 12V7M7 12V2M11 12V9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Leaderboard
+        </button>
+        <button class="nav-dropdown-item" onclick="closeNavMoreDropdown(); showPage('blog')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="1.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 4.5h6M4 7h6M4 9.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Blog
+        </button>
+        <button class="nav-dropdown-item" onclick="closeNavMoreDropdown(); showPage('resources')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5h4l1.2 1.5H12v6.5a1 1 0 01-1 1H2a1 1 0 01-1-1v-7a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          Resources
+        </button>
+        <button class="nav-dropdown-item" onclick="closeNavMoreDropdown(); showPage('community')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10a1 1 0 011 1v5a1 1 0 01-1 1H6l-3 2.5V10H2a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          Community
+        </button>
+      </div>
+    </div>
+    <button class="nav-link" onclick="showPage('home'); scrollToSection('about')">About</button>
+    <button class="nav-link" onclick="showPage('home'); scrollToSection('contact')">Contact</button>
+  </div>
+
+  <div class="nav-right" id="homeNavRight">
+
+    <!-- Desktop search, always visible compact pill, expands in place -->
+    <div class="nav-search-desktop" id="navSearchDesktop">
+      <div class="nav-search-pill" id="navSearchPill" onclick="expandNavSearch(); document.getElementById('desktopSearchInput').focus();">
+        <svg width="13" height="13" viewBox="0 0 15 15" fill="none" style="flex-shrink:0;">
+          <circle cx="6.5" cy="6.5" r="5" stroke="#555" stroke-width="1.4"/>
+          <path d="M10.5 10.5L13.5 13.5" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input type="text" id="desktopSearchInput" placeholder="Search..." autocomplete="off"
+          oninput="handleDesktopSearch(this.value)"
+          onkeydown="handleDesktopSearchKey(event)"
+          onfocus="expandNavSearch()" />
+        <button id="navSearchClearBtn" onclick="closeDesktopSearch()" style="display:none;background:none;border:none;cursor:pointer;padding:2px 4px;opacity:0.5;display:none;align-items:center;">
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="#aaa" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="nav-search-desktop-results" id="navSearchDesktopResults" style="display:none;"></div>
+    </div>
+
+    <button class="nav-btn ghost" id="langNavBtn" onclick="showLangModal()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 12px;" title="Change Language">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="7" cy="7" r="6" stroke="#6a6a7a" stroke-width="1.2"/>
+        <ellipse cx="7" cy="7" rx="2.8" ry="6" stroke="#6a6a7a" stroke-width="1.2"/>
+        <line x1="1.2" y1="4.5" x2="12.8" y2="4.5" stroke="#6a6a7a" stroke-width="1.2"/>
+        <line x1="1.2" y1="9.5" x2="12.8" y2="9.5" stroke="#6a6a7a" stroke-width="1.2"/>
+      </svg>
+      <span style="font-size:11px;letter-spacing:0.3px;" id="langNavLabel">Language</span>
+    </button>
+    <button class="nav-btn ghost" onclick="showAuth('login')" id="navLoginBtn" data-i18n="nav.login">Login</button>
+    <button class="nav-btn fill" onclick="showAuth('signup')" id="navSignupBtn" data-i18n="nav.signup">Sign Up</button>
+    <div class="nav-avatar" id="navAvatar" onclick="showPage('profile')" style="position:relative;">
+      <div class="nav-avatar-pic" id="navAvatarPic">A</div>
+      <span class="nav-avatar-name" id="navAvatarName">User</span>
+      <div class="nav-avatar-dropdown">
+        <button class="nav-avatar-dropdown-item" onclick="event.stopPropagation();showPage('profile')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="4.5" r="2.5" stroke="#888" stroke-width="1.2"/><path d="M2 12c0-2.8 2.2-4 5-4s5 1.2 5 4" stroke="#888" stroke-width="1.2" stroke-linecap="round"/></svg>
+          My Profile
+        </button>
+        <hr/>
+        <button class="nav-avatar-dropdown-item danger" onclick="event.stopPropagation();doLogout()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 7h7M9 4.5L12 7l-3 2.5" stroke="#e06060" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 2H3a1 1 0 00-1 1v8a1 1 0 001 1h3" stroke="#e06060" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Sign Out
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Mobile right: search icon first, then hamburger -->
+  <div class="nav-mobile-right" id="navMobileRight">
+    <div class="nav-search-wrap" id="navSearchWrap">
+      <button class="nav-search-icon-btn" id="navSearchToggle" onclick="toggleNavSearch()" title="Search">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <circle cx="6.5" cy="6.5" r="5" stroke="#6a6a7a" stroke-width="1.4"/>
+          <path d="M10.5 10.5L13.5 13.5" stroke="#6a6a7a" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="nav-search-expanded" id="navSearchExpanded" style="display:none;">
+        <svg width="13" height="13" viewBox="0 0 15 15" fill="none" style="flex-shrink:0;margin-left:10px;">
+          <circle cx="6.5" cy="6.5" r="5" stroke="#555" stroke-width="1.4"/>
+          <path d="M10.5 10.5L13.5 13.5" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input type="text" id="heroSearchInput" placeholder="Search courses, chapters..." autocomplete="off"
+          oninput="handleCourseSearch(this.value)" onkeydown="handleSearchKeydown(event)" />
+        <button id="searchClearBtn" onclick="clearCourseSearch()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 8px;opacity:0.6;">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="#888" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="search-results-dropdown" id="searchResultsDropdown" style="display:none;"></div>
+    </div>
+    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════ LEARN SUB-NAV (CodeWithHarry style) ═══════════ -->
+<div id="learnSubNav">
+  <div class="lsn-left">
+    <button class="lsn-toggle" id="sidebarToggle" onclick="(currentPage==='learn3'?toggleEthicalSidebar:currentPage==='learn2'?toggleCyberSidebar:toggleSidebar)()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="1" y="2.5" width="14" height="1.5" rx="1" fill="#888"/>
+        <rect x="1" y="7.25" width="14" height="1.5" rx="1" fill="#888"/>
+        <rect x="1" y="12" width="14" height="1.5" rx="1" fill="#888"/>
+      </svg>
+    </button>
+    <div class="lsn-breadcrumb">
+      <button onclick="showPage('home')">Tutorials</button>
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#333" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span id="lsnBreadcrumbLabel">Network Forensics</span>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+
+  <button class="m-nav" onclick="showPage('home'); toggleMenu()" data-i18n="nav.home">Home</button>
+  <button class="m-nav" onclick="goToTutorials(); toggleMenu()" data-i18n="nav.tutorials">Tutorials</button>
+  <button class="m-nav" onclick="showPage('tools'); toggleMenu()">Tools</button>
+  <button class="m-nav" onclick="showPage('ctf'); toggleMenu()">
+    CTF Challenges
+  </button>
+
+  <div class="m-more-group" id="mMoreGroup">
+    <button class="m-nav m-more-toggle" onclick="toggleMobileMoreGroup(event)" aria-expanded="false">
+      More
+      <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2.5 4.5l3.5 3.5 3.5-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="m-more-panel">
+      <div class="m-more-panel-inner">
+        <button class="m-nav" onclick="showPage('leaderboard'); toggleMenu()">Leaderboard</button>
+        <button class="m-nav" onclick="showPage('blog'); toggleMenu()">Blog</button>
+        <button class="m-nav" onclick="showPage('resources'); toggleMenu()">Resources</button>
+        <button class="m-nav" onclick="showPage('community'); toggleMenu()">Community</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="m-nav" onclick="showPage('home'); scrollToSection('about'); toggleMenu()" data-i18n="nav.about">About</button>
+  <button class="m-nav" onclick="showPage('home'); scrollToSection('contact'); toggleMenu()" data-i18n="nav.contact">Contact</button>
+  <div class="m-divider"></div>
+  <button class="m-nav" onclick="showLangModal();toggleMenu();" style="display:flex;align-items:center;gap:10px;">
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="7.5" cy="7.5" r="6.2" stroke="#6a6a7a" stroke-width="1.2"/>
+      <ellipse cx="7.5" cy="7.5" rx="3" ry="6.2" stroke="#6a6a7a" stroke-width="1.2"/>
+      <line x1="1.5" y1="5" x2="13.5" y2="5" stroke="#6a6a7a" stroke-width="1.2"/>
+      <line x1="1.5" y1="10" x2="13.5" y2="10" stroke="#6a6a7a" stroke-width="1.2"/>
+    </svg>
+    <span id="mLangLabel" data-i18n="nav.lang">Select Language</span>
+  </button>
+  <div class="m-divider"></div>
+  <div class="m-auth" id="mobileAuthBtns">
+    <button class="ml" onclick="showAuth('login');toggleMenu()" data-i18n="nav.login">Login</button>
+    <button class="ms" onclick="showAuth('signup');toggleMenu()" data-i18n="nav.signup">Sign Up</button>
+  </div>
+  <div class="m-auth" id="mobileUserBtns" style="display:none;">
+    <button class="ml" onclick="showPage('profile');toggleMenu()" style="flex:1;text-align:center;font-size:12px;font-weight:600;border-radius:7px;padding:10px 0;cursor:pointer;font-family:'Inter',sans-serif;border:1px solid var(--border);color:var(--text-dim);background:transparent;">My Profile</button>
+    <button class="ms" onclick="doLogout();toggleMenu()" style="flex:1;text-align:center;font-size:12px;font-weight:600;border-radius:7px;padding:10px 0;cursor:pointer;font-family:'Inter',sans-serif;background:rgba(220,20,20,0.1);color:#e06060;border:1px solid rgba(220,20,20,0.2);">Sign Out</button>
+  </div>
+</div>
+
+
+
+<div id="homePage" class="page active">
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        <span data-i18n="hero.badge.text">Cybersecurity Learning Platform</span>
+      </div>
+      <h1 class="hero-title">
+        <span class="t1"><span data-i18n="hero.title.line1">Learn Cyber</span> <em style="color:var(--red);font-style:normal;" data-i18n="hero.title.line2">Security</em></span>
+      </h1>
+      <p class="hero-sub" data-i18n="hero.sub">Cybersecurity ko samjho apni language mein. Network Forensics, Ethical Hacking, aur bahut kuch sikhenge step by step, beginner se expert tak.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="scrollToSection('tutorials')">
+          <span data-i18n="hero.cta1">Start Learning</span>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7h10M7.5 3L11 7l-3.5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button class="btn-secondary" onclick="scrollToSection('about')">
+          <span data-i18n="hero.cta2">About AlexCyberX</span>
+        </button>
+      </div>
+
+
+    </div>
+    <div class="hero-right">
+            <div class="hero-terminal">
+        <div class="ht-bar">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <span class="ht-title">root@alexcyberx ~ $</span>
+        </div>
+        <div class="ht-body ht-body-split">
+          <div class="ht-col-left">
+          <div class="ht-line"><span class="ht-p">$</span> <span class="ht-c">sudo su</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">[sudo] password for alex: </span><span class="ht-blink">_</span></div>
+          <div class="ht-line ht-indent"><span class="ht-red-b">root access granted.</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-c">rm -rf /</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">removing /bin... </span><span class="ht-red-b">done</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">removing /etc... </span><span class="ht-red-b">done</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">removing /home/alex/life-savings...</span></div>
+          <div class="ht-line ht-indent"><span class="ht-red-b">permission denied.</span> <span class="ht-dim">(nice try)</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-c">cat /etc/motd</span></div>
+          <div class="ht-line ht-indent"><span class="ht-white">you just nuked the server.</span></div>
+          <div class="ht-line ht-indent"><span class="ht-white">hope it wasn't production.</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-cursor2"></span></div>
+          </div>
+          <div class="ht-col-right">
+          <div class="ht-line"><span class="ht-pr">$</span> <span class="ht-c">nmap -sV target.com</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">Starting Nmap scan...</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">22/tcp open ssh</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">80/tcp open http</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-c">hydra -l admin -P rockyou.txt ssh://target.com</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">Hydra v9.4 starting...</span></div>
+          <div class="ht-line ht-indent"><span class="ht-red-b">login: admin pass: p@ss123</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-c">sqlmap -u target.com/login --dbs</span></div>
+          <div class="ht-line ht-indent"><span class="ht-dim">Backend DBMS: MySQL</span></div>
+          <div class="ht-line ht-indent"><span class="ht-red-b">DBs: users_db, admin_panel</span></div>
+          <div class="ht-line" style="margin-top:6px"><span class="ht-pr">$</span> <span class="ht-cursor2"></span></div>
+          </div>
+        </div>
+      </div>
+      <a class="hero-roadmap-link" href="https://roadmap.sh/cyber-security" target="_blank" rel="noopener noreferrer">
+        <span data-i18n="hero.roadmap">New to cybersecurity? Follow the community roadmap to know what to learn next</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST MARQUEE -->
+<div class="trust-strip">
+  <div class="trust-label" data-i18n="trust.label">Skills covered across the platform</div>
+  <div class="trust-track-wrap">
+    <div class="trust-track" id="trustTrack" style="animation-duration: 28s;">
+      <div class="trust-item">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- TUTORIALS -->
+<section class="section" id="tutorials">
+  <div class="section-label" data-i18n="courses.label" data-reveal>Courses</div>
+  <h2 class="section-heading" data-i18n="courses.heading" data-reveal>Choose Your Path</h2>
+  <!-- Cards ab Supabase 'courses' table se load hote hain (js/courses.js).
+       Home page par sirf pehle kuch featured courses dikhte hain (limit
+       courses.js mein set hai), poori list "View All Courses" button se
+       /tutorials page (#coursesPage) par milti hai. Naya course admin
+       panel se add karte hi yahan bhi automatically dikhega. -->
+  <div class="cards-grid" id="homeCoursesGrid" data-reveal>
+    <div class="empty" style="color:#666;font-size:13px;padding:20px 0;">Loading courses…</div>
+  </div>
+  <div style="text-align:center;margin-top:32px;">
+    <button class="btn-secondary" onclick="showPage('courses')" data-i18n="courses.viewAll">View All Courses</button>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="section about-wrap" id="about">
+  <div class="about-grid">
+    <div class="about-text" data-reveal>
+      <div class="section-label" data-i18n="about.label">About</div>
+      <h2><span data-i18n="about.whois">Who is</span> <em>AlexCyberX</em></h2>
+      <p data-i18n="about.p1">Hi, I Am Pavan Kumar, Known Online As AlexCyberX. I Am From Jhalawar, Rajasthan, And Currently Pursuing A BCA At The University Of Kota. I Am The Founder Of AlexCyberX, The Cybersecurity Education Platform You Are On Right Now, Where I Build The Tutorials, Tools, And Hands-On CTF Labs That Teach Networking And Cybersecurity Concepts In A Practical Way. I Also Create Networking And Cybersecurity Educational Content On Instagram Under @alex.cyberx, Breaking Down Concepts In A Simple, Easy-To-Follow Way.</p>
+    </div>
+    <div class="terminal" data-reveal data-reveal-delay="1">
+      <div class="term-header">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <span class="term-title">alexcyberx@kali ~ $</span>
+      </div>
+      <div class="term-body">
+        <div><span class="t-prompt">$</span> <span class="t-cmd">whoami</span></div>
+        <span class="t-out-green">Pavan Kumar (AlexCyberX)</span>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">cat role.txt</span></div>
+        <span class="t-out-dim">Founder, AlexCyberX</span>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">cat education.txt</span></div>
+        <span class="t-out-dim">BCA, University of Kota</span>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">cat location.txt</span></div>
+        <span class="t-out-dim">Jhalawar, Rajasthan, India</span>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">cat field.txt</span></div>
+        <span class="t-out-dim">Cyber Security</span>
+        <div><span class="t-prompt">$</span> <span class="t-cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section contact-wrap" id="contact">
+  <div class="contact-grid">
+    <div class="contact-left" data-reveal>
+      <div class="section-label" data-i18n="contact.label">Connect</div>
+      <h2 data-i18n="contact.heading">Get in Touch</h2>
+      <p data-i18n="contact.sub">Questions, collaborations, or want to learn something - reach out.</p>
+      <div class="social-list">
+        <a href="https://instagram.com/alex.cyberx" class="social-link" target="_blank">
+          <div class="social-icon-wrap">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <rect x="1" y="1" width="14" height="14" rx="3.5" stroke="#dc1414" stroke-width="1.2"/>
+              <circle cx="8" cy="8" r="3" stroke="#dc1414" stroke-width="1.2"/>
+              <circle cx="11.5" cy="4.5" r="0.9" fill="#dc1414"/>
+            </svg>
+          </div>
+          <div><div class="social-name">Instagram</div><div class="social-handle">@alex.cyberx</div></div>
+          <svg class="social-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 3l4 4-4 4" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <a href="https://github.com/alexcyberx" class="social-link" target="_blank">
+          <div class="social-icon-wrap">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M8 1C4.13 1 1 4.13 1 8c0 3.09 2.01 5.71 4.79 6.63.35.06.48-.15.48-.34v-1.2c-1.95.42-2.36-.94-2.36-.94-.32-.81-.78-1.03-.78-1.03-.64-.44.05-.43.05-.43.7.05 1.07.72 1.07.72.62 1.07 1.63.76 2.03.58.06-.45.24-.76.44-.93-1.56-.18-3.2-.78-3.2-3.47 0-.77.27-1.39.72-1.88-.07-.18-.31-.89.07-1.85 0 0 .59-.19 1.92.72A6.65 6.65 0 018 4.84c.59 0 1.19.08 1.75.23 1.33-.9 1.91-.72 1.91-.72.38.96.14 1.67.07 1.85.45.49.72 1.11.72 1.88 0 2.7-1.64 3.29-3.2 3.47.25.22.48.64.48 1.3v1.92c0 .19.13.4.48.34A7.002 7.002 0 0015 8c0-3.87-3.13-7-7-7z" fill="#dc1414"/>
+            </svg>
+          </div>
+          <div><div class="social-name">GitHub</div><div class="social-handle">alexcyberx</div></div>
+          <svg class="social-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 3l4 4-4 4" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+        <a href="https://linkedin.com/in/alexcyberx" class="social-link" target="_blank">
+          <div class="social-icon-wrap">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <rect x="1" y="1" width="14" height="14" rx="2.5" stroke="#dc1414" stroke-width="1.2"/>
+              <path d="M4 6.5v5" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/>
+              <circle cx="4" cy="4.5" r="0.8" fill="#dc1414"/>
+              <path d="M7 11.5V9c0-1.1.9-2 2-2s2 .9 2 2v2.5" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/>
+              <path d="M7 6.5v5" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div><div class="social-name">LinkedIn</div><div class="social-handle">@alexcyberx</div></div>
+          <svg class="social-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 3l4 4-4 4" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <div class="contact-form" data-reveal data-reveal-delay="1">
+      <div class="form-title" data-i18n="form.title">Send Message</div>
+      <div class="form-field"><label data-i18n="form.name">Name</label><input id="contactName" type="text" data-i18n-placeholder="form.name.ph" placeholder="Your name"></div>
+      <div class="form-field"><label data-i18n="form.email">Email</label><input id="contactEmail" type="email" data-i18n-placeholder="form.email.ph" placeholder="your@email.com"></div>
+      <div class="form-field"><label data-i18n="form.msg">Message</label><textarea id="contactMsg" data-i18n-placeholder="form.msg.ph" placeholder="Write here..."></textarea></div>
+      <!-- Honeypot field - hidden from real users -->
+      <input type="text" id="contactHP" style="display:none;" tabindex="-1" autocomplete="off">
+      <div id="contactMsg_status" style="font-size:12px;margin-bottom:8px;min-height:18px;"></div>
+      <button class="btn-send" onclick="handleContactSubmit()">
+        <span data-i18n="form.send">Send Message</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M1 7h12M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-logo">Alex <em>CyberX</em></div>
+  <div class="foot-legal-links">
+    <a href="#" onclick="showPage('terms')">Terms of Service</a>
+    <span class="foot-sep">·</span>
+    <a href="#" onclick="showPage('privacy')">Privacy Policy</a>
+    <span class="foot-sep">·</span>
+    <a href="#" onclick="showPage('refund')">Refund Policy</a>
+    <span class="foot-sep">·</span>
+    <a href="#" onclick="showPage('cookie')">Cookie Notice</a>
+    <span class="foot-sep">·</span>
+    <a href="#" onclick="showPage('donotsell')">Do Not Sell My Info</a>
+    <span class="foot-sep">·</span>
+    <a href="#" onclick="showPage('disclaimer')">Disclaimer</a>
+    <span class="foot-sep">·</span>
+    <a href="#" onclick="showPage('legalwarning')" style="color:#dc1414;">Legal Warning</a>
+  </div>
+  <div class="foot-copy" data-i18n="footer.copy">© 2025 AlexCyberX. All rights reserved.</div>
+</footer>
+
+</div><!-- end #homePage -->
+
+
+
+<div id="learnPage" class="page">
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="learn-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">Network Forensics</div>
+    <div class="chapter-list" id="chapterList">
+      <a class="chapter-item active" onclick="loadChapter(0)">
+        <span class="chapter-num">01</span><span style="flex:1">Network Forensics Introduction</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(1)">
+        <span class="chapter-num">02</span><span style="flex:1">Networking Fundamentals</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(2)">
+        <span class="chapter-num">03</span><span style="flex:1">OSI & TCP/IP Deep Analysis</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(3)">
+        <span class="chapter-num">04</span><span style="flex:1">Packet Analysis Basics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(4)">
+        <span class="chapter-num">05</span><span style="flex:1">Wireshark Mastery</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(5)">
+        <span class="chapter-num">06</span><span style="flex:1">TCP/UDP/ICMP Investigation</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(6)">
+        <span class="chapter-num">07</span><span style="flex:1">DNS & HTTP Forensics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(7)">
+        <span class="chapter-num">08</span><span style="flex:1">HTTPS/TLS Analysis</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(8)">
+        <span class="chapter-num">09</span><span style="flex:1">Email Forensics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(9)">
+        <span class="chapter-num">10</span><span style="flex:1">PCAP Investigation Workflow</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(10)">
+        <span class="chapter-num">11</span><span style="flex:1">Malware Traffic Analysis</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(11)">
+        <span class="chapter-num">12</span><span style="flex:1">Intrusion Detection</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(12)">
+        <span class="chapter-num">13</span><span style="flex:1">Log Correlation</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(13)">
+        <span class="chapter-num">14</span><span style="flex:1">Threat Hunting</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(14)">
+        <span class="chapter-num">15</span><span style="flex:1">Memory + Network Correlation</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(15)">
+        <span class="chapter-num">16</span><span style="flex:1">Wireless Network Forensics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(16)">
+        <span class="chapter-num">17</span><span style="flex:1">Cloud Network Forensics</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(17)">
+        <span class="chapter-num">18</span><span style="flex:1">SIEM & Enterprise Investigation</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(18)">
+        <span class="chapter-num">19</span><span style="flex:1">Real Incident Case Studies</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(19)">
+        <span class="chapter-num">20.1</span><span style="flex:1">Career Reality & Roles</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(20)">
+        <span class="chapter-num">20.2</span><span style="flex:1">Home Lab From Scratch</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(21)">
+        <span class="chapter-num">20.3</span><span style="flex:1">Wireshark & PCAP Mastery</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(22)">
+        <span class="chapter-num">20.4</span><span style="flex:1">Threat Hunting Mastery</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(23)">
+        <span class="chapter-num">20.5</span><span style="flex:1">DFIR & Incident Response</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="chapter-item" onclick="loadChapter(24)">
+        <span class="chapter-num">20.6</span><span style="flex:1">Certifications & Career Plan</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <!-- LEARN MAIN -->
+  <main class="learn-main" id="learnMain">
+    <div class="content-area">
+      <div class="topic-banner">
+        <div class="topic-banner-tag" data-i18n="learn.tag">Network Forensics</div>
+        <h1 data-i18n="learn.title">Network Forensics</h1>
+        <p data-i18n="learn.desc">Learn to collect digital evidence by analyzing network traffic. Complete guide to PCAP, Wireshark, and malware traffic analysis.</p>
+      </div>
+
+      <div class="content" id="chapterContent">
+        <h2>What is Network Forensics?</h2>
+        <p>Network Forensics matlab hai network mein aane-jaane wale data ko collect, monitor, analyze aur investigate karna. Sidebar se Chapter 1 select karo aur Part 1 ka full content padho.</p>
+        <div class="info-box">
+          <p><strong>Note:</strong> Sidebar se koi bhi chapter select karo aur padhna shuru karo. Chapters sequence mein follow karne se best experience milega.</p>
+        </div>
+      </div>
+
+      <div class="chapter-nav" id="chapterNav">
+        <button class="chapter-nav-btn prev" id="prevBtn" style="visibility:hidden;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L5 7l4 5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div><span class="label">Previous</span><span class="title" id="prevTitle">-</span></div>
+        </button>
+        <button class="chapter-nav-btn next" id="nextBtn" onclick="loadChapter(1)">
+          <div style="text-align:right"><span class="label">Next</span><span class="title" id="nextTitle">Networking Fundamentals</span></div>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l4 5-4 5" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+</div><!-- end #learnPage -->
+
+
+<div id="learn2Page" class="page">
+
+<div class="overlay" id="overlay2" onclick="toggleCyberSidebar()"></div>
+
+<div class="learn-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="cyberSidebar">
+    <div class="sidebar-header">Cyber Attacks Fundamentals</div>
+    <div class="chapter-list" id="cyberChapterList">
+      <a class="cyber-chapter-item chapter-item active" onclick="loadCyberChapter(0)">
+        <span class="chapter-num">01</span><span style="flex:1">Cyber Attacks Introduction</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(1)">
+        <span class="chapter-num">02</span><span style="flex:1">Social Engineering & Phishing</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(2)">
+        <span class="chapter-num">03</span><span style="flex:1">MITM Attack</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(3)">
+        <span class="chapter-num">04</span><span style="flex:1">DoS & DDoS Attacks</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(4)">
+        <span class="chapter-num">05</span><span style="flex:1">SQL Injection</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(5)">
+        <span class="chapter-num">06</span><span style="flex:1">XSS Attack</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(6)">
+        <span class="chapter-num">07</span><span style="flex:1">DNS Spoofing & Poisoning</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(7)">
+        <span class="chapter-num">08</span><span style="flex:1">Ransomware & Malware</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(8)">
+        <span class="chapter-num">09</span><span style="flex:1">TLS & Encryption Attacks</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(9)">
+        <span class="chapter-num">10</span><span style="flex:1">Brute Force & Password Attacks</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="cyber-chapter-item chapter-item" onclick="loadCyberChapter(10)">
+        <span class="chapter-num">11</span><span style="flex:1">Attack Defense & Prevention</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <!-- LEARN MAIN -->
+  <main class="learn-main" id="cyberLearnMain">
+    <div class="content-area">
+      <div class="topic-banner">
+        <div class="topic-banner-tag" data-i18n="learn2.tag">Cyber Attacks Fundamentals</div>
+        <h1 data-i18n="learn2.title">Cyber Attacks Fundamentals</h1>
+        <p data-i18n="learn2.desc">Common cyber attacks samjho - MITM, DoS/DDoS, SQL Injection, XSS, DNS Spoofing, Ransomware, TLS attacks aur unse defense karne ke tareeke, complete Hinglish mein.</p>
+      </div>
+
+      <div class="content" id="cyberChapterContent">
+        <h2>Cyber Attacks Fundamentals</h2>
+        <p>Cyber attacks ke fundamentals samjho - attacker kaise sochta hai, kaunse tools use karta hai aur tum apne aap ko kaise protect kar sakte ho. Sidebar se Chapter 1 select karo aur shuru karo.</p>
+        <div class="info-box">
+          <p><strong>Note:</strong> Sidebar se koi bhi chapter select karo aur padhna shuru karo. Chapters sequence mein follow karne se best experience milega.</p>
+        </div>
+      </div>
+
+      <div class="chapter-nav" id="cyberChapterNav">
+        <button class="chapter-nav-btn prev" id="cyberPrevBtn" style="visibility:hidden;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L5 7l4 5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div><span class="label">Previous</span><span class="title" id="cyberPrevTitle">-</span></div>
+        </button>
+        <button class="chapter-nav-btn next" id="cyberNextBtn" onclick="loadCyberChapter(1)">
+          <div style="text-align:right"><span class="label">Next</span><span class="title" id="cyberNextTitle">Social Engineering & Phishing</span></div>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l4 5-4 5" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+</div><!-- end #learn2Page -->
+
+
+<div id="learn3Page" class="page">
+
+<div class="overlay" id="overlay3" onclick="toggleEthicalSidebar()"></div>
+
+<div class="learn-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="ethicalSidebar">
+    <div class="sidebar-header">Ethical Hacking Complete Course</div>
+    <div class="chapter-list" id="ethicalChapterList">
+      <a class="ethical-chapter-item chapter-item active" onclick="loadEthicalChapter(0)">
+        <span class="chapter-num">01</span><span style="flex:1">Introduction to Ethical Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(1)">
+        <span class="chapter-num">02</span><span style="flex:1">Footprinting and Reconnaissance</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(2)">
+        <span class="chapter-num">03</span><span style="flex:1">Scanning Networks</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(3)">
+        <span class="chapter-num">04</span><span style="flex:1">Enumeration</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(4)">
+        <span class="chapter-num">05</span><span style="flex:1">Vulnerability Analysis</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(5)">
+        <span class="chapter-num">06</span><span style="flex:1">System Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(6)">
+        <span class="chapter-num">07</span><span style="flex:1">Malware Threats</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(7)">
+        <span class="chapter-num">08</span><span style="flex:1">Sniffing</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(8)">
+        <span class="chapter-num">09</span><span style="flex:1">Social Engineering</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(9)">
+        <span class="chapter-num">10</span><span style="flex:1">Denial of Service</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(10)">
+        <span class="chapter-num">11</span><span style="flex:1">Session Hijacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(11)">
+        <span class="chapter-num">12</span><span style="flex:1">Evading IDS, Firewalls and Honeypots</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(12)">
+        <span class="chapter-num">13</span><span style="flex:1">Web Server Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(13)">
+        <span class="chapter-num">14</span><span style="flex:1">Web Application Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(14)">
+        <span class="chapter-num">15</span><span style="flex:1">SQL Injection</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(15)">
+        <span class="chapter-num">16</span><span style="flex:1">Wireless Network Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(16)">
+        <span class="chapter-num">17</span><span style="flex:1">Mobile Platform Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(17)">
+        <span class="chapter-num">18</span><span style="flex:1">IoT and OT Hacking</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(18)">
+        <span class="chapter-num">19</span><span style="flex:1">Cloud Computing Security</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(19)">
+        <span class="chapter-num">20</span><span style="flex:1">Cryptography</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(20)">
+        <span class="chapter-num">21</span><span style="flex:1">AI Security</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(21)">
+        <span class="chapter-num">22</span><span style="flex:1">Cloud Native Security</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+      <a class="ethical-chapter-item chapter-item" onclick="loadEthicalChapter(22)">
+        <span class="chapter-num">23</span><span style="flex:1">Advanced IoT and OT Security</span>
+        <svg class="chapter-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </a>
+    </div>
+  </aside>
+
+  <!-- LEARN MAIN -->
+  <main class="learn-main" id="ethicalLearnMain">
+    <div class="content-area">
+      <div class="topic-banner">
+        <div class="topic-banner-tag" data-i18n="learn3.tag">Ethical Hacking Complete Course</div>
+        <h1 data-i18n="learn3.title">Ethical Hacking Complete Course</h1>
+        <p data-i18n="learn3.desc">Complete CEH v13 based Ethical Hacking course, basic to advance, plus AI Security, Cloud Native Security and IoT Security, complete Hinglish mein.</p>
+      </div>
+
+      <div class="content" id="ethicalChapterContent">
+        <h2>Ethical Hacking Complete Course</h2>
+        <p>Ethical Hacking ka poora course yahan hai, basic se advance tak, CEH v13 syllabus ke hisaab se aur naye tech modules ke saath. Sidebar se Chapter 1 select karo aur shuru karo.</p>
+        <div class="info-box">
+          <p><strong>Note:</strong> Sidebar se koi bhi chapter select karo aur padhna shuru karo. Chapters sequence mein follow karne se best experience milega.</p>
+        </div>
+      </div>
+
+      <div class="chapter-nav" id="ethicalChapterNav">
+        <button class="chapter-nav-btn prev" id="ethicalPrevBtn" style="visibility:hidden;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L5 7l4 5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <div><span class="label">Previous</span><span class="title" id="ethicalPrevTitle">-</span></div>
+        </button>
+        <button class="chapter-nav-btn next" id="ethicalNextBtn" onclick="loadEthicalChapter(1)">
+          <div style="text-align:right"><span class="label">Next</span><span class="title" id="ethicalNextTitle">Footprinting and Reconnaissance</span></div>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l4 5-4 5" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+</div><!-- end #learn3Page -->
+
+<!-- ═══════════════════════════════════════════
+     ALL COURSES PAGE (/tutorials, listing only, future courses yahan add honge)
+═══════════════════════════════════════════ -->
+<div id="coursesPage" class="page">
+  <div style="max-width:1200px;margin:0 auto;padding:calc(var(--nav-h) + 32px) 16px 60px;">
+    <div style="margin-bottom:32px;">
+      <div style="font-size:10px;letter-spacing:4px;color:#dc1414;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:10px;padding:3px 14px;border:1px solid #dc141433;border-radius:20px;background:#dc14140a;display:inline-block;" data-i18n="allcourses.label">COURSES</div>
+      <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(24px,6vw,32px);font-weight:700;color:#f4f4f5;margin-bottom:10px;" data-i18n="allcourses.heading">All Courses</h1>
+      <p style="font-family:'Inter',sans-serif;font-size:13px;color:#666;line-height:1.7;" data-i18n="allcourses.desc">Saare courses ek jagah. Jitna time milta hai utna naye courses add karte rehte hain, yahan hamesha latest list milegi.</p>
+    </div>
+    <!-- Cards ab Supabase 'courses' table se load hote hain (js/courses.js,
+         initAllCoursesPage()). Naya course admin panel se add karte hi
+         yahan bhi automatically dikhega, koi HTML edit ki zaroorat nahi. -->
+    <div class="cards-grid" id="allCoursesGrid">
+      <div class="empty" style="color:#666;font-size:13px;padding:20px 0;">Loading courses…</div>
+    </div>
+  </div>
+</div>
+<!-- end #coursesPage -->
+
+<!-- ═══════════════════════════════════════════
+     TOOLS PAGE
+═══════════════════════════════════════════ -->
+<div id="toolsPage" class="page">
+  <div style="max-width:1200px;margin:0 auto;padding:calc(var(--nav-h) + 32px) 16px 60px;">
+    <div style="margin-bottom:32px;">
+      <div style="font-size:10px;letter-spacing:4px;color:#dc1414;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:10px;padding:3px 14px;border:1px solid #dc141433;border-radius:20px;background:#dc14140a;display:inline-block;">TOOLS</div>
+      <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(24px,6vw,32px);font-weight:700;color:#f4f4f5;margin-bottom:10px;">Cybersecurity Tools</h1>
+      <p style="font-family:'Inter',sans-serif;font-size:13px;color:#666;line-height:1.7;">Tools that make your workflow easier. More coming soon.</p>
+    </div>
+    <div class="cards-grid">
+      <div class="tut-card" data-tool-key="alexsync" data-search-page="alexsync" data-search-special="alexsync" data-search-tags="automation,alarm,wake,music,schedule,laptop,sync" onclick="handleAlexSyncClick()" style="cursor:pointer;" data-reveal>
+        <div class="card-icon-wrap">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <path d="M11.5 2.8A6.2 6.2 0 1 0 13.5 15.2 7.4 7.4 0 0 1 11.5 2.8Z" stroke="#dc1414" stroke-width="1.2" stroke-linejoin="round"/>
+            <path d="M14.5 8.5v4.3" stroke="#dc1414" stroke-width="1" stroke-linecap="round"/>
+            <path d="M14.5 8.5 17 7.8" stroke="#dc1414" stroke-width="1" stroke-linecap="round"/>
+            <circle cx="13.7" cy="13" r="1.3" stroke="#dc1414" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="card-tag">Automation</div>
+        <div class="card-title" data-i18n="card.alexsync.title">AlexSync</div>
+        <p class="card-desc" data-i18n="card.alexsync.desc">Set a time once. AlexSync wakes your laptop and starts music automatically at your chosen schedule.</p>
+        <div class="card-footer">
+          <span class="card-chapters" data-i18n="card.alexsync.price">₹12/month</span>
+          <div class="card-arrow">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6h8M6.5 3l3 3-3 3" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="tut-card" data-tool-key="mistake_analyzer" data-search-page="mistakeAnalyzer" data-search-tags="mistake,analyzer,command,nmap,feedback,learning,correction" onclick="showPage('mistakeAnalyzer')" style="cursor:pointer;" data-reveal>
+        <div class="card-icon-wrap">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <path d="M3 15.5 8.5 4 11 9l2-3 4 9.5H3Z" stroke="#dc1414" stroke-width="1.2" stroke-linejoin="round"/>
+            <circle cx="14.5" cy="5.5" r="1.3" stroke="#dc1414" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="card-tag">Learning</div>
+        <div class="card-title">Cyber Mistake Analyzer</div>
+        <p class="card-desc">Paste a command like <code>nmap -A target.com</code>, get instant feedback on what's right, what's wrong, and a better version.</p>
+        <div class="card-footer">
+          <span class="card-chapters">Free</span>
+          <div class="card-arrow">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6h8M6.5 3l3 3-3 3" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="tut-card" data-tool-key="alexrecon" data-search-page="alexrecon" data-search-tags="recon,reconnaissance,dns,ssl,subdomain,port,scan,attack surface,domain,tech stack" onclick="showPage('alexrecon')" style="cursor:pointer;" data-reveal>
+        <div class="card-icon-wrap">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <circle cx="9" cy="9" r="6" stroke="#dc1414" stroke-width="1.2"/>
+            <path d="M13.5 13.5 17.5 17.5" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/>
+            <circle cx="9" cy="9" r="2.4" stroke="#dc1414" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="card-tag">Recon</div>
+        <div class="card-title">AlexRecon</div>
+        <p class="card-desc">Enter a domain and get a combined attack-surface report: DNS, web, SSL, subdomains, tech stack, risk indicators, and more.</p>
+        <div class="card-footer">
+          <span class="card-chapters">Free</span>
+          <div class="card-arrow">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6h8M6.5 3l3 3-3 3" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="tut-card" data-tool-key="alexutils" data-search-page="alexutils" data-search-tags="utils,utilities,ip,dns,lookup,ssl,checker,hash,generator,base64,subnet,calculator,cve,search" onclick="showPage('alexutils')" style="cursor:pointer;" data-reveal>
+        <div class="card-icon-wrap">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <path d="M12.5 2.5a3.6 3.6 0 00-3.6 4.5L2.5 13.4a1.7 1.7 0 002.4 2.4l6.4-6.4a3.6 3.6 0 004.5-3.6l-2.6 2.6-2-2 2.6-2.6a3.6 3.6 0 00-2.5-.7z" stroke="#dc1414" stroke-width="1.2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="card-tag">Utilities</div>
+        <div class="card-title">AlexUtils</div>
+        <p class="card-desc">A toolkit of everyday utilities: IP/DNS lookup, SSL checker, hash generator, Base64, subnet calculator, CVE search, and more.</p>
+        <div class="card-footer">
+          <span class="card-chapters">Free</span>
+          <div class="card-arrow">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6h8M6.5 3l3 3-3 3" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="tut-card" data-tool-key="alextrace" data-search-page="alextrace" data-search-tags="trace,osint,digital footprint,username,breach,email,photo,metadata,exposure" onclick="showPage('alextrace')" style="cursor:pointer;" data-reveal>
+        <div class="card-icon-wrap">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="7" r="3" stroke="#dc1414" stroke-width="1.2"/>
+            <path d="M4.5 16.5c0-2.8 2.5-5 5.5-5s5.5 2.2 5.5 5" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M15.5 3.5 17 5M17 3.5l-1.5 1.5" stroke="#dc1414" stroke-width="1.1" stroke-linecap="round"/>
+            <circle cx="16.2" cy="4.2" r="2.2" stroke="#dc1414" stroke-width="1"/>
+          </svg>
+        </div>
+        <div class="card-tag">OSINT</div>
+        <div class="card-title">AlexTrace</div>
+        <p class="card-desc">Audit your own digital footprint: cross-platform username check, email breach lookup, and photo metadata scan, with a clear exposure score and fix-it steps.</p>
+        <div class="card-footer">
+          <span class="card-chapters">Free</span>
+          <div class="card-arrow">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6h8M6.5 3l3 3-3 3" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- end #toolsPage -->
+
+
+<!-- ═══════════════════════════════════════════
+     ALEXSYNC TOOL PAGE
+═══════════════════════════════════════════ -->
+<div id="alexSyncPage" class="page">
+  <div style="max-width:720px;margin:0 auto;padding:calc(var(--nav-h) + 32px) 16px 60px;">
+
+    <!-- Back link -->
+    <div style="margin-bottom:20px;">
+      <a onclick="showPage('tools')" style="cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;display:inline-flex;align-items:center;gap:6px;">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2M5.5 2.5 2 6l3.5 3.5" stroke="#8a8a95" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to Tools
+      </a>
+    </div>
+
+    <!-- Header -->
+    <div style="margin-bottom:32px;">
+      <div style="font-size:10px;letter-spacing:4px;color:#dc1414;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid #dc141433;border-radius:20px;background:#dc14140a;display:inline-block;">AUTOMATION</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+        <div class="card-icon-wrap" style="margin-bottom:0;">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <path d="M11.5 2.8A6.2 6.2 0 1 0 13.5 15.2 7.4 7.4 0 0 1 11.5 2.8Z" stroke="#dc1414" stroke-width="1.2" stroke-linejoin="round"/>
+            <path d="M14.5 8.5v4.3" stroke="#dc1414" stroke-width="1" stroke-linecap="round"/>
+            <path d="M14.5 8.5 17 7.8" stroke="#dc1414" stroke-width="1" stroke-linecap="round"/>
+            <circle cx="13.7" cy="13" r="1.3" stroke="#dc1414" stroke-width="1"/>
+          </svg>
+        </div>
+        <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(22px,6vw,30px);font-weight:700;color:#f4f4f5;">AlexSync</h1>
+      </div>
+      <p style="font-family:'Inter',sans-serif;font-size:13px;color:#8a8a95;line-height:1.7;">Set a time once. AlexSync wakes your laptop and starts music automatically at your chosen schedule.</p>
+    </div>
+
+    <!-- Access status card -->
+    <div id="asAccessCard" style="background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:18px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+      <div style="min-width:200px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin-bottom:4px;">₹12/month</div>
+        <div id="asAccessStatusText" style="font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;">One time payment. No auto-debit, renew manually anytime.</div>
+      </div>
+      <button id="asPayBtn" onclick="handleAlexSyncPayment()" style="background:var(--red);border:none;border-radius:10px;padding:11px 22px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:0.5px;white-space:nowrap;flex-shrink:0;">Unlock AlexSync</button>
+    </div>
+
+    <!-- Setup instructions -->
+    <div style="margin-bottom:32px;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:2px;color:#dc1414;font-weight:700;margin-bottom:14px;">SETUP</div>
+
+      <div style="display:flex;gap:14px;margin-bottom:18px;">
+        <div style="flex-shrink:0;width:26px;height:26px;border-radius:50%;border:1px solid rgba(220,20,20,0.3);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#dc1414;">1</div>
+        <div>
+          <div style="font-family:'Inter',sans-serif;font-size:13px;color:#f4f4f5;font-weight:500;margin-bottom:4px;">Download the AlexSync background app</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;line-height:1.6;">A small app that runs quietly on your Windows PC and handles the wake and music trigger. Installs in under a minute.</div>
+          <button id="asDownloadBtn" onclick="handleAlexSyncDownload()" style="margin-top:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 16px;font-family:'Inter',sans-serif;font-size:12px;color:#f4f4f5;cursor:pointer;">Download for Windows</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:14px;margin-bottom:18px;">
+        <div style="flex-shrink:0;width:26px;height:26px;border-radius:50%;border:1px solid rgba(220,20,20,0.3);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#dc1414;">2</div>
+        <div>
+          <div style="font-family:'Inter',sans-serif;font-size:13px;color:#f4f4f5;font-weight:500;margin-bottom:4px;">Tell us how you leave your PC at night</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;line-height:1.6;">This decides which wake method AlexSync uses behind the scenes.</div>
+          <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
+            <label class="as-radio-pill"><input type="radio" name="asPcState" value="sleep" checked> Sleep / Hibernate</label>
+            <label class="as-radio-pill"><input type="radio" name="asPcState" value="shutdown"> Full Shutdown</label>
+          </div>
+          <div id="asShutdownNote" style="display:none;margin-top:10px;font-family:'Inter',sans-serif;font-size:11px;color:#f4f4f5;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:10px 12px;line-height:1.6;">
+            Full shutdown needs a one time Wake-on-LAN setup in your BIOS, and the AlexSync phone companion to send the wake signal. This step needs a bit more setup than sleep mode.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schedule form -->
+    <div style="margin-bottom:32px;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:2px;color:#dc1414;font-weight:700;margin-bottom:14px;">SCHEDULE</div>
+
+      <div class="pf-field">
+        <label class="pf-label">Wake Time</label>
+        <div class="as-time-picker">
+          <div class="as-dropdown" id="asHourDropdown">
+            <div class="as-dropdown-trigger" onclick="asToggleDropdown('asHourDropdown')">
+              <span id="asHourValue">10</span>
+              <svg class="as-dropdown-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5 5 6.5 8 3.5" stroke="#999" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="as-dropdown-panel" id="asHourPanel"></div>
+          </div>
+          <span class="as-time-picker-sep">:</span>
+          <div class="as-dropdown" id="asMinuteDropdown">
+            <div class="as-dropdown-trigger" onclick="asToggleDropdown('asMinuteDropdown')">
+              <span id="asMinuteValue">30</span>
+              <svg class="as-dropdown-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5 5 6.5 8 3.5" stroke="#999" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="as-dropdown-panel" id="asMinutePanel"></div>
+          </div>
+          <div class="as-dropdown" id="asAmPmDropdown">
+            <div class="as-dropdown-trigger" onclick="asToggleDropdown('asAmPmDropdown')">
+              <span id="asAmPmValue">PM</span>
+              <svg class="as-dropdown-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5 5 6.5 8 3.5" stroke="#999" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="as-dropdown-panel" id="asAmPmPanel"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pf-field">
+        <label class="pf-label">Repeat On</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <label class="as-day-pill"><input type="checkbox" value="0"> Sun</label>
+          <label class="as-day-pill"><input type="checkbox" value="1" checked> Mon</label>
+          <label class="as-day-pill"><input type="checkbox" value="2" checked> Tue</label>
+          <label class="as-day-pill"><input type="checkbox" value="3" checked> Wed</label>
+          <label class="as-day-pill"><input type="checkbox" value="4" checked> Thu</label>
+          <label class="as-day-pill"><input type="checkbox" value="5" checked> Fri</label>
+          <label class="as-day-pill"><input type="checkbox" value="6"> Sat</label>
+        </div>
+      </div>
+
+      <div class="pf-field">
+        <label class="pf-label">App</label>
+        <div class="as-dropdown" id="asAppDropdown">
+          <div class="as-dropdown-trigger" onclick="asToggleDropdown('asAppDropdown')">
+            <span id="asAppValue">YouTube</span>
+            <svg class="as-dropdown-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5 5 6.5 8 3.5" stroke="#999" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="as-dropdown-panel" id="asAppPanel"></div>
+        </div>
+        <div style="font-family:'Inter',sans-serif;font-size:11px;color:#666;margin-top:6px;line-height:1.5;">This list updates automatically once the AlexSync background app has run on your PC, it only shows apps that are actually installed. Until then, YouTube is offered as a safe default.</div>
+      </div>
+
+      <div class="pf-field">
+        <label class="pf-label">Genre / Mood</label>
+        <div class="as-dropdown" id="asGenreDropdown">
+          <div class="as-dropdown-trigger" onclick="asToggleDropdown('asGenreDropdown')">
+            <span id="asGenreValue">Hindi Bollywood</span>
+            <svg class="as-dropdown-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5 5 6.5 8 3.5" stroke="#999" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="as-dropdown-panel" id="asGenrePanel">
+            <div class="as-dropdown-custom-row">
+              <input type="text" id="asGenreCustomInput" class="as-dropdown-custom-input" placeholder="Or type your own, e.g. Funk, K-pop, Jazz" oninput="asSelectCustomGenre(this.value)">
+            </div>
+          </div>
+        </div>
+        <div style="font-family:'Inter',sans-serif;font-size:11px;color:#666;margin-top:6px;line-height:1.5;">Whatever you pick or type here is searched for directly on your chosen app, and a matching track or playlist plays automatically.</div>
+      </div>
+
+      <button id="asSaveBtn" onclick="handleAlexSyncSave()" class="pf-save-btn" style="margin-top:6px;">Save Schedule</button>
+      <div id="asSaveMsg" class="pf-msg"></div>
+    </div>
+
+  </div>
+</div><!-- end #alexSyncPage -->
+
+
+<!-- ═══════════════════════════════════════════
+     CYBER MISTAKE ANALYZER TOOL PAGE
+═══════════════════════════════════════════ -->
+<div id="mistakeAnalyzerPage" class="page">
+  <div class="cma-wrap" style="max-width:720px;margin:0 auto;padding:calc(var(--nav-h) + 32px) 16px 60px;">
+
+    <!-- Back link -->
+    <div style="margin-bottom:20px;">
+      <a onclick="showPage('tools')" style="cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;display:inline-flex;align-items:center;gap:6px;">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2M5.5 2.5 2 6l3.5 3.5" stroke="#8a8a95" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to Tools
+      </a>
+    </div>
+
+    <!-- Header -->
+    <div style="margin-bottom:28px;">
+      <div style="font-size:10px;letter-spacing:4px;color:#dc1414;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid #dc141433;border-radius:20px;background:#dc14140a;display:inline-block;">LEARNING</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+        <div class="card-icon-wrap" style="margin-bottom:0;">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <path d="M3 15.5 8.5 4 11 9l2-3 4 9.5H3Z" stroke="#dc1414" stroke-width="1.2" stroke-linejoin="round"/>
+            <circle cx="14.5" cy="5.5" r="1.3" stroke="#dc1414" stroke-width="1"/>
+          </svg>
+        </div>
+        <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(22px,6vw,30px);font-weight:700;color:#f4f4f5;">Cyber Mistake Analyzer</h1>
+      </div>
+      <p style="font-family:'Inter',sans-serif;font-size:13px;color:#666;line-height:1.7;">Paste a command you ran or are learning, nmap, sqlmap, hydra, gobuster, whatever. Get an instant breakdown of what it does, what you got right, what to fix, and a better version.</p>
+    </div>
+
+    <!-- Input box -->
+    <div class="cma-box" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;">
+      <label style="display:block;font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;margin-bottom:8px;letter-spacing:0.5px;">YOUR COMMAND</label>
+      <textarea id="cmaInput" rows="3" placeholder="e.g. nmap -A target.com" style="width:100%;background:#0a0a0c;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#f4f4f5;resize:vertical;box-sizing:border-box;"></textarea>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;">
+        <button id="cmaAnalyzeBtn" onclick="handleAnalyzeCommand()" style="background:var(--red);border:none;border-radius:8px;padding:10px 22px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:0.5px;flex-shrink:0;">Analyze</button>
+        <span id="cmaStatus" style="font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;line-height:1.5;"></span>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div id="cmaResult" style="display:none;"></div>
+
+    <p style="font-family:'Inter',sans-serif;font-size:11px;color:#555;line-height:1.6;margin-top:24px;">Only run security tools against systems you own or are explicitly authorized to test. This tool is for learning, it does not run your command anywhere, it only explains it.</p>
+  </div>
+</div><!-- end #mistakeAnalyzerPage -->
+
+
+<!-- ═══════════════════════════════════════════
+     ALEXRECON TOOL PAGE
+═══════════════════════════════════════════ -->
+<div id="alexReconPage" class="page">
+  <div class="ar-wrap" style="max-width:1200px;width:100%;margin:0 auto;padding:calc(var(--nav-h) + 32px) 24px 60px;box-sizing:border-box;">
+
+    <!-- Back link -->
+    <div style="margin-bottom:20px;">
+      <a onclick="showPage('tools')" style="cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;display:inline-flex;align-items:center;gap:6px;">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2M5.5 2.5 2 6l3.5 3.5" stroke="#8a8a95" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to Tools
+      </a>
+    </div>
+
+    <!-- Header -->
+    <div style="margin-bottom:28px;">
+      <div style="font-size:10px;letter-spacing:4px;color:#dc1414;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid #dc141433;border-radius:20px;background:#dc14140a;display:inline-block;">RECON</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+        <div class="card-icon-wrap" style="margin-bottom:0;">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <circle cx="9" cy="9" r="6" stroke="#dc1414" stroke-width="1.2"/>
+            <path d="M13.5 13.5 17.5 17.5" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/>
+            <circle cx="9" cy="9" r="2.4" stroke="#dc1414" stroke-width="1"/>
+          </svg>
+        </div>
+        <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(22px,6vw,30px);font-weight:700;color:#f4f4f5;">AlexRecon</h1>
+      </div>
+      <p style="font-family:'Inter',sans-serif;font-size:13px;color:#666;line-height:1.7;">Enter a domain to get a combined attack-surface report: DNS, web, SSL, subdomains, tech stack, JS/cloud exposure, and risk indicators, all in one scan.</p>
+    </div>
+
+    <!-- Legal disclaimer -->
+    <div style="background:rgba(220,20,20,0.06);border:1px solid #dc141433;border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+      <p style="font-family:'Inter',sans-serif;font-size:12px;color:#ccc;line-height:1.7;margin:0;">Only scan domains you own or are explicitly authorized to test. AlexRecon performs passive/low-impact reconnaissance for educational purposes only.</p>
+    </div>
+
+    <!-- Input box -->
+    <div class="ar-box" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;">
+      <label style="display:block;font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;margin-bottom:8px;letter-spacing:0.5px;">TARGET DOMAIN</label>
+      <input id="arInput" type="text" placeholder="e.g. example.com" style="width:100%;background:#0a0a0c;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#f4f4f5;box-sizing:border-box;" />
+      <div style="display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;">
+        <button id="arRunBtn" onclick="handleRunRecon()" style="background:var(--red);border:none;border-radius:8px;padding:10px 22px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:0.5px;flex-shrink:0;">Run Recon</button>
+        <span id="arStatus" style="font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;line-height:1.5;"></span>
+      </div>
+    </div>
+
+    <!-- Attack Surface Graph -->
+    <div id="arGraphSection" style="display:none;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;">Attack Surface Graph</div>
+        <div style="display:flex;gap:6px;">
+          <button onclick="arGraphZoom(1.2)" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;width:28px;height:28px;color:#ccc;cursor:pointer;font-size:14px;">+</button>
+          <button onclick="arGraphZoom(0.8)" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;width:28px;height:28px;color:#ccc;cursor:pointer;font-size:14px;">-</button>
+          <button onclick="arGraphReset()" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;height:28px;padding:0 10px;color:#ccc;cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;">Reset</button>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:8px;position:relative;overflow:hidden;">
+        <canvas id="arGraphCanvas" style="width:100%;height:420px;display:block;cursor:grab;touch-action:none;"></canvas>
+        <div id="arGraphTooltip" style="display:none;position:absolute;pointer-events:none;background:#141416;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;font-family:'Inter',sans-serif;font-size:11px;color:#f4f4f5;max-width:260px;z-index:5;"></div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;">
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#dc1414;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">Domain</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#f472b6;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">Subdomain</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#60a5fa;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">IP</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#fbbf24;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">Port/Service</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#a78bfa;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">Tech</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#4ade80;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">Low Risk</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#f87171;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">High Risk</span></div>
+      </div>
+    </div>
+
+    <!-- Report -->
+    <div id="arExportBar" style="display:none;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+      <button onclick="arExportReport('pdf')" class="ar-export-btn" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#f4f4f5;cursor:pointer;">Export PDF</button>
+      <button onclick="arExportReport('json')" class="ar-export-btn" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#f4f4f5;cursor:pointer;">Export JSON</button>
+      <button onclick="arExportReport('csv')" class="ar-export-btn" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#f4f4f5;cursor:pointer;">Export CSV</button>
+      <button onclick="arExportReport('html')" class="ar-export-btn" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#f4f4f5;cursor:pointer;">Export HTML</button>
+    </div>
+    <div id="arReport" style="display:none;"></div>
+
+    <!-- Scan history -->
+    <div style="margin-top:32px;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin-bottom:12px;">Recent Scans</div>
+      <div id="arHistory" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
+    <!-- Scheduled Scans -->
+    <div style="margin-top:32px;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin-bottom:6px;">Scheduled Scans</div>
+      <p style="font-family:'Inter',sans-serif;font-size:11px;color:#666;line-height:1.6;margin-bottom:14px;">Runs automatically in the background. Note: on the free hosting tier the app can go to sleep when idle, so a scheduled scan may run a bit late if it happens while the app is asleep, it will catch up the next time the app wakes up.</p>
+
+      <div class="ar-box" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;margin-bottom:14px;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+          <div style="flex:1;min-width:160px;">
+            <label style="display:block;font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;margin-bottom:6px;">DOMAIN</label>
+            <input id="arScheduleInput" type="text" placeholder="e.g. example.com" style="width:100%;background:#0a0a0c;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#f4f4f5;box-sizing:border-box;" />
+          </div>
+          <div>
+            <label style="display:block;font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;margin-bottom:6px;">FREQUENCY</label>
+            <select id="arScheduleFrequency" style="background:#0a0a0c;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;font-family:'Inter',sans-serif;font-size:13px;color:#f4f4f5;">
+              <option value="daily">Daily</option>
+              <option value="weekly" selected>Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+          <button onclick="handleCreateSchedule()" style="background:var(--red);border:none;border-radius:8px;padding:10px 18px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer;">Add Schedule</button>
+        </div>
+        <span id="arScheduleStatus" style="display:block;margin-top:8px;font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;"></span>
+      </div>
+
+      <div id="arScheduleList" style="display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
+  </div>
+</div><!-- end #alexReconPage -->
+
+
+<!-- ═══════════════════════════════════════════
+     ALEXUTILS TOOL PAGE
+═══════════════════════════════════════════ -->
+<div id="alexUtilsPage" class="page">
+  <div class="au-wrap" style="max-width:1100px;margin:0 auto;padding:calc(var(--nav-h) + 32px) 20px 60px;box-sizing:border-box;">
+
+    <!-- Back link -->
+    <div style="margin-bottom:20px;">
+      <a onclick="showPage('tools')" style="cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;display:inline-flex;align-items:center;gap:6px;">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2M5.5 2.5 2 6l3.5 3.5" stroke="#8a8a95" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to Tools
+      </a>
+    </div>
+
+    <!-- Header -->
+    <div style="margin-bottom:24px;">
+      <div style="font-size:10px;letter-spacing:4px;color:#dc1414;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid #dc141433;border-radius:20px;background:#dc14140a;display:inline-block;">UTILITIES</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+        <div class="card-icon-wrap" style="margin-bottom:0;">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <path d="M12.5 2.5a3.6 3.6 0 00-3.6 4.5L2.5 13.4a1.7 1.7 0 002.4 2.4l6.4-6.4a3.6 3.6 0 004.5-3.6l-2.6 2.6-2-2 2.6-2.6a3.6 3.6 0 00-2.5-.7z" stroke="#dc1414" stroke-width="1.2" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(22px,6vw,30px);font-weight:700;color:#f4f4f5;">AlexUtils</h1>
+      </div>
+      <p style="font-family:'Inter',sans-serif;font-size:13px;color:#666;line-height:1.7;">A toolkit of everyday cybersecurity utilities, all in one place.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div id="auTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;"></div>
+
+    <!-- Panels -->
+    <div id="auPanels"></div>
+
+  </div>
+</div><!-- end #alexUtilsPage -->
+
+
+<!-- ═══════════════════════════════════════════
+     ALEXTRACE TOOL PAGE
+═══════════════════════════════════════════ -->
+<div id="alexTracePage" class="page">
+  <div class="at-wrap" style="max-width:1100px;margin:0 auto;padding:calc(var(--nav-h) + 32px) 20px 60px;box-sizing:border-box;">
+
+    <!-- Back link -->
+    <div style="margin-bottom:20px;">
+      <a onclick="showPage('tools')" style="cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;display:inline-flex;align-items:center;gap:6px;">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2M5.5 2.5 2 6l3.5 3.5" stroke="#8a8a95" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back to Tools
+      </a>
+    </div>
+
+    <!-- Header -->
+    <div style="margin-bottom:24px;">
+      <div style="font-size:10px;letter-spacing:4px;color:#dc1414;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid #dc141433;border-radius:20px;background:#dc14140a;display:inline-block;">OSINT</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
+        <div class="card-icon-wrap" style="margin-bottom:0;">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="7" r="3" stroke="#dc1414" stroke-width="1.2"/>
+            <path d="M4.5 16.5c0-2.8 2.5-5 5.5-5s5.5 2.2 5.5 5" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M15.5 3.5 17 5M17 3.5l-1.5 1.5" stroke="#dc1414" stroke-width="1.1" stroke-linecap="round"/>
+            <circle cx="16.2" cy="4.2" r="2.2" stroke="#dc1414" stroke-width="1"/>
+          </svg>
+        </div>
+        <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(22px,6vw,30px);font-weight:700;color:#f4f4f5;">AlexTrace</h1>
+      </div>
+      <p style="font-family:'Inter',sans-serif;font-size:13px;color:#666;line-height:1.7;">See what an attacker could learn about you in fifteen minutes, then fix it. AlexTrace checks your username across platforms, your email against known breaches, and any photo you upload for hidden location data.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div id="atTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;"></div>
+
+    <!-- Panels -->
+    <div id="atPanels"></div>
+
+  </div>
+</div><!-- end #alexTracePage -->
+
+
+<div id="blogPage" class="page">
+  <div style="max-width:1100px;margin:0 auto;padding:40px 24px 80px;">
+
+    <!-- Listing view -->
+    <div id="blogListView">
+      <div class="blog-hero">
+        <div style="font-size:10px;letter-spacing:4px;color:#dc1414;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid #dc141433;border-radius:20px;background:#dc14140a;display:inline-block;">BLOG</div>
+        <h1 style="font-family:'Rajdhani',sans-serif;font-size:34px;font-weight:700;color:#f4f4f5;margin-bottom:12px;">Articles, News &amp; Writeups</h1>
+        <p style="font-family:'Inter',sans-serif;font-size:14px;color:#8a8a95;line-height:1.7;">Tutorials, CVE breakdowns, tool guides and CTF writeups from the AlexCyberX team.</p>
+      </div>
+
+      <div class="blog-filters" id="blogFilters"></div>
+
+      <div class="blog-grid" id="blogGrid">
+        <div class="blog-empty">Loading articles…</div>
+      </div>
+    </div>
+
+    <!-- Single post view -->
+    <div id="blogDetailView" style="display:none;">
+      <div class="blog-post-wrap">
+        <button class="blog-back-btn" onclick="closeBlogPost()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2L2.5 6l5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back to Blog
+        </button>
+        <div id="blogDetailContent"></div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- end #blogPage -->
+
+
+<!-- ═══════════ RESOURCES ═══════════ -->
+<div id="resourcesPage" class="page">
+  <div style="max-width:1100px;margin:0 auto;padding:40px 24px 80px;">
+    <div class="blog-hero">
+      <div style="font-size:10px;letter-spacing:4px;color:#dc1414;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid #dc141433;border-radius:20px;background:#dc14140a;display:inline-block;">RESOURCES</div>
+      <h1 style="font-family:'Rajdhani',sans-serif;font-size:34px;font-weight:700;color:#f4f4f5;margin-bottom:12px;">Resource Library</h1>
+      <p style="font-family:'Inter',sans-serif;font-size:14px;color:#8a8a95;line-height:1.7;">Cheatsheets, PCAPs, scripts and wordlists to support your learning.</p>
+    </div>
+
+    <div class="blog-filters" id="resourcesFilters"></div>
+
+    <div class="blog-grid" id="resourcesGrid">
+      <div class="blog-empty">Loading resources…</div>
+    </div>
+  </div>
+</div><!-- end #resourcesPage -->
+
+
+<!-- ═══════════ COMMUNITY ═══════════ -->
+<div id="communityPage" class="page">
+  <div style="max-width:760px;margin:0 auto;padding:40px 24px 80px;">
+
+    <!-- Thread list view -->
+    <div id="commListView">
+      <div class="blog-hero" style="margin-bottom:24px;">
+        <div style="font-size:10px;letter-spacing:4px;color:#dc1414;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid #dc141433;border-radius:20px;background:#dc14140a;display:inline-block;">COMMUNITY</div>
+        <h1 style="font-family:'Rajdhani',sans-serif;font-size:34px;font-weight:700;color:#f4f4f5;margin-bottom:12px;">Discussion Forum</h1>
+        <p style="font-family:'Inter',sans-serif;font-size:14px;color:#8a8a95;line-height:1.7;">Ask questions, share writeups, and talk shop with the community.</p>
+      </div>
+      <div class="comm-toolbar">
+        <div class="pf-section-label" style="margin:0">All Threads</div>
+        <button class="nav-btn fill" style="font-size:12px;padding:8px 16px;" onclick="showCommNewThreadForm()">+ New Thread</button>
+      </div>
+      <div id="commThreadList" class="comm-thread-list">
+        <div class="blog-empty">Loading…</div>
+      </div>
+    </div>
+
+    <!-- New thread form -->
+    <div id="commNewThreadView" style="display:none;">
+      <div class="comm-toolbar">
+        <button class="blog-back-btn" style="margin:0;" onclick="hideCommNewThreadForm()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2L2.5 6l5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back
+        </button>
+        <div class="pf-section-label" style="margin:0">New Thread</div>
+      </div>
+      <div class="profile-field">
+        <label class="profile-label">Title</label>
+        <input class="profile-input" id="commNewThreadTitle" type="text" placeholder="Thread title...">
+      </div>
+      <div class="profile-field">
+        <label class="profile-label">Category</label>
+        <select class="profile-input" id="commNewThreadCategory">
+          <option value="general">General</option>
+          <option value="help">Help &amp; Questions</option>
+          <option value="ctf">CTF Discussion</option>
+          <option value="tools">Tools</option>
+          <option value="news">News</option>
+        </select>
+      </div>
+      <div class="profile-field">
+        <label class="profile-label">Message</label>
+        <textarea class="profile-input" id="commNewThreadBody" rows="6" placeholder="What's on your mind?" style="resize:vertical;"></textarea>
+      </div>
+      <button class="profile-save-btn" onclick="submitCommThread()">Post Thread</button>
+    </div>
+
+    <!-- Thread detail view -->
+    <div id="commDetailView" style="display:none;">
+      <div class="comm-toolbar">
+        <button class="blog-back-btn" style="margin:0;" onclick="backToCommThreadList()">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2L2.5 6l5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back
+        </button>
+        <div class="pf-section-label" style="margin:0" id="commDetailTitle">Thread</div>
+      </div>
+      <div id="commDetailBody"></div>
+      <div class="profile-field" style="margin-top:20px;">
+        <label class="profile-label">Reply</label>
+        <textarea class="profile-input" id="commReplyBody" rows="3" placeholder="Write a reply..." style="resize:vertical;"></textarea>
+      </div>
+      <button class="profile-save-btn" onclick="submitCommReply()">Post Reply</button>
+      <div id="commReplies" style="margin-top:20px;"></div>
+    </div>
+
+  </div>
+</div><!-- end #communityPage -->
+
+
+
+
+<!-- ═══════════ LOGIN OVERLAY ═══════════ -->
+<div class="auth-overlay" id="loginOverlay">
+  <div class="auth-card">
+    <button class="auth-close" onclick="closeAuth()" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#888" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <div class="auth-logo">
+      <div class="auth-logo-dot"></div>
+      <div class="auth-logo-text">Alex <em>CyberX</em></div>
+    </div>
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-subtitle">Sign in to your account and continue learning.</div>
+    <div class="auth-error" id="loginError"></div>
+    <div class="auth-field">
+      <label class="auth-label">Email Address</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="loginEmail" type="email" placeholder="your@email.com" autocomplete="email"/>
+        <span class="auth-input-icon">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="3" width="13" height="9" rx="2" stroke="#444" stroke-width="1.3"/><path d="M1 5l6.5 4L14 5" stroke="#444" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="auth-field">
+      <label class="auth-label">Password</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="loginPassword" type="password" placeholder="Enter your password" autocomplete="current-password"/>
+        <button class="auth-toggle-pw" type="button" onclick="togglePw('loginPassword',this)" tabindex="-1">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><ellipse cx="7.5" cy="7.5" rx="6" ry="4" stroke="#444" stroke-width="1.3"/><circle cx="7.5" cy="7.5" r="2" stroke="#444" stroke-width="1.3"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="auth-row">
+      <label class="auth-remember">
+        <input type="checkbox" id="rememberMe"/>
+        <span>Remember me</span>
+      </label>
+      <button class="auth-forgot-link" onclick="showAuth('forgot')">Forgot password?</button>
+    </div>
+    <button class="auth-btn" onclick="doLogin()">Sign In</button>
+    <div class="auth-divider"><div class="auth-divider-line"></div><div class="auth-divider-text">or continue with</div><div class="auth-divider-line"></div></div>
+    <button class="auth-google-btn" onclick="doGoogleLogin()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+      Continue with Google
+    </button>
+    <div class="auth-switch">Don't have an account? <button onclick="showAuth('signup')">Sign up</button></div>
+  </div>
+</div>
+
+<!-- ═══════════ SIGNUP OVERLAY ═══════════ -->
+<div class="auth-overlay" id="signupOverlay">
+  <div class="auth-card">
+    <button class="auth-close" onclick="closeAuth()" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#888" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <div class="auth-logo">
+      <div class="auth-logo-dot"></div>
+      <div class="auth-logo-text">Alex <em>CyberX</em></div>
+    </div>
+    <div class="auth-title">Create account</div>
+    <div class="auth-subtitle">Join for free and get access to the complete cybersecurity roadmap.</div>
+    <div class="auth-error" id="signupError"></div>
+    <div class="auth-success" id="signupSuccess"></div>
+    <div class="auth-field">
+      <label class="auth-label">Full Name</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="signupName" type="text" placeholder="Your full name" autocomplete="name"/>
+        <span class="auth-input-icon">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="5" r="3" stroke="#444" stroke-width="1.3"/><path d="M2 13c0-3 2.5-4.5 5.5-4.5S13 10 13 13" stroke="#444" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="auth-field">
+      <label class="auth-label">Email Address</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="signupEmail" type="email" placeholder="your@email.com" autocomplete="email"/>
+        <span class="auth-input-icon">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="3" width="13" height="9" rx="2" stroke="#444" stroke-width="1.3"/><path d="M1 5l6.5 4L14 5" stroke="#444" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="auth-field">
+      <label class="auth-label">Password</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="signupPassword" type="password" placeholder="Create a strong password" autocomplete="new-password" oninput="checkStrength(this.value)"/>
+        <button class="auth-toggle-pw" type="button" onclick="togglePw('signupPassword',this)" tabindex="-1">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><ellipse cx="7.5" cy="7.5" rx="6" ry="4" stroke="#444" stroke-width="1.3"/><circle cx="7.5" cy="7.5" r="2" stroke="#444" stroke-width="1.3"/></svg>
+        </button>
+      </div>
+      <div class="auth-strength">
+        <div class="auth-strength-bar" id="sb1"></div>
+        <div class="auth-strength-bar" id="sb2"></div>
+        <div class="auth-strength-bar" id="sb3"></div>
+        <div class="auth-strength-bar" id="sb4"></div>
+        <span class="auth-strength-text" id="strengthText"></span>
+      </div>
+    </div>
+    <div class="auth-field">
+      <label class="auth-label">Confirm Password</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="signupConfirm" type="password" placeholder="Re-enter your password" autocomplete="new-password"/>
+        <button class="auth-toggle-pw" type="button" onclick="togglePw('signupConfirm',this)" tabindex="-1">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><ellipse cx="7.5" cy="7.5" rx="6" ry="4" stroke="#444" stroke-width="1.3"/><circle cx="7.5" cy="7.5" r="2" stroke="#444" stroke-width="1.3"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="auth-terms">By creating an account you agree to our <a href="#" onclick="showAuth(''); showPage('terms')">Terms of Service</a> and <a href="#" onclick="showAuth(''); showPage('privacy')">Privacy Policy</a>.</div>
+    <button class="auth-btn" onclick="doSignup()">Create Account</button>
+    <div class="auth-divider"><div class="auth-divider-line"></div><div class="auth-divider-text">or continue with</div><div class="auth-divider-line"></div></div>
+    <button class="auth-google-btn" onclick="doGoogleLogin()">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+      Sign up with Google
+    </button>
+    <div class="auth-switch">Already have an account? <button onclick="showAuth('login')">Sign in</button></div>
+  </div>
+</div>
+
+<!-- ═══════════ FORGOT PASSWORD OVERLAY ═══════════ -->
+<div class="auth-overlay" id="forgotOverlay">
+  <div class="auth-card">
+    <button class="auth-close" onclick="closeAuth()" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#888" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <div class="auth-logo">
+      <div class="auth-logo-dot"></div>
+      <div class="auth-logo-text">Alex <em>CyberX</em></div>
+    </div>
+    <button class="auth-back-btn" onclick="showAuth('login')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="#555" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to Sign In
+    </button>
+    <div class="auth-title">Reset Password</div>
+    <div class="auth-subtitle">Enter your registered email. We'll send you a password reset link.</div>
+    <div class="auth-error" id="forgotError"></div>
+    <div class="auth-success" id="forgotSuccess"></div>
+    <div class="auth-field">
+      <label class="auth-label">Email Address</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input" id="forgotEmail" type="email" placeholder="your@email.com" autocomplete="email"/>
+        <span class="auth-input-icon">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="3" width="13" height="9" rx="2" stroke="#444" stroke-width="1.3"/><path d="M1 5l6.5 4L14 5" stroke="#444" stroke-width="1.3" stroke-linecap="round"/></svg>
+        </span>
+      </div>
+    </div>
+    <button class="auth-btn" onclick="doForgot()">Send Reset Link</button>
+    <div class="auth-switch">Remembered it? <button onclick="showAuth('login')">Sign in</button></div>
+  </div>
+</div>
+
+<!-- ═══════════ PROFILE PAGE ═══════════ -->
+<div id="leaderboardPage" class="page">
+  <div style="max-width:640px;margin:0 auto;padding:calc(var(--nav-h) + 24px) 16px 60px;">
+    <div class="blog-hero" style="margin-bottom:24px;">
+      <div style="font-size:10px;letter-spacing:4px;color:#dc1414;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid #dc141433;border-radius:20px;background:#dc14140a;display:inline-block;">LEADERBOARD</div>
+      <h1 style="font-family:'Rajdhani',sans-serif;font-size:34px;font-weight:700;color:#f4f4f5;margin-bottom:12px;">Top Hackers</h1>
+      <p style="font-family:'Inter',sans-serif;font-size:14px;color:#8a8a95;line-height:1.7;">Ranked by XP earned across courses and CTF labs.</p>
+    </div>
+
+    <div class="pf-lb-header">
+      <div class="pf-section-label" style="margin:0">All-Time Ranking</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="pf-lb-live">
+          <span class="pf-lb-live-dot"></span>
+          <span id="lbUpdatedLabel">Live</span>
+        </div>
+        <button class="pf-lb-refresh" onclick="loadLeaderboard()" title="Refresh">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M12.5 7A5.5 5.5 0 112 4.5M2 2v3h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="pf-lb-list" id="lbList">
+      <div class="pf-empty">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<div id="publicProfilePage" class="page">
+  <div class="pf-shell" style="max-width:600px;margin:0 auto;padding:0 16px 40px;padding-top:calc(var(--nav-h) + 16px);">
+
+    <div class="pf-banner">
+      <div class="pf-banner-glow"></div>
+      <button class="pf-back-btn" onclick="showPage('leaderboard')">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back
+      </button>
+      <div class="pf-identity">
+        <div class="pf-avatar" id="ppAvatar">A</div>
+        <div class="pf-identity-text">
+          <div class="pf-display-name" id="ppDisplayName">-</div>
+          <div class="pf-display-meta">
+            <span class="pf-username-tag" id="ppUsernameTag"></span>
+          </div>
+          <div class="pf-bio-display" id="ppBioDisplay"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="ppNotFound" style="display:none;text-align:center;padding:60px 20px;color:var(--text-dim);font-size:13px;">
+      User not found.
+    </div>
+
+    <div id="ppContent">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:20px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px;text-align:center;">
+          <div id="ppXP" style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#818cf8;">-</div>
+          <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">Total XP</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px;text-align:center;">
+          <div id="ppLevel" style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#4ade80;">-</div>
+          <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">Level</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px;text-align:center;">
+          <div id="ppCTFSolves" style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:#dc1414;">-</div>
+          <div style="font-size:10px;color:var(--text-dim);margin-top:2px;">CTF Solves</div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;">
+        <div class="pf-section-label">Rank</div>
+        <div id="ppRankRow" style="background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:14px 16px;font-size:13px;color:var(--text-dim);margin-top:10px;">Loading…</div>
+      </div>
+
+      <div style="margin-top:24px;">
+        <div class="pf-section-label">CTF History</div>
+        <div id="ppCTFList" class="pf-lb-list" style="margin-top:10px;">
+          <div class="pf-empty">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="profilePage" class="page">
+  <div class="pf-shell" style="max-width:600px;margin:0 auto;padding:0 16px 40px;padding-top:calc(var(--nav-h) + 16px);">
+
+    <!-- ── TOP BANNER ── -->
+    <div class="pf-banner">
+      <div class="pf-banner-glow"></div>
+      <button class="pf-back-btn" onclick="showPage('home')">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back
+      </button>
+      <div class="pf-identity">
+        <div class="pf-avatar" id="profileAvatarBig">A</div>
+        <div class="pf-identity-text">
+          <div class="pf-display-name" id="profileDisplayName">-</div>
+          <div class="pf-display-meta">
+            <span id="profileDisplayEmail" class="pf-email"></span>
+            <span class="pf-meta-sep">·</span>
+            <span class="pf-username-tag" id="pfUsernameTag">@, </span>
+          </div>
+          <div class="pf-bio-display" id="pfBioDisplay"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden elements kept for JS compatibility (auth.js setText calls) -->
+    <div style="display:none">
+      <span id="pfXP"></span><span id="pfLevel"></span><span id="pfRank"></span>
+      <span id="pfXpBarLabel"></span><span id="pfXpBarPct"></span>
+      <div id="pfXpFill"></div>
+      <span id="pfSolved"></span><span id="pfRemaining"></span>
+      <span id="pfBadges"></span><span id="pfFirstBloods"></span>
+      <span id="pfStreakCurrent"></span><span id="pfStreakLongest"></span>
+      <div id="pfStreakDots"></div>
+      <div id="pfDailyInner"></div>
+      <div id="pfRecentSolves"></div>
+      <div id="pfBadgeGrid"></div><div id="pfBadgeGridLocked"></div>
+      <div id="pfLeaderboard"></div><span id="pfLbUpdatedLabel"></span>
+    </div>
+
+    <!-- ── TABS: Notifications + Settings ── -->
+    <div class="pf-tabs" style="margin-top:20px;">
+      <button class="pf-tab active" data-tab="notifications" onclick="pfShowTab('notifications')">
+        Notifications
+        <span class="pf-notif-dot" id="pfNotifDot" style="display:none"></span>
+      </button>
+      <button class="pf-tab" data-tab="settings" onclick="pfShowTab('settings')">Settings</button>
+    </div>
+
+    <!-- ── NOTIFICATIONS TAB ── -->
+    <div class="pf-tab-panel active" id="pfTab-notifications">
+      <div class="pf-notif-header">
+        <div class="pf-section-label" style="margin:0">Notifications</div>
+        <button class="pf-lb-refresh" onclick="pfMarkNotifsRead()" title="Mark all read">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M2 7l4 4 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div id="pfNotifList" class="pf-notif-list">
+        <div class="pf-empty">Loading…</div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS TAB ── -->
+    <div class="pf-tab-panel" id="pfTab-settings">
+
+      <div class="pf-section-label">Personal Information</div>
+      <div class="pf-field">
+        <label class="pf-label">Full Name</label>
+        <input class="pf-input" id="profileName" type="text" placeholder="Your full name" maxlength="60" oninput="pfValidateName(this)"/>
+      </div>
+      <div class="pf-field">
+        <label class="pf-label">Email Address</label>
+        <input class="pf-input" id="profileEmail" type="email" disabled/>
+      </div>
+      <div class="pf-field">
+        <label class="pf-label">Username</label>
+        <input class="pf-input" id="profileUsername" type="text" placeholder="Your username" maxlength="30" oninput="pfValidateUsername(this)"/>
+      </div>
+      <div class="pf-field">
+        <label class="pf-label">Bio</label>
+        <input class="pf-input" id="profileBio" type="text" placeholder="Tell us about yourself…" maxlength="200"/>
+      </div>
+
+      <div class="pf-divider"></div>
+      <div class="pf-section-label">Change Password</div>
+      <div class="pf-field">
+        <label class="pf-label">New Password</label>
+        <input class="pf-input" id="profileNewPw" type="password" placeholder="New password (optional)"/>
+      </div>
+      <div class="pf-field">
+        <label class="pf-label">Confirm New Password</label>
+        <input class="pf-input" id="profileConfirmPw" type="password" placeholder="Re-enter new password"/>
+      </div>
+
+      <div class="pf-divider"></div>
+      <div class="pf-msg" id="profileMsg"></div>
+      <button class="pf-save-btn" onclick="saveProfile()">Save Changes</button>
+      <button class="pf-logout-btn" onclick="doLogout()">Sign Out</button>
+
+    </div><!-- /settings tab -->
+
+  </div><!-- /shell -->
+</div>
+
+
+
+
+<!-- ═══════════ LANGUAGE SELECTOR MODAL ═══════════ -->
+<div id="langModal" style="position:fixed;inset:0;z-index:99999;background:rgba(6,6,8,0.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);display:none;align-items:center;justify-content:center;">
+  <div id="langCard" style="background:#0c0c0f;border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:28px 24px 22px;max-width:480px;width:92%;box-shadow:0 32px 80px rgba(0,0,0,0.85);position:relative;">
+
+    <style>@keyframes langIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}</style>
+
+    <!-- Close -->
+    <button onclick="hideLangModal()" style="position:absolute;top:12px;right:12px;width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1l8 8M9 1L1 9" stroke="#666" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:#dc1414;box-shadow:0 0 8px rgba(220,20,20,0.6);"></div>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#f4f4f5;letter-spacing:1px;">Alex <span style="color:#dc1414;">CyberX</span></span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="#dc1414" stroke-width="1.3"/><ellipse cx="10" cy="10" rx="3.8" ry="8.5" stroke="#dc1414" stroke-width="1.3"/><line x1="1.8" y1="6.5" x2="18.2" y2="6.5" stroke="#dc1414" stroke-width="1.1"/><line x1="1.8" y1="13.5" x2="18.2" y2="13.5" stroke="#dc1414" stroke-width="1.1"/></svg>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;color:#f4f4f5;" data-i18n="modal.title">Choose Your Language</div>
+    </div>
+    <div style="font-family:'Inter',sans-serif;font-size:11px;color:#4a4a5a;margin-bottom:18px;" data-i18n="modal.sub">Website is language mein translate ho jaayegi. Nav bar se baad mein bhi change kar sakte ho.</div>
+
+    <!-- Grid -->
+    <div id="langGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px;"></div>
+
+    <!-- Continue -->
+    <button id="langApplyBtn" onclick="applyLanguage()" style="width:100%;padding:11px;background:#dc1414;border:1px solid #dc1414;color:#fff;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center;gap:7px;" onmouseover="this.style.background='#e81818'" onmouseout="this.style.background='#dc1414'">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="langApplyTxt" data-i18n="modal.continue">Continue</span>
+    </button>
+  </div>
+</div>
+
+<!-- Translation overlay removed (offline dictionary used) -->
+
+<!-- ═══════════ LEGAL PAGES ═══════════ -->
+<div id="ctfRoomPage" class="page"></div>
+<div id="privacyPage" class="legal-page"></div>
+<div id="termsPage" class="legal-page"></div>
+<div id="disclaimerPage" class="legal-page"></div>
+<div id="refundPage" class="legal-page"></div>
+<div id="cookiePage" class="legal-page"></div>
+<div id="donotsellPage" class="legal-page"></div>
+<div id="legalwarningPage" class="legal-page"></div>
+
+<script>
+// Load legal pages dynamically - sanitized to strip inline scripts
+['privacy','terms','disclaimer','refund','cookie','donotsell','legalwarning'].forEach(function(page) {
+  fetch('pages/' + page + '.html')
+    .then(function(r){ return r.text(); })
+    .then(function(html){
+      // Parse safely using DOMParser, then remove any script tags
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(html, 'text/html');
+      doc.querySelectorAll('script').forEach(function(s){ s.remove(); });
+      doc.querySelectorAll('[onclick],[onerror],[onload],[onmouseover]').forEach(function(el){
+        ['onclick','onerror','onload','onmouseover'].forEach(function(attr){ el.removeAttribute(attr); });
+      });
+      var target = document.getElementById(page + 'Page');
+      if (target) {
+        target.innerHTML = doc.body.innerHTML;
+        // Back to Home aur footer links, onclick attribute strip ho jaata hai
+        // sanitization mein, isliye data-page attribute se navigation wire karo
+        target.querySelectorAll('[data-page]').forEach(function(el) {
+          el.addEventListener('click', function(e) {
+            e.preventDefault();
+            showPage(el.getAttribute('data-page'));
+          });
+        });
+      }
+    })
+    .catch(function(){});
+});
+</script>
+
+<script>
+// Lazy-load heavy course content files only when their page is actually opened.
+// Saves ~712KB of render-blocking JS on every page that isn't Learn/Learn2.
+window._loadedScripts = {};
+function loadScriptOnce(src) {
+  if (window._loadedScripts[src]) return window._loadedScripts[src];
+  window._loadedScripts[src] = new Promise(function(resolve, reject) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.body.appendChild(s);
+  });
+  return window._loadedScripts[src];
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" defer></script>
+<script src="/js/config.js" defer></script>
+<script src="/js/reveal.js" defer></script>
+<script src="/js/i18n.js" defer></script>
+<script src="/js/translate.js" defer></script>
+<script src="/js/router.js" defer></script>
+<script src="/js/courses.js" defer></script>
+<script src="/js/blog.js" defer></script>
+<script src="/js/resources.js" defer></script>
+<script src="/js/community.js" defer></script>
+<script src="/js/auth.js" defer></script>
+<script src="/js/search.js" defer></script>
+<script src="/js/profile.js" defer></script>
+<script src="/js/leaderboard.js" defer></script>
+<script src="/js/ctf-sync.js" defer></script>
+
+<script src="/js/page-scripts.js"></script>
+<!-- COOKIE CONSENT BANNER -->
+<div id="cookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#111118;border-top:1px solid rgba(255,255,255,0.08);padding:14px 20px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+  <p style="margin:0;font-size:12px;color:#9090a0;flex:1;min-width:200px;">We use strictly necessary cookies to keep you logged in and remember your preferences. <a href="#" onclick="showPage('cookie')" style="color:#dc1414;text-decoration:none;">Cookie Notice</a></p>
+  <div style="display:flex;gap:8px;flex-shrink:0;">
+    <button onclick="acceptCookies()" style="background:#dc1414;color:#fff;border:none;border-radius:6px;padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">Accept</button>
+    <button onclick="declineCookies()" style="background:transparent;color:#666;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 14px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;">Decline</button>
+  </div>
+</div>
+<script>
+(function(){
+  try {
+    if(localStorage.getItem('acx_cookie_consent') !== 'accepted' && localStorage.getItem('acx_cookie_consent') !== 'declined'){
+      var b = document.getElementById('cookieBanner');
+      if(b){ b.style.display='flex'; }
+    }
+  } catch(e) { /* localStorage unavailable (private mode etc) - skip banner */ }
+})();
+function acceptCookies(){
+  try { localStorage.setItem('acx_cookie_consent','accepted'); } catch(e){}
+  var b = document.getElementById('cookieBanner');
+  if(b) b.style.display='none';
+}
+function declineCookies(){
+  try { localStorage.setItem('acx_cookie_consent','declined'); } catch(e){}
+  var b = document.getElementById('cookieBanner');
+  if(b) b.style.display='none';
+}
+</script>
+<script>
+/* CTF Lab: Cookie Monster (web-02), isAdmin cookie lab */
+(function() {
+  // Set lab cookie if not exists, user can manipulate this in DevTools
+  if (!document.cookie.includes('isAdmin')) {
+    document.cookie = 'isAdmin=false; path=/; SameSite=Lax';
+    document.cookie = 'session=user_guest; path=/; SameSite=Lax';
+  }
+  // Check if user has manipulated isAdmin cookie
+  // FIX Bug 1: Sirf tab pe show karo jab CTF page active ho
+  // AUR Cookie Monster challenge modal open ho (ctfCurrentChallenge === 'cookie-monster')
+  function checkCTFCookie() {
+    // CTF page visible hai?
+    const ctfPage = document.getElementById('ctfPage');
+    if (!ctfPage || ctfPage.style.display === 'none' || !ctfPage.offsetParent) {
+      const el = document.getElementById('ctfCookieFlag');
+      if (el) el.style.display = 'none';
+      return;
+    }
+    // Cookie Monster challenge modal open hai?
+    const isCookieModalOpen =
+      typeof ctfCurrentChallenge !== 'undefined' &&
+      ctfCurrentChallenge === 'cookie-monster';
+    if (!isCookieModalOpen) {
+      const el = document.getElementById('ctfCookieFlag');
+      if (el) el.style.display = 'none';
+      return;
+    }
+    const cookies = Object.fromEntries(document.cookie.split('; ').map(c => c.split('=')));
+    if (cookies['isAdmin'] === 'true') {
+      const el = document.getElementById('ctfCookieFlag');
+      const val = document.getElementById('ctfCookieFlagVal');
+      if (el && val) {
+        val.textContent = 'ACX{cookies_can_be_tampered}';
+        el.style.display = 'block';
+      }
+    } else {
+      const el = document.getElementById('ctfCookieFlag');
+      if (el) el.style.display = 'none';
+    }
+  }
+  setInterval(checkCTFCookie, 1000);
+})();
+</script>
+
+
+<!-- ═══════════ CTF PAGE ═══════════ -->
+<div id="ctfPage" class="page">
+<!-- CTF Lab: Cookie Monster flag reveal (only shows when isAdmin=true cookie set) -->
+<div id="ctfCookieFlag" style="display:none;position:fixed;top:70px;right:20px;z-index:9999;background:#0a0a12;border:1px solid #4ade80;border-radius:10px;padding:12px 18px;font-family:monospace;font-size:13px;color:#4ade80;box-shadow:0 4px 20px rgba(74,222,128,0.15);">
+  🚩 Flag: <span id="ctfCookieFlagVal"></span>
+</div>
+<link rel="stylesheet" href="/css/ctf-room.css">
+
+<div class="ctf-wrap">
+
+  <!-- USERNAME SETUP VIEW (shown if logged in but no CTF username yet) -->
+  <div class="ctf-setup-view" id="ctfSetupView" style="display:none;">
+    <div class="ctf-setup-brand">
+      <span class="ctf-setup-brand-accent">ALEX</span>CYBERX
+    </div>
+    <p class="ctf-setup-subtitle">Complete your profile setup</p>
+
+    <div class="ctf-setup-card">
+      <h2 class="ctf-setup-title">Choose Your Username</h2>
+      <p class="ctf-setup-desc">This will be your unique identifier in the labs</p>
+
+      <div class="ctf-setup-field">
+        <label class="ctf-setup-label" for="ctfUsernameInput">Username</label>
+        <input type="text" id="ctfUsernameInput" class="ctf-setup-input" placeholder="Enter your username" autocomplete="off" maxlength="20" onkeydown="if(event.key==='Enter')submitCTFUsername()">
+        <p class="ctf-setup-hint">3-20 characters, letters, numbers, underscores, and hyphens only</p>
+      </div>
+
+      <button class="ctf-setup-btn" id="ctfUsernameSubmitBtn" onclick="submitCTFUsername()">Complete Setup</button>
+      <div class="ctf-setup-msg" id="ctfUsernameMsg"></div>
+
+      <p class="ctf-setup-welcome">Welcome to the cybersecurity training platform, <span id="ctfSetupEmail"></span>!</p>
+    </div>
+
+    <p class="ctf-setup-note">Your username will be visible to other users in leaderboards and forums.</p>
+  </div>
+
+  <!-- MAIN CTF VIEW -->
+  <div id="ctfMainView" style="display:none;">
+
+  <!-- HEADER -->
+  <div class="ctf-header">
+    <div class="ctf-header-top">
+      <div class="ctf-title-wrap">
+        <div class="ctf-eyebrow">
+          <span class="ctf-eyebrow-dot"></span>
+          Capture The Flag
+        </div>
+        <h1 class="ctf-page-title">CTF Challenges</h1>
+        <p class="ctf-page-sub">Real-world cybersecurity challenges. Find the flag, earn XP, climb the leaderboard.</p>
+      </div>
+    </div>
+
+    <!-- My Stats (collapsible) -->
+    <div class="ctf-mystats">
+      <button type="button" class="ctf-mystats-toggle" id="ctfMyStatsToggle" onclick="ctfToggleMyStats()">
+        <span class="ctf-mystats-toggle-left">
+          My Stats
+        </span>
+        <svg id="ctfMyStatsChevron" class="ctf-mystats-chevron" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#8a8a9a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
+      <div class="ctf-mystats-panel" id="ctfMyStatsPanel" style="display:none;">
+        <!-- Stats (existing, keep as-is) -->
+        <div class="ctf-stats">
+          <div class="ctf-stat-card">
+            <div>
+              <div class="ctf-stat-val" id="ctfTotalCount">-</div>
+              <div class="ctf-stat-lbl">Total Challenges</div>
+            </div>
+          </div>
+          <div class="ctf-stat-card">
+            <div>
+              <div class="ctf-stat-val" id="ctfSolvedCount">0</div>
+              <div class="ctf-stat-lbl">Solved</div>
+            </div>
+          </div>
+          <div class="ctf-stat-card">
+            <div>
+              <div class="ctf-stat-val" id="ctfTotalXP">0</div>
+              <div class="ctf-stat-lbl">XP Earned</div>
+            </div>
+          </div>
+          <div class="ctf-stat-card">
+            <div>
+              <div class="ctf-stat-val" id="ctfCategoryCount">7</div>
+              <div class="ctf-stat-lbl">Categories</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Daily Challenge -->
+        <div class="ctf-daily-row" id="ctfDailyRow" style="display:none;">
+          <div class="ctf-daily-card">
+            <div class="ctf-daily-title">
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#60a5fa" stroke-width="1.3"/><path d="M7 4v3.5l2 1.5" stroke="#60a5fa" stroke-width="1.3" stroke-linecap="round"/></svg>
+              Daily Challenge
+            </div>
+            <div id="ctfDailyChallengeInner">
+              <div style="color:#4a4a5a;font-size:12px;">Loading…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="ctf-filters">
+    <button class="ctf-filter-btn active" data-cat="all" onclick="ctfSetFilter(this,'cat')">All</button>
+    <button class="ctf-filter-btn" data-cat="Web"       onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.4"/><path d="M2 10h16M10 2c2.2 2.2 3.4 5.1 3.4 8s-1.2 5.8-3.4 8c-2.2-2.2-3.4-5.1-3.4-8S7.8 4.2 10 2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Web</button>
+    <button class="ctf-filter-btn" data-cat="Forensics" onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Forensics</button>
+    <button class="ctf-filter-btn" data-cat="Crypto"    onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><rect x="4" y="9" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M6.5 9V6.5a3.5 3.5 0 017 0V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Crypto</button>
+    <button class="ctf-filter-btn" data-cat="OSINT"     onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M12.5 12.5L17 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8.5" cy="8.5" r="2" stroke="currentColor" stroke-width="1.2"/></svg>OSINT</button>
+    <button class="ctf-filter-btn" data-cat="Pwn"       onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><path d="M3 17L13 7M11 3l6 6-2 2-6-6 2-2zM4 16l-1 3 3-1-2-2z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Pwn</button>
+    <button class="ctf-filter-btn" data-cat="Reversing" onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18M4.5 4.5l1.8 1.8M13.7 13.7l1.8 1.8M15.5 4.5l-1.8 1.8M5.5 14.5l-1.8 1.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>Reversing</button>
+    <button class="ctf-filter-btn" data-cat="AI Security" onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><rect x="5" y="5" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/><rect x="8" y="8" width="4" height="4" rx="0.8" stroke="currentColor" stroke-width="1.2"/><path d="M8 2.5V5M12 2.5V5M8 15v2.5M12 15v2.5M2.5 8H5M2.5 12H5M15 8h2.5M15 12h2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>AI Security</button>
+    <button class="ctf-filter-btn" data-cat="Misc"      onclick="ctfSetFilter(this,'cat')"><svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="vertical-align:-2px;margin-right:4px;"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="4" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="10" r="1" fill="currentColor"/></svg>Misc</button>
+
+    <div class="ctf-filter-sep"></div>
+    <button class="ctf-diff-btn easy"   data-diff="Easy"   onclick="ctfSetFilter(this,'diff')">Easy</button>
+    <button class="ctf-diff-btn medium" data-diff="Medium" onclick="ctfSetFilter(this,'diff')">Medium</button>
+    <button class="ctf-diff-btn hard"   data-diff="Hard"   onclick="ctfSetFilter(this,'diff')">Hard</button>
+
+    <div class="ctf-search">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#6a6a7a" stroke-width="1.2"/><path d="M9 9l2.5 2.5" stroke="#6a6a7a" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <input type="text" id="ctfSearchInput" placeholder="Search challenges..." oninput="ctfRender()" onkeyup="ctfRender()" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div class="ctf-grid" id="ctfGrid">
+    <!-- Populated by JS -->
+  </div>
+
+  </div>
+  <!-- /MAIN CTF VIEW -->
+
+</div>
+
+<!-- ── CHALLENGE MODAL ── -->
+<div class="ctf-modal-overlay" id="ctfModalOverlay" onclick="if(event.target===this)closeCTFModal()">
+  <div class="ctf-modal" id="ctfModal">
+    <button class="ctf-modal-close" onclick="closeCTFModal()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+
+    <div class="ctf-modal-cat" id="modalCat"></div>
+    <div class="ctf-modal-title" id="modalTitle"></div>
+    <div class="ctf-modal-meta" id="modalMeta"></div>
+
+    <!-- CHALLENGE card (like lab page screenshot) -->
+    <div id="ctfChallengeCard" style="display:none;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px;margin-bottom:14px;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:#dc1414;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:#dc1414;display:inline-block;"></span>CHALLENGE
+      </div>
+      <!-- Badges row -->
+      <div id="modalChallengeBadges" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;"></div>
+      <!-- Author -->
+      <div id="modalChallengeAuthor" style="font-size:10px;font-weight:700;letter-spacing:1px;color:#505068;text-transform:uppercase;margin-bottom:12px;"></div>
+      <!-- Scenario description -->
+      <div id="modalChallengeScenario" style="font-size:12.5px;color:#a0a0b8;line-height:1.85;"></div>
+    </div>
+
+    <div class="ctf-modal-hint-wrap" id="ctfHintWrap" style="margin-bottom:16px;">
+      <button class="ctf-hint-toggle" id="ctfHintToggle" onclick="toggleCTFHint()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5a4 4 0 0 0-2 7.5v1.3h4V9a4 4 0 0 0-2-7.5z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 12h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+        <span id="ctfHintToggleLabel">Show Hint</span>
+      </button>
+      <div class="ctf-hint-box" id="ctfHintBox"></div>
+    </div>
+    <div class="ctf-ai" id="ctfAi" style="margin-bottom:16px;">
+      <button class="ctf-ai-toggle" id="ctfAiToggle" type="button" onclick="toggleAiHint()" aria-expanded="false">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 3.2l3 3.3-3 3.3M6.5 10h4.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="ctfAiToggleLabel">Ask AI for a hint</span>
+      </button>
+      <div class="ctf-ai-panel" id="ctfAiPanel">
+        <textarea id="ctfAiQ" class="ctf-ai-q" rows="2" maxlength="300" placeholder="What have you tried so far? (optional)"></textarea>
+        <div class="ctf-ai-row">
+          <span class="ctf-ai-left" id="ctfAiLeft">AI hints are limited per challenge</span>
+          <button class="ctf-ai-go" id="ctfAiGo" type="button" onclick="askAiHint()">Get hint</button>
+        </div>
+        <div class="ctf-ai-out" id="ctfAiOut" aria-live="polite"></div>
+      </div>
+    </div>
+    <div id="ctfLaunchWrap" style="display:none;">
+      <!-- Start button (before instance is running) -->
+      <div id="ctfStartWrap" style="margin-bottom:14px;">
+        <a class="ctf-launch-btn" id="ctfLaunchBtn" href="#" onclick="return ctfLaunchClick(event)">
+          <span id="ctfLaunchLabel">START</span>
+        </a>
+
+      </div>
+      <!-- Restart Instance + View Lab (shown after Start) -->
+      <div id="ctfRunningWrap" style="display:none;">
+        <div style="display:flex;gap:10px;margin-bottom:16px;">
+          <button class="ctf-restart-btn" onclick="ctfRestartFromModal()">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2.5 6.5a4 4 0 1 0 1-2.6" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><path d="M2.5 2.5v2h2" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Restart Instance
+          </button>
+          <a class="ctf-viewlab-btn" href="#" onclick="return ctfOpenLabTab(event)">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M5 2H2.5A1.5 1.5 0 0 0 1 3.5v7A1.5 1.5 0 0 0 2.5 12h7A1.5 1.5 0 0 0 11 10.5V8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8 1h4m0 0v4m0-4L6 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            View Lab
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instance timer (shown after Start) -->
+    <div class="ctf-timer-row" id="ctfTimerRow">
+      <div class="ctf-timer-left">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#ffffff" stroke-width="1.2"/><path d="M6.5 3.5v3l2 1.5" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Instance Time Remaining
+      </div>
+      <span class="ctf-timer-val" id="ctfTimerVal">30:00</span>
+    </div>
+
+    <!-- Flag submission -->
+    <div class="ctf-flag-section" id="ctfFlagSection" style="display:none;">
+      <div class="ctf-flag-label">Submit Your Flag</div>
+      <div class="ctf-flag-row">
+        <input type="text" class="ctf-flag-input" id="ctfFlagInput" placeholder="ACX{your_flag_here}" autocomplete="off" onkeydown="if(event.key==='Enter')submitCTFFlag()">
+        <button class="ctf-submit-btn" id="ctfSubmitBtn" onclick="submitCTFFlag()">Submit</button>
+      </div>
+      <div class="ctf-flag-msg" id="ctfFlagMsg"></div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ── CTF JAVASCRIPT ── -->
+<script src="/js/ctf-challenges-data.js"></script>
+<script src="/js/marquee.js" defer></script>
+</div>
+<!-- Solve celebration toast. Lives directly under <body> on purpose: inside a .page it gets
+     trapped under the navbar (the page fade creates its own stacking context). -->
+<div class="ctf-solve-toast" id="ctfSolveToast">
+  <div class="ctf-solve-toast-icon">
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 9.5l3.5 3.5L14 5.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div>
+    <div class="ctf-solve-toast-title">Flag Captured!</div>
+    <div class="ctf-solve-toast-sub" id="ctfSolveToastSub">Challenge solved.</div>
+  </div>
+</div>
+
+</body>
+</html>
