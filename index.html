@@ -2236,6 +2236,60 @@ function loadScriptOnce(src) {
 }
 </script>
 
+<script>
+/* Refresh pe pehle home flash na ho: URL ke hisaab se sahi page turant active karo.
+   (#homePage HTML mein hardcoded "active" hai, aur router/auth deferred hain, aur
+   auth getSession() ke baad hi showPage() karta hai, tab tak home dikhta tha.)
+   Protected pages tabhi pre-activate hote hain jab Supabase session localStorage
+   mein ho; bina login ke auth.js pehle jaisa home + login modal hi dikhayega. */
+(function () {
+  try {
+    var p = (location.pathname.replace(/\/$/, '') || '/');
+    if (p === '/') return;
+    var id = null, protectedPage = false;
+    if (p === '/rooms' || p.indexOf('/rooms/') === 0) { id = 'ctfPage'; protectedPage = true; }
+    else if (p === '/profile') { id = 'profilePage'; protectedPage = true; }
+    else if (p === '/resources') { id = 'resourcesPage'; protectedPage = true; }
+    else if (p === '/tutorials') { id = 'coursesPage'; }
+    else if (p === '/tutorials/cyber-attacks-fundamentals') { id = 'learn2Page'; protectedPage = true; }
+    else if (p === '/tutorials/ethical-hacking') { id = 'learn3Page'; protectedPage = true; }
+    else if (p.indexOf('/tutorials/') === 0) { id = 'learnPage'; protectedPage = true; }
+    else if (p === '/tools') { id = 'toolsPage'; }
+    else if (p === '/tools/alexsync') { id = 'alexSyncPage'; protectedPage = true; }
+    else if (p === '/tools/mistake-analyzer') { id = 'mistakeAnalyzerPage'; protectedPage = true; }
+    else if (p === '/tools/alexrecon') { id = 'alexReconPage'; protectedPage = true; }
+    else if (p === '/tools/alexutils') { id = 'alexUtilsPage'; protectedPage = true; }
+    else if (p === '/tools/alextrace') { id = 'alexTracePage'; protectedPage = true; }
+    else if (p === '/blog' || p.indexOf('/blog/') === 0) { id = 'blogPage'; }
+    else if (p === '/community' || p.indexOf('/community/') === 0) { id = 'communityPage'; }
+    else if (p === '/leaderboard') { id = 'leaderboardPage'; }
+    else if (p === '/u' || p.indexOf('/u/') === 0) { id = 'publicProfilePage'; }
+    else if (p === '/privacy-policy') { id = 'privacyPage'; }
+    else if (p === '/terms-of-service') { id = 'termsPage'; }
+    else if (p === '/disclaimer') { id = 'disclaimerPage'; }
+    else if (p === '/refund-policy') { id = 'refundPage'; }
+    else if (p === '/cookie-notice') { id = 'cookiePage'; }
+    else if (p === '/do-not-sell') { id = 'donotsellPage'; }
+    else if (p === '/legal-warning') { id = 'legalwarningPage'; }
+    if (!id) return;
+
+    if (protectedPage) {
+      var hasSession = false;
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf('sb-') === 0 && k.slice(-11) === '-auth-token') { hasSession = true; break; }
+      }
+      if (!hasSession) return;
+    }
+
+    var target = document.getElementById(id);
+    var home = document.getElementById('homePage');
+    if (!target || !home) return;
+    home.classList.remove('active');
+    target.classList.add('active');
+  } catch (e) {}
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script src="https://sdk.cashfree.com/js/v3/cashfree.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" defer></script>
