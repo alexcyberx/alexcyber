@@ -92,6 +92,9 @@ const ROOT = path.join(__dirname, '..');
 // Frontend migration (docs/MIGRATION.md): migrated pages Next.js app se aate
 // hain (NEXT_APP_URL set ho tab). /js/flags.js SPA ko batata hai kaun se pages
 // ab Next pe hain, taaki unke links full page load karein. Static /js se pehle.
+// NEXT_EMBEDDED=1: Next isi service mein child process ki tarah chalta hai
+// (server/nextEmbedded.js), proxy usi ko point karta hai.
+require('./nextEmbedded').start();
 const nextProxy = require('./middleware/nextProxy');
 app.get('/js/flags.js', (req, res) => {
   res.type('application/javascript').set('Cache-Control', 'no-cache');
