@@ -111,8 +111,10 @@ Deploy both after a merge that touches `web/` or `pages/*.html`.
 **Rollback**: remove `NEXT_APP_URL` / `NEXT_BLOG_URL` from the Express service. All migrated pages come back
 from the old SPA immediately.
 
-Free tier note: if the Next service is asleep, the first `/blog` request waits for it to wake up
-(proxy timeout 60 s).
+Free tier note: both services sleep after 15 min without traffic. When Express wakes up it sends a warm-up
+request to Next at once. While Next is waking, Render answers 502/503; the proxy retries GET/HEAD for up to
+55 s, so the visitor just waits. Only plain browser headers are forwarded: passing Render's own edge headers
+on (`render-proxy-ttl`, `rndr-id`, `cf-*`) made Render answer a quick 502 without waking the service.
 
 ## Local development
 ```bash

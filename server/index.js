@@ -204,6 +204,7 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`AlexCyberX CTF running on http://localhost:${PORT}`);
+  nextProxy.warmUp();
 });
 
 // ── INSTANCE MEMORY CLEANUP ─────────────────────────────────────
