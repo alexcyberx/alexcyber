@@ -24,12 +24,15 @@ const NEXT_PAGES = {
   cookie:       '/cookie-notice',
   donotsell:    '/do-not-sell',
   legalwarning: '/legal-warning',
+  leaderboard:  '/leaderboard',
+  profile:      '/profile',
+  publicProfile: '/u',
 };
 
 // Exact paths go to Next; /tutorials/<course> stays in the SPA.
 // /search-index.json feeds the nav search on the Next pages.
 const EXACT = new Set([...Object.values(NEXT_PAGES), '/search-index.json']);
-const PREFIXES = ['/blog/', '/_next/'];
+const PREFIXES = ['/blog/', '/u/', '/_next/'];
 
 function isNextPath(p) {
   const clean = p.length > 1 ? p.replace(/\/+$/, '') : p;

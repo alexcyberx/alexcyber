@@ -165,3 +165,15 @@ async function loadPublicProfile(userId) {
     if (content) content.style.display = 'none';
   }
 }
+
+// Direct visit (/leaderboard, /u/<id>) while logged out: auth.js routes to the
+// page before this file has loaded, so showPage() found no loader and the
+// list stayed on "Loading…". Load once all deferred scripts are in.
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof currentPage === 'undefined') return;
+  if (currentPage === 'leaderboard') loadLeaderboard();
+  if (currentPage === 'publicProfile') {
+    const id = _publicProfileIdFromUrl() || _publicProfileId;
+    if (id) loadPublicProfile(id);
+  }
+});

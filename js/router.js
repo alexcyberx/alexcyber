@@ -104,6 +104,8 @@ function showPage(page, skipPush) {
   // Frontend migration: ye pages ab Next.js app pe hain (server/middleware/nextProxy.js).
   // List /js/flags.js se aati hai; proxy off ho to purane in-SPA pages hi chalenge.
   var nextPath = window.ACX_NEXT_PAGES && window.ACX_NEXT_PAGES[page];
+  // Public profiles: viewPublicProfile() has already put /u/<id> in the URL.
+  if (nextPath && page === 'publicProfile' && /^\/u\/[^/]+/.test(window.location.pathname)) nextPath = window.location.pathname;
   if (nextPath) {
     window.location.href = nextPath;
     return;

@@ -21,6 +21,8 @@ type AuthCtx = {
   nextPath: string | null;
   afterSignIn: () => void;
   logout: () => Promise<void>;
+  /** Re-read the signed-in user's name (after a profile edit). */
+  refreshUser: () => Promise<void>;
 };
 
 const Ctx = createContext<AuthCtx | null>(null);
@@ -103,6 +105,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     window.location.href = '/';
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    const sb = browserSupabase();
+    if (!sb) return;
+    const { data } = await sb.auth.getUser();
+    if (data.user) setUser(await loadNavUser(data.user));
+  }, []);
+
   // Session + auth events
   useEffect(() => {
     const sb = browserSupabase();
@@ -165,7 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   return (
-    <Ctx.Provider value={{ user, ready, modal, openAuth, closeAuth, nextPath, afterSignIn, logout }}>
+    <Ctx.Provider value={{ user, ready, modal, openAuth, closeAuth, nextPath, afterSignIn, logout, refreshUser }}>
       {children}
     </Ctx.Provider>
   );
