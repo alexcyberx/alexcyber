@@ -27,6 +27,7 @@ const NEXT_PAGES = {
   leaderboard:  '/leaderboard',
   profile:      '/profile',
   publicProfile: '/u',
+  ctf:          '/rooms',
 };
 
 // Exact paths go to Next; /tutorials/<course> stays in the SPA.

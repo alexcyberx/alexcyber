@@ -22,7 +22,7 @@ The list of migrated paths lives in one place: `NEXT_PAGES` in `server/middlewar
 | 2 | `/tutorials` (course list) and the 7 legal pages | Done |
 | 3 | Home + login/signup/reset modals + nav search | Done |
 | 4 | `/leaderboard`, `/u/<id>`, `/profile` | Done |
-| 4b | `/rooms` (CTF list, room view, labs flow) | In progress: lab-solve fix done, page port next |
+| 4b | `/rooms` (CTF list, room view, labs flow) | Done |
 | 5 | Tools, community, resources, admin panel | |
 
 All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
@@ -91,7 +91,22 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
   service-role key (needs `SUPABASE_SERVICE_ROLE_KEY` on the Express service). The answer gets
   `recorded`, `already_solved`, `xp_earned`, `new_xp`; the room modal uses them.
 
-Not migrated yet (still SPA): rooms, tools, community, resources, admin panel.
+## Step 4b (part 2): /rooms on Next
+- `src/app/rooms/page.tsx` (ISR 1 min) + `src/components/RoomsView.tsx`: same markup and classes as `#ctfPage`.
+  Username setup, My Stats + daily challenge, filters/search, room modal (hints, AI hint, START / Restart /
+  View Lab, 30 min timer that survives a reload, flag submit, solve toast + chime), Esc to close.
+- Room texts (scenario, hints, lab paths) are still authored in `js/ctf-challenges-data.js` and read at build
+  time (`src/lib/ctf.ts`); the DB decides which rooms are shown (`status = active`), their XP and solver count.
+  A text change there needs a redeploy.
+- Language: the hand-written CTF texts from `js/translate.js` (`CTF_OVERRIDES`, read at build time), the rest
+  machine-translated like before, cached under the same `acx_ctf_<lang>` key. The language modal calls
+  `window.applyCTFTranslation` as on the old page.
+- Coming back from a lab tab works the same three ways (`window.opener.acxLabReturn`, the
+  `acx_return_to_modal` storage signal, `acx_back_to_ctf` after a same-tab redirect), plus `/rooms?open=<id>`
+  (kept through the login modal).
+- `/rooms/<anything>` is still the old SPA.
+
+Not migrated yet (still SPA): tools, community, resources, admin panel.
 
 ## Deploy on Render
 **One service (current):** the Express service also runs Next.js.
