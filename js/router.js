@@ -46,7 +46,6 @@ const PAGE_TO_PATH = {
   learn3:      '/tutorials/ethical-hacking',
   ctf:         '/rooms',
   tools:       '/tools',
-  alexsync:    '/tools/alexsync',
   mistakeAnalyzer: '/tools/mistake-analyzer',
   alexrecon:   '/tools/alexrecon',
   alexutils:   '/tools/alexutils',
@@ -103,7 +102,7 @@ window.addEventListener('popstate', function(e) {
 
 function showPage(page, skipPush) {
   // Protected pages require login - gate before rendering anything
-  const _protectedPages = ['ctf', 'profile', 'learn', 'learn2', 'learn3', 'resources', 'alexsync', 'alexrecon', 'mistakeAnalyzer', 'alexutils', 'alextrace'];
+  const _protectedPages = ['ctf', 'profile', 'learn', 'learn2', 'learn3', 'resources', 'alexrecon', 'mistakeAnalyzer', 'alexutils', 'alextrace'];
   if (_protectedPages.includes(page) && !window._currentUser) {
     if (typeof showAuth === 'function') showAuth('login', page);
     return;
@@ -147,11 +146,6 @@ function showPage(page, skipPush) {
   const tp = document.getElementById('toolsPage');
   if (tp) tp.classList.toggle('active', page === 'tools');
   if (page === 'tools' && typeof initToolsPage === 'function') initToolsPage();
-
-  // AlexSync tool page
-  const asP = document.getElementById('alexSyncPage');
-  if (asP) asP.classList.toggle('active', page === 'alexsync');
-  if (page === 'alexsync' && typeof initAlexSyncPage === 'function') initAlexSyncPage();
 
   // Cyber Mistake Analyzer tool page
   const cmaP = document.getElementById('mistakeAnalyzerPage');
@@ -231,8 +225,7 @@ function showPage(page, skipPush) {
     cookie:      { title: 'Cookie Notice - AlexCyberX', desc: 'How AlexCyberX uses cookies across the platform.' },
     donotsell:   { title: 'Do Not Sell My Info - AlexCyberX', desc: 'Opt out of data sharing on AlexCyberX.' },
     legalwarning:{ title: 'Legal Warning - AlexCyberX', desc: 'Legal warning regarding unauthorized use of AlexCyberX cybersecurity tools and CTF content.' },
-    tools:       { title: 'Cybersecurity Tools - AlexCyberX', desc: 'Free cybersecurity tools by AlexCyberX: AlexRecon (attack-surface recon), AlexUtils (IP/DNS/SSL/CVE utilities), AlexTrace (OSINT digital footprint audit), Cyber Mistake Analyzer, and AlexSync.' },
-    alexsync:    { title: 'AlexSync - Automated Wake & Music Scheduler | AlexCyberX', desc: 'AlexSync wakes your laptop and starts music automatically at a scheduled time. Simple automation tool by AlexCyberX.' },
+    tools:       { title: 'Cybersecurity Tools - AlexCyberX', desc: 'Free cybersecurity tools by AlexCyberX: AlexRecon (attack-surface recon), AlexUtils (IP/DNS/SSL/CVE utilities), AlexTrace (OSINT digital footprint audit), and Cyber Mistake Analyzer.' },
     mistakeAnalyzer: { title: 'Cyber Mistake Analyzer - AlexCyberX', desc: 'Paste a command like nmap -A target.com and get instant feedback on what is right, what is wrong, and a corrected version. Free learning tool by AlexCyberX.' },
     alexrecon:   { title: 'AlexRecon - Free Attack Surface Reconnaissance Tool | AlexCyberX', desc: 'AlexRecon generates a combined attack-surface report for any domain: DNS, SSL, subdomains, port scanning, tech stack, and risk indicators. Free recon tool by AlexCyberX.' },
     alexutils:   { title: 'AlexUtils - IP, DNS, SSL & CVE Lookup Toolkit | AlexCyberX', desc: 'AlexUtils is a free cybersecurity utility toolkit: IP/DNS lookup, SSL checker, hash generator, Base64 encode/decode, subnet calculator, and CVE search.' },

@@ -10,7 +10,7 @@
    the browser - pure math/crypto with no need for a round trip.
 
    All routes require login and respect the admin's enable/disable
-   switch for the 'alexutils' tool, same as AlexSync/Mistake
+   switch for the 'alexutils' tool, same as Mistake
    Analyzer/AlexRecon.
 ═══════════════════════════════════════════════════════════ */
 

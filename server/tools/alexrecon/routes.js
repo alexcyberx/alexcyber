@@ -19,17 +19,22 @@
 
    Env vars required (set on Render, never commit real values):
      SUPABASE_URL
-     SUPABASE_SERVICE_ROLE_KEY - same pattern as AlexSync payments,
+     SUPABASE_SERVICE_ROLE_KEY - same pattern as the other tool routes,
                                     needed to write scan history
                                     bypassing RLS from a server route.
 ═══════════════════════════════════════════════════════════ */
 
 const express = require('express');
 const router = express.Router();
+
+// Every AlexRecon HTTP route requires a verified login (userId comes from
+// the token, not the request). The scheduler calls runAlexReconScan()
+// directly in-process and does not go through these routes.
+router.use(requireAuth);
 const { createClient } = require('@supabase/supabase-js');
 const { reconLimiter } = require('../../middleware/rateLimit');
 
-const { detectTargetType, normalizeDomain, runModulesParallel } = require('./modules/utils');
+const { detectTargetType, normalizeDomain, runModulesParallel, assertPublicDomain } = require('./modules/utils');
 const { dnsIntelligence, axfrCheck, wildcardCheck } = require('./modules/dns');
 const { sslIntelligence } = require('./modules/ssl');
 const { webRecon, loginPanelDetection, robotsAndSitemap } = require('./modules/webrecon');
@@ -37,7 +42,7 @@ const { subdomainEnumeration, liveHostDetection, asnCidrDiscovery } = require('.
 const { waybackUrls, commonCrawlUrls, jsRecon, cloudDiscovery, directoryBackupCheck, githubOrgIntel } = require('./modules/tier2');
 const { commonPortCheck } = require('./modules/ports');
 const { startAlexReconScheduler } = require('./scheduler');
-const { checkToolEnabled, logToolUsage } = require('../../middleware/toolAccess');
+const { checkToolEnabled, logToolUsage, requireAuth } = require('../../middleware/toolAccess');
 
 let supabaseAdmin = null;
 function getSupabaseAdmin() {
@@ -79,6 +84,10 @@ async function runAlexReconScan({ target, userId, projectId, triggeredBy }) {
   if (targetType === 'ip') {
     throw Object.assign(new Error('IP-only scanning is not yet supported in v1. Please enter a domain instead.'), { statusCode: 400 });
   }
+
+  // Block targets that resolve to private/loopback/link-local addresses
+  // (stops the server being used to probe its own network or cloud metadata).
+  if (domain) await assertPublicDomain(domain);
 
   let scanRow = null;
   const db = getSupabaseAdmin();

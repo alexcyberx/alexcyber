@@ -1,18 +1,15 @@
 /* ═══════════════════════════════════════════════════════════
    TOOL ACCESS MIDDLEWARE
    ═══════════════════════════════════════════════════════════
-   Shared helpers for any tool route (AlexSync, Mistake Analyzer,
+   Shared helpers for any tool route (Mistake Analyzer,
    AlexRecon) that needs to:
      1. Require the caller to be logged in (requireToolLogin)
      2. Check the admin "enable/disable" switch (checkToolEnabled)
      3. Log a usage event for the admin dashboard (logToolUsage)
 
-   Auth note: this follows the same pattern already used across the
-   app (AlexRecon, AlexSync) - the frontend sends the Supabase user's
-   id in the request body/query rather than a verified JWT. This is
-   a lighter-weight trust model consistent with the rest of the
-   codebase, not a new one introduced here. A full JWT-verification
-   pass across every tool route would be a larger, separate change.
+   Auth note: tool routes now verify the caller's Supabase access token
+   (Authorization: Bearer ...) via requireAuth. The user id is taken from
+   the verified token, never from the request body or query string.
 ═══════════════════════════════════════════════════════════ */
 
 const { createClient } = require('@supabase/supabase-js');
@@ -28,17 +25,40 @@ function getSupabaseAdmin() {
   return supabaseAdmin;
 }
 
-// Express middleware: rejects the request unless a userId is present
-// (in body for POST, in query for GET) and corresponds to a real
-// profile row. Attaches req.toolUserId for downstream handlers.
-function requireToolLogin(req, res, next) {
-  const userId = req.body?.userId || req.query?.userId;
-  if (!userId) {
-    return res.status(401).json({ error: 'Please log in to use this tool.' });
+// Express middleware: the caller must send a valid Supabase access token
+// ("Authorization: Bearer <token>"). The token is verified server-side with
+// auth.getUser(), and the user id comes ONLY from that verified token.
+// Any userId the client puts in the body/query is overwritten, so a caller
+// can never read or write another user's data by guessing a UUID.
+// Fails closed: if Supabase isn't configured, the request is rejected.
+async function requireAuth(req, res, next) {
+  try {
+    const header = req.headers['authorization'] || '';
+    const token = header.startsWith('Bearer ') ? header.slice(7).trim() : null;
+    if (!token) return res.status(401).json({ error: 'Please log in to use this tool.' });
+
+    const db = getSupabaseAdmin();
+    if (!db) return res.status(503).json({ error: 'Authentication is not configured on the server.' });
+
+    const { data, error } = await db.auth.getUser(token);
+    if (error || !data || !data.user) {
+      return res.status(401).json({ error: 'Your session has expired. Please log in again.' });
+    }
+
+    const uid = data.user.id;
+    req.authUserId = uid;
+    req.toolUserId = uid;
+    if (req.body && typeof req.body === 'object') req.body.userId = uid;
+    if (req.query && typeof req.query === 'object') req.query.userId = uid;
+    next();
+  } catch (e) {
+    console.error('[ToolAccess] auth check failed:', e.message);
+    res.status(401).json({ error: 'Please log in to use this tool.' });
   }
-  req.toolUserId = userId;
-  next();
 }
+
+// Backwards-compatible name used by the existing tool routers.
+const requireToolLogin = requireAuth;
 
 // Express middleware factory: blocks the request with a friendly
 // message if an admin has disabled this tool. Fails open (allows
@@ -84,4 +104,4 @@ function logToolUsage(toolKey, userId) {
     });
 }
 
-module.exports = { requireToolLogin, checkToolEnabled, logToolUsage, getSupabaseAdmin };
+module.exports = { requireAuth, requireToolLogin, checkToolEnabled, logToolUsage, getSupabaseAdmin };
