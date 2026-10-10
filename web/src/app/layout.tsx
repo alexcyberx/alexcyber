@@ -1,13 +1,14 @@
 import type { Metadata, Viewport } from 'next';
 import CookieBanner from '@/components/CookieBanner';
+import LegacyI18n from '@/components/LegacyI18n';
 import Nav from '@/components/Nav';
 import { SITE_URL } from '@/lib/blog';
 import './compat.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'Blog - AlexCyberX',
-  description: 'Cybersecurity articles and tutorials from AlexCyberX.',
+  title: 'AlexCyberX',
+  description: 'AlexCyberX: free cybersecurity education in Hindi with hands-on CTF labs.',
   openGraph: { siteName: 'AlexCyberX', locale: 'en_IN', type: 'website' },
   twitter: { card: 'summary_large_image', site: '@alexcyberx', creator: '@alexcyberx' },
 };
@@ -18,8 +19,9 @@ export const viewport: Viewport = {
 };
 
 // The stylesheets are the old site's own files (served by Express from /css),
-// so the blog looks exactly like the rest of the site and stays in sync with it.
-const SHARED_CSS = ['variables', 'nav', 'auth', 'animations', 'ctf-room'];
+// in the same order as index.html (later files override earlier ones),
+// so the migrated pages look exactly like the rest of the site and stay in sync.
+const SHARED_CSS = ['variables', 'nav', 'home', 'learn', 'auth', 'profile', 'modal', 'animations', 'ctf-room'];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -37,9 +39,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ))}
       </head>
       <body>
+        {/* Same fixed background glow as index.html (css/home.css) */}
+        <div className="glow-orb"></div>
         <Nav />
         {children}
         <CookieBanner />
+        <LegacyI18n />
       </body>
     </html>
   );

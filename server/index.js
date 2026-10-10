@@ -89,15 +89,15 @@ app.use((req, res, next) => {
 // PUBLIC_DIRS mein naam jodo.
 const ROOT = path.join(__dirname, '..');
 
-// Migration step 1: /blog Next.js app se (NEXT_BLOG_URL set ho tab). Old SPA ko
-// /js/flags.js batata hai ki blog ab alag app hai, taaki "Blog" link full page
-// load kare (in-SPA blog view nahi). Static /js se pehle hona chahiye.
-const nextBlogProxy = require('./middleware/nextBlogProxy');
+// Frontend migration (docs/MIGRATION.md): migrated pages Next.js app se aate
+// hain (NEXT_APP_URL set ho tab). /js/flags.js SPA ko batata hai kaun se pages
+// ab Next pe hain, taaki unke links full page load karein. Static /js se pehle.
+const nextProxy = require('./middleware/nextProxy');
 app.get('/js/flags.js', (req, res) => {
   res.type('application/javascript').set('Cache-Control', 'no-cache');
-  res.send('window.ACX_NEXT_BLOG = ' + (nextBlogProxy.enabled ? 'true' : 'false') + ';\n');
+  res.send('window.ACX_NEXT_PAGES = ' + JSON.stringify(nextProxy.pages) + ';\n');
 });
-app.use(nextBlogProxy);
+app.use(nextProxy);
 
 const PUBLIC_DIRS = ['css', 'js', 'pages', 'components', 'diagrams'];
 PUBLIC_DIRS.forEach((dir) => {

@@ -11,7 +11,7 @@ leaderboard, profiles, admin panel. (AlexSync was removed on 2026-10-09.)
 ## 2. Stack
 | Layer | Tech |
 |-------|------|
-| Frontend | Vanilla JS single-page app. One `index.html` holds all page shells (`#homePage`, `#ctfRoomPage`, ...); `js/router.js` shows/hides them and syncs the URL (History API). No build step. **Being migrated to Next.js page by page** (`web/`, see `docs/MIGRATION.md`); step 1 = `/blog`. |
+| Frontend | Vanilla JS single-page app. One `index.html` holds all page shells (`#homePage`, `#ctfRoomPage`, ...); `js/router.js` shows/hides them and syncs the URL (History API). No build step. **Being migrated to Next.js page by page** (`web/`, see `docs/MIGRATION.md`); done so far: `/blog`, `/tutorials`, legal pages. |
 | Backend | Node.js (>=18) + Express 4, `server/index.js`. Also serves the static frontend. |
 | DB / Auth | Supabase (Postgres 17, RLS, RPC functions, pg_cron, pg_net, Supabase Auth). Project `alexcyberx-fresh`, region ap-northeast-1. |
 | Lab data | sql.js (SQLite in memory/file) for the SQL-injection labs; in-memory objects for per-player lab "instances". |
@@ -92,6 +92,6 @@ Note: labs have default flags hard-coded as fallbacks; set `FLAG_*` on Render fo
 3. Dead cron job (see 7). 4. Lab/instance state and rate limits are in memory (lost on restart, not shared
    across instances). 5. No automated tests. 6. Schema/RLS SQL is not in the repo
    (only `supabase/migrations/2026-10-09_*`); export with `supabase db dump`.
-7. Next.js migration in progress: `/blog` is served by `web/` (Next.js) through
-   `server/middleware/nextBlogProxy.js` when `NEXT_BLOG_URL` is set. Everything else is still the vanilla SPA.
+7. Next.js migration in progress: `/blog`, `/tutorials` and the legal pages are served by `web/` (Next.js)
+   through `server/middleware/nextProxy.js` when `NEXT_APP_URL` is set. Everything else is still the vanilla SPA.
    Details and the step plan: `docs/MIGRATION.md`.

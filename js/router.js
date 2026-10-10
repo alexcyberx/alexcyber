@@ -101,10 +101,11 @@ window.addEventListener('popstate', function(e) {
 });
 
 function showPage(page, skipPush) {
-  // Migration step 1: blog ab Next.js app hai (server/middleware/nextBlogProxy.js).
-  // Flag /js/flags.js se aata hai; off ho to purana in-SPA blog hi chalega.
-  if (page === 'blog' && window.ACX_NEXT_BLOG) {
-    window.location.href = '/blog';
+  // Frontend migration: ye pages ab Next.js app pe hain (server/middleware/nextProxy.js).
+  // List /js/flags.js se aati hai; proxy off ho to purane in-SPA pages hi chalenge.
+  var nextPath = window.ACX_NEXT_PAGES && window.ACX_NEXT_PAGES[page];
+  if (nextPath) {
+    window.location.href = nextPath;
     return;
   }
   // Protected pages require login - gate before rendering anything
