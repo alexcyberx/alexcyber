@@ -22,7 +22,7 @@ The list of migrated paths lives in one place: `NEXT_PAGES` in `server/middlewar
 | 2 | `/tutorials` (course list) and the 7 legal pages | Done |
 | 3 | Home + login/signup/reset modals + nav search | Done |
 | 4 | `/leaderboard`, `/u/<id>`, `/profile` | Done |
-| 4b | `/rooms` (CTF list, room view, labs flow) | Next |
+| 4b | `/rooms` (CTF list, room view, labs flow) | In progress: lab-solve fix done, page port next |
 | 5 | Tools, community, resources, admin panel | |
 
 All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
@@ -83,6 +83,13 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
   for duplicates before saving (the DB doesn't enforce it yet, see
   `supabase/migrations/2026-10-11_unique_username.sql`, not applied: one duplicate pair exists).
 - SPA fix: a logged-out direct visit to `/leaderboard` or `/u/<id>` stayed on "Loading…" (script order race).
+
+## Step 4b (part 1): lab solves
+- Lab challenges are checked by their own Express routes (`/api/lab/<name>/submit`). Their solves were never
+  saved (see AUDIT item 21). `server/labs/recordSolve.js` is mounted in front of the 6 lab routers: when the
+  lab answers `success: true`, it verifies the Bearer token and calls `record_lab_ctf_solve()` with the
+  service-role key (needs `SUPABASE_SERVICE_ROLE_KEY` on the Express service). The answer gets
+  `recorded`, `already_solved`, `xp_earned`, `new_xp`; the room modal uses them.
 
 Not migrated yet (still SPA): rooms, tools, community, resources, admin panel.
 
