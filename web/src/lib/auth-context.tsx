@@ -67,6 +67,20 @@ async function loadNavUser(authUser: User): Promise<NavUser> {
   return { id: authUser.id, email: authUser.email || '', name, initial: (name || 'U')[0].toUpperCase() };
 }
 
+// On sign-out: drop per-user lab/CTF state so the next account on this
+// browser doesn't inherit it (same keys as the SIGNED_OUT handler in js/auth.js).
+function clearUserStorage() {
+  const wipe = (s: Storage, keep: (k: string) => boolean) => {
+    const keys: string[] = [];
+    for (let i = 0; i < s.length; i++) { const k = s.key(i); if (k && keep(k)) keys.push(k); }
+    keys.forEach((k) => s.removeItem(k));
+  };
+  try {
+    wipe(sessionStorage, (k) => k.startsWith('acx_lab_') || ['acx_back_to_ctf', 'acx_back_ts', 'acx_pending_redirect', 'acx_seen_sent'].includes(k));
+    wipe(localStorage, (k) => k.startsWith('acx_lab_') || ['acx_return_to_modal', 'acx_return_ts', 'acx_ctf_solved', 'acx_ctf_disabled'].includes(k));
+  } catch { /* storage blocked */ }
+}
+
 // Once per tab: tell the server this user is active. The server takes the IP
 // from the request itself (the browser can't be trusted to report it).
 function recordSeen(session: Session) {
@@ -101,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     const sb = browserSupabase();
     if (sb) await sb.auth.signOut();
-    try { sessionStorage.removeItem('acx_seen_sent'); } catch { /* ignore */ }
+    clearUserStorage();
     window.location.href = '/';
   }, []);
 
@@ -163,6 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       t = setTimeout(async () => {
         const sb = browserSupabase();
         if (sb) await sb.auth.signOut();
+        clearUserStorage();
         setUser(null);
         setModal('login');
       }, IDLE_TIMEOUT_MS);
