@@ -39,20 +39,62 @@ function isNextPath(p) {
   return EXACT.has(clean) || PREFIXES.some((pre) => p.startsWith(pre));
 }
 
+// Only plain browser headers go upstream. Forwarding everything also sent
+// Render's own edge headers (render-proxy-ttl, rndr-id, cf-*, x-forwarded-*),
+// and Render answered a quick 502 instead of waking the sleeping Next service.
+const PASS_HEADERS = [
+  'accept', 'accept-encoding', 'accept-language', 'cache-control', 'cookie', 'if-modified-since',
+  'if-none-match', 'pragma', 'range', 'referer', 'user-agent',
+  'rsc', 'next-router-state-tree', 'next-router-prefetch', 'next-router-segment-prefetch', 'next-url',
+];
+
+// Free tier: a sleeping Next service takes ~30-50 s to wake up, and meanwhile
+// Render may answer 502/503. GET/HEAD are safe to repeat, so retry until then.
+const WAKE_DEADLINE_MS = 55000;
+const RETRY_STATUS = new Set([502, 503, 504]);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function requestOnce(target, method, headers) {
+  const client = target.protocol === 'https:' ? https : http;
+  return new Promise((resolve, reject) => {
+    const upstream = client.request(target, { method, headers, timeout: 60000 }, resolve);
+    upstream.on('timeout', () => upstream.destroy(new Error('upstream timeout')));
+    upstream.on('error', reject);
+    upstream.end();
+  });
+}
+
+async function fetchWithWake(target, method, headers) {
+  const started = Date.now();
+  let delay = 1000;
+  for (;;) {
+    let up = null;
+    let err = null;
+    try { up = await requestOnce(target, method, headers); } catch (e) { err = e; }
+    if (up && !RETRY_STATUS.has(up.statusCode)) return up;
+    if (Date.now() - started + delay > WAKE_DEADLINE_MS) {
+      if (up) return up;
+      throw err;
+    }
+    if (up) up.resume(); // drop the error body
+    await sleep(delay);
+    delay = Math.min(delay * 2, 8000);
+  }
+}
+
 function nextProxy(req, res, next) {
   if (!TARGET || !isNextPath(req.path)) return next();
   if (req.method !== 'GET' && req.method !== 'HEAD') return next();
 
   const target = new URL(TARGET + req.originalUrl);
-  const client = target.protocol === 'https:' ? https : http;
-
-  const headers = { ...req.headers, host: target.host };
+  const headers = { host: target.host };
+  PASS_HEADERS.forEach((h) => { if (req.headers[h] !== undefined) headers[h] = req.headers[h]; });
   headers['x-forwarded-host']  = req.headers.host || '';
   headers['x-forwarded-proto'] = req.protocol;
   headers['x-forwarded-for']   = req.ip;
 
-  // Free tier: a sleeping Next service can take ~30-50 s to wake up.
-  const upstream = client.request(target, { method: req.method, headers, timeout: 60000 }, (up) => {
+  fetchWithWake(target, req.method, headers).then((up) => {
+    if (RETRY_STATUS.has(up.statusCode)) console.error('[nextProxy]', req.path, 'upstream', up.statusCode);
     // helmet ke security headers (CSP etc.) res pe pehle se set hain; Next ke
     // headers unke upar copy hote hain, lekin CSP hum apna hi rakhte hain.
     Object.entries(up.headers).forEach(([k, v]) => {
@@ -61,18 +103,24 @@ function nextProxy(req, res, next) {
     });
     res.status(up.statusCode || 502);
     up.pipe(res);
-  });
-
-  upstream.on('timeout', () => upstream.destroy(new Error('upstream timeout')));
-  upstream.on('error', (err) => {
-    console.error('[nextProxy]', err.message);
+  }, (err) => {
+    console.error('[nextProxy]', req.path, err.message);
     if (!res.headersSent) res.status(502).send('This page is temporarily unavailable. Please try again shortly.');
     else res.end();
   });
-  upstream.end();
+}
+
+// Express itself sleeps on the free tier too. When it wakes up, wake the Next
+// service right away, so the visitor's first page doesn't wait for both.
+function warmUp() {
+  if (!TARGET) return;
+  fetchWithWake(new URL(TARGET + '/'), 'HEAD', { host: new URL(TARGET).host, 'user-agent': 'alexcyber-warmup' })
+    .then((up) => { up.resume(); console.log('[nextProxy] warm-up', up.statusCode); },
+      (e) => console.error('[nextProxy] warm-up failed', e.message));
 }
 
 nextProxy.enabled = Boolean(TARGET);
 nextProxy.pages = TARGET ? NEXT_PAGES : {};
+nextProxy.warmUp = warmUp;
 
 module.exports = nextProxy;
