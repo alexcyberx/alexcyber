@@ -94,27 +94,27 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 Not migrated yet (still SPA): rooms, tools, community, resources, admin panel.
 
 ## Deploy on Render
-1. New **Web Service** from this repo:
-   - Root directory: `web`
-   - Build command: `npm ci && npm run build`
-   - Start command: `npm start`
-   - Env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (same values as `js/config.js`),
-     `NEXT_PUBLIC_SITE_URL` (e.g. `https://alexcyberx.com`). These are read at build time, so redeploy after
-     changing them.
-2. On the existing Express service set `NEXT_APP_URL` to the new service's URL (e.g.
-   `https://alexcyber-web.onrender.com`) and redeploy.
-3. Check: `curl -s https://<site>/blog/<some-slug> | grep '<title>'` shows the post title.
+**One service (current):** the Express service also runs Next.js.
+- Render's build command stays `npm install`. The root `postinstall` (`scripts/build-web.js`) builds `web/` when
+  `RENDER=true` (Render sets it). Supabase URL + anon key come from `js/config.js` unless
+  `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set; site URL from `NEXT_PUBLIC_SITE_URL`
+  (falls back to `RENDER_EXTERNAL_URL`).
+- Env `NEXT_EMBEDDED=1`: `server/nextEmbedded.js` starts `next start` on `127.0.0.1:3101` (child process,
+  restarted if it crashes) and the proxy uses it. `NEXT_APP_URL` is then ignored.
+- Why: on the free plan the separate `alexcyber-web` service went to sleep, and requests from Express never
+  woke it up, so every migrated page answered 502. With one service there is one sleep/wake, and it is the same
+  setup a single paid server will use. Memory: about 100 MB for Next + 80 MB for Express.
+- After a change to `web/` or `pages/*.html`: deploy the Express service only.
 
-Staging today: `alexcyber` (Express) + `alexcyber-web` (Next), both free plan, deployed manually from `main`.
-Deploy both after a merge that touches `web/` or `pages/*.html`.
+**Rollback**: remove `NEXT_EMBEDDED` (and `NEXT_APP_URL`) from the Express service. All migrated pages come
+back from the old SPA immediately.
 
-**Rollback**: remove `NEXT_APP_URL` / `NEXT_BLOG_URL` from the Express service. All migrated pages come back
-from the old SPA immediately.
+The old separate service `alexcyber-web` is not needed any more. It can be suspended or deleted from the
+Render dashboard (setting `NEXT_EMBEDDED` off and `NEXT_APP_URL` to its URL would use it again).
 
-Free tier note: both services sleep after 15 min without traffic. When Express wakes up it sends a warm-up
-request to Next at once. While Next is waking, Render answers 502/503; the proxy retries GET/HEAD for up to
-55 s, so the visitor just waits. Only plain browser headers are forwarded: passing Render's own edge headers
-on (`render-proxy-ttl`, `rndr-id`, `cf-*`) made Render answer a quick 502 without waking the service.
+Proxy details: the proxy retries GET/HEAD for up to 55 s on 502/503/504 or a refused connection (covers the
+few seconds Next needs to start), forwards only plain browser headers, and Express sends a warm-up request
+to Next on start.
 
 ## Local development
 ```bash
@@ -122,6 +122,7 @@ npm start                         # Express on :3000 (repo root)
 cd web && cp .env.example .env    # fill NEXT_PUBLIC_SUPABASE_*
 npm install && npm run dev        # Next on :3001
 # then run Express with NEXT_APP_URL=http://localhost:3001 and open http://localhost:3000/blog
+# or, like on Render: npm run build:web && NEXT_EMBEDDED=1 npm start
 ```
 `npm run typecheck` in `web/` runs TypeScript.
 
