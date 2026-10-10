@@ -801,7 +801,8 @@ async function saveProfile() {
   }
 
   // Handle password reset flow
-  if (window.location.search.includes('reset=1')) {
+  // router.js URL se query hata deta hai, isliye saved copy bhi dekho
+  if ((window._acxEntrySearch || window.location.search).includes('reset=1')) {
     showAuth('login');
   }
 

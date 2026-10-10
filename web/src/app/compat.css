@@ -16,3 +16,5 @@
 }
 .blog-card { color: inherit; text-decoration: none; }
 a.blog-back-btn { text-decoration: none; }
+a.tut-card { color: inherit; }
+a.legal-back-btn { text-decoration: none; display: inline-flex; align-items: center; }

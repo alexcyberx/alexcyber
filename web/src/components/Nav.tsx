@@ -5,6 +5,7 @@
 // the old SPA are plain <a href> (full page load into index.html); the old
 // SPA reads ?auth= / ?lang= / #section on load (see js/router.js).
 
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { browserSupabase } from '@/lib/supabase';
 
@@ -28,6 +29,15 @@ function Chevron() {
       <path d="M2.5 4.5l3.5 3.5 3.5-3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
+}
+
+// Opens the old language modal (js/i18n.js is loaded on every Next page).
+function openLangModal(e: React.MouseEvent) {
+  const w = window as unknown as { showLangModal?: () => void };
+  if (typeof w.showLangModal === 'function') {
+    e.preventDefault();
+    w.showLangModal();
+  }
 }
 
 const MORE_LINKS = [
@@ -59,6 +69,8 @@ const MORE_LINKS = [
 ];
 
 export default function Nav() {
+  // After login the SPA sends the user back to the page they came from.
+  const next = encodeURIComponent(usePathname() || '/');
   const [user, setUser] = useState<NavUser>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -173,16 +185,17 @@ export default function Nav() {
             className="nav-btn ghost"
             id="langNavBtn"
             href="/?lang=1"
+            onClick={openLangModal}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 12px' }}
             title="Change Language"
           >
             <GlobeIcon />
-            <span style={{ fontSize: 11, letterSpacing: 0.3 }} id="langNavLabel">Language</span>
+            <span style={{ fontSize: 11, letterSpacing: 0.3 }} id="langNavLabel" suppressHydrationWarning>Language</span>
           </a>
           {!user && (
             <>
-              <a className="nav-btn ghost" id="navLoginBtn" href="/?auth=login&next=/blog">Login</a>
-              <a className="nav-btn fill" id="navSignupBtn" href="/?auth=signup&next=/blog">Sign Up</a>
+              <a className="nav-btn ghost" id="navLoginBtn" href={`/?auth=login&next=${next}`} data-i18n="nav.login" suppressHydrationWarning>Login</a>
+              <a className="nav-btn fill" id="navSignupBtn" href={`/?auth=signup&next=${next}`} data-i18n="nav.signup" suppressHydrationWarning>Sign Up</a>
             </>
           )}
           <div
@@ -229,8 +242,8 @@ export default function Nav() {
       </nav>
 
       <div className={'mobile-menu' + (menuOpen ? ' show' : '')} id="mobileMenu">
-        <a className="m-nav" href="/">Home</a>
-        <a className="m-nav" href="/#tutorials">Tutorials</a>
+        <a className="m-nav" href="/" data-i18n="nav.home" suppressHydrationWarning>Home</a>
+        <a className="m-nav" href="/#tutorials" data-i18n="nav.tutorials" suppressHydrationWarning>Tutorials</a>
         <a className="m-nav" href="/tools">Tools</a>
         <a className="m-nav" href="/rooms">CTF Challenges</a>
         <div className={'m-more-group' + (mMoreOpen ? ' open' : '')} id="mMoreGroup">
@@ -249,12 +262,12 @@ export default function Nav() {
             </div>
           </div>
         </div>
-        <a className="m-nav" href="/#about">About</a>
-        <a className="m-nav" href="/#contact">Contact</a>
+        <a className="m-nav" href="/#about" data-i18n="nav.about" suppressHydrationWarning>About</a>
+        <a className="m-nav" href="/#contact" data-i18n="nav.contact" suppressHydrationWarning>Contact</a>
         <div className="m-divider"></div>
-        <a className="m-nav" href="/?lang=1" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <a className="m-nav" href="/?lang=1" onClick={(e) => { setMenuOpen(false); openLangModal(e); }} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <GlobeIcon size={15} />
-          <span id="mLangLabel">Select Language</span>
+          <span id="mLangLabel" data-i18n="nav.lang" suppressHydrationWarning>Select Language</span>
         </a>
         <div className="m-divider"></div>
         {user ? (
@@ -264,8 +277,8 @@ export default function Nav() {
           </div>
         ) : (
           <div className="m-auth" id="mobileAuthBtns">
-            <a className="ml" href="/?auth=login&next=/blog">Login</a>
-            <a className="ms" href="/?auth=signup&next=/blog">Sign Up</a>
+            <a className="ml" href={`/?auth=login&next=${next}`} data-i18n="nav.login" suppressHydrationWarning>Login</a>
+            <a className="ms" href={`/?auth=signup&next=${next}`} data-i18n="nav.signup" suppressHydrationWarning>Sign Up</a>
           </div>
         )}
       </div>
