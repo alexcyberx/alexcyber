@@ -1314,19 +1314,25 @@ async function submitCTFFlag() {
       });
       const data = await res.json().catch(() => ({}));
       isCorrect = !!(res.ok && data.success);
-      // Lab backend hi sole source of truth hai, flag client pe kabhi nahi aata,
-      // isliye yahan koi client-side fallback nahi hai. Agar redeploy ke baad
-      // flag stale ho jaaye, woh server/lab route mein fix karna hoga.
-      // Lab backend ne validate kiya, ab Supabase mein bhi record karo via RPC
-      // FIX: c.dbId kabhi set hi nahi hota tha (CTF_CHALLENGES mein koi entry
-      // mein dbId field nahi hai), isliye yeh RPC har lab challenge (Cookie
-      // Monster, Hidden in Plain Sight, etc.) pe silently skip ho jaata tha.
-      // Solve sirf localStorage mein save hota tha, Supabase ctf_solves mein
-      // kabhi nahi, isi liye /rooms pe "Solved" dikhta tha lekin /profile
-      // (jo sirf DB se padhta hai) pe 0 XP / 0 solved aata tha.
-      if (isCorrect && !wasSolved) {
-        // Save solve to DB via ctf-sync.js
-        await window.acxRecordSolve(c.id, earnedXP);
+      // The server records the solve + XP itself now (server/labs/recordSolve.js).
+      // Pehle yahan acxRecordSolve() call hota tha jo no-op ban chuka tha, isliye
+      // lab challenges ka solve/XP kabhi DB tak pahuncha hi nahi.
+      if (isCorrect) {
+        if (data.recorded === false && data.reason === 'login_required') {
+          showFlagMsg('error', '[!] Correct, but your session expired. Please log in again and resubmit.');
+          btn.disabled = false;
+          btn.textContent = 'Submit';
+          return;
+        }
+        if (data.recorded) {
+          alreadyResp = !!data.already_solved;
+          earnedXP = data.already_solved ? 0 : (data.xp_earned || c.xp);
+          if (!data.already_solved && window._currentUser) {
+            if (typeof data.new_xp === 'number') window._currentUser.xp = data.new_xp;
+            window._currentUser.ctf_solves = (window._currentUser.ctf_solves || 0) + 1;
+            window._currentUser.level = Math.max(1, Math.floor((window._currentUser.xp || 0) / 500) + 1);
+          }
+        }
       }
     } catch (e) {
       showFlagMsg('error', '[!] Could not connect to server. Please try again.');

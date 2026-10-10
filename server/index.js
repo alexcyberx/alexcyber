@@ -117,12 +117,14 @@ app.get('/panel-1b47c1ab561e.html', (req, res) => {
 // Lab API routes
 app.use('/api/lab/web01', require('./labs/web01-sqli/routes'));
 app.use('/api/lab/web02', require('./labs/web02-xss/routes'));
-app.use('/api/lab/hidden', require('./labs/hidden-sight/routes'));
-app.use('/api/lab/cookie', require('./labs/web02-cookie/routes'));
-app.use('/api/lab/sqli101', require('./labs/web03-sqli101/routes'));
-app.use('/api/lab/robots', require('./labs/web04-robots/routes'));
-app.use('/api/lab/packet', require('./labs/for01-packet/routes'));
-app.use('/api/lab/metadata', require('./labs/for02-metadata/routes'));
+// Lab-flow challenges: save the solve + XP server-side when /submit is correct.
+const { recordLabSolve } = require('./labs/recordSolve');
+app.use('/api/lab/hidden', recordLabSolve('web-01'), require('./labs/hidden-sight/routes'));
+app.use('/api/lab/cookie', recordLabSolve('web-02'), require('./labs/web02-cookie/routes'));
+app.use('/api/lab/sqli101', recordLabSolve('web-03'), require('./labs/web03-sqli101/routes'));
+app.use('/api/lab/robots', recordLabSolve('web-04'), require('./labs/web04-robots/routes'));
+app.use('/api/lab/packet', recordLabSolve('for-01'), require('./labs/for01-packet/routes'));
+app.use('/api/lab/metadata', recordLabSolve('for-02'), require('./labs/for02-metadata/routes'));
 app.use('/api/lab/loghunter', require('./labs/for03-loghunter/routes'));
 app.use('/api/lab/caesar', require('./labs/cry01-caesar/routes'));
 app.use('/api/lab/base64', require('./labs/cry02-base64/routes'));
