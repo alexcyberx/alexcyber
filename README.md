@@ -16,6 +16,7 @@ npm start              # http://localhost:3000
 - `docs/ARCHITECTURE.md` — stack, request flow, server modules, env vars, known gaps
 - `docs/DB-SCHEMA.md` — tables, RLS, RPC functions, rules
 - `docs/WEB-FLOW.md` — URLs, pages, user journeys
+- `docs/MIGRATION.md` — Next.js migration (step 1: /blog), deploy + rollback
 - `docs/AUDIT-2026-10-09.md` — security audit: what was fixed, what is still open
 - `supabase/migrations/` — SQL applied/prepared by the audit (see header comments for ordering)
 

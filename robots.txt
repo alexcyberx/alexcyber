@@ -6,6 +6,7 @@ Allow: /
 
 # Sitemap
 Sitemap: https://alexcyberx.com/sitemap.xml
+Sitemap: https://alexcyberx.com/blog/sitemap.xml
 
 # AI Crawlers - Allow full indexing for AEO/GEO/LLMO
 User-agent: GPTBot

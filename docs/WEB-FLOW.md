@@ -11,7 +11,8 @@
 | `/rooms` | ctfPage | yes | challenge list (data: `ctf_challenges` + `js/ctf-challenges-data.js`), room view `ctfRoomPage` |
 | `/tools` | toolsPage | no | cards: Mistake Analyzer, AlexRecon, AlexUtils, AlexTrace |
 | `/tools/mistake-analyzer`, `/tools/alexrecon`, `/tools/alexutils`, `/tools/alextrace` | tool pages | yes | call `/api/...` with Bearer token |
-| `/blog`, `/resources`, `/community` | blogPage / resourcesPage / communityPage | resources: yes | |
+| `/blog`, `/blog/<slug>` | Next.js app `web/` (server-rendered, ISR 5 min) when `NEXT_BLOG_URL` is set; otherwise old `blogPage` | no | `/blog/sitemap.xml` |
+| `/resources`, `/community` | resourcesPage / communityPage | resources: yes | |
 | `/leaderboard`, `/u` | leaderboardPage / publicProfilePage | no | |
 | `/profile` | profilePage | yes | XP, level, solves, edit profile |
 | `/privacy-policy`, `/terms-of-service`, `/disclaimer`, `/refund-policy`, `/cookie-notice`, `/do-not-sell`, `/legal-warning` | legal pages | no | |
