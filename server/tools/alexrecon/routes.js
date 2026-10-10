@@ -27,10 +27,6 @@
 const express = require('express');
 const router = express.Router();
 
-// Every AlexRecon HTTP route requires a verified login (userId comes from
-// the token, not the request). The scheduler calls runAlexReconScan()
-// directly in-process and does not go through these routes.
-router.use(requireAuth);
 const { createClient } = require('@supabase/supabase-js');
 const { reconLimiter } = require('../../middleware/rateLimit');
 
@@ -43,6 +39,11 @@ const { waybackUrls, commonCrawlUrls, jsRecon, cloudDiscovery, directoryBackupCh
 const { commonPortCheck } = require('./modules/ports');
 const { startAlexReconScheduler } = require('./scheduler');
 const { checkToolEnabled, logToolUsage, requireAuth } = require('../../middleware/toolAccess');
+
+// Every AlexRecon HTTP route requires a verified login (userId comes from
+// the token, not the request). The scheduler calls runAlexReconScan()
+// directly in-process and does not go through these routes.
+router.use(requireAuth);
 
 let supabaseAdmin = null;
 function getSupabaseAdmin() {
