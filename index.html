@@ -236,17 +236,6 @@
       "description": "Paste a security command and get instant feedback on what is right, what is wrong, and a corrected version.",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
       "author": { "@type": "Person", "name": "Pavan Kumar" }
-    },
-    {
-      "@type": "SoftwareApplication",
-      "position": 5,
-      "name": "AlexSync",
-      "url": "https://alexcyberx.com/tools/alexsync",
-      "applicationCategory": "UtilitiesApplication",
-      "operatingSystem": "Windows",
-      "description": "Automation tool that wakes a laptop and starts music automatically at a scheduled time.",
-      "offers": { "@type": "Offer", "price": "12", "priceCurrency": "INR" },
-      "author": { "@type": "Person", "name": "Pavan Kumar" }
     }
   ]
 }
@@ -1185,27 +1174,6 @@
       <p style="font-family:'Inter',sans-serif;font-size:13px;color:#666;line-height:1.7;">Tools that make your workflow easier. More coming soon.</p>
     </div>
     <div class="cards-grid">
-      <div class="tut-card" data-tool-key="alexsync" data-search-page="alexsync" data-search-special="alexsync" data-search-tags="automation,alarm,wake,music,schedule,laptop,sync" onclick="handleAlexSyncClick()" style="cursor:pointer;" data-reveal>
-        <div class="card-icon-wrap">
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-            <path d="M11.5 2.8A6.2 6.2 0 1 0 13.5 15.2 7.4 7.4 0 0 1 11.5 2.8Z" stroke="#dc1414" stroke-width="1.2" stroke-linejoin="round"/>
-            <path d="M14.5 8.5v4.3" stroke="#dc1414" stroke-width="1" stroke-linecap="round"/>
-            <path d="M14.5 8.5 17 7.8" stroke="#dc1414" stroke-width="1" stroke-linecap="round"/>
-            <circle cx="13.7" cy="13" r="1.3" stroke="#dc1414" stroke-width="1"/>
-          </svg>
-        </div>
-        <div class="card-tag">Automation</div>
-        <div class="card-title" data-i18n="card.alexsync.title">AlexSync</div>
-        <p class="card-desc" data-i18n="card.alexsync.desc">Set a time once. AlexSync wakes your laptop and starts music automatically at your chosen schedule.</p>
-        <div class="card-footer">
-          <span class="card-chapters" data-i18n="card.alexsync.price">₹12/month</span>
-          <div class="card-arrow">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M2 6h8M6.5 3l3 3-3 3" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-        </div>
-      </div>
       <div class="tut-card" data-tool-key="mistake_analyzer" data-search-page="mistakeAnalyzer" data-search-tags="mistake,analyzer,command,nmap,feedback,learning,correction" onclick="showPage('mistakeAnalyzer')" style="cursor:pointer;" data-reveal>
         <div class="card-icon-wrap">
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
@@ -1289,154 +1257,6 @@
 </div><!-- end #toolsPage -->
 
 
-<!-- ═══════════════════════════════════════════
-     ALEXSYNC TOOL PAGE
-═══════════════════════════════════════════ -->
-<div id="alexSyncPage" class="page">
-  <div style="max-width:720px;margin:0 auto;padding:calc(var(--nav-h) + 32px) 16px 60px;">
-
-    <!-- Back link -->
-    <div style="margin-bottom:20px;">
-      <a onclick="showPage('tools')" style="cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;display:inline-flex;align-items:center;gap:6px;">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2M5.5 2.5 2 6l3.5 3.5" stroke="#8a8a95" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Back to Tools
-      </a>
-    </div>
-
-    <!-- Header -->
-    <div style="margin-bottom:32px;">
-      <div style="font-size:10px;letter-spacing:4px;color:#dc1414;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid #dc141433;border-radius:20px;background:#dc14140a;display:inline-block;">AUTOMATION</div>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
-        <div class="card-icon-wrap" style="margin-bottom:0;">
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-            <path d="M11.5 2.8A6.2 6.2 0 1 0 13.5 15.2 7.4 7.4 0 0 1 11.5 2.8Z" stroke="#dc1414" stroke-width="1.2" stroke-linejoin="round"/>
-            <path d="M14.5 8.5v4.3" stroke="#dc1414" stroke-width="1" stroke-linecap="round"/>
-            <path d="M14.5 8.5 17 7.8" stroke="#dc1414" stroke-width="1" stroke-linecap="round"/>
-            <circle cx="13.7" cy="13" r="1.3" stroke="#dc1414" stroke-width="1"/>
-          </svg>
-        </div>
-        <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(22px,6vw,30px);font-weight:700;color:#f4f4f5;">AlexSync</h1>
-      </div>
-      <p style="font-family:'Inter',sans-serif;font-size:13px;color:#8a8a95;line-height:1.7;">Set a time once. AlexSync wakes your laptop and starts music automatically at your chosen schedule.</p>
-    </div>
-
-    <!-- Access status card -->
-    <div id="asAccessCard" style="background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:18px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
-      <div style="min-width:200px;">
-        <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin-bottom:4px;">₹12/month</div>
-        <div id="asAccessStatusText" style="font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;">One time payment. No auto-debit, renew manually anytime.</div>
-      </div>
-      <button id="asPayBtn" onclick="handleAlexSyncPayment()" style="background:var(--red);border:none;border-radius:10px;padding:11px 22px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer;letter-spacing:0.5px;white-space:nowrap;flex-shrink:0;">Unlock AlexSync</button>
-    </div>
-
-    <!-- Setup instructions -->
-    <div style="margin-bottom:32px;">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:2px;color:#dc1414;font-weight:700;margin-bottom:14px;">SETUP</div>
-
-      <div style="display:flex;gap:14px;margin-bottom:18px;">
-        <div style="flex-shrink:0;width:26px;height:26px;border-radius:50%;border:1px solid rgba(220,20,20,0.3);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#dc1414;">1</div>
-        <div>
-          <div style="font-family:'Inter',sans-serif;font-size:13px;color:#f4f4f5;font-weight:500;margin-bottom:4px;">Download the AlexSync background app</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;line-height:1.6;">A small app that runs quietly on your Windows PC and handles the wake and music trigger. Installs in under a minute.</div>
-          <button id="asDownloadBtn" onclick="handleAlexSyncDownload()" style="margin-top:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 16px;font-family:'Inter',sans-serif;font-size:12px;color:#f4f4f5;cursor:pointer;">Download for Windows</button>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:14px;margin-bottom:18px;">
-        <div style="flex-shrink:0;width:26px;height:26px;border-radius:50%;border:1px solid rgba(220,20,20,0.3);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#dc1414;">2</div>
-        <div>
-          <div style="font-family:'Inter',sans-serif;font-size:13px;color:#f4f4f5;font-weight:500;margin-bottom:4px;">Tell us how you leave your PC at night</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;line-height:1.6;">This decides which wake method AlexSync uses behind the scenes.</div>
-          <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;">
-            <label class="as-radio-pill"><input type="radio" name="asPcState" value="sleep" checked> Sleep / Hibernate</label>
-            <label class="as-radio-pill"><input type="radio" name="asPcState" value="shutdown"> Full Shutdown</label>
-          </div>
-          <div id="asShutdownNote" style="display:none;margin-top:10px;font-family:'Inter',sans-serif;font-size:11px;color:#f4f4f5;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:10px 12px;line-height:1.6;">
-            Full shutdown needs a one time Wake-on-LAN setup in your BIOS, and the AlexSync phone companion to send the wake signal. This step needs a bit more setup than sleep mode.
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Schedule form -->
-    <div style="margin-bottom:32px;">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:11px;letter-spacing:2px;color:#dc1414;font-weight:700;margin-bottom:14px;">SCHEDULE</div>
-
-      <div class="pf-field">
-        <label class="pf-label">Wake Time</label>
-        <div class="as-time-picker">
-          <div class="as-dropdown" id="asHourDropdown">
-            <div class="as-dropdown-trigger" onclick="asToggleDropdown('asHourDropdown')">
-              <span id="asHourValue">10</span>
-              <svg class="as-dropdown-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5 5 6.5 8 3.5" stroke="#999" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <div class="as-dropdown-panel" id="asHourPanel"></div>
-          </div>
-          <span class="as-time-picker-sep">:</span>
-          <div class="as-dropdown" id="asMinuteDropdown">
-            <div class="as-dropdown-trigger" onclick="asToggleDropdown('asMinuteDropdown')">
-              <span id="asMinuteValue">30</span>
-              <svg class="as-dropdown-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5 5 6.5 8 3.5" stroke="#999" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <div class="as-dropdown-panel" id="asMinutePanel"></div>
-          </div>
-          <div class="as-dropdown" id="asAmPmDropdown">
-            <div class="as-dropdown-trigger" onclick="asToggleDropdown('asAmPmDropdown')">
-              <span id="asAmPmValue">PM</span>
-              <svg class="as-dropdown-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5 5 6.5 8 3.5" stroke="#999" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <div class="as-dropdown-panel" id="asAmPmPanel"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="pf-field">
-        <label class="pf-label">Repeat On</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <label class="as-day-pill"><input type="checkbox" value="0"> Sun</label>
-          <label class="as-day-pill"><input type="checkbox" value="1" checked> Mon</label>
-          <label class="as-day-pill"><input type="checkbox" value="2" checked> Tue</label>
-          <label class="as-day-pill"><input type="checkbox" value="3" checked> Wed</label>
-          <label class="as-day-pill"><input type="checkbox" value="4" checked> Thu</label>
-          <label class="as-day-pill"><input type="checkbox" value="5" checked> Fri</label>
-          <label class="as-day-pill"><input type="checkbox" value="6"> Sat</label>
-        </div>
-      </div>
-
-      <div class="pf-field">
-        <label class="pf-label">App</label>
-        <div class="as-dropdown" id="asAppDropdown">
-          <div class="as-dropdown-trigger" onclick="asToggleDropdown('asAppDropdown')">
-            <span id="asAppValue">YouTube</span>
-            <svg class="as-dropdown-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5 5 6.5 8 3.5" stroke="#999" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="as-dropdown-panel" id="asAppPanel"></div>
-        </div>
-        <div style="font-family:'Inter',sans-serif;font-size:11px;color:#666;margin-top:6px;line-height:1.5;">This list updates automatically once the AlexSync background app has run on your PC, it only shows apps that are actually installed. Until then, YouTube is offered as a safe default.</div>
-      </div>
-
-      <div class="pf-field">
-        <label class="pf-label">Genre / Mood</label>
-        <div class="as-dropdown" id="asGenreDropdown">
-          <div class="as-dropdown-trigger" onclick="asToggleDropdown('asGenreDropdown')">
-            <span id="asGenreValue">Hindi Bollywood</span>
-            <svg class="as-dropdown-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 3.5 5 6.5 8 3.5" stroke="#999" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-          <div class="as-dropdown-panel" id="asGenrePanel">
-            <div class="as-dropdown-custom-row">
-              <input type="text" id="asGenreCustomInput" class="as-dropdown-custom-input" placeholder="Or type your own, e.g. Funk, K-pop, Jazz" oninput="asSelectCustomGenre(this.value)">
-            </div>
-          </div>
-        </div>
-        <div style="font-family:'Inter',sans-serif;font-size:11px;color:#666;margin-top:6px;line-height:1.5;">Whatever you pick or type here is searched for directly on your chosen app, and a matching track or playlist plays automatically.</div>
-      </div>
-
-      <button id="asSaveBtn" onclick="handleAlexSyncSave()" class="pf-save-btn" style="margin-top:6px;">Save Schedule</button>
-      <div id="asSaveMsg" class="pf-msg"></div>
-    </div>
-
-  </div>
-</div><!-- end #alexSyncPage -->
 
 
 <!-- ═══════════════════════════════════════════
@@ -2255,7 +2075,6 @@ function loadScriptOnce(src) {
     else if (p === '/tutorials/ethical-hacking') { id = 'learn3Page'; protectedPage = true; }
     else if (p.indexOf('/tutorials/') === 0) { id = 'learnPage'; protectedPage = true; }
     else if (p === '/tools') { id = 'toolsPage'; }
-    else if (p === '/tools/alexsync') { id = 'alexSyncPage'; protectedPage = true; }
     else if (p === '/tools/mistake-analyzer') { id = 'mistakeAnalyzerPage'; protectedPage = true; }
     else if (p === '/tools/alexrecon') { id = 'alexReconPage'; protectedPage = true; }
     else if (p === '/tools/alexutils') { id = 'alexUtilsPage'; protectedPage = true; }
@@ -2291,8 +2110,8 @@ function loadScriptOnce(src) {
 })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<script src="https://sdk.cashfree.com/js/v3/cashfree.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" defer></script>
+<script src="/js/flags.js" defer></script>
 <script src="/js/config.js" defer></script>
 <script src="/js/reveal.js" defer></script>
 <script src="/js/i18n.js" defer></script>

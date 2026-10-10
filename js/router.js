@@ -46,7 +46,6 @@ const PAGE_TO_PATH = {
   learn3:      '/tutorials/ethical-hacking',
   ctf:         '/rooms',
   tools:       '/tools',
-  alexsync:    '/tools/alexsync',
   mistakeAnalyzer: '/tools/mistake-analyzer',
   alexrecon:   '/tools/alexrecon',
   alexutils:   '/tools/alexutils',
@@ -102,8 +101,14 @@ window.addEventListener('popstate', function(e) {
 });
 
 function showPage(page, skipPush) {
+  // Migration step 1: blog ab Next.js app hai (server/middleware/nextBlogProxy.js).
+  // Flag /js/flags.js se aata hai; off ho to purana in-SPA blog hi chalega.
+  if (page === 'blog' && window.ACX_NEXT_BLOG) {
+    window.location.href = '/blog';
+    return;
+  }
   // Protected pages require login - gate before rendering anything
-  const _protectedPages = ['ctf', 'profile', 'learn', 'learn2', 'learn3', 'resources', 'alexsync', 'alexrecon', 'mistakeAnalyzer', 'alexutils', 'alextrace'];
+  const _protectedPages = ['ctf', 'profile', 'learn', 'learn2', 'learn3', 'resources', 'alexrecon', 'mistakeAnalyzer', 'alexutils', 'alextrace'];
   if (_protectedPages.includes(page) && !window._currentUser) {
     if (typeof showAuth === 'function') showAuth('login', page);
     return;
@@ -147,11 +152,6 @@ function showPage(page, skipPush) {
   const tp = document.getElementById('toolsPage');
   if (tp) tp.classList.toggle('active', page === 'tools');
   if (page === 'tools' && typeof initToolsPage === 'function') initToolsPage();
-
-  // AlexSync tool page
-  const asP = document.getElementById('alexSyncPage');
-  if (asP) asP.classList.toggle('active', page === 'alexsync');
-  if (page === 'alexsync' && typeof initAlexSyncPage === 'function') initAlexSyncPage();
 
   // Cyber Mistake Analyzer tool page
   const cmaP = document.getElementById('mistakeAnalyzerPage');
@@ -231,8 +231,7 @@ function showPage(page, skipPush) {
     cookie:      { title: 'Cookie Notice - AlexCyberX', desc: 'How AlexCyberX uses cookies across the platform.' },
     donotsell:   { title: 'Do Not Sell My Info - AlexCyberX', desc: 'Opt out of data sharing on AlexCyberX.' },
     legalwarning:{ title: 'Legal Warning - AlexCyberX', desc: 'Legal warning regarding unauthorized use of AlexCyberX cybersecurity tools and CTF content.' },
-    tools:       { title: 'Cybersecurity Tools - AlexCyberX', desc: 'Free cybersecurity tools by AlexCyberX: AlexRecon (attack-surface recon), AlexUtils (IP/DNS/SSL/CVE utilities), AlexTrace (OSINT digital footprint audit), Cyber Mistake Analyzer, and AlexSync.' },
-    alexsync:    { title: 'AlexSync - Automated Wake & Music Scheduler | AlexCyberX', desc: 'AlexSync wakes your laptop and starts music automatically at a scheduled time. Simple automation tool by AlexCyberX.' },
+    tools:       { title: 'Cybersecurity Tools - AlexCyberX', desc: 'Free cybersecurity tools by AlexCyberX: AlexRecon (attack-surface recon), AlexUtils (IP/DNS/SSL/CVE utilities), AlexTrace (OSINT digital footprint audit), and Cyber Mistake Analyzer.' },
     mistakeAnalyzer: { title: 'Cyber Mistake Analyzer - AlexCyberX', desc: 'Paste a command like nmap -A target.com and get instant feedback on what is right, what is wrong, and a corrected version. Free learning tool by AlexCyberX.' },
     alexrecon:   { title: 'AlexRecon - Free Attack Surface Reconnaissance Tool | AlexCyberX', desc: 'AlexRecon generates a combined attack-surface report for any domain: DNS, SSL, subdomains, port scanning, tech stack, and risk indicators. Free recon tool by AlexCyberX.' },
     alexutils:   { title: 'AlexUtils - IP, DNS, SSL & CVE Lookup Toolkit | AlexCyberX', desc: 'AlexUtils is a free cybersecurity utility toolkit: IP/DNS lookup, SSL checker, hash generator, Base64 encode/decode, subnet calculator, and CVE search.' },
@@ -762,8 +761,60 @@ window.addEventListener('message', function(e){
    Replace state so Back button works correctly.
 ═══════════════════════════ */
 (function initRouteFromURL() {
+  // replaceState neeche query string hata deta hai; cross-app links (/?auth=...) ke liye pehle save karo
+  window._acxEntrySearch = window.location.search;
+  window._acxEntryHash = window.location.hash;
   const path = window.location.pathname;
   const page = getPageFromPath(path);
   history.replaceState({ page }, '', path);
   window._initialPage = page;
 })();
+
+/* ═══════════════════════════
+   LINKS FROM THE NEXT.JS PAGES (/blog)
+   Wahan nav ke Login / Language / About buttons is SPA pe aate hain:
+   /?auth=login&next=/blog, /?lang=1, /#about. Load ke baad wahi modal
+   kholo / section pe scroll karo, phir URL saaf kar do.
+═══════════════════════════ */
+window.addEventListener('load', function handleCrossAppLinks() {
+  var params = new URLSearchParams(window._acxEntrySearch || window.location.search);
+  var auth = params.get('auth');
+  var nextPath = params.get('next') || '';
+  var handled = false;
+
+  if ((auth === 'login' || auth === 'signup') && typeof showAuth === 'function') {
+    // Sirf apni site ke relative paths; page id router ke map se nikalo.
+    var redirect = /^\/[A-Za-z0-9\/_-]*$/.test(nextPath) ? getPageFromPath(nextPath) : null;
+    if (window._currentUser) { if (redirect) showPage(redirect); }
+    else showAuth(auth, redirect && redirect !== 'home' ? redirect : undefined);
+    handled = true;
+  }
+  if (params.get('lang') === '1' && typeof showLangModal === 'function') {
+    showLangModal();
+    handled = true;
+  }
+  if (params.has('q')) {
+    var q = params.get('q') || '';
+    var isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+    if (isMobile && typeof toggleNavSearch === 'function') {
+      toggleNavSearch();
+      var mi = document.getElementById('heroSearchInput');
+      if (mi) { mi.value = q; mi.focus(); if (q && typeof handleCourseSearch === 'function') handleCourseSearch(q); }
+    } else {
+      var di = document.getElementById('desktopSearchInput');
+      if (di) {
+        if (typeof expandNavSearch === 'function') expandNavSearch();
+        di.value = q; di.focus();
+        if (q && typeof handleDesktopSearch === 'function') handleDesktopSearch(q);
+      }
+    }
+    handled = true;
+  }
+  var hash = (window._acxEntryHash || window.location.hash).slice(1);
+  if (['tutorials', 'about', 'contact'].indexOf(hash) !== -1 && typeof scrollToSection === 'function') {
+    scrollToSection(hash);
+  }
+  window._acxEntrySearch = '';
+  window._acxEntryHash = '';
+  if (handled) history.replaceState(history.state, '', window.location.pathname);
+});

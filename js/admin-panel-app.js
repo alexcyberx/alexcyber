@@ -1,3 +1,14 @@
+/* last_login_ip is no longer publicly readable on profiles; admins fetch it
+   through the admin-checked RPC admin_get_last_ips() and merge it in. */
+async function acxAdminIpMap() {
+  try {
+    const { data } = await _supabase.rpc('admin_get_last_ips');
+    const m = {};
+    (data || []).forEach(r => { m[r.id] = r.last_login_ip; });
+    return m;
+  } catch (e) { return {}; }
+}
+
 /* ════════════════════════════════════════════════════
    DATA (mock, replace with Supabase calls)
 ════════════════════════════════════════════════════ */
@@ -287,13 +298,14 @@ async function renderUsers() {
   try {
     const { data, error } = await _supabase
       .from('profiles')
-      .select('id, full_name, username, role, is_banned, xp, level, ctf_solves, last_seen, last_login_ip, created_at')
+      .select('id, full_name, username, role, is_banned, xp, level, ctf_solves, last_seen, created_at')
       .order('created_at', { ascending: false })
       .limit(200);
 
     if (error) throw error;
 
     if (data && data.length > 0) {
+      const ipMap = await acxAdminIpMap();
       users = data.map(p => ({
         id:         p.id,
         name:       p.full_name || p.username || 'Unknown',
@@ -305,7 +317,7 @@ async function renderUsers() {
         xp:         p.xp         || 0,
         level:      p.level      || 1,
         ctfSolves:  p.ctf_solves || 0,
-        lastIP:     p.last_login_ip || '-',
+        lastIP:     ipMap[p.id] || '-',
       }));
       toast(`${users.length} users loaded`);
     }
@@ -3044,18 +3056,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ════════════════════════════════════════════════════
    TOOLS MANAGER
-   Real Supabase-backed enable/disable for AlexSync, Mistake
-   Analyzer, and AlexRecon, plus usage stats pulled from
+   Real Supabase-backed enable/disable for Mistake
+   Analyzer, AlexRecon, and AlexUtils, plus usage stats pulled from
    tool_usage_logs (and each tool's own detail table where one
    exists, for a slightly richer per-tool number).
 ════════════════════════════════════════════════════ */
 const TOOL_MGR_META = {
-  alexsync: {
-    label: 'AlexSync',
-    tag: 'Automation',
-    detailTable: 'alexsync_payments',
-    detailLabel: 'payments'
-  },
   mistake_analyzer: {
     label: 'Cyber Mistake Analyzer',
     tag: 'Learning',
@@ -3883,12 +3889,13 @@ async function loadProfile(id) {
   try {
     const { data: u, error } = await _supabase
       .from('profiles')
-      .select('id, full_name, username, role, is_banned, xp, level, ctf_solves, last_login_ip, created_at')
+      .select('id, full_name, username, role, is_banned, xp, level, ctf_solves, created_at')
       .eq('id', id)
       .single();
 
     if (error || !u) { toast('Could not load profile: ' + (error?.message || 'not found'), 'error'); return; }
 
+    u.last_login_ip = (await acxAdminIpMap())[u.id];
     activeProfileUser = u;
     const name = u.full_name || u.username || 'Unknown';
 

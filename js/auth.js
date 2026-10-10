@@ -432,7 +432,7 @@ async function loadUserProfile(authUser) {
   };
   // Try to get extended profile from profiles table if it exists
   if (_supabase) {
-    const { data, error } = await _supabase.from('profiles').select('*').eq('id', authUser.id).single();
+    const { data, error } = await _supabase.from('profiles').select('id, full_name, username, bio, xp, level, ctf_solves, role, last_seen, is_banned, created_at').eq('id', authUser.id).single();
     if (data) {
       profile.name        = data.full_name   || profile.name;
       profile.username    = data.username    || profile.username;

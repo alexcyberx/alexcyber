@@ -56,7 +56,6 @@ function buildToolSearchEntries() {
   });
 
   if (!entries.length) {
-    entries.push({ type:'tool', title:'AlexSync', sub:'Tool • Automation', page:'alexsync', special:'alexsync', tags:['automation','alarm','wake','music','schedule','laptop','sync'] });
     entries.push({ type:'tool', title:'Cyber Mistake Analyzer', sub:'Tool • Learning', page:'mistakeAnalyzer', tags:['mistake','analyzer','command','nmap','feedback','learning','correction'] });
     entries.push({ type:'tool', title:'AlexRecon', sub:'Tool • Recon', page:'alexrecon', tags:['recon','reconnaissance','dns','ssl','subdomain','port','scan','attack surface','domain','tech stack'] });
     entries.push({ type:'tool', title:'AlexUtils', sub:'Tool • Utilities', page:'alexutils', tags:['utils','utilities','ip','dns','lookup','ssl','checker','hash','generator','base64','subnet','calculator','cve','search'] });
@@ -386,8 +385,6 @@ function selectSearchResult(index, isMobile) {
     showPage('learn2'); setTimeout(() => loadCyberChapter(item.chapterIndex), 80);
   } else if (item.page === 'ctf' && item.ctfId) {
     showPage('ctf'); setTimeout(() => { if (typeof openCTFModal === 'function') openCTFModal(item.ctfId); }, 150);
-  } else if (item.type === 'tool' && item.special === 'alexsync') {
-    if (typeof handleAlexSyncClick === 'function') handleAlexSyncClick();
   } else {
     showPage(item.page);
   }
@@ -547,8 +544,6 @@ function selectDesktopResult(index) {
     if (item.ctfId) {
       setTimeout(() => { if (typeof openCTFModal === 'function') openCTFModal(item.ctfId); }, 150);
     }
-  } else if (item.type === 'tool' && item.special === 'alexsync') {
-    if (typeof handleAlexSyncClick === 'function') handleAlexSyncClick();
   } else if (item.page) {
     showPage(item.page);
   }

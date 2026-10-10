@@ -14,21 +14,17 @@ app.set('trust proxy', 1);
 
 // CSP + Permissions-Policy used to be set only via Netlify's netlify.toml.
 // Since this app isn't deploying to Netlify, they're set here instead so
-// nothing is lost. Directives match what netlify.toml had, plus
-// https://*.cashfree.com in script-src/connect-src — that domain was
-// missing before, which would have silently blocked the Cashfree SDK
-// script (js/page-scripts.js loads it for AlexSync checkout) on any
-// host that actually enforced this CSP.
+// nothing is lost.
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://*.googleapis.com", "https://*.cashfree.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://*.googleapis.com"],
       // helmet adds script-src-attr 'none' by default, which blocks every inline
       // onclick="..." attribute. This site's buttons and navbar all use inline
       // handlers, so they must be allowed (same trust level as script-src above).
       scriptSrcAttr: ["'unsafe-inline'"],
-      connectSrc: ["'self'", "https://*.supabase.co", "wss://*.supabase.co", "https://cdn.jsdelivr.net", "https://*.googleapis.com", "https://translate.googleapis.com", "https://api.mymemory.translated.net", "https://*.cashfree.com"],
+      connectSrc: ["'self'", "https://*.supabase.co", "wss://*.supabase.co", "https://cdn.jsdelivr.net", "https://*.googleapis.com", "https://translate.googleapis.com", "https://api.mymemory.translated.net"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],
@@ -45,13 +41,13 @@ app.use((req, res, next) => {
 app.use(cors({
   origin: process.env.ALLOWED_ORIGIN || '*',
   methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'X-Lab-Session']
+  allowedHeaders: ['Content-Type', 'X-Lab-Session', 'Authorization']
 }));
 
-// AlexSync's Cashfree webhook needs the raw request body to verify the
-// HMAC signature, capture it here before JSON parsing discards it.
-// This doesn't affect any other route; req.rawBody is just an extra
-// property alongside the normally-parsed req.body.
+// The Supabase Auth email hook (server/routes/authEmailHook.js) needs the
+// raw request body to verify its webhook signature, so capture it here
+// before JSON parsing discards it. req.rawBody is just an extra property
+// alongside the normally-parsed req.body.
 app.use(express.json({
   verify: (req, res, buf) => { req.rawBody = buf.toString('utf8'); }
 }));
@@ -85,9 +81,38 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve entire frontend project as static
-// index.html, pages/, css/, js/, diagrams/, sab accessible
-app.use(express.static(path.join(__dirname, '..')));
+// SECURITY FIX: pehle yahan express.static(path.join(__dirname, '..')) tha,
+// jo poora project root serve karta tha, matlab /server/**, /data/hidden.db,
+// /package.json, /windows-app/** sab publicly download ho sakte the (labs ke
+// routes.js mein default flags bhi hain). Ab sirf frontend ke public folders
+// aur chand root files whitelist hain. Naya public folder add karna ho to
+// PUBLIC_DIRS mein naam jodo.
+const ROOT = path.join(__dirname, '..');
+
+// Migration step 1: /blog Next.js app se (NEXT_BLOG_URL set ho tab). Old SPA ko
+// /js/flags.js batata hai ki blog ab alag app hai, taaki "Blog" link full page
+// load kare (in-SPA blog view nahi). Static /js se pehle hona chahiye.
+const nextBlogProxy = require('./middleware/nextBlogProxy');
+app.get('/js/flags.js', (req, res) => {
+  res.type('application/javascript').set('Cache-Control', 'no-cache');
+  res.send('window.ACX_NEXT_BLOG = ' + (nextBlogProxy.enabled ? 'true' : 'false') + ';\n');
+});
+app.use(nextBlogProxy);
+
+const PUBLIC_DIRS = ['css', 'js', 'pages', 'components', 'diagrams'];
+PUBLIC_DIRS.forEach((dir) => {
+  app.use('/' + dir, express.static(path.join(ROOT, dir), { dotfiles: 'deny' }));
+});
+
+// Root ki public files (index.html '/' route se serve hoti hai, neeche)
+['robots.txt', 'sitemap.xml'].forEach((f) => {
+  app.get('/' + f, (req, res) => res.sendFile(path.join(ROOT, f)));
+});
+
+// Admin panel secret URL pe hai (pehle static se serve hota tha)
+app.get('/panel-1b47c1ab561e.html', (req, res) => {
+  res.sendFile(path.join(ROOT, 'panel-1b47c1ab561e.html'));
+});
 
 // Lab API routes
 app.use('/api/lab/web01', require('./labs/web01-sqli/routes'));
@@ -108,8 +133,6 @@ app.use('/api/lab/hint', require('./ai/hints'));
 app.use('/api/lab/search', require('./ai/search'));
 app.use('/api/lab/admin-search', require('./ai/adminSearch'));
 
-// AlexSync payment routes (Cashfree order creation + webhook)
-app.use('/api/alexsync', require('./payments/alexsync/routes'));
 app.use('/api/tools', require('./tools/mistake-analyzer/routes'));
 app.use('/api/alexrecon', require('./tools/alexrecon/routes'));
 app.use('/api/alexutils', require('./tools/alexutils/routes'));

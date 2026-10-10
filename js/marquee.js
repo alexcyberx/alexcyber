@@ -9,7 +9,6 @@
 // Tools abhi tak Supabase mein nahi hain, isliye static list.
 // Naya tool add karte waqt yahan ek line add karo, addedAt aaj ki date ke saath.
 const MARQUEE_TOOLS = [
-  { title: 'AlexSync',              addedAt: '2026-09-16', page: null, onclick: "handleAlexSyncClick()" },
   { title: 'Cyber Mistake Analyzer', addedAt: '2026-09-16', page: 'mistakeAnalyzer' },
   { title: 'AlexRecon',             addedAt: '2026-09-16', page: 'alexrecon' },
   { title: 'AlexUtils',             addedAt: '2026-09-16', page: 'alexutils' },

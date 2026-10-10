@@ -1,50 +1,27 @@
 # AlexCyberX CTF Platform
 
-> **Deployment status note (read this first):** The current Render deployment is
-> **testing/staging only**. A custom domain + proper hosting will be purchased once
-> the project is complete. Don't treat Render free-tier constraints (cold starts,
-> sleep, ephemeral storage, etc.) as a fixed production limitation when proposing
-> features or architecture — they're temporary. No need to re-confirm this with
-> Alex each session.
+Cybersecurity learning + CTF platform. Vanilla JS SPA + Node/Express + Supabase.
 
-## Setup
+> Deployment note: the current Render deployment is **staging only**. A custom domain and proper hosting
+> will be set up when the project is complete; don't treat Render free-tier limits as permanent.
 
+## Run locally
 ```bash
 npm install
-cp .env.example .env
-npm start
+cp .env.example .env   # fill SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, GROQ_API_KEY ...
+npm start              # http://localhost:3000
 ```
 
-Server starts on http://localhost:3000
+## Docs (read these first)
+- `docs/ARCHITECTURE.md` — stack, request flow, server modules, env vars, known gaps
+- `docs/DB-SCHEMA.md` — tables, RLS, RPC functions, rules
+- `docs/WEB-FLOW.md` — URLs, pages, user journeys
+- `docs/MIGRATION.md` — Next.js migration (step 1: /blog), deploy + rollback
+- `docs/AUDIT-2026-10-09.md` — security audit: what was fixed, what is still open
+- `supabase/migrations/` — SQL applied/prepared by the audit (see header comments for ordering)
 
-## Structure
-
-```
-alexcyberx-ctf/
-├── server/              # Node.js Express backend
-│   ├── index.js         # Entry point
-│   ├── labs/
-│   │   ├── web01-sqli/  # SQL Injection lab backend
-│   │   └── web02-xss/   # Stored XSS lab backend
-│   ├── db/              # SQLite databases (auto-created on start)
-│   └── middleware/
-├── pages/
-│   ├── ctf.html         # CTF challenges listing page
-│   └── labs/
-│       ├── lab-sqli.html  # WEB-01 SQL Injection lab
-│       └── lab-xss.html   # WEB-02 Stored XSS lab
-├── css/, js/, components/, diagrams/
-└── index.html
-```
-
-## Labs
-
-WEB-01 SQL Injection — POST /api/lab/web01/login
-WEB-02 Stored XSS   — POST /api/lab/web02/comment, GET /api/lab/web02/comments
-
-## Production Deploy
-
-Set environment variables:
-- PORT
-- ALLOWED_ORIGIN (your domain)
-- FLAG_WEB01, FLAG_WEB02 (change default flags)
+## Rules for AI-assisted changes
+- Read `docs/` first; one task at a time; update the docs when behaviour changes.
+- Never trust a user id from the request body; use `requireAuth` (JWT).
+- Never put secrets in the repo; names only in `.env.example`.
+- New tool/feature: write the PRD + TRD + schema (incl. RLS) *before* coding.
