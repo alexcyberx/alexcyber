@@ -21,8 +21,9 @@ The list of migrated paths lives in one place: `NEXT_PAGES` in `server/middlewar
 | 1 | `/blog`, `/blog/<slug>`, `/blog/sitemap.xml` | Done |
 | 2 | `/tutorials` (course list) and the 7 legal pages | Done |
 | 3 | Home + login/signup/reset modals + nav search | Done |
-| 4 | Profile, leaderboard, rooms | Next |
-| 5 | Tools, admin panel | |
+| 4 | `/leaderboard`, `/u/<id>`, `/profile` | Done |
+| 4b | `/rooms` (CTF list, room view, labs flow) | Next |
+| 5 | Tools, community, resources, admin panel | |
 
 All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 
@@ -73,7 +74,17 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
   migrated pages had been missing since step 1 (their visits did not count in the admin dashboard).
 - Last-seen / login IP is recorded by the server: `POST /api/me/seen` (`server/routes/me.js`).
 
-Not migrated yet (still SPA): profile, leaderboard, rooms, tools, community, resources, admin panel.
+## Step 4: what changed
+- `/leaderboard` (ISR 1 min): uses the `get_leaderboard()` RPC, which leaves out banned users (the old page
+  listed them). Refresh button and the YOU row run in the browser.
+- `/u/<id>` (ISR 5 min): public profile with rank among non-banned users and CTF history. Banned users show
+  "User not found". `/u` redirects to the leaderboard.
+- `/profile`: Notifications + Settings like before. Logged out -> login modal, then back here. Username is checked
+  for duplicates before saving (the DB doesn't enforce it yet, see
+  `supabase/migrations/2026-10-11_unique_username.sql`, not applied: one duplicate pair exists).
+- SPA fix: a logged-out direct visit to `/leaderboard` or `/u/<id>` stayed on "Loading…" (script order race).
+
+Not migrated yet (still SPA): rooms, tools, community, resources, admin panel.
 
 ## Deploy on Render
 1. New **Web Service** from this repo:
