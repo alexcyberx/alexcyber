@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from 'next';
+import AuthModals from '@/components/AuthModals';
 import CookieBanner from '@/components/CookieBanner';
 import LegacyI18n from '@/components/LegacyI18n';
 import Nav from '@/components/Nav';
+import SiteRuntime from '@/components/SiteRuntime';
+import { AuthProvider } from '@/lib/auth-context';
 import { SITE_URL } from '@/lib/blog';
 import './compat.css';
 
@@ -41,10 +44,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {/* Same fixed background glow as index.html (css/home.css) */}
         <div className="glow-orb"></div>
-        <Nav />
-        {children}
+        <AuthProvider>
+          <Nav />
+          {children}
+          <AuthModals />
+        </AuthProvider>
         <CookieBanner />
         <LegacyI18n />
+        <SiteRuntime />
       </body>
     </html>
   );

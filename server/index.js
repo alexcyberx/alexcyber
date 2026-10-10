@@ -133,6 +133,7 @@ app.use('/api/lab/hint', require('./ai/hints'));
 app.use('/api/lab/search', require('./ai/search'));
 app.use('/api/lab/admin-search', require('./ai/adminSearch'));
 
+app.use('/api/me', require('./routes/me'));
 app.use('/api/tools', require('./tools/mistake-analyzer/routes'));
 app.use('/api/alexrecon', require('./tools/alexrecon/routes'));
 app.use('/api/alexutils', require('./tools/alexutils/routes'));
@@ -180,6 +181,7 @@ app.get([
   '/blog', '/blog/*',
   '/resources',
   '/community', '/community/*',
+  '/leaderboard', '/u', '/u/*',
   '/privacy-policy', '/terms-of-service', '/disclaimer',
   '/refund-policy', '/cookie-notice', '/do-not-sell', '/legal-warning'
 ], (req, res) => {

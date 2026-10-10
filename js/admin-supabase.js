@@ -87,27 +87,27 @@ async function admInitDashboard() {
     // Total users count
     const { count: totalUsers } = await sb
       .from('profiles')
-      .select('*', { count: 'exact', head: true });
+      .select('id', { count: 'exact', head: true });
 
     // Active today, profiles with last_seen in last 24h
     const since24h = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
     const { count: activeToday } = await sb
       .from('profiles')
-      .select('*', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true })
       .gte('last_seen', since24h);
 
     // Unread messages/contact submissions
     const { count: unreadMsgs } = await sb
       .from('contact_messages')
-      .select('*', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true })
       .eq('is_read', false)
-      .catch(() => ({ count: null }));
+      .then(r => r, () => ({ count: null })); // query builders have no .catch()
 
     // CTF total solves
     const { count: totalSolves } = await sb
       .from('ctf_solves')
-      .select('*', { count: 'exact', head: true })
-      .catch(() => ({ count: null }));
+      .select('id', { count: 'exact', head: true })
+      .then(r => r, () => ({ count: null })); // query builders have no .catch()
 
     // Update dashboard stat cards
     // The stat-value divs in sec-dashboard don't have IDs, we inject IDs or use order
@@ -459,7 +459,7 @@ async function admLoadLeaderboard() {
   try {
     // Try RPC first, fall back to direct query
     let data;
-    const rpcRes = await sb.rpc('get_leaderboard', { p_limit: 50 }).catch(() => null);
+    const rpcRes = await sb.rpc('get_leaderboard', { p_limit: 50 }).then(r => r, () => null); // query builders have no .catch()
     if (rpcRes && !rpcRes.error && rpcRes.data) {
       data = rpcRes.data;
     } else {
@@ -546,7 +546,7 @@ async function admLoadSecurity() {
       .select('*')
       .order('created_at', { ascending: false })
       .limit(30)
-      .catch(() => ({ data: null, error: true }));
+      .then(r => r, () => ({ data: null, error: true })); // query builders have no .catch()
 
     if (!error && logs && logsEl) {
       logsEl.innerHTML = logs.map(l => `
@@ -600,7 +600,7 @@ async function admLoadSecurity() {
         .select('ip, reason, created_at')
         .order('created_at', { ascending: false })
         .limit(20)
-        .catch(() => ({ data: null }));
+        .then(r => r, () => ({ data: null })); // query builders have no .catch()
 
       if (ips && ips.length) {
         blockedEl.innerHTML = ips.map(ip => `

@@ -7,9 +7,8 @@
 
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { browserSupabase } from '@/lib/supabase';
-
-type NavUser = { initial: string; name: string } | null;
+import { useAuth } from '@/lib/auth-context';
+import { DesktopSearch, MobileSearch } from './NavSearch';
 
 function GlobeIcon({ size = 14 }: { size?: number }) {
   const c = size / 2;
@@ -71,30 +70,11 @@ const MORE_LINKS = [
 export default function Nav() {
   // After login the SPA sends the user back to the page they came from.
   const next = encodeURIComponent(usePathname() || '/');
-  const [user, setUser] = useState<NavUser>(null);
+  const { user, openAuth, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [mMoreOpen, setMMoreOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const searchInput = useRef<HTMLInputElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Same session as the old SPA (shared localStorage key), same name rules as auth.js.
-  useEffect(() => {
-    const sb = browserSupabase();
-    if (!sb) return;
-    let cancelled = false;
-    const apply = async (authUser: { id: string; email?: string; user_metadata?: Record<string, string> } | null) => {
-      if (!authUser) { if (!cancelled) setUser(null); return; }
-      let name = authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User';
-      const { data } = await sb.from('profiles').select('full_name').eq('id', authUser.id).maybeSingle();
-      if (data?.full_name) name = data.full_name;
-      if (!cancelled) setUser({ initial: (name || 'U')[0].toUpperCase(), name });
-    };
-    sb.auth.getSession().then(({ data }) => apply(data.session?.user ?? null));
-    const { data: sub } = sb.auth.onAuthStateChange((_e, session) => { apply(session?.user ?? null); });
-    return () => { cancelled = true; sub.subscription.unsubscribe(); };
-  }, []);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
@@ -110,12 +90,6 @@ export default function Nav() {
 
   const openMore = () => { if (closeTimer.current) clearTimeout(closeTimer.current); setMoreOpen(true); };
   const scheduleClose = () => { closeTimer.current = setTimeout(() => setMoreOpen(false), 180); };
-
-  const logout = async () => {
-    const sb = browserSupabase();
-    if (sb) await sb.auth.signOut();
-    window.location.href = '/';
-  };
 
   return (
     <>
@@ -155,32 +129,7 @@ export default function Nav() {
         </div>
 
         <div className="nav-right" id="homeNavRight">
-          {/* Search runs on the old SPA (js/search.js); Enter hands the query over via /?q= */}
-          <div className="nav-search-desktop" id="navSearchDesktop">
-            <form
-              className={'nav-search-pill' + (searchOpen ? ' expanded' : '')}
-              id="navSearchPill"
-              action="/"
-              method="get"
-              onClick={() => { setSearchOpen(true); searchInput.current?.focus(); }}
-              onSubmit={(e) => { if (!new FormData(e.currentTarget).get('q')) e.preventDefault(); }}
-            >
-              <svg width="13" height="13" viewBox="0 0 15 15" fill="none" style={{ flexShrink: 0 }}>
-                <circle cx="6.5" cy="6.5" r="5" stroke="#555" strokeWidth="1.4" />
-                <path d="M10.5 10.5L13.5 13.5" stroke="#555" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-              <input
-                ref={searchInput}
-                type="text"
-                id="desktopSearchInput"
-                name="q"
-                placeholder="Search..."
-                autoComplete="off"
-                onFocus={() => setSearchOpen(true)}
-                onBlur={(e) => { if (!e.currentTarget.value) setSearchOpen(false); }}
-              />
-            </form>
-          </div>
+          <DesktopSearch />
           <a
             className="nav-btn ghost"
             id="langNavBtn"
@@ -194,8 +143,8 @@ export default function Nav() {
           </a>
           {!user && (
             <>
-              <a className="nav-btn ghost" id="navLoginBtn" href={`/?auth=login&next=${next}`} data-i18n="nav.login" suppressHydrationWarning>Login</a>
-              <a className="nav-btn fill" id="navSignupBtn" href={`/?auth=signup&next=${next}`} data-i18n="nav.signup" suppressHydrationWarning>Sign Up</a>
+              <a className="nav-btn ghost" id="navLoginBtn" href={`/?auth=login&next=${next}`} onClick={(e) => { e.preventDefault(); openAuth('login'); }} data-i18n="nav.login" suppressHydrationWarning>Login</a>
+              <a className="nav-btn fill" id="navSignupBtn" href={`/?auth=signup&next=${next}`} onClick={(e) => { e.preventDefault(); openAuth('signup'); }} data-i18n="nav.signup" suppressHydrationWarning>Sign Up</a>
             </>
           )}
           <div
@@ -221,14 +170,7 @@ export default function Nav() {
         </div>
 
         <div className="nav-mobile-right" id="navMobileRight">
-          <div className="nav-search-wrap" id="navSearchWrap">
-            <a className="nav-search-icon-btn" id="navSearchToggle" href="/?q=" title="Search">
-              <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                <circle cx="6.5" cy="6.5" r="5" stroke="#6a6a7a" strokeWidth="1.4" />
-                <path d="M10.5 10.5L13.5 13.5" stroke="#6a6a7a" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-            </a>
-          </div>
+          <MobileSearch />
           <button
             className={'hamburger' + (menuOpen ? ' open' : '')}
             id="hamburger"
@@ -277,8 +219,8 @@ export default function Nav() {
           </div>
         ) : (
           <div className="m-auth" id="mobileAuthBtns">
-            <a className="ml" href={`/?auth=login&next=${next}`} data-i18n="nav.login" suppressHydrationWarning>Login</a>
-            <a className="ms" href={`/?auth=signup&next=${next}`} data-i18n="nav.signup" suppressHydrationWarning>Sign Up</a>
+            <a className="ml" href={`/?auth=login&next=${next}`} onClick={(e) => { e.preventDefault(); setMenuOpen(false); openAuth('login'); }} data-i18n="nav.login" suppressHydrationWarning>Login</a>
+            <a className="ms" href={`/?auth=signup&next=${next}`} onClick={(e) => { e.preventDefault(); setMenuOpen(false); openAuth('signup'); }} data-i18n="nav.signup" suppressHydrationWarning>Sign Up</a>
           </div>
         )}
       </div>

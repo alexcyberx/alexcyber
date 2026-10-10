@@ -14,6 +14,7 @@ const TARGET = (process.env.NEXT_APP_URL || process.env.NEXT_BLOG_URL || '').rep
 // SPA page id -> URL of every page now served by Next. /js/flags.js sends this
 // to the SPA so showPage(id) does a full page load for these.
 const NEXT_PAGES = {
+  home:         '/',
   blog:         '/blog',
   courses:      '/tutorials',
   privacy:      '/privacy-policy',
@@ -26,7 +27,8 @@ const NEXT_PAGES = {
 };
 
 // Exact paths go to Next; /tutorials/<course> stays in the SPA.
-const EXACT = new Set(Object.values(NEXT_PAGES));
+// /search-index.json feeds the nav search on the Next pages.
+const EXACT = new Set([...Object.values(NEXT_PAGES), '/search-index.json']);
 const PREFIXES = ['/blog/', '/_next/'];
 
 function isNextPath(p) {

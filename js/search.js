@@ -70,18 +70,39 @@ async function buildSearchData() {
   data.push(...await buildCourseSearchEntries());
   data.push(...buildToolSearchEntries());
 
-  // Network Forensics chapters, pulled live from router.js's `chapters` array
-  if (typeof chapters !== 'undefined') {
-    chapters.forEach((ch, i) => {
-      data.push({ type:'chapter', title: ch.title, sub: `Network Forensics • Ch ${i + 1}`, page:'learn', chapterIndex: i, tags: ch.title.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean) });
+  // Chapters of every course, live from content_chapters (enabled ones).
+  // Opened by slug (acxOpenChapterBySlug in router.js). Before, only two
+  // courses were indexed from JS arrays and Ethical Hacking was missing.
+  const COURSE_PAGE = { forensics: 'learn', attacks: 'learn2', 'ethical-hacking': 'learn3' };
+  const COURSE_LABEL = { forensics: 'Network Forensics', attacks: 'Cyber Attacks', 'ethical-hacking': 'Ethical Hacking' };
+  let dbChapters = null;
+  try {
+    const sb = window._supabase;
+    if (sb) {
+      const { data: rows, error } = await sb.from('content_chapters')
+        .select('course, slug, title, chapter_order').eq('enabled', true).order('chapter_order');
+      if (!error && rows) dbChapters = rows;
+    }
+  } catch (e) { /* fall back to the JS arrays below */ }
+  if (dbChapters) {
+    const n = {};
+    dbChapters.forEach(ch => {
+      const page = COURSE_PAGE[ch.course];
+      if (!page) return;
+      n[ch.course] = (n[ch.course] || 0) + 1;
+      data.push({ type:'chapter', title: ch.title, sub: `${COURSE_LABEL[ch.course]} • Ch ${n[ch.course]}`, page, slug: ch.slug, chapterIndex: null, tags: ch.title.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean) });
     });
-  }
-
-  // Cyber Attacks Fundamentals chapters, pulled live from chapters2.js's `cyberAttackChapters` array
-  if (typeof cyberAttackChapters !== 'undefined') {
-    cyberAttackChapters.forEach((ch, i) => {
-      data.push({ type:'chapter', title: ch.title, sub: `Cyber Attacks • Ch ${i + 1}`, page:'learn2', chapterIndex: i, tags: ch.title.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean) });
-    });
+  } else {
+    if (typeof chapters !== 'undefined') {
+      chapters.forEach((ch, i) => {
+        data.push({ type:'chapter', title: ch.title, sub: `Network Forensics • Ch ${i + 1}`, page:'learn', chapterIndex: i, tags: ch.title.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean) });
+      });
+    }
+    if (typeof cyberAttackChapters !== 'undefined') {
+      cyberAttackChapters.forEach((ch, i) => {
+        data.push({ type:'chapter', title: ch.title, sub: `Cyber Attacks • Ch ${i + 1}`, page:'learn2', chapterIndex: i, tags: ch.title.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean) });
+      });
+    }
   }
 
   // CTF challenges, pulled live from the ctfChallenges array, so new rooms/challenges
@@ -379,7 +400,9 @@ function selectSearchResult(index, isMobile) {
     toggleNavSearch(); // close nav search
   }
 
-  if (item.page === 'learn' && item.chapterIndex !== null) {
+  if (item.slug && typeof acxOpenChapterBySlug === 'function') {
+    acxOpenChapterBySlug(item.page, item.slug, true);
+  } else if (item.page === 'learn' && item.chapterIndex !== null) {
     showPage('learn');  setTimeout(() => loadChapter(item.chapterIndex), 80);
   } else if (item.page === 'learn2' && item.chapterIndex !== null) {
     showPage('learn2'); setTimeout(() => loadCyberChapter(item.chapterIndex), 80);
@@ -530,7 +553,9 @@ function selectDesktopResult(index) {
   const item = _deskSearchResults[index];
   if (!item) return;
   closeDesktopSearch();
-  if (item.page === 'learn' && item.chapterIndex !== null) {
+  if (item.slug && typeof acxOpenChapterBySlug === 'function') {
+    acxOpenChapterBySlug(item.page, item.slug, true);
+  } else if (item.page === 'learn' && item.chapterIndex !== null) {
     showPage('learn');
     setTimeout(() => { if (typeof loadChapter === 'function') loadChapter(item.chapterIndex); }, 80);
   } else if (item.page === 'learn2' && item.chapterIndex !== null) {
