@@ -20,8 +20,8 @@ The list of migrated paths lives in one place: `NEXT_PAGES` in `server/middlewar
 |------|-------|--------|
 | 1 | `/blog`, `/blog/<slug>`, `/blog/sitemap.xml` | Done |
 | 2 | `/tutorials` (course list) and the 7 legal pages | Done |
-| 3 | Home + login/signup modals (home needs the auth modals, so they move together) | Next |
-| 4 | Profile, leaderboard, rooms | |
+| 3 | Home + login/signup/reset modals + nav search | Done |
+| 4 | Profile, leaderboard, rooms | Next |
 | 5 | Tools, admin panel | |
 
 All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
@@ -54,7 +54,26 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
   `suppressHydrationWarning`.
 - `/?reset=1` (password reset link) now works again: `js/router.js` strips the query before `auth.js` read it.
 
-Not migrated yet (still SPA): home, auth modals, the admin panel, search results.
+## Step 3: what changed
+- **Home** (`src/app/page.tsx`): hero, about, contact info and footer are read from `index.html` at build
+  time (`src/lib/home.ts`, one source for both apps; SPA `onclick`s become links). Marquee (courses + CTF rooms
+  from the DB + tools), course cards (`show_on_home`), contact form and scroll-reveal are React. The JSON-LD
+  structured data from `index.html` is kept.
+- **Auth on Next pages** (`src/lib/auth-context.tsx`, `src/components/AuthModals.tsx`): login, signup, Google,
+  forgot password, and a new **"set a new password"** step after the reset link (the old site never had one;
+  the link only opened the login modal). Same classes as the old overlays. Login/Sign Up open the modal in place.
+  Old links `/?auth=login&next=<path>` still work; after login the user goes back to `next`.
+- The SPA sends a logged-out visitor of a protected page to `/?auth=login&next=<that page>`.
+- **Remember me** works now (it did nothing): session in localStorage, or only sessionStorage for this tab.
+  Same storage adapter in `js/config.js` and `web/src/lib/supabase.ts`, so both apps share the session.
+- **Nav search** on Next pages (`src/components/NavSearch.tsx`) uses `/search-index.json`, built on the server
+  from the DB: courses, every chapter of every course, CTF rooms, blog posts, tools. Results deep-link into the
+  SPA: `/tutorials/<course>?ch=<chapter-slug>`, `/rooms?open=<ctf-id>` (handled in `js/router.js`).
+- Next pages now also run the maintenance-mode check and page-view tracking (`SiteRuntime`), which the
+  migrated pages had been missing since step 1 (their visits did not count in the admin dashboard).
+- Last-seen / login IP is recorded by the server: `POST /api/me/seen` (`server/routes/me.js`).
+
+Not migrated yet (still SPA): profile, leaderboard, rooms, tools, community, resources, admin panel.
 
 ## Deploy on Render
 1. New **Web Service** from this repo:

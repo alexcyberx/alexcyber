@@ -57,7 +57,7 @@ async function _ensureSupabaseReady() {
   for (let attempt = 0; attempt < 2 && typeof supabase === 'undefined'; attempt++) {
     await new Promise((resolve) => {
       const s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+      s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.1/dist/umd/supabase.js';
       s.onload = resolve;
       s.onerror = resolve; // don't hang forever if this attempt fails too
       document.head.appendChild(s);
@@ -71,6 +71,7 @@ async function _ensureSupabaseReady() {
   try {
     window._supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
       auth: {
+        storage: (typeof ACX_AUTH_STORAGE !== 'undefined') ? ACX_AUTH_STORAGE : undefined,
         storageKey: 'alexcyberx-auth',
         autoRefreshToken: true,
         persistSession: true,

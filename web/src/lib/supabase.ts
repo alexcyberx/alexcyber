@@ -19,18 +19,46 @@ export function serverSupabase(): SupabaseClient | null {
   });
 }
 
+// "Remember me": the session is kept in localStorage (survives closing the
+// browser) or only in sessionStorage (this tab). Same adapter as js/config.js,
+// so both apps read the same session either way.
+export const REMEMBER_KEY = 'acx_remember';
+
+const authStorage = {
+  getItem(key: string): string | null {
+    try { return localStorage.getItem(key) ?? sessionStorage.getItem(key); } catch { return null; }
+  },
+  setItem(key: string, value: string) {
+    try {
+      const remember = localStorage.getItem(REMEMBER_KEY) !== '0';
+      (remember ? localStorage : sessionStorage).setItem(key, value);
+      (remember ? sessionStorage : localStorage).removeItem(key);
+    } catch { /* storage blocked */ }
+  },
+  removeItem(key: string) {
+    try { localStorage.removeItem(key); sessionStorage.removeItem(key); } catch { /* storage blocked */ }
+  },
+};
+
+export function setRememberMe(remember: boolean) {
+  try { localStorage.setItem(REMEMBER_KEY, remember ? '1' : '0'); } catch { /* storage blocked */ }
+}
+
 let browserClient: SupabaseClient | null = null;
 
-// Browser: shares the old SPA's session from localStorage.
+// Browser: shares the old SPA's session (same storage key + adapter).
 export function browserSupabase(): SupabaseClient | null {
   if (!supabaseConfigured()) return null;
   if (!browserClient) {
     browserClient = createClient(URL, ANON, {
       auth: {
         storageKey: AUTH_STORAGE_KEY,
+        storage: authStorage,
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: false,
+        // Google sign-in and the password-reset link come back to a Next page
+        // with the tokens in the URL hash.
+        detectSessionInUrl: true,
       },
     });
   }

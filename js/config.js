@@ -6,9 +6,25 @@
 const SUPABASE_URL  = 'https://rwjwjltlfkxadywfqxbs.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3andqbHRsZmt4YWR5d2ZxeGJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxMTY5MzgsImV4cCI6MjA5ODY5MjkzOH0.y_VTm74AdRjejT5b5cHkirctKqbkixrYY4pP4WOG_KM';
 
+// "Remember me": session localStorage mein (browser band karke bhi login rahe)
+// ya sirf sessionStorage mein (sirf is tab ke liye). Next.js pages
+// (web/src/lib/supabase.ts) bhi yahi adapter use karte hain.
+const ACX_AUTH_STORAGE = {
+  getItem(k) { try { return localStorage.getItem(k) ?? sessionStorage.getItem(k); } catch (e) { return null; } },
+  setItem(k, v) {
+    try {
+      const remember = localStorage.getItem('acx_remember') !== '0';
+      (remember ? localStorage : sessionStorage).setItem(k, v);
+      (remember ? sessionStorage : localStorage).removeItem(k);
+    } catch (e) {}
+  },
+  removeItem(k) { try { localStorage.removeItem(k); sessionStorage.removeItem(k); } catch (e) {} }
+};
+
 const _supabase = (typeof supabase !== 'undefined' && SUPABASE_URL !== 'YOUR_SUPABASE_URL')
   ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
       auth: {
+        storage: ACX_AUTH_STORAGE,
         storageKey: 'alexcyberx-auth',  // unique key, dusri sites se clash nahi
         autoRefreshToken: true,
         persistSession: true,

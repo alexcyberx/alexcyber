@@ -7,6 +7,7 @@ export type Course = {
   tag: string | null;
   title: string;
   description: string | null;
+  show_on_home: boolean | null;
 };
 
 // Same queries as fetchCoursesWithCounts() in js/courses.js.
@@ -14,7 +15,7 @@ export async function getCoursesWithCounts(): Promise<{ courses: Course[]; count
   const sb = serverSupabase();
   if (!sb) return null;
   const [{ data: courses, error: e1 }, { data: chapters, error: e2 }] = await Promise.all([
-    sb.from('courses').select('course_key, page_key, icon_key, tag, title, description')
+    sb.from('courses').select('course_key, page_key, icon_key, tag, title, description, show_on_home')
       .eq('enabled', true).order('display_order', { ascending: true }),
     sb.from('content_chapters').select('course').eq('enabled', true),
   ]);

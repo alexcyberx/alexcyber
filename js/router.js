@@ -109,7 +109,7 @@ function showPage(page, skipPush) {
     return;
   }
   // Protected pages require login - gate before rendering anything
-  const _protectedPages = ['ctf', 'profile', 'learn', 'learn2', 'learn3', 'resources', 'alexrecon', 'mistakeAnalyzer', 'alexutils', 'alextrace'];
+  const _protectedPages = (typeof ACX_PROTECTED_PAGES !== 'undefined') ? ACX_PROTECTED_PAGES : ['ctf', 'profile', 'learn', 'learn2', 'learn3', 'resources', 'alexrecon', 'mistakeAnalyzer', 'alexutils', 'alextrace'];
   if (_protectedPages.includes(page) && !window._currentUser) {
     if (typeof showAuth === 'function') showAuth('login', page);
     return;
@@ -317,8 +317,10 @@ function showPage(page, skipPush) {
         document.getElementById('learnMain').classList.remove('full');
         sidebarOpen = true;
       }
-      // Load chapters.js then call loadChapter
-      loadScriptOnce('/js/chapters.js').then(function() {
+      // Load chapters.js + the chapter content files, then call loadChapter.
+      // (Loading only chapters.js showed "undefined" as the chapter text.)
+      var _ensure = window.acxEnsureForensicsScripts || function() { return loadScriptOnce('/js/chapters.js'); };
+      _ensure().then(function() {
         var fn = window.loadChapter && window.loadChapter._real
                  ? window.loadChapter._real
                  : (window.loadChapter || null);
@@ -811,6 +813,14 @@ window.addEventListener('load', function handleCrossAppLinks() {
     }
     handled = true;
   }
+  // Deep links from the Next search: /tutorials/<course>?ch=<chapter-slug>, /rooms?open=<ctf-id>
+  var chSlug = params.get('ch');
+  var openCtf = params.get('open');
+  if (chSlug && typeof acxOpenChapterBySlug === 'function') { acxOpenChapterBySlug(getPageFromPath(window.location.pathname), chSlug); handled = true; }
+  if (openCtf && /^[a-z0-9-]+$/.test(openCtf)) {
+    acxWhenOnPage('ctf', function() { if (typeof openCTFModal === 'function') openCTFModal(openCtf); }, 400);
+    handled = true;
+  }
   var hash = (window._acxEntryHash || window.location.hash).slice(1);
   if (['tutorials', 'about', 'contact'].indexOf(hash) !== -1 && typeof scrollToSection === 'function') {
     scrollToSection(hash);
@@ -819,3 +829,40 @@ window.addEventListener('load', function handleCrossAppLinks() {
   window._acxEntryHash = '';
   if (handled) history.replaceState(history.state, '', window.location.pathname);
 });
+
+// Runs fn once the SPA has finished its own first routing to `page` (auth
+// can delay that). Gives up after ~15 s.
+function acxWhenOnPage(page, fn, extraDelay) {
+  var tries = 0;
+  (function wait() {
+    if (currentPage === page) { setTimeout(fn, extraDelay || 0); return; }
+    if (++tries < 75) setTimeout(wait, 200);
+  })();
+}
+
+// Open a course chapter by its slug (same slug rule as track_chapter_view).
+// Used by ?ch= deep links and by the nav search.
+function acxOpenChapterBySlug(page, slug, navigate) {
+  var cfg = {
+    learn:  { ensure: function() { return window.acxEnsureForensicsScripts ? window.acxEnsureForensicsScripts() : loadScriptOnce('/js/chapters.js'); },
+              list: function() { return typeof chapters !== 'undefined' ? chapters : []; },
+              open: function(i) { window.loadChapter(i); } },
+    learn2: { ensure: function() { return loadScriptOnce('/js/chapters2.js'); },
+              list: function() { return typeof cyberAttackChapters !== 'undefined' ? cyberAttackChapters : []; },
+              open: function(i) { window.loadCyberChapter(i); } },
+    learn3: { ensure: function() { return loadScriptOnce('/js/chapters3.js'); },
+              list: function() { return typeof ethicalHackingChapters !== 'undefined' ? ethicalHackingChapters : []; },
+              open: function(i) { window.loadEthicalChapter(i); } }
+  }[page];
+  if (!cfg || !slug) return;
+  var toSlug = function(t) { return String(t || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); };
+  // From a deep link the SPA's own first routing opens the page (after auth);
+  // from the search we navigate ourselves.
+  if (navigate && currentPage !== page) showPage(page);
+  acxWhenOnPage(page, function() {
+    cfg.ensure().then(function() {
+      var idx = cfg.list().findIndex(function(c) { return toSlug(c.title) === slug; });
+      if (idx >= 0) cfg.open(idx);
+    });
+  }, 100);
+}

@@ -112,6 +112,10 @@ function loadChapter(index) {
     document.getElementById('chapterContent').innerHTML = window.chapterContent23;
   } else if (index === 24) {
     document.getElementById('chapterContent').innerHTML = window.chapterContent24;
+  } else {
+    // No local content file for this chapter (e.g. 11, Intrusion Detection):
+    // load it from content_chapters instead of leaving the previous chapter shown.
+    acxLoadChapterFromDb('forensics', chapters[index] && chapters[index].title);
   }
 
 
@@ -157,6 +161,22 @@ function loadChapter(index) {
     document.getElementById('sidebar').classList.remove('show');
     document.getElementById('overlay').classList.remove('show');
   }
+}
+
+// Fallback for chapters without a local content file: same text from the DB
+// (content_chapters is readable for enabled chapters).
+function acxLoadChapterFromDb(course, title) {
+  const box = document.getElementById('chapterContent');
+  if (!box) return;
+  box.innerHTML = '<p style="color:var(--text-dim);">Loading…</p>';
+  const slug = (title || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const sb = window._supabase;
+  if (!sb || !slug) { box.innerHTML = '<p style="color:var(--text-dim);">This chapter is coming soon.</p>'; return; }
+  sb.from('content_chapters').select('content').eq('course', course).eq('slug', slug).maybeSingle()
+    .then(({ data }) => {
+      if (currentChapter !== chapters.findIndex(c => c.title === title)) return; // user moved on
+      box.innerHTML = (data && data.content) ? data.content : '<p style="color:var(--text-dim);">This chapter is coming soon.</p>';
+    }, () => { box.innerHTML = '<p style="color:var(--text-dim);">Could not load this chapter. Please try again.</p>'; });
 }
 
 // Make loadChapter globally accessible after script loads

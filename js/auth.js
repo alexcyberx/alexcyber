@@ -1,33 +1,17 @@
 /* ═══════════════════════════════════════════
-   REAL CLIENT IP (cached) - used to record last_login_ip
-   on the user's profile so admins can see it in Users tab.
+   LAST SEEN + LOGIN IP (admin Users tab)
+   Server records it (POST /api/me/seen) and takes the IP from the request.
+   Pehle browser api.ipify.org se IP maangta tha, jo hamari CSP block karti
+   thi, isliye IP kabhi save hi nahi hota tha (aur client ka bataya IP
+   bharose layak bhi nahi hota).
 ═══════════════════════════════════════════ */
-let _acxCachedClientIP = null;
-async function acxGetClientIP() {
-  if (_acxCachedClientIP) return _acxCachedClientIP;
+async function acxRecordLoginIP() {
+  if (!_supabase) return;
   try {
-    const res = await fetch('https://api.ipify.org?format=json');
-    const json = await res.json();
-    _acxCachedClientIP = json.ip || null;
-  } catch (e) {
-    _acxCachedClientIP = null;
-  }
-  return _acxCachedClientIP;
-}
-
-// Fire-and-forget: updates profiles.last_login_ip and last_seen for the
-// given user. Never blocks login/signup on this - if it fails or the IP
-// lookup times out, the user still gets in normally.
-async function acxRecordLoginIP(userId) {
-  if (!userId || !_supabase) return;
-  try {
-    const ip = await acxGetClientIP();
-    const updates = { last_seen: new Date().toISOString() };
-    if (ip) updates.last_login_ip = ip;
-    await _supabase.from('profiles').update(updates).eq('id', userId);
-  } catch (e) {
-    console.error('[Auth] acxRecordLoginIP error:', e);
-  }
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (!session) return;
+    await fetch('/api/me/seen', { method: 'POST', headers: { Authorization: 'Bearer ' + session.access_token } });
+  } catch (e) { /* never block login on this */ }
 }
 
 /* ═══════════════════════════════════════════
@@ -94,6 +78,11 @@ function _resetIdleTimer() {
   document.addEventListener(evt, _resetIdleTimer, { passive: true })
 );
 
+// Same list as the login gate in showPage() (router.js). Pehle yahan sirf 4
+// pages the, isliye /tutorials/ethical-hacking ya /resources bina login ke
+// direct kholne par login screen sahi se nahi aati thi.
+const ACX_PROTECTED_PAGES = ['ctf', 'profile', 'learn', 'learn2', 'learn3', 'resources', 'alexrecon', 'mistakeAnalyzer', 'alexutils', 'alextrace'];
+
 /* ═══════════════════════════════════════════
    AUTH HELPERS
 ═══════════════════════════════════════════ */
@@ -124,6 +113,14 @@ function closeAuth() {
   if (el) el.addEventListener('click', function(e) { if (e.target === this) closeAuth(); });
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuth(); });
+
+// Enter in a field submits that form (the overlays are not <form>s).
+[['loginOverlay', () => doLogin()], ['signupOverlay', () => doSignup()], ['forgotOverlay', () => doForgot()]].forEach(([id, submit]) => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target && e.target.tagName === 'INPUT' && e.target.type !== 'checkbox') { e.preventDefault(); submit(); }
+  });
+});
 
 // Toggle password visibility
 function togglePw(inputId, btn) {
@@ -212,6 +209,11 @@ async function doLogin() {
   if (!pw)    { authMsg('error','loginError','Please enter your password.'); return; }
 
   if (!_supabase) { warnNotConfigured('loginError'); return; }
+
+  // "Remember me": keep the session in localStorage, else only for this tab
+  // (storage adapter in js/config.js). Pehle checkbox kuch karta hi nahi tha.
+  const remember = document.getElementById('rememberMe');
+  try { localStorage.setItem('acx_remember', (!remember || remember.checked) ? '1' : '0'); } catch (e) {}
 
   const btn = document.querySelector('#loginOverlay .auth-btn');
   setBtnLoading(btn, true, 'Sign In');
@@ -351,7 +353,9 @@ async function doForgot() {
   const btn = document.querySelector('#forgotOverlay .auth-btn');
   setBtnLoading(btn, true, 'Send Reset Link');
   const { error } = await _supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: window.location.origin + window.location.pathname + '?reset=1'
+    // Home (Next.js) shows "set a new password" after the link; the old SPA
+    // only opened the login modal, so a reset never actually let you set one.
+    redirectTo: window.location.origin + ((window.ACX_NEXT_PAGES && window.ACX_NEXT_PAGES.home) ? '/' : window.location.pathname) + '?reset=1'
   });
   setBtnLoading(btn, false, 'Send Reset Link');
 
@@ -728,7 +732,7 @@ async function saveProfile() {
     // login-only features just won't work until Supabase is reachable.
     const pg = window._initialPage || 'home';
     window._initialPage = null;
-    const protectedPages = ['ctf', 'profile', 'learn', 'learn2'];
+    const protectedPages = ACX_PROTECTED_PAGES;
     showPage(protectedPages.includes(pg) ? 'home' : pg);
     return;
   }
@@ -816,8 +820,13 @@ async function saveProfile() {
       // No session, route to URL-requested page (if not protected)
       const pg = window._initialPage || 'home';
       window._initialPage = null;
-      const protectedPages = ['ctf', 'profile', 'learn', 'learn2'];
+      const protectedPages = ACX_PROTECTED_PAGES;
       if (protectedPages.includes(pg)) {
+        if (window.ACX_NEXT_PAGES && window.ACX_NEXT_PAGES.home) {
+          // Home is on Next.js now: its login modal brings the user back here.
+          window.location.replace('/?auth=login&next=' + encodeURIComponent(window.location.pathname + window.location.search));
+          return;
+        }
         showPage('home');
         if (typeof showAuth === 'function') showAuth('login', pg);
       } else {
@@ -829,7 +838,7 @@ async function saveProfile() {
     console.warn('[ACX] getSession failed, falling back to URL routing', e);
     const pg = window._initialPage || 'home';
     window._initialPage = null;
-    const protectedPages = ['ctf', 'profile', 'learn', 'learn2'];
+    const protectedPages = ACX_PROTECTED_PAGES;
     showPage(protectedPages.includes(pg) ? 'home' : pg);
   }
 
@@ -842,10 +851,10 @@ async function saveProfile() {
       // to once per browser tab-session (not on every SIGNED_IN re-fire,
       // e.g. token refresh or a silent session restore on page load),
       // so we don't hit the ipify lookup more than necessary.
-      if (!window._acxLoginIPRecorded) {
-        window._acxLoginIPRecorded = true;
-        acxRecordLoginIP(session.user.id);
-      }
+      // Same per-tab flag as the Next pages, so one tab records it once.
+      let _seenSent = false;
+      try { _seenSent = !!sessionStorage.getItem('acx_seen_sent'); sessionStorage.setItem('acx_seen_sent', '1'); } catch (e) {}
+      if (!_seenSent) acxRecordLoginIP();
       // Re-anchor lab session to the newly signed-in user so instance
       // state is per-user, not per-IP or per-page-load.
       if (typeof ctfInitUserSession === 'function') ctfInitUserSession();

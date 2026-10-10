@@ -18,3 +18,6 @@
 a.blog-back-btn { text-decoration: none; }
 a.tut-card { color: inherit; }
 a.legal-back-btn { text-decoration: none; display: inline-flex; align-items: center; }
+/* Home: SPA <button>s that became links */
+a.btn-primary, a.btn-secondary { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+a.trust-item { color: inherit; text-decoration: none; }

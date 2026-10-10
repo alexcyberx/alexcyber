@@ -2573,6 +2573,18 @@ function atRenderMetadataResult(data) {
    These shims queue calls and replay them once scripts are ready.
 ═══════════════════════════════════════════ */
 (function() {
+  // Network Forensics content lives in per-chapter files (js/chapter-content/
+  // forensics-NN.js, each sets window.chapterContentNN). They must be loaded
+  // together with chapters.js; router.js uses this too when the course page
+  // opens directly. (Chapter 11 has no file; chapters.js loads it from the DB.)
+  var _forensicsChapterIndices = [0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,23,24];
+  window.acxEnsureForensicsScripts = function() {
+    var urls = _forensicsChapterIndices.map(function(n) {
+      return '/js/chapter-content/forensics-' + String(n).padStart(2, '0') + '.js';
+    });
+    return Promise.all(urls.concat(['/js/chapters.js']).map(loadScriptOnce));
+  };
+
   // ── loadChapter shim (Network Forensics - chapters.js) ──
   var _q1 = null;
   window.loadChapter = function(index) {
@@ -2585,11 +2597,7 @@ function atRenderMetadataResult(data) {
       // each just set a window.chapterContentNN string. Load all of them plus
       // chapters.js itself before running the real function, so those globals
       // already exist when it reads them.
-      var _forensicsChapterIndices = [0,1,2,3,4,5,6,7,8,9,10,12,13,14,15,16,17,18,19,20,21,22,23,24];
-      var _forensicsContentUrls = _forensicsChapterIndices.map(function(n) {
-        return '/js/chapter-content/forensics-' + String(n).padStart(2, '0') + '.js';
-      });
-      Promise.all(_forensicsContentUrls.concat(['/js/chapters.js']).map(loadScriptOnce)).then(function() {
+      window.acxEnsureForensicsScripts().then(function() {
         if (window.loadChapter._real && _q1 !== null) {
           window.loadChapter._real(_q1);
           _q1 = null;
