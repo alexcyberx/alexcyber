@@ -226,3 +226,7 @@ ALTER POLICY "Users can update own alexrecon schedules" ON public.alexrecon_sche
 ALTER POLICY "Users can delete own alexrecon schedules" ON public.alexrecon_schedules USING (false);
 ALTER POLICY "Users can insert own alexrecon scans" ON public.alexrecon_scans WITH CHECK (false);
 ALTER POLICY "Users can update own alexrecon scans" ON public.alexrecon_scans USING (false);
+
+-- ── 8) attack detector: auto-blocks expire (server/middleware/attackDetection.js
+-- sets expires_at; NULL = permanent manual block from the admin panel) ──
+ALTER TABLE public.blocked_ips ADD COLUMN IF NOT EXISTS expires_at timestamptz;
