@@ -5,12 +5,20 @@
 ═══════════════════════════════════════════════════════════ */
 
 const tls = require('tls');
-const { withTimeout } = require('./utils');
+const net = require('net');
+const { withTimeout, safeLookup, isPublicIP } = require('./utils');
 
 function connectTls(host, port = 443, timeoutMs = 6000) {
   return new Promise((resolve, reject) => {
+    // IP-literal hosts skip `lookup` in Node, so refuse a private/internal
+    // literal up front (defence in depth; domains still go via safeLookup).
+    if (net.isIP(host) && !isPublicIP(host)) {
+      return reject(new Error('Host is not a public address.'));
+    }
     const socket = tls.connect(
-      { host, port, servername: host, timeout: timeoutMs, rejectUnauthorized: false },
+      // servername keeps SNI/cert on the hostname; lookup pins the socket to
+      // a validated public IP (and re-resolves, closing the rebind window).
+      { host, port, servername: host, timeout: timeoutMs, rejectUnauthorized: false, lookup: safeLookup },
       () => {
         const cert = socket.getPeerCertificate(true);
         const protocol = socket.getProtocol();
