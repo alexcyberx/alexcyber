@@ -6,6 +6,7 @@
 ═══════════════════════════════════════════════════════════ */
 
 const net = require('net');
+const { safeLookup, isPublicIP } = require('./utils');
 
 // Deliberately small - a handful of the most common service ports,
 // not an exhaustive scan. Keeps scan time reasonable and stays on
@@ -34,6 +35,9 @@ const COMMON_PORTS = [
 
 function checkPort(host, port, timeoutMs = 2500) {
   return new Promise((resolve) => {
+    // If the host is an IP literal, Node skips `lookup`, so validate it
+    // directly; a private/internal literal is reported closed, not probed.
+    if (net.isIP(host) && !isPublicIP(host)) return resolve(false);
     const socket = new net.Socket();
     let done = false;
 
@@ -49,7 +53,10 @@ function checkPort(host, port, timeoutMs = 2500) {
     socket.once('timeout', () => finish(false));
     socket.once('error', () => finish(false));
 
-    socket.connect(port, host);
+    // safeLookup pins the TCP connect to a public IP and re-resolves here,
+    // so a rebind to 127.0.0.1 / 10.x between scan start and this connect
+    // is refused (lookup errors -> 'error' -> treated as closed).
+    socket.connect({ host, port, lookup: safeLookup });
   });
 }
 

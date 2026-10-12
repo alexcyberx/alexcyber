@@ -30,7 +30,7 @@ const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 const { reconLimiter } = require('../../middleware/rateLimit');
 
-const { detectTargetType, normalizeDomain, runModulesParallel, assertPublicDomain } = require('./modules/utils');
+const { classifyTarget, registrableLabel, runModulesParallel, assertPublicDomain } = require('./modules/utils');
 const { dnsIntelligence, axfrCheck, wildcardCheck } = require('./modules/dns');
 const { sslIntelligence } = require('./modules/ssl');
 const { webRecon, loginPanelDetection, robotsAndSitemap } = require('./modules/webrecon');
@@ -66,6 +66,25 @@ const COMING_SOON_MODULES = [
   { key: 'fullPortScan', label: 'Full Port Scan (Shodan/Censys-style)', reason: 'Real port scanning needs a paid API integration - v1 ships a best-effort common-port check instead.' }
 ];
 
+// Decides whether a module result should drag the whole scan to 'partial'.
+// Kept out of runModulesParallel so the module JSON shape stays unchanged
+// (the SPA still reads .ok / .data exactly as before).
+function moduleDegraded(mod) {
+  if (!mod) return false;
+  if (mod.ok === false) return true;
+  const d = mod.data;
+  if (d && typeof d === 'object') {
+    if (d.upstreamError === true) return true; // reached an upstream and it failed
+    if (d.reachable === false) return true;    // webRecon: host didn't respond
+  }
+  return false;
+}
+
+// Max active scheduled scans a single user may keep. Scheduled scans run
+// from the server IP with the service role, so this bounds how much
+// outbound recon one account can queue (see POST /schedules).
+const MAX_ACTIVE_SCHEDULES_PER_USER = 3;
+
 // Core scan runner, shared by the POST /scan route and the scheduler.
 // Returns the full response payload; does not write HTTP itself so
 // it can be reused from a non-request context (the cron tick).
@@ -79,8 +98,10 @@ async function runAlexReconScan({ target, userId, projectId, triggeredBy }) {
     throw Object.assign(new Error('Target is too long.'), { statusCode: 400 });
   }
 
-  const targetType = detectTargetType(target);
-  const domain = targetType === 'domain' ? normalizeDomain(target) : null;
+  // Normalize FIRST (strip scheme/path/port/trailing dot, punycode IDNs),
+  // then detect the type, so a pasted "https://example.com/" is scanned as
+  // the domain instead of silently falling through to a near-empty 'org'.
+  const { targetType, domain } = classifyTarget(target);
 
   if (targetType === 'ip') {
     throw Object.assign(new Error('IP-only scanning is not yet supported in v1. Please enter a domain instead.'), { statusCode: 400 });
@@ -146,7 +167,7 @@ async function runAlexReconScan({ target, userId, projectId, triggeredBy }) {
       jsRecon: () => jsRecon(finalUrl, homepageBody),
       cloudDiscovery: () => cloudDiscovery(domain),
       directoryBackupCheck: () => directoryBackupCheck(domain, protocolForFollowups),
-      githubOrgIntel: () => githubOrgIntel(domain.split('.')[0]),
+      githubOrgIntel: () => githubOrgIntel(registrableLabel(domain)),
       commonPortCheck: () => commonPortCheck(domain)
     });
 
@@ -158,7 +179,13 @@ async function runAlexReconScan({ target, userId, projectId, triggeredBy }) {
       .catch(err => ({ ok: false, error: err.message, data: null }));
   }
 
-  const hasFailures = Object.values(report).some(m => m && m.ok === false);
+  // A module is "degraded" when it threw (ok:false), when the host was
+  // unreachable (webRecon.reachable===false), or when it reached an upstream
+  // service that then failed (data.upstreamError:true - e.g. crt.sh down,
+  // BGPView/CommonCrawl unavailable, a GitHub 403 rate limit). "Not found"
+  // and "not applicable" (available:false WITHOUT upstreamError) do not
+  // count, so 'partial' means something actually failed.
+  const hasFailures = Object.values(report).some(moduleDegraded);
   const finalStatus = hasFailures ? 'partial' : 'completed';
 
   const responsePayload = {
@@ -249,27 +276,66 @@ router.get('/scan/:id', async (req, res) => {
 });
 
 // ── POST /api/alexrecon/schedules ────────────────────────────
-router.post('/schedules', async (req, res) => {
+// Same guards as a manual scan: rate limited, respects the admin
+// enable/disable switch, normalises the target, refuses private/internal
+// targets, caps the number of active schedules per user, and de-dupes by
+// target so one account can't queue hundreds of scheduled scans.
+router.post('/schedules', reconLimiter, checkToolEnabled('alexrecon'), async (req, res) => {
   try {
     const { userId, target, frequency } = req.body;
     if (!userId) return res.status(400).json({ error: 'userId is required.' });
     if (!target || typeof target !== 'string' || !target.trim()) {
       return res.status(400).json({ error: 'Please enter a domain to schedule.' });
     }
-    if (detectTargetType(target) !== 'domain') {
+
+    // Normalise first, THEN detect the type (same as POST /scan).
+    const { targetType, domain } = classifyTarget(target);
+    if (targetType !== 'domain') {
       return res.status(400).json({ error: 'Scheduled scans currently support domains only.' });
     }
+
+    // Refuse targets that resolve to a private/internal address up front,
+    // so a schedule can't be used to smuggle an internal target past the
+    // scan-time check later.
+    try {
+      await assertPublicDomain(domain);
+    } catch (e) {
+      return res.status(e.statusCode || 400).json({ error: e.message });
+    }
+
     const validFrequencies = ['daily', 'weekly', 'monthly'];
     const freq = validFrequencies.includes(frequency) ? frequency : 'weekly';
 
     const db = getSupabaseAdmin();
     if (!db) return res.status(500).json({ error: 'Scheduling is not configured on the server.' });
 
+    // Per-target dedupe: if an active schedule for this domain already
+    // exists, return it instead of creating a duplicate.
+    const { data: existing } = await db
+      .from('alexrecon_schedules')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('target', domain);
+    const existingActive = (existing || []).find(s => s.target === domain && s.is_active);
+    if (existingActive) {
+      return res.status(409).json({ error: 'You already have an active schedule for this domain.', schedule: existingActive });
+    }
+
+    // Cap the number of active schedules per user.
+    const { count: activeCount, error: countErr } = await db
+      .from('alexrecon_schedules')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('is_active', true);
+    if (!countErr && typeof activeCount === 'number' && activeCount >= MAX_ACTIVE_SCHEDULES_PER_USER) {
+      return res.status(400).json({ error: `You can have at most ${MAX_ACTIVE_SCHEDULES_PER_USER} active scheduled scans. Pause or delete one first.` });
+    }
+
     const { data, error } = await db
       .from('alexrecon_schedules')
       .insert({
         user_id: userId,
-        target: normalizeDomain(target),
+        target: domain,
         target_type: 'domain',
         frequency: freq,
         is_active: true
@@ -310,7 +376,7 @@ router.get('/schedules', async (req, res) => {
 
 // ── PATCH /api/alexrecon/schedules/:id ───────────────────────
 // Body: { userId, is_active?, frequency? }
-router.patch('/schedules/:id', async (req, res) => {
+router.patch('/schedules/:id', checkToolEnabled('alexrecon'), async (req, res) => {
   try {
     const { id } = req.params;
     const { userId, is_active, frequency } = req.body;
@@ -323,6 +389,20 @@ router.patch('/schedules/:id', async (req, res) => {
     if (typeof is_active === 'boolean') updates.is_active = is_active;
     if (['daily', 'weekly', 'monthly'].includes(frequency)) updates.frequency = frequency;
     if (!Object.keys(updates).length) return res.status(400).json({ error: 'No valid fields to update.' });
+
+    // Re-activating counts against the per-user active cap too, so a user
+    // can't sit on a pile of paused schedules and flip them all on.
+    if (updates.is_active === true) {
+      const { count: activeCount, error: countErr } = await db
+        .from('alexrecon_schedules')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .neq('id', id);
+      if (!countErr && typeof activeCount === 'number' && activeCount >= MAX_ACTIVE_SCHEDULES_PER_USER) {
+        return res.status(400).json({ error: `You can have at most ${MAX_ACTIVE_SCHEDULES_PER_USER} active scheduled scans. Pause or delete one first.` });
+      }
+    }
 
     const { data, error } = await db
       .from('alexrecon_schedules')
@@ -369,3 +449,5 @@ router.delete('/schedules/:id', async (req, res) => {
 startAlexReconScheduler(getSupabaseAdmin, runAlexReconScan);
 
 module.exports = router;
+// Exposed for unit tests; not used by Express itself.
+module.exports.moduleDegraded = moduleDegraded;
