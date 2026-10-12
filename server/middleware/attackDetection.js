@@ -20,10 +20,23 @@
                            suspicious patterns, logs evidence, and
                            auto-blocks an IP after repeated hits.
 
+   False-positive rules (pehle normal users block ho jaate the):
+     - Tool inputs (Mistake Analyzer command, AlexUtils, AlexTrace,
+       AlexRecon) aur site search / message fields scan nahi hote:
+       wahan "' OR 1=1", "--top-ports", "../" type karna normal use hai.
+     - Sirf HIGH confidence payload shapes auto-block ki taraf count
+       hote hain. Akela quote, # ya -- kuch bhi trigger nahi karta.
+     - Valid Bearer token wala logged-in user kabhi auto-block nahi
+       hota: event log hota hai, block ka faisla admin karega.
+     - Sensitive fields (password, token, key, secret, ...) ki value
+       kabhi security_logs ya console mein nahi jaati: [redacted].
+     - Auto-block 24h ke liye hai (expires_at), permanent nahi.
+
    Fails open: if Supabase isn't configured or a lookup errors, we
    never block a legitimate user because of an infra hiccup.
 ═══════════════════════════════════════════════════════════ */
 
+const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 
 let supabaseAdmin = null;
@@ -44,43 +57,119 @@ const EXCLUDED_PREFIXES = [
   '/pages/labs/',
 ];
 
-function isExcludedPath(p) {
-  return EXCLUDED_PREFIXES.some(prefix => p.startsWith(prefix));
+// Tool APIs: body/query yahan user ka free-text tool input hai (nmap
+// commands, CVE keywords, regex, JSON, usernames, emails, passwords,
+// recon targets). Security tool mein payload type karna hi kaam hai, isliye
+// in fields ko scan nahi karte (na log, na block). URL path aur User-Agent
+// yahan bhi scan hote hain.
+const TOOL_INPUT_PREFIXES = [
+  '/api/tools/',      // Mistake Analyzer
+  '/api/alexutils/',
+  '/api/alextrace/',
+  '/api/alexrecon/',
+];
+
+// Kisi bhi route pe user ka khud type kiya hua free text (site search
+// ?q=..., contact/support message). Same rule: scan nahi hota.
+const FREE_TEXT_FIELDS = new Set(['q', 'query', 'search', 'message', 'msg', 'p_message']);
+
+// Sensitive field names (substring, case-insensitive): password, pass, pwd,
+// secret, token, key, authorization, apiKey, access_token, ... Inki value kabhi
+// store/print nahi hoti, sirf field name + rule.
+const SENSITIVE_FIELD_RE = /pass|pwd|secret|token|key|auth|cookie|session|otp|cred|jwt|signature/i;
+// Is route ka har field sensitive hai (AlexTrace password check).
+const SENSITIVE_PATH_PREFIXES = ['/api/alextrace/password-check'];
+const REDACTED = '[redacted]';
+
+// Express routing case-insensitive hai (/API/AlexTrace/... bhi wahi route
+// hai), isliye prefix compare se pehle lowercase + // ko / karo.
+function normPath(p) {
+  return String(p || '').toLowerCase().replace(/\/{2,}/g, '/');
 }
 
-/* ── Pattern signatures ─────────────────────────────────── */
-const SQLI_PATTERNS = [
-  /(\%27)|(\')|(\-\-)|(\%23)|(#)/i,
-  /((\%3D)|(=))[^\n]*((\%27)|(\')|(\-\-)|(\%3B)|(;))/i,
-  /\bunion\b.{0,40}\bselect\b/i,
-  /\bselect\b.{0,40}\bfrom\b/i,
-  /\bdrop\b\s+\btable\b/i,
-  /\binsert\b\s+\binto\b/i,
-  /\b(or|and)\b\s+[\'"]?\d+[\'"]?\s*=\s*[\'"]?\d+/i,
+function hasPrefix(p, prefixes) {
+  const n = normPath(p);
+  return prefixes.some(prefix => n.startsWith(prefix));
+}
+
+function isExcludedPath(p) {
+  return hasPrefix(p, EXCLUDED_PREFIXES);
+}
+
+function isSensitiveField(p, key) {
+  return SENSITIVE_FIELD_RE.test(key) || hasPrefix(p, SENSITIVE_PATH_PREFIXES);
+}
+
+// URL path raw (percent-encoded) aata hai; ..%2f..%2f bhi pakadne ke liye
+// do baar decode (double encoding), galat encoding pe raw hi rakho.
+function safeDecode(s) {
+  try { return decodeURIComponent(s); } catch (e) { return s; }
+}
+
+/* ── Pattern signatures ─────────────────────────────────────
+   high: real payload shapes (UNION SELECT, ' OR 1=1, <script, ../../etc/passwd,
+         sleep(5), benchmark(...)). Sirf yehi auto-block ki taraf count hote hain.
+   low:  SQL/JS jaisa text jo normal bhi ho sakta hai: log hota hai
+         (confidence: 'low'), block count nahi.
+   Purana /'|#|--/ rule hata diya: O'Brien, India@123#, cool--guy ya
+   nmap --top-ports attack ka saboot nahi hain.
+   ReDoS: har pattern ya to linear hai ya bounded ({0,N}). SQL comment ki
+   body mein comment-end nahi aa sakta, warna union + bahut saare khaali
+   comments pe exponential backtracking hoti thi. ── */
+const SQL_GAP = String.raw`(?:\s|\+|\/\*(?:[^*]|\*(?!\/)){0,40}\*\/)+`; // space, + ya /**/ SQL words ke beech
+
+const SQLI_HIGH = [
+  new RegExp(String.raw`\bunion${SQL_GAP}(?:(?:all|distinct)${SQL_GAP})?select\b`, 'i'),
+  /['"`][\s)]*\b(?:or|and)\b[\s(]*['"]?\w+['"]?\s*(?:=|like\b)\s*['"]?\w+/i,   // ' OR 1=1, ' or 'a'='a
+  /\b(?:or|and)\s+(\d+)\s*=\s*\1\b/i,                                             // or 1=1
+  /;\s*(?:drop\s+table|truncate\s+table|delete\s+from|insert\s+into|shutdown)\b/i, // stacked query
   /\bxp_cmdshell\b/i,
-  /\bsleep\s*\(/i,
-  /\bwaitfor\b\s+\bdelay\b/i,
+  /\b(?:pg_)?sleep\(\s*\d+(?:\.\d+)?\s*\)/i,
+  /\bbenchmark\(\s*\d+\s*,/i,
+  /\bwaitfor\s+delay\s+['"]/i,
+  /\binformation_schema\b/i,
+  /\bload_file\s*\(/i,
+  /\binto\s+(?:out|dump)file\b/i,
+];
+const SQLI_LOW = [
+  /\bselect\s+\S[\s\S]{0,60}?\s+from\s+\w/i,
+  /\binsert\s+into\s+\w/i,
+  /\bdrop\s+table\b/i,
+  /\b(?:or|and)\s+\d+\s*=\s*\d+/i,
+  /['"]\s*(?:--|#|\/\*)/,
 ];
 
-const XSS_PATTERNS = [
-  /<script[\s\S]*?>/i,
-  /on\w+\s*=\s*["']?[^"'>]+/i,
-  /<img[^>]+on\w+/i,
-  /<svg[\s\S]*?on\w+/i,
+const XSS_HIGH = [
+  /<\s*script\b/i,
+  /<\s*iframe\b/i,
+  /<[a-z][^>]{0,200}?\bon[a-z]+\s*=/i,                            // <img src=x onerror=..>, <svg/onload=..>
+  /javascript\s*:[\s\S]{0,40}?\b(?:alert|prompt|confirm|eval)\s*\(/i,
+  /\bdocument\s*\.\s*(?:cookie|location|domain)\b/i,
+];
+const XSS_LOW = [
   /javascript\s*:/i,
-  /<iframe[\s\S]*?>/i,
-  /document\.(cookie|location)/i,
+  /\bon(?:error|load|click|mouseover|focus|blur|submit|toggle|begin|animationstart|pointerover)\s*=/i,
+  /<\s*(?:img|svg|body|input|details|video|audio|object|embed)\b/i,
 ];
 
-const PATH_TRAVERSAL_PATTERNS = [
-  /\.\.\//,
-  /\.\.\\/,
-  /\/etc\/passwd/i,
-  /\/etc\/shadow/i,
-  /boot\.ini/i,
-  /win\.ini/i,
+const PATH_TRAVERSAL_HIGH = [
+  /(?:\.\.[\/\\]){2,}/,                // ../../
+  /\/etc\/(?:passwd|shadow)\b/i,
+  /\/proc\/self\/environ\b/i,
+  /\bboot\.ini\b/i,
+  /\bwin\.ini\b/i,
+];
+const PATH_TRAVERSAL_LOW = [
+  /\.\.[\/\\]/,                        // akela ../ (relative link bhi ho sakta hai)
 ];
 
+const RULES = [
+  { eventType: 'sqli_attempt',   high: SQLI_HIGH,           low: SQLI_LOW },
+  { eventType: 'xss_attempt',    high: XSS_HIGH,            low: XSS_LOW },
+  { eventType: 'path_traversal', high: PATH_TRAVERSAL_HIGH, low: PATH_TRAVERSAL_LOW },
+];
+
+// Scanner user-agents: high confidence (browser kabhi yeh nahi bhejta).
 const BOT_UA_PATTERNS = [
   /sqlmap/i, /nikto/i, /nmap/i, /nessus/i, /acunetix/i, /w3af/i,
   /masscan/i, /zgrab/i, /gobuster/i, /dirbuster/i, /wpscan/i,
@@ -95,42 +184,52 @@ function matchPattern(str, patterns) {
   return null;
 }
 
+function matchTier(value, tier) {
+  for (const rule of RULES) {
+    const m = matchPattern(value, rule[tier]);
+    if (m) return { eventType: rule.eventType, matchedPattern: m };
+  }
+  return null;
+}
+
 // Scans query, body, and params for a request, returns
-// { eventType, matchedPattern, matchedIn } or null.
+// { eventType, matchedPattern, matchedIn, matchedValue, confidence } or null.
+// High confidence match pehle (kisi bhi field mein), phir scanner UA, phir low.
+// matchedValue sensitive field ke liye hamesha '[redacted]' hota hai.
 function scanRequest(req) {
+  const p = req.path || '';
+  const toolRoute = hasPrefix(p, TOOL_INPUT_PREFIXES);
   const candidates = [];
-  if (req.query) {
-    for (const [k, v] of Object.entries(req.query)) {
-      if (typeof v === 'string') candidates.push({ field: `query.${k}`, value: v });
+  const addFields = (src, obj) => {
+    if (toolRoute || !obj || typeof obj !== 'object') return;
+    for (const [k, v] of Object.entries(obj)) {
+      if (typeof v !== 'string' || FREE_TEXT_FIELDS.has(k.toLowerCase())) continue;
+      candidates.push({ field: `${src}.${k}`, value: v, sensitive: isSensitiveField(p, k) });
     }
-  }
-  if (req.body && typeof req.body === 'object') {
-    for (const [k, v] of Object.entries(req.body)) {
-      if (typeof v === 'string') candidates.push({ field: `body.${k}`, value: v });
-    }
-  }
-  if (req.params) {
-    for (const [k, v] of Object.entries(req.params)) {
-      if (typeof v === 'string') candidates.push({ field: `params.${k}`, value: v });
-    }
-  }
+  };
+  addFields('query', req.query);
+  addFields('body', req.body);
+  addFields('params', req.params);
   // Also scan the raw path itself (covers path-traversal in the URL).
-  candidates.push({ field: 'path', value: req.path });
+  candidates.push({ field: 'path', value: safeDecode(safeDecode(p)), sensitive: false });
 
-  for (const { field, value } of candidates) {
-    let m = matchPattern(value, SQLI_PATTERNS);
-    if (m) return { eventType: 'sqli_attempt', matchedPattern: m, matchedIn: field, matchedValue: value };
+  const found = (c, m, confidence) => ({
+    ...m, matchedIn: c.field, matchedValue: c.sensitive ? REDACTED : c.value, confidence,
+  });
 
-    m = matchPattern(value, XSS_PATTERNS);
-    if (m) return { eventType: 'xss_attempt', matchedPattern: m, matchedIn: field, matchedValue: value };
-
-    m = matchPattern(value, PATH_TRAVERSAL_PATTERNS);
-    if (m) return { eventType: 'path_traversal', matchedPattern: m, matchedIn: field, matchedValue: value };
+  for (const c of candidates) {
+    const m = matchTier(c.value, 'high');
+    if (m) return found(c, m, 'high');
   }
 
   const ua = req.get('User-Agent') || '';
   const uaMatch = matchPattern(ua, BOT_UA_PATTERNS);
-  if (uaMatch) return { eventType: 'bot_scan', matchedPattern: uaMatch, matchedIn: 'user-agent', matchedValue: ua };
+  if (uaMatch) return { eventType: 'bot_scan', matchedPattern: uaMatch, matchedIn: 'user-agent', matchedValue: ua, confidence: 'high' };
+
+  for (const c of candidates) {
+    const m = matchTier(c.value, 'low');
+    if (m) return found(c, m, 'low');
+  }
 
   return null;
 }
@@ -140,7 +239,7 @@ function scanRequest(req) {
    table is the permanent evidence record, this is just the
    short-window counter that decides when to auto-block. ────── */
 const OFFENSE_WINDOW_MS  = 10 * 60 * 1000; // 10 minutes
-const OFFENSE_THRESHOLD  = 5;              // 5 suspicious requests
+const OFFENSE_THRESHOLD  = 5;              // 5 high-confidence requests
 const offenseLog = new Map(); // ip -> [timestamps]
 
 function recordOffense(ip) {
@@ -151,13 +250,54 @@ function recordOffense(ip) {
   return arr.length;
 }
 
-// Periodic cleanup so the map doesn't grow unbounded.
+/* ── Logged-in user check (sirf auto-block se pehle) ──────────
+   Threshold cross hone par hi Bearer token verify hota hai. Result 5 min
+   cache (key = token ka sha256, token khud store nahi hota), taaki ek
+   logged-in user ki har request pe Supabase auth call na ho. ────── */
+const TOKEN_CACHE_MS = 5 * 60 * 1000;
+const tokenCache = new Map(); // sha256(token) -> { uid, at }
+
+// Resolves { uid } for a valid token, { uid: null } for no/invalid token,
+// { unverifiable: true } if Supabase is down/unconfigured/rate-limited (fail open).
+async function bearerUser(req) {
+  const header = req.headers['authorization'] || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : null;
+  if (!token) return { uid: null };
+
+  const key = crypto.createHash('sha256').update(token).digest('hex');
+  const hit = tokenCache.get(key);
+  if (hit && Date.now() - hit.at < TOKEN_CACHE_MS) return { uid: hit.uid };
+
+  const db = getSupabaseAdmin();
+  if (!db) return { unverifiable: true };
+  try {
+    const { data, error } = await db.auth.getUser(token);
+    // Sirf network/5xx (AuthRetryableFetchError) aur 429 pe fail open, cache nahi.
+    // Baaki har error (gateway/WAF ka HTML 4xx bhi, jo AuthUnknownError bina
+    // status ke aata hai) = "logged in nahi": warna junk header se ban bypass.
+    if (error && (error.name === 'AuthRetryableFetchError' || error.status === 429)) {
+      return { unverifiable: true };
+    }
+    const uid = !error && data && data.user ? data.user.id : null;
+    if (tokenCache.size > 1000) tokenCache.clear();
+    tokenCache.set(key, { uid, at: Date.now() });
+    return { uid };
+  } catch (e) {
+    console.error('[AttackDetection] token check failed:', e.message);
+    return { unverifiable: true };
+  }
+}
+
+// Periodic cleanup so the maps don't grow unbounded.
 setInterval(() => {
   const now = Date.now();
   for (const [ip, arr] of offenseLog.entries()) {
     const fresh = arr.filter(t => now - t < OFFENSE_WINDOW_MS);
     if (fresh.length === 0) offenseLog.delete(ip);
     else offenseLog.set(ip, fresh);
+  }
+  for (const [k, v] of tokenCache.entries()) {
+    if (now - v.at >= TOKEN_CACHE_MS) tokenCache.delete(k);
   }
 }, 5 * 60 * 1000);
 
@@ -172,22 +312,49 @@ function logSecurityEvent(eventType, ip, details) {
     });
 }
 
+// Auto-block 24 ghante ka (CGNAT / hostel Wi-Fi pe ek IP ke peeche bahut log
+// hote hain, permanent ban sabko lock kar deta tha). Admin panel ka manual
+// block (expires_at null) permanent rehta hai. expires_at column DB mein na
+// ho to purane tarike se, bina expiry, insert hota hai.
+const AUTO_BLOCK_MS = 24 * 60 * 60 * 1000;
+
+function isExpired(row) {
+  return !!(row && row.expires_at) && Date.parse(row.expires_at) <= Date.now();
+}
+
+function missingExpiresColumn(err) {
+  return !!err && /expires_at/i.test(String(err.message || ''));
+}
+
 async function blockIP(ip, reason) {
   const db = getSupabaseAdmin();
   if (!db) return;
   try {
-    const { data: existing } = await db
+    const expires_at = new Date(Date.now() + AUTO_BLOCK_MS).toISOString();
+    // select('*'): expires_at column ho ya na ho, dono case mein chalta hai
+    const { data: rows } = await db
       .from('blocked_ips')
-      .select('id')
-      .eq('ip', ip)
-      .maybeSingle();
+      .select('*')
+      .eq('ip', ip);
 
-    if (existing) return; // already blocked, nothing to do
+    if (rows && rows.some(r => !isExpired(r))) return; // already blocked, nothing to do
 
-    const { error: insertErr } = await db.from('blocked_ips').insert({ ip, reason });
-    if (insertErr) {
-      console.error('[AttackDetection] auto-block insert failed:', insertErr.message);
-      return;
+    if (rows && rows.length) {
+      // purana auto-block expire ho chuka: wahi row phir se 24h ke liye
+      const { error: updErr } = await db.from('blocked_ips').update({ reason, expires_at }).eq('ip', ip);
+      if (updErr) {
+        console.error('[AttackDetection] auto-block update failed:', updErr.message);
+        return;
+      }
+    } else {
+      let { error: insertErr } = await db.from('blocked_ips').insert({ ip, reason, expires_at });
+      if (missingExpiresColumn(insertErr)) {
+        ({ error: insertErr } = await db.from('blocked_ips').insert({ ip, reason }));
+      }
+      if (insertErr) {
+        console.error('[AttackDetection] auto-block insert failed:', insertErr.message);
+        return;
+      }
     }
     logSecurityEvent('ip_blocked', ip, `Auto-blocked: ${reason}`);
     console.warn(`[AttackDetection] Auto-blocked IP ${ip}: ${reason}`);
@@ -207,9 +374,9 @@ async function refreshBlockedIPCache() {
   const db = getSupabaseAdmin();
   if (!db) return;
   try {
-    const { data, error } = await db.from('blocked_ips').select('ip');
+    const { data, error } = await db.from('blocked_ips').select('*');
     if (!error && data) {
-      blockedIPCache = new Set(data.map(r => r.ip));
+      blockedIPCache = new Set(data.filter(r => !isExpired(r)).map(r => r.ip));
     }
   } catch (e) {
     console.error('[AttackDetection] blocked-IP cache refresh failed:', e.message);
@@ -248,31 +415,44 @@ function attackDetector(req, res, next) {
 
   const ip = getClientIp(req);
   const ua = req.get('User-Agent') || 'unknown';
-  const details = JSON.stringify({
+  const details = {
     path: req.path,
     method: req.method,
     matchedIn: match.matchedIn,
     matchedPattern: match.matchedPattern,
+    confidence: match.confidence,
     // Truncate to keep log rows small; full payload rarely needs to exceed this for evidence purposes.
+    // Sensitive fields are already '[redacted]' by scanRequest.
     matchedValue: String(match.matchedValue).slice(0, 500),
     userAgent: ua,
-  });
+  };
 
-  logSecurityEvent(match.eventType, ip, details);
-
-  const count = recordOffense(ip);
-  if (count >= OFFENSE_THRESHOLD) {
-    blockIP(ip, `${count} suspicious requests (${match.eventType}) within ${OFFENSE_WINDOW_MS / 60000} minutes`);
-    blockedIPCache.add(ip); // block immediately, don't wait for next cache refresh
-    return res.status(403).json({
-      error: 'Access blocked due to suspicious activity. This incident has been logged for legal action.'
-    });
+  // Low confidence: sirf evidence ke liye log, block count nahi.
+  const count = match.confidence === 'high' ? recordOffense(ip) : 0;
+  if (count < OFFENSE_THRESHOLD) {
+    logSecurityEvent(match.eventType, ip, JSON.stringify(details));
+    // Not blocked yet - request continues normally. We only log, we don't
+    // interfere with the actual request/response for isolated attempts,
+    // so legitimate users triggering a false positive aren't disrupted.
+    return next();
   }
 
-  // Not blocked yet - request continues normally. We only log, we don't
-  // interfere with the actual request/response for isolated attempts,
-  // so legitimate users triggering a false positive aren't disrupted.
-  next();
+  // Threshold cross. Logged-in user (valid Bearer token) ko auto-block nahi
+  // karte: event userId ke saath log hota hai, block admin review ke baad.
+  bearerUser(req).then((who) => {
+    if (who.uid || who.unverifiable) {
+      if (who.uid) details.userId = who.uid;
+      details.autoBlock = who.uid ? 'skipped: logged-in user, needs admin review' : 'skipped: could not verify token';
+      logSecurityEvent(match.eventType, ip, JSON.stringify(details));
+      return next();
+    }
+    logSecurityEvent(match.eventType, ip, JSON.stringify(details));
+    blockIP(ip, `${count} suspicious requests (${match.eventType}) within ${OFFENSE_WINDOW_MS / 60000} minutes`);
+    blockedIPCache.add(ip); // block immediately, don't wait for next cache refresh
+    res.status(403).json({
+      error: 'Access blocked due to suspicious activity. This incident has been logged for legal action.'
+    });
+  }, () => next()); // bearerUser khud reject nahi karta, phir bhi fail open
 }
 
-module.exports = { blockGate, attackDetector, getClientIp };
+module.exports = { blockGate, attackDetector, getClientIp, scanRequest };
