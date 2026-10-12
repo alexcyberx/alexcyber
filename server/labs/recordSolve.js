@@ -21,6 +21,7 @@ async function recordForRequest(req, slug) {
   const { data: u, error: authErr } = await db.auth.getUser(token);
   if (authErr || !u || !u.user) return { recorded: false, reason: 'login_required' };
   const { data, error } = await db.rpc('record_lab_ctf_solve', { p_user_id: u.user.id, p_slug: slug });
+  if (data && data.error === 'suspended') return { recorded: false, reason: 'suspended' };
   if (error || !data || data.success === false) {
     console.error('[recordSolve]', slug, error ? error.message : data && data.error);
     return { recorded: false, reason: 'server_error' };

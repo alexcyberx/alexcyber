@@ -106,8 +106,7 @@ let editingCTFId = null;
 let ctfFilterText = '';
 
 // FIX: yeh hardcoded demo array hata diya, real messages ab Supabase
-// 'contact_messages' table se admLoadMessages() (js/admin-supabase.js)
-// ke through load hote hain.
+// 'contact_messages' table se renderMessages() (neeche) ke through load hote hain.
 
 
 // NOTE: security logs aur blocked IPs ab Supabase se load hote hain
@@ -256,9 +255,13 @@ async function renderRecentSignups() {
   }
 }
 
+// Escapes ' too, so a value is also safe inside a '...' attribute.
+// NOT enough for a JS string inside onclick="fn('...')": the browser decodes
+// &#39; back to ' before the handler runs. For those, put the value in a
+// data-* attribute and read it in addEventListener (see _admDrawMessages).
 function escHtmlAdm(s) {
   if (!s) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 // FIX: search inputs were interpolated straight into PostgREST .or()/.ilike()
@@ -360,7 +363,7 @@ function renderUsersTable() {
       <td>${u.joined}</td>
       <td>${u.lastActive}</td>
       <td style="font-family:monospace;font-size:12px;color:var(--text-dim);">${escHtmlAdm(u.lastIP)}</td>
-      <td><span class="badge ${u.role}">${u.role}</span></td>
+      <td><span class="badge ${escHtmlAdm(u.role)}">${escHtmlAdm(u.role)}</span></td>
       <td><span class="badge ${u.status}">${u.status}</span></td>
       <td>
         <div class="action-btns">
@@ -608,14 +611,14 @@ function _populateCourseFilterDropdowns() {
   if (filterEl) {
     const current = filterEl.value || 'all';
     filterEl.innerHTML = '<option value="all">All Courses</option>' +
-      _dbCourses.map(c => `<option value="${c.course_key}">${escHtmlAdm(c.title)}</option>`).join('');
+      _dbCourses.map(c => `<option value="${escHtmlAdm(c.course_key)}">${escHtmlAdm(c.title)}</option>`).join('');
     if ([...filterEl.options].some(o => o.value === current)) filterEl.value = current;
   }
 
   const chCourseEl = document.getElementById('chCourse');
   if (chCourseEl) {
     const current = chCourseEl.value;
-    chCourseEl.innerHTML = _dbCourses.map(c => `<option value="${c.course_key}">${escHtmlAdm(c.title)}</option>`).join('');
+    chCourseEl.innerHTML = _dbCourses.map(c => `<option value="${escHtmlAdm(c.course_key)}">${escHtmlAdm(c.title)}</option>`).join('');
     if ([...chCourseEl.options].some(o => o.value === current)) chCourseEl.value = current;
   }
 }
@@ -816,7 +819,7 @@ async function renderChapters() {
   }
 
   el.innerHTML = list.map((c, i) => `
-    <div class="chapter-card" draggable="true" data-id="${c.id}" data-course="${c.course}">
+    <div class="chapter-card" draggable="true" data-id="${c.id}" data-course="${escHtmlAdm(c.course)}">
       <div class="drag-handle">
         <svg width="10" height="14" viewBox="0 0 10 14" fill="none">
           <circle cx="3" cy="2.5" r="1" fill="#6a6a7a"/>
@@ -1082,10 +1085,13 @@ async function renderAnalytics() {
       } else {
         const total = devices.reduce((s, d) => s + d.cnt, 0);
         const colors = { mobile: '#ff3b3b', desktop: '#3b82f6', tablet: '#facc15', unknown: '#6a6a7a' };
+        // device_type comes from the anon track_page_view RPC (any string), so
+        // colors sirf known keys ke liye, aur label neeche escape hota hai.
+        const colorOf = dev => Object.prototype.hasOwnProperty.call(colors, dev) ? colors[dev] : '#6a6a7a';
         let acc = 0;
         const gradientParts = devices.map(d => {
           const pct = (d.cnt / total) * 100;
-          const part = `${colors[d.device] || '#6a6a7a'} ${acc.toFixed(1)}% ${(acc + pct).toFixed(1)}%`;
+          const part = `${colorOf(d.device)} ${acc.toFixed(1)}% ${(acc + pct).toFixed(1)}%`;
           acc += pct;
           return part;
         });
@@ -1095,8 +1101,8 @@ async function renderAnalytics() {
             <div>
               ${devices.map(d => `
                 <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);margin-bottom:4px;">
-                  <span style="width:9px;height:9px;border-radius:2px;background:${colors[d.device] || '#6a6a7a'};display:inline-block;"></span>
-                  ${d.device}, ${((d.cnt / total) * 100).toFixed(0)}%
+                  <span style="width:9px;height:9px;border-radius:2px;background:${colorOf(d.device)};display:inline-block;"></span>
+                  ${escHtmlAdm(d.device)}, ${((d.cnt / total) * 100).toFixed(0)}%
                 </div>
               `).join('')}
             </div>
@@ -1256,11 +1262,11 @@ function drawVisitorGraph(trend) {
     </defs>
     <path class="graph-area" d="${area}"/>
     <path class="graph-line" d="${path}"/>
-    ${xs.map((x, i) => `<circle class="graph-dot" cx="${x}" cy="${ys[i]}" r="3"><title>${trend[i].date}: ${data[i].toLocaleString()} views</title></circle>`).join('')}
+    ${xs.map((x, i) => `<circle class="graph-dot" cx="${x}" cy="${ys[i]}" r="3"><title>${escHtmlAdm(trend[i].date)}: ${data[i].toLocaleString()} views</title></circle>`).join('')}
   `;
 
   if (labelEl) {
-    labelEl.innerHTML = trend.map(t => `<span>${t.date.slice(5)}</span>`).join('');
+    labelEl.innerHTML = trend.map(t => `<span>${escHtmlAdm(t.date.slice(5))}</span>`).join('');
   }
 }
 /* ════════════════════════════════════════════════════
@@ -1330,7 +1336,7 @@ function _admDrawMessages() {
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;">
           <div class="msg-time">${_admTimeAgo(m.created_at)}</div>
           <div class="action-btns">
-            <button class="btn icon-only" title="Reply via Email" onclick="event.stopPropagation();replyEmail('${escHtmlAdm(m.email || '')}')">
+            <button class="btn icon-only" title="Reply via Email" data-reply-email="${escHtmlAdm(m.email || '')}">
               <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M2 3l4 3.5L10 3M2 3h8v7H2z" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <button class="btn icon-only red" title="Delete" onclick="event.stopPropagation();deleteMsg('${m.id}')">
@@ -1340,6 +1346,16 @@ function _admDrawMessages() {
         </div>
       </div>
     `).join('');
+
+  // FIX: email anyone can submit (contact form), pehle onclick="replyEmail('...')"
+  // string mein jaata tha aur ek ' se JS chal jaata tha admin session mein.
+  // Ab value data-* attribute mein hai aur handler yahan lagta hai.
+  el.querySelectorAll('button[data-reply-email]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      replyEmail(btn.dataset.replyEmail);
+    });
+  });
 }
 
 function _admTimeAgo(iso) {
@@ -1366,7 +1382,8 @@ async function openMessage(id) {
   } catch (e) { console.error('[Admin] Mark read failed:', e); }
 }
 
-function replyEmail(email) { window.open(`mailto:${email}`); }
+// Encoded so an address like a@b.co?cc=x@y.z&body=... can't add headers to the mail
+function replyEmail(email) { window.open('mailto:' + encodeURIComponent(email || '').replace(/%40/g, '@')); }
 
 async function deleteMsg(id) {
   if (!confirm('Delete this message?')) return;
@@ -1403,7 +1420,7 @@ async function renderSecurity() {
       { count: attackCount, error: attackErr },
       { data: adminEvents, error: adminEventsErr }
     ] = await Promise.all([
-      sb.from('blocked_ips').select('ip, reason, created_at').order('created_at', { ascending: false }),
+      sb.from('blocked_ips').select('*').order('created_at', { ascending: false }),
       sb.from('security_logs').select('id, event_type, details, ip, created_at').order('created_at', { ascending: false }).limit(30),
       sb.from('security_logs').select('id', { count: 'exact', head: true }).eq('event_type', 'failed_login').gte('created_at', since24h),
       sb.from('security_logs').select('id', { count: 'exact', head: true }).in('event_type', ['sqli_attempt','xss_attempt','path_traversal','bot_scan']).gte('created_at', since24h),
@@ -1412,7 +1429,9 @@ async function renderSecurity() {
     if (ipsErr) throw ipsErr;
     if (logsErr) throw logsErr;
 
-    _secBlockedIPs = ips || [];
+    // Auto-blocks expire after 24 h (expires_at); the server ignores expired
+    // rows, so only show / count the ones that still block.
+    _secBlockedIPs = (ips || []).filter(r => !r.expires_at || new Date(r.expires_at) > new Date());
     _secLogs = logs || [];
 
     // Stat cards (use dedicated 24h count queries, not the 30-row limited
@@ -1432,10 +1451,14 @@ async function renderSecurity() {
         ? _secBlockedIPs.map(row => `
             <div class="ip-tag">
               ${escHtmlAdm(row.ip)}
-              <button class="remove" onclick="unblockIP('${escHtmlAdm(row.ip)}')" title="Unblock">✕</button>
+              <button class="remove" data-ip="${escHtmlAdm(row.ip)}" title="Unblock">✕</button>
             </div>
           `).join('')
         : '<div style="color:var(--text-dim);font-size:13px;padding:8px;">No IPs blocked.</div>';
+      // IP DB se aata hai (server auto-block bhi likhta hai), JS string mein nahi daalte
+      ipsEl.querySelectorAll('button[data-ip]').forEach(btn => {
+        btn.addEventListener('click', () => unblockIP(btn.dataset.ip));
+      });
     }
 
     // Recent events
@@ -2167,20 +2190,24 @@ async function loadCTFScoreboard() {
 /* ─────────────────────────────────────────────────────────────
    LOCAL SEED, same 20 challenges as ctf.html CTF_CHALLENGES
    Used as fallback when Supabase table is empty, and for Sync.
+   SECURITY: no flags here. This file is public (/js/...), and the
+   flags were readable by anyone. Flags live only in the DB (column
+   hidden from anon/authenticated) and in the lab servers; admin types
+   one in the Create/Edit modal.
 ───────────────────────────────────────────────────────────── */
 const CTF_LOCAL_SEED = [
-  { slug:'web-01', title:'Hidden in Plain Sight',     category:'web',       difficulty:'easy',   points:50,  xp_reward:100,  flag:'ACX{c0mm3nts_4r3_n0t_s3cr3t}',          hints:['View the page source (Ctrl+U) and check the HTML comments <!-- --> near the top, one part of the flag is hidden there.','Check robots.txt for a disallowed path, then visit it directly. The 404 response carries an extra header with the second part of the flag.','Look at the JS file the page loads. A hex-encoded string is buried in a comment near the middle, that decodes to the final part.'], description:'A website has something hidden inside its source code, and it isn\'t all in one place. The flag is split into three parts across an HTML comment, a response header, and a JS file, find all three and assemble them in order.', lab_url:'/pages/labs/lab-hidden.html',   solve_count:142, status:'active' },
-  { slug:'web-02', title:'Cookie Monster',             category:'web',       difficulty:'medium', points:150, xp_reward:250,  flag:'ACX{c00k13s_4r3_n0t_s3cur3}',              hints:['Check DevTools Application tab and inspect all cookies set after login.','One cookie is Base64 encoded JSON. Decode it with atob() in browser console.','The server checks more than one cookie. Changing only one triggers a security alert.'], description:'NovaCorp Employee Portal blindly trusts its session cookies. A leaked employee account has been found. Can you escalate your privileges and access the Admin Control Panel?', lab_url:'/pages/labs/lab-cookie.html',   solve_count:67,  status:'active' },
-  { slug:'web-03', title:'SQL Injection 101',          category:'web',       difficulty:'medium', points:200, xp_reward:350,  flag:'ACX{un10n_s3l3ct_g0t_m3}',                hints:['Add a single quote to the search field to trigger a SQL error and confirm the injection point.','Use ORDER BY to count columns, then UNION SELECT NULL to find which column accepts strings.','Query information_schema.tables to find hidden tables, then extract data from vault_secrets.'], description:'VaultBank Employee Portal has a vulnerable search feature. Extract the flag from a hidden database table using UNION-based SQL injection.', lab_url:'/pages/labs/lab-sqli101.html',    solve_count:89,  status:'active' },
-  { slug:'web-04', title:'robots.txt Secret',          category:'web',       difficulty:'easy',   points:50,  xp_reward:80,   flag:'ACX{r0b0ts_txt_l34ks_s3cr3ts}',           hints:['Every website has a robots.txt at /robots.txt. Always check it during recon.','The Disallow entries list paths that are meant to stay hidden. Visit each one.','The vault needs a passcode. Check the page source of the homepage carefully.'], description:'A website\'s robots.txt file tells search engines which paths not to index, but the file itself is public. A restricted path is hidden inside this file. Find it and visit it.', lab_url:'/pages/labs/lab-robots.html',  solve_count:210, status:'active' },
-  { slug:'web-06', title:'Insecure Deserialization',    category:'web',       difficulty:'easy',   points:60,  xp_reward:90,   flag:'ACX{tru5t_n0th1ng_fr0m_th3_cl13nt}',      hints:['The cookie is Base64 encoded. Decode it and read the raw string.','The decoded string is a PHP-serialized object with a boolean field isAdmin, currently b:0 (false).','Change b:0 to b:1, Base64 encode it again, and set it back as the acx_session cookie before checking access.'], description:'NovaSat internal member portal stores your session in a cookie. Log in as a guest, inspect the cookie, and find a way to become admin without ever knowing an admin password.', lab_url:'/pages/labs/lab-deserialize.html', solve_count:0, status:'active' },
-  { slug:'web-07', title:'Insecure Deserialization II', category:'web',       difficulty:'medium', points:150, xp_reward:220,  flag:'ACX{l3ngth_pr3f1x3s_l13_2_y0u}',          hints:['The cookie is a Base64 encoded PHP-serialized object again, decode it first.', 'The role field looks like s:4:"user". That leading number is the exact byte length of the string that follows.', 'Changing "user" to "admin" without updating that number breaks parsing. Update s:4: to the correct length of admin before encoding it back.'], description:'NovaSat pushed a v2 API for the member session. Same cookie-trust problem, but this time the role is a string, not a boolean, and the server reads it strictly.', lab_url:'/pages/labs/lab-deserialize-medium.html', solve_count:0, status:'active' },
-  { slug:'for-01', title:'Packet Detective',           category:'forensics', difficulty:'medium', points:200, xp_reward:350,  flag:'ACX{p4ck3t_d3t3ct1v3_dn5_3xf1l}',         hints:['Filter by `dns` in Wireshark. One internal IP is repeatedly querying an external domain and getting NXDOMAIN every time, that\'s a sign of DNS tunneling.','The subdomain labels being queried are the encoded data. Collect all of them in timestamp order and join them together.','Uppercase the joined string, pad it to a multiple of 8 with `=`, then Base32 decode it. CyberChef makes this quick.'], description:'A machine on the CorpX network was flagged for unusual outbound DNS activity. A short packet capture was taken at the egress point. Download the PCAP and figure out what data was being exfiltrated through DNS queries.', lab_url:'/pages/labs/lab-packet.html',  solve_count:54,  status:'active' },
-  { slug:'for-02', title:'Metadata Matters',           category:'forensics', difficulty:'easy',   points:75,  xp_reward:120,  flag:'ACX{m3t4_d4t4_1s_3v3rywh3r3}',           hints:['Image files store hidden data called EXIF metadata beyond just pixels.','Use exiftool or an online viewer like exifinfo.net to read all fields.','The flag is split across 4 fields. Find them all and figure out the correct order.'], description:'Someone shared an image on PixelDrop. The image looks normal but was flagged during a metadata review. Download it and extract the EXIF data to find the hidden flag.', lab_url:'/pages/labs/lab-metadata.html', solve_count:178, status:'active' },
-  { slug:'for-03', title:'Log Hunter',                 category:'forensics', difficulty:'hard',   points:350, xp_reward:600,  flag:'ACX{45.33.32.156__sqlmap__/admin/config.php}', hints:['Count requests per IP with awk and uniq -c. One IP has far more requests than any legitimate visitor.','Filter by the attacker IP and check unique User-Agent strings. Two distinct tools were used at different times of day.','The flag uses the SQL injection tool name only (not the directory scanner). Strip the query string from the path, keep only the base PHP file.'], description:'CorpX\'s web server saw unusual traffic one night. An access log with 2,156 lines has been recovered. Find the attacker\'s IP address, which tool they used to break in, and which path was exploited. Format: ACX{ip__tool__path}', lab_url:'/pages/labs/lab-loghunter.html', solve_count:28, status:'active' },
-  { slug:'cry-01', title:"Caesar's Secret",            category:'crypto',    difficulty:'easy',   points:50,  xp_reward:80,   flag:'ACX{veni_vidi_vici_shift3}',               hints:['The cipher is named after the Roman emperor who invented it, a fixed letter shift.','The shift is a single digit, the same one Julius Caesar used historically.','Shift is 3. Decode at CyberChef with the Caesar Cipher Decode recipe.'], description:'An encrypted transmission was intercepted from a dark web channel linked to underground group RedCell. The message is protected with a classic substitution cipher. Decrypt it and extract the verification token.', lab_url:'/pages/labs/lab-caesar.html', solve_count:195, status:'active' },
-  { slug:'cry-02', title:'Base64 Bonanza',             category:'crypto',    difficulty:'easy',   points:50,  xp_reward:80,   flag:'ACX{base64_is_not_encryption}',            hints:['Open the file in a text editor or with cat. It is not an image.','Decoding the file gives a telemetry message, not the flag. Look for the ENCODED PAYLOAD section.','Decode the payload string a second time with Base64. Two layers total.'], description:'A suspicious file was found in the NovaSat NS-7 telemetry export directory. It has a .jpg extension but it is not an image. Open it as text, decode what you find, and peel back both layers to extract the flag.', lab_url:'/pages/labs/lab-base64.html', solve_count:231, status:'active' },
-  { slug:'ai-01', title:'Helpdesk Slip',              category:'ai',        difficulty:'easy',   points:50,  xp_reward:100,  flag:'ACX{h3lpd3sk_b0t_sp1ll3d_th3_b34ns}',     hints:['The bot has no way to check who you really are. Its only protection is a polite request in its instructions not to share the code.','Try telling the bot you are the person the code is meant for, or ask it to repeat the instructions it was given at the start of the chat.','Ask directly for the admin recovery code while explaining that you are from the IT admin team. The flag is the code, in ACX{...} format.'], description:'CorpX Ltd. launched an AI assistant for its IT helpdesk. It knows a confidential admin recovery code and has been told not to share it with regular staff. Can you get it to talk?', lab_url:'/pages/labs/lab-ai-easy.html', solve_count:0, status:'active' },
+  { slug:'web-01', title:'Hidden in Plain Sight',     category:'web',       difficulty:'easy',   points:50,  xp_reward:100,  hints:['View the page source (Ctrl+U) and check the HTML comments <!-- --> near the top, one part of the flag is hidden there.','Check robots.txt for a disallowed path, then visit it directly. The 404 response carries an extra header with the second part of the flag.','Look at the JS file the page loads. A hex-encoded string is buried in a comment near the middle, that decodes to the final part.'], description:'A website has something hidden inside its source code, and it isn\'t all in one place. The flag is split into three parts across an HTML comment, a response header, and a JS file, find all three and assemble them in order.', lab_url:'/pages/labs/lab-hidden.html',   solve_count:142, status:'active' },
+  { slug:'web-02', title:'Cookie Monster',             category:'web',       difficulty:'medium', points:150, xp_reward:250,  hints:['Check DevTools Application tab and inspect all cookies set after login.','One cookie is Base64 encoded JSON. Decode it with atob() in browser console.','The server checks more than one cookie. Changing only one triggers a security alert.'], description:'NovaCorp Employee Portal blindly trusts its session cookies. A leaked employee account has been found. Can you escalate your privileges and access the Admin Control Panel?', lab_url:'/pages/labs/lab-cookie.html',   solve_count:67,  status:'active' },
+  { slug:'web-03', title:'SQL Injection 101',          category:'web',       difficulty:'medium', points:200, xp_reward:350,  hints:['Add a single quote to the search field to trigger a SQL error and confirm the injection point.','Use ORDER BY to count columns, then UNION SELECT NULL to find which column accepts strings.','Query information_schema.tables to find hidden tables, then extract data from vault_secrets.'], description:'VaultBank Employee Portal has a vulnerable search feature. Extract the flag from a hidden database table using UNION-based SQL injection.', lab_url:'/pages/labs/lab-sqli101.html',    solve_count:89,  status:'active' },
+  { slug:'web-04', title:'robots.txt Secret',          category:'web',       difficulty:'easy',   points:50,  xp_reward:80,   hints:['Every website has a robots.txt at /robots.txt. Always check it during recon.','The Disallow entries list paths that are meant to stay hidden. Visit each one.','The vault needs a passcode. Check the page source of the homepage carefully.'], description:'A website\'s robots.txt file tells search engines which paths not to index, but the file itself is public. A restricted path is hidden inside this file. Find it and visit it.', lab_url:'/pages/labs/lab-robots.html',  solve_count:210, status:'active' },
+  { slug:'web-06', title:'Insecure Deserialization',    category:'web',       difficulty:'easy',   points:60,  xp_reward:90,   hints:['The cookie is Base64 encoded. Decode it and read the raw string.','The decoded string is a PHP-serialized object with a boolean field isAdmin, currently b:0 (false).','Change b:0 to b:1, Base64 encode it again, and set it back as the acx_session cookie before checking access.'], description:'NovaSat internal member portal stores your session in a cookie. Log in as a guest, inspect the cookie, and find a way to become admin without ever knowing an admin password.', lab_url:'/pages/labs/lab-deserialize.html', solve_count:0, status:'active' },
+  { slug:'web-07', title:'Insecure Deserialization II', category:'web',       difficulty:'medium', points:150, xp_reward:220,  hints:['The cookie is a Base64 encoded PHP-serialized object again, decode it first.', 'The role field looks like s:4:"user". That leading number is the exact byte length of the string that follows.', 'Changing "user" to "admin" without updating that number breaks parsing. Update s:4: to the correct length of admin before encoding it back.'], description:'NovaSat pushed a v2 API for the member session. Same cookie-trust problem, but this time the role is a string, not a boolean, and the server reads it strictly.', lab_url:'/pages/labs/lab-deserialize-medium.html', solve_count:0, status:'active' },
+  { slug:'for-01', title:'Packet Detective',           category:'forensics', difficulty:'medium', points:200, xp_reward:350,  hints:['Filter by `dns` in Wireshark. One internal IP is repeatedly querying an external domain and getting NXDOMAIN every time, that\'s a sign of DNS tunneling.','The subdomain labels being queried are the encoded data. Collect all of them in timestamp order and join them together.','Uppercase the joined string, pad it to a multiple of 8 with `=`, then Base32 decode it. CyberChef makes this quick.'], description:'A machine on the CorpX network was flagged for unusual outbound DNS activity. A short packet capture was taken at the egress point. Download the PCAP and figure out what data was being exfiltrated through DNS queries.', lab_url:'/pages/labs/lab-packet.html',  solve_count:54,  status:'active' },
+  { slug:'for-02', title:'Metadata Matters',           category:'forensics', difficulty:'easy',   points:75,  xp_reward:120,  hints:['Image files store hidden data called EXIF metadata beyond just pixels.','Use exiftool or an online viewer like exifinfo.net to read all fields.','The flag is split across 4 fields. Find them all and figure out the correct order.'], description:'Someone shared an image on PixelDrop. The image looks normal but was flagged during a metadata review. Download it and extract the EXIF data to find the hidden flag.', lab_url:'/pages/labs/lab-metadata.html', solve_count:178, status:'active' },
+  { slug:'for-03', title:'Log Hunter',                 category:'forensics', difficulty:'hard',   points:350, xp_reward:600,  hints:['Count requests per IP with awk and uniq -c. One IP has far more requests than any legitimate visitor.','Filter by the attacker IP and check unique User-Agent strings. Two distinct tools were used at different times of day.','The flag uses the SQL injection tool name only (not the directory scanner). Strip the query string from the path, keep only the base PHP file.'], description:'CorpX\'s web server saw unusual traffic one night. An access log with 2,156 lines has been recovered. Find the attacker\'s IP address, which tool they used to break in, and which path was exploited. Format: ACX{ip__tool__path}', lab_url:'/pages/labs/lab-loghunter.html', solve_count:28, status:'active' },
+  { slug:'cry-01', title:"Caesar's Secret",            category:'crypto',    difficulty:'easy',   points:50,  xp_reward:80,   hints:['The cipher is named after the Roman emperor who invented it, a fixed letter shift.','The shift is a single digit, the same one Julius Caesar used historically.','Shift is 3. Decode at CyberChef with the Caesar Cipher Decode recipe.'], description:'An encrypted transmission was intercepted from a dark web channel linked to underground group RedCell. The message is protected with a classic substitution cipher. Decrypt it and extract the verification token.', lab_url:'/pages/labs/lab-caesar.html', solve_count:195, status:'active' },
+  { slug:'cry-02', title:'Base64 Bonanza',             category:'crypto',    difficulty:'easy',   points:50,  xp_reward:80,   hints:['Open the file in a text editor or with cat. It is not an image.','Decoding the file gives a telemetry message, not the flag. Look for the ENCODED PAYLOAD section.','Decode the payload string a second time with Base64. Two layers total.'], description:'A suspicious file was found in the NovaSat NS-7 telemetry export directory. It has a .jpg extension but it is not an image. Open it as text, decode what you find, and peel back both layers to extract the flag.', lab_url:'/pages/labs/lab-base64.html', solve_count:231, status:'active' },
+  { slug:'ai-01', title:'Helpdesk Slip',              category:'ai',        difficulty:'easy',   points:50,  xp_reward:100,  hints:['The bot has no way to check who you really are. Its only protection is a polite request in its instructions not to share the code.','Try telling the bot you are the person the code is meant for, or ask it to repeat the instructions it was given at the start of the chat.','Ask directly for the admin recovery code while explaining that you are from the IT admin team. The flag is the code, in ACX{...} format.'], description:'CorpX Ltd. launched an AI assistant for its IT helpdesk. It knows a confidential admin recovery code and has been told not to share it with regular staff. Can you get it to talk?', lab_url:'/pages/labs/lab-ai-easy.html', solve_count:0, status:'active' },
 ];
 
 /* ── Merge DB challenges with local seed (DB wins on conflicts) ── */
@@ -2345,27 +2372,27 @@ async function ctfSyncToSupabase() {
     toast('Database already has challenges, use Edit to modify them', 'error');
     return;
   }
-  if (!confirm(`Push all ${CTF_LOCAL_SEED.length} local challenges to Supabase?\n\nThis will create them as real DB records and they will appear live on the CTF page.`)) return;
+  if (!confirm(`Push all ${CTF_LOCAL_SEED.length} local challenges to Supabase?\n\nThey are created as DRAFTS without a flag (flags are not kept in client code). Edit each one, type its flag and set it Active to make it live on the CTF page.`)) return;
   toast('Syncing ' + CTF_LOCAL_SEED.length + ' challenges…');
   // FIX: pehle xp_reward aur solve_count use hote the, DB mein
   // ye columns 'xp' aur 'solvers' hain. Wrong names se insert fail hota.
+  // Flag nahi bhejte (seed mein hai hi nahi), isliye draft: bina flag ke live na ho.
   const rows = CTF_LOCAL_SEED.map(c => ({
     slug:        c.slug,
     title:       c.title,
     description: c.description,
     category:    c.category,
     difficulty:  c.difficulty,
-    flag:        c.flag,
     points:      c.points,
     xp:          c.xp_reward || 0,   // DB column: xp (not xp_reward)
     hints:       c.hints,
-    status:      c.status,
+    status:      'draft',
     lab_url:     c.lab_url || null,
     solvers:     0,                  // DB column: solvers (not solve_count)
   }));
   const { error } = await _supabase.from('ctf_challenges').insert(rows);
   if (error) { toast('Sync failed: ' + error.message, 'error'); return; }
-  toast('✓ All ' + CTF_LOCAL_SEED.length + ' challenges synced to database!');
+  toast('✓ All ' + CTF_LOCAL_SEED.length + ' challenges synced as drafts, set each flag via Edit');
   await renderCTF();
 }
 
@@ -2402,8 +2429,15 @@ function renderCTFCategoryBreakdown() {
   const colors = { web:'#3b82f6', forensics:'#22c55e', crypto:'#a855f7', osint:'#f59e0b', pwn:'#ef4444', reversing:'#06b6d4', ai:'#ec4899', misc:'#6b7280' };
   el.innerHTML = Object.entries(cats).map(([cat, count]) => {
     const col = colors[cat] || '#6b7280';
-    return `<span style="font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:${col}18;border:1px solid ${col}30;color:${col};cursor:pointer;" onclick="document.getElementById('ctfCategoryFilter').value='${cat}';filterCTF();">${categoryLabel(cat)} <span style="opacity:0.7;">${count}</span></span>`;
+    return `<span style="font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;background:${col}18;border:1px solid ${col}30;color:${col};cursor:pointer;" data-cat="${escHtmlAdm(cat)}">${escHtmlAdm(categoryLabel(cat))} <span style="opacity:0.7;">${count}</span></span>`;
   }).join('');
+  // category DB value hai, JS string mein nahi jaata
+  el.querySelectorAll('span[data-cat]').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.getElementById('ctfCategoryFilter').value = chip.dataset.cat;
+      filterCTF();
+    });
+  });
 }
 
 function filterCTF(text) {
@@ -2442,24 +2476,24 @@ function renderCTFGrid() {
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px;">
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
-            <div style="font-size:14px;font-weight:600;color:var(--white);">${c.title}</div>
+            <div style="font-size:14px;font-weight:600;color:var(--white);">${escHtmlAdm(c.title)}</div>
           </div>
           <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${cc}15;border:1px solid ${cc}25;color:${cc};">${categoryLabel(c.category)}</span>
+            <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:${cc}15;border:1px solid ${cc}25;color:${cc};">${escHtmlAdm(categoryLabel(c.category))}</span>
           </div>
         </div>
-        <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;background:${dc}15;border:1px solid ${dc}25;color:${dc};white-space:nowrap;flex-shrink:0;">${(c.difficulty||'').toUpperCase()}</span>
+        <span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px;background:${dc}15;border:1px solid ${dc}25;color:${dc};white-space:nowrap;flex-shrink:0;">${escHtmlAdm((c.difficulty||'').toUpperCase())}</span>
       </div>
-      <div style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:12px;">${(c.desc||'').slice(0,130)}${(c.desc||'').length>130?'…':''}</div>
+      <div style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:12px;">${escHtmlAdm((c.desc||'').slice(0,130))}${(c.desc||'').length>130?'…':''}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <span style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--red);">${c.points}<span style="font-size:10px;font-weight:500;color:var(--text-dim);margin-left:2px;">pts</span></span>
           <span style="font-size:10px;color:var(--text-dim);padding:2px 6px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;">${solveCount} solve${solveCount!==1?'s':''}</span>
           ${labUrl ? `<span style="background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:#60a5fa;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600;">LAB</span>` : ''}
-          <span style="font-size:10px;padding:2px 7px;border-radius:5px;${c.status==='active'?'background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:#22c55e;':c.status==='draft'?'background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:#f59e0b;':'background:rgba(107,114,128,0.1);border:1px solid rgba(107,114,128,0.2);color:#6b7280;'}">${c.status||'active'}</span>
+          <span style="font-size:10px;padding:2px 7px;border-radius:5px;${c.status==='active'?'background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);color:#22c55e;':c.status==='draft'?'background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:#f59e0b;':'background:rgba(107,114,128,0.1);border:1px solid rgba(107,114,128,0.2);color:#6b7280;'}">${escHtmlAdm(c.status||'active')}</span>
         </div>
         <div class="action-btns">
-          ${labUrl ? `<a href="${labUrl}" target="_blank" class="btn icon-only" title="Preview Lab" style="color:#60a5fa;">
+          ${labUrl ? `<a href="${escHtmlAdm(labUrl)}" target="_blank" class="btn icon-only" title="Preview Lab" style="color:#60a5fa;">
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M1 6s2-4 5-4 5 4 5 4-2 4-5 4-5-4-5-4z" stroke="currentColor" stroke-width="1.2"/><circle cx="6" cy="6" r="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
           </a>` : ''}
           <button class="btn icon-only" title="${isLocal?'Edit (will create in DB)':'Edit'}" onclick="openEditCTF('${c.id}')">
@@ -2477,15 +2511,15 @@ function renderCTFGrid() {
 }
 
 /* ── Push single local challenge to DB ── */
-async function ctfPushSingle(slug) {
+// Seed mein flag nahi hai, isliye seedha insert nahi karte: "Create from Seed"
+// modal kholo, admin flag type kare, saveCTF() upsert kar deta hai.
+// (Pehle wala direct insert xp_reward/solve_count jaise galat columns bhi bhejta tha.)
+function ctfPushSingle(slug) {
   if (!_supabase) { toast('Supabase not configured', 'error'); return; }
-  const seed = CTF_LOCAL_SEED.find(c => c.slug === slug);
-  if (!seed) return;
-  const row = { slug:seed.slug, title:seed.title, description:seed.description, category:seed.category, difficulty:seed.difficulty, flag:seed.flag, points:seed.points, xp_reward:seed.xp_reward, hints:seed.hints, status:seed.status, lab_url:seed.lab_url||null, lab_api_path:null, instance_managed:false, solve_count:0 };
-  const { error } = await _supabase.from('ctf_challenges').insert(row);
-  if (error) { toast('Push failed: ' + error.message, 'error'); return; }
-  toast(seed.title + ' pushed to DB ✓');
-  await renderCTF();
+  const c = ctfChallenges.find(x => x.slug === slug && x._isLocal);
+  if (!c) return;
+  openEditCTF(c.id);
+  toast('Type the flag for ' + c.title + ', then Save Challenge to push it to DB');
 }
 
 function categoryLabel(c) {
@@ -2507,8 +2541,8 @@ function renderCTFScoreboard() {
       <td><span class="rank-pill ${rankClass}">${s.rank}</span></td>
       <td>
         <div class="user-cell">
-          <div class="user-avatar">${(s.user||'?')[0].toUpperCase()}</div>
-          <div class="user-name">${s.user}</div>
+          <div class="user-avatar">${escHtmlAdm((s.user||'?')[0].toUpperCase())}</div>
+          <div class="user-name">${escHtmlAdm(s.user)}</div>
         </div>
       </td>
       <td>${s.solves}</td>
@@ -2563,6 +2597,7 @@ function openAddCTF() {
   document.getElementById('ctfCategory').value = 'web';
   document.getElementById('ctfDifficulty').value = 'easy';
   document.getElementById('ctfFlag').value = '';
+  document.getElementById('ctfFlag').placeholder = 'ACX{...}';
   document.getElementById('ctfPoints').value = '50';
   document.getElementById('ctfHints').value = '';
   document.getElementById('ctfStatus').value = 'draft';
@@ -2585,7 +2620,10 @@ function openEditCTF(id) {
   document.getElementById('ctfDesc').value     = c.desc || c.description || '';
   document.getElementById('ctfCategory').value = c.category;
   document.getElementById('ctfDifficulty').value = c.difficulty;
-  document.getElementById('ctfFlag').value     = c.flag || '';
+  // Flag kabhi pre-fill nahi hota: client ke paas flag hai hi nahi (DB column
+  // hidden hai). Edit pe khaali chhodo to purana flag hi rehta hai.
+  document.getElementById('ctfFlag').value     = '';
+  document.getElementById('ctfFlag').placeholder = c._isLocal ? 'ACX{...}' : 'Leave empty to keep the current flag';
   document.getElementById('ctfPoints').value   = c.points;
   document.getElementById('ctfHints').value    = (c.hints||[]).join('\n');
   // Read effective status from localStorage (persists across refreshes)
@@ -2623,22 +2661,27 @@ async function saveCTF() {
   const customUrl  = document.getElementById('ctfCustomLabUrl')?.value.trim() || '';
   const lab_url    = lab_type === 'custom' ? customUrl : getLabUrl(lab_type, '');
 
-  if (!title)  { toast('Challenge title is required', 'error'); return; }
-  if (!flag)   { toast('Flag is required (e.g. ACX{...})', 'error'); return; }
-  if (!flag.match(/ACX\{.+\}/)) { if (!confirm('Flag format looks unusual (expected ACX{...}). Continue?')) return; }
-
   const _editC = editingCTFId ? ctfChallenges.find(x => String(x.id) === String(editingCTFId)) : null;
+  // Existing DB row: flag optional (empty = keep current). New / from-seed: required.
+  const isUpdate = !!(_editC && !_editC._isLocal);
+
+  if (!title)  { toast('Challenge title is required', 'error'); return; }
+  if (!flag && !isUpdate) { toast('Flag is required (e.g. ACX{...})', 'error'); return; }
+  if (flag && !flag.match(/ACX\{.+\}/)) { if (!confirm('Flag format looks unusual (expected ACX{...}). Continue?')) return; }
+
   const _storedSlug = document.getElementById('ctfModal')?.dataset.editSlug || '';
   const slug = _editC?.slug || _storedSlug || title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);
 
   const row = {
     slug, title, description: desc, category, difficulty,
-    flag, points, xp: xp_reward, hints, status, lab_url: lab_url || null
+    points, xp: xp_reward, hints, status, lab_url: lab_url || null
   };
+  // Sirf wahi flag bhejo jo admin ne abhi type kiya
+  if (flag) row.flag = flag;
 
   try {
     let error;
-    if (_editC && !_editC._isLocal) {
+    if (isUpdate) {
       // Real DB row, update by id
       ({ error } = await sb.from('ctf_challenges').update(row).eq('id', _editC.id));
     } else {
@@ -2869,7 +2912,7 @@ function renderResTable(list) {
           </div>
         </div>
       </td>
-      <td><span class="badge ${TYPE_COLORS[r.type]||''}">${r.type}</span></td>
+      <td><span class="badge ${TYPE_COLORS[r.type]||''}">${escHtmlAdm(r.type)}</span></td>
       <td style="font-size:11px;">${r.size}</td>
       <td style="font-size:11px;color:var(--text-dim);">${escHtmlAdm(r.chapter)||'-'}</td>
       <td>
@@ -2879,7 +2922,7 @@ function renderResTable(list) {
         </div>
       </td>
       <td style="font-size:11px;color:var(--text-dim);">${r.uploaded}</td>
-      <td><span class="badge ${r.status==='active'?'green':'gray'}">${r.status}</span></td>
+      <td><span class="badge ${r.status==='active'?'green':'gray'}">${escHtmlAdm(r.status)}</span></td>
       <td>
         <div style="display:flex;gap:6px;">
           <button class="action-btn" onclick="editResource('${r.id}')" title="Edit">
@@ -3128,9 +3171,16 @@ async function renderToolsManager() {
     }));
 
     grid.innerHTML = statsPerTool.map(toolMgrCardHtml).join('');
+    // tool_key DB se aata hai: data-* se padho, onclick string mein nahi
+    grid.querySelectorAll('input[data-tool-toggle]').forEach(chk => {
+      chk.addEventListener('change', () => toolMgrToggle(chk.dataset.toolToggle, chk.checked));
+    });
+    grid.querySelectorAll('button[data-tool-msg]').forEach(btn => {
+      btn.addEventListener('click', () => toolMgrEditMessage(btn.dataset.toolMsg));
+    });
   } catch (e) {
     console.error('[ToolsManager] load failed:', e);
-    grid.innerHTML = `<div style="grid-column:1/-1;color:var(--text-dim);font-size:13px;padding:20px 0;">Could not load tools. ${e.message || ''}</div>`;
+    grid.innerHTML = `<div style="grid-column:1/-1;color:var(--text-dim);font-size:13px;padding:20px 0;">Could not load tools. ${escapeAdminHtml(e.message || '')}</div>`;
   }
 }
 
@@ -3150,7 +3200,7 @@ function toolMgrCardHtml(row) {
           <div style="font-size:16px;font-weight:700;color:var(--text);">${escapeAdminHtml(meta.label || row.tool_key)}</div>
         </div>
         <label class="toggle">
-          <input type="checkbox" ${row.is_enabled ? 'checked' : ''} onchange="toolMgrToggle('${row.tool_key}', this.checked)">
+          <input type="checkbox" ${row.is_enabled ? 'checked' : ''} data-tool-toggle="${escHtmlAdm(row.tool_key)}">
           <span class="toggle-slider"></span>
         </label>
       </div>
@@ -3169,7 +3219,7 @@ function toolMgrCardHtml(row) {
       <div style="font-size:11px;color:var(--text-dim);margin-bottom:14px;">Last used: ${escapeAdminHtml(lastUsed)}</div>
 
       <div style="display:flex;gap:8px;">
-        <button class="btn" style="font-size:12px;padding:6px 12px;" onclick="toolMgrEditMessage('${row.tool_key}')">Edit disabled message</button>
+        <button class="btn" style="font-size:12px;padding:6px 12px;" data-tool-msg="${escHtmlAdm(row.tool_key)}">Edit disabled message</button>
       </div>
     </div>
     <style>
@@ -3268,7 +3318,7 @@ async function loadCommunityData() {
       author: userMap[t.user_id] || 'Anonymous',
       category: t.category,
       replies: replyCounts[t.id] || 0,
-      votes: t.votes || 0,
+      votes: Number(t.votes) || 0,   // number only: goes into innerHTML as-is
       date: (t.created_at||'').slice(0,10),
       status: t.status
     }));
@@ -3362,11 +3412,11 @@ function filterThreads() {
     <tr>
       <td style="max-width:220px;"><span style="font-weight:500;color:var(--text);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtmlAdm(t.title)}</span></td>
       <td><span style="color:var(--red);font-size:11px;">@${escHtmlAdm(t.author)}</span></td>
-      <td><span style="background:var(--surface2);padding:2px 8px;border-radius:10px;font-size:10px;">${t.category}</span></td>
+      <td><span style="background:var(--surface2);padding:2px 8px;border-radius:10px;font-size:10px;">${escHtmlAdm(t.category)}</span></td>
       <td>${t.replies}</td>
       <td style="color:${t.votes >= 0 ? 'var(--green)' : '#ef4444'}">${t.votes > 0 ? '+' : ''}${t.votes}</td>
-      <td style="color:var(--text-dim);font-size:11px;">${t.date}</td>
-      <td><span style="color:${statusColor[t.status] || 'var(--text-dim)'};font-size:11px;font-weight:500;">${t.status}</span></td>
+      <td style="color:var(--text-dim);font-size:11px;">${escHtmlAdm(t.date)}</td>
+      <td><span style="color:${statusColor[t.status] || 'var(--text-dim)'};font-size:11px;font-weight:500;">${escHtmlAdm(t.status)}</span></td>
       <td>
         <div style="display:flex;gap:6px;">
           ${t.status !== 'pinned' ? `<button class="btn btn-ghost" style="padding:3px 8px;font-size:10px;" onclick="commPinThread('${t.id}')">Pin</button>` : `<button class="btn btn-ghost" style="padding:3px 8px;font-size:10px;" onclick="commUnpinThread('${t.id}')">Unpin</button>`}
@@ -3425,11 +3475,11 @@ function filterReports() {
   document.getElementById('commReportTbody').innerHTML = filtered.map(r => `
     <tr>
       <td style="max-width:200px;"><span style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;">${escHtmlAdm(r.content)}</span></td>
-      <td><span style="background:var(--surface2);padding:2px 7px;border-radius:10px;font-size:10px;">${r.type}</span></td>
+      <td><span style="background:var(--surface2);padding:2px 7px;border-radius:10px;font-size:10px;">${escHtmlAdm(r.type)}</span></td>
       <td style="color:var(--red);font-size:11px;">@${escHtmlAdm(r.reportedBy)}</td>
       <td style="font-size:11px;">${escHtmlAdm(r.reason)}</td>
-      <td style="color:var(--text-dim);font-size:11px;">${r.date}</td>
-      <td><span style="color:${statusColor[r.status]||'var(--text-dim)'};font-size:11px;font-weight:500;">${r.status}</span></td>
+      <td style="color:var(--text-dim);font-size:11px;">${escHtmlAdm(r.date)}</td>
+      <td><span style="color:${statusColor[r.status]||'var(--text-dim)'};font-size:11px;font-weight:500;">${escHtmlAdm(r.status)}</span></td>
       <td>
         <div style="display:flex;gap:6px;">
           ${r.status === 'open' ? `
@@ -3474,8 +3524,8 @@ function filterComments() {
       <td style="max-width:220px;font-size:11px;">"${escHtmlAdm(c.text.length > 80 ? c.text.substring(0,80)+'…' : c.text)}"</td>
       <td style="color:var(--red);font-size:11px;">@${escHtmlAdm(c.author)}</td>
       <td style="font-size:11px;color:var(--text-dim);">${escHtmlAdm(c.thread)}</td>
-      <td style="color:var(--text-dim);font-size:11px;">${c.date}</td>
-      <td><span style="color:${statusColor[c.status]};font-size:11px;font-weight:500;">${c.status}</span></td>
+      <td style="color:var(--text-dim);font-size:11px;">${escHtmlAdm(c.date)}</td>
+      <td><span style="color:${statusColor[c.status]};font-size:11px;font-weight:500;">${escHtmlAdm(c.status)}</span></td>
       <td>
         <div style="display:flex;gap:6px;">
           ${c.status === 'pending' ? `
@@ -3600,16 +3650,16 @@ function filterBlogPosts() {
   document.getElementById('blogTbody').innerHTML = filtered.map(p => `
     <tr>
       <td style="max-width:220px;">
-        <span style="font-weight:500;color:var(--text);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.title}</span>
-        <span style="font-size:10px;color:var(--text-dim);">${p.slug}</span>
+        <span style="font-weight:500;color:var(--text);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtmlAdm(p.title)}</span>
+        <span style="font-size:10px;color:var(--text-dim);">${escHtmlAdm(p.slug)}</span>
       </td>
-      <td><span style="background:var(--surface2);padding:2px 8px;border-radius:10px;font-size:10px;">${p.category}</span></td>
-      <td style="font-size:10px;color:var(--text-dim);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.tags.join(', ') || 'None'}</td>
+      <td><span style="background:var(--surface2);padding:2px 8px;border-radius:10px;font-size:10px;">${escHtmlAdm(p.category)}</span></td>
+      <td style="font-size:10px;color:var(--text-dim);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtmlAdm(p.tags.join(', ')) || 'None'}</td>
       <td>${p.views.toLocaleString()}</td>
-      <td style="color:var(--text-dim);font-size:11px;">${p.publishDate ? p.publishDate.slice(0,10) : 'Not set'}</td>
+      <td style="color:var(--text-dim);font-size:11px;">${p.publishDate ? escHtmlAdm(p.publishDate.slice(0,10)) : 'Not set'}</td>
       <td>
         <span style="display:inline-flex;align-items:center;gap:4px;color:${statusColor[p.status]};font-size:11px;font-weight:500;">
-          ${statusIcon[p.status] || ''} ${p.status}
+          ${statusIcon[p.status] || ''} ${escHtmlAdm(p.status)}
         </span>
       </td>
       <td>
@@ -3626,7 +3676,7 @@ function filterBlogPosts() {
 function renderBlogCategories() {
   document.getElementById('blogCatList').innerHTML = blogCategories.map((c,i) => `
     <span style="display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);padding:4px 12px;border-radius:20px;font-size:11px;">
-      ${c}
+      ${escHtmlAdm(c)}
       <button onclick="removeBlogCategory(${i})" style="background:none;border:none;color:var(--text-dim);cursor:pointer;padding:0;line-height:1;font-size:13px;">
         <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </button>
@@ -4433,10 +4483,14 @@ window._supabase = _supabase;
         if (foundChapters.length) {
           html += '<div style="padding:8px 12px 4px;font-size:10px;color:var(--text-dim);font-weight:600;letter-spacing:0.5px;">CONTENT</div>';
           html += foundChapters.map(c => {
-            return `<div onclick="globalSearchGoToContent('${escHtmlAdm(c.course || '')}')">${rowHtml(contentIcon, escHtmlAdm(c.title || 'Untitled'), escHtmlAdm(c.course || ''))}</div>`;
+            return `<div data-course="${escHtmlAdm(c.course || '')}">${rowHtml(contentIcon, escHtmlAdm(c.title || 'Untitled'), escHtmlAdm(c.course || ''))}</div>`;
           }).join('');
         }
         results.innerHTML = html;
+        // course DB value hai: data-* se padho, onclick JS string mein nahi
+        results.querySelectorAll('div[data-course]').forEach(row => {
+          row.addEventListener('click', () => window.globalSearchGoToContent(row.dataset.course));
+        });
       } catch (e) {
         console.error('[Admin] Global search error:', e);
         results.innerHTML = '<div style="padding:12px;font-size:12px;color:var(--text-dim);">Search failed.</div>';

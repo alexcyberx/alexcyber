@@ -17,7 +17,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { analyzeLimiter } = require('../../middleware/rateLimit');
+const { analyzeLimiter, analyzeGlobalLimiter, analyzePreAuthLimiter } = require('../../middleware/rateLimit');
 const { requireToolLogin, checkToolEnabled, logToolUsage } = require('../../middleware/toolAccess');
 
 // Try models in this order, if one is retired/unavailable for this
@@ -31,7 +31,23 @@ const GEMINI_MODEL_CANDIDATES = [
   'gemini-2.0-flash'
 ];
 
+// Total time budget for one analysis, across ALL model attempts (incl. reading
+// the body). Bina timeout ke ek stalled Gemini pe undici ~300 s per model wait
+// karta tha, aur user "Analyzing..." pe atka rehta tha. Same 20 s as
+// server/ai/llm.js.
+const GEMINI_TOTAL_TIMEOUT_MS = 20 * 1000;
+
 async function callGemini(apiKey, prompt) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), GEMINI_TOTAL_TIMEOUT_MS);
+  try {
+    return await tryGeminiModels(apiKey, prompt, ctrl.signal);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function tryGeminiModels(apiKey, prompt, signal) {
   let lastErr = null;
   for (const model of GEMINI_MODEL_CANDIDATES) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
@@ -42,7 +58,8 @@ async function callGemini(apiKey, prompt) {
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
           generationConfig: { temperature: 0.3, responseMimeType: 'application/json' }
-        })
+        }),
+        signal
       });
 
       if (geminiRes.status === 404) {
@@ -63,6 +80,14 @@ async function callGemini(apiKey, prompt) {
       console.log(`[MistakeAnalyzer] Used model: ${model}`);
       return await geminiRes.json();
     } catch (e) {
+      if (signal.aborted) {
+        // Budget khatam, next model try karne ka time nahi bacha.
+        console.error(`[MistakeAnalyzer] Model ${model} timed out, giving up.`);
+        const err = new Error('Gemini request timed out');
+        err.timedOut = true;
+        err.detail = { status: 0, body: `timed out after ${GEMINI_TOTAL_TIMEOUT_MS} ms (model ${model})` };
+        throw err;
+      }
       lastErr = { status: 0, body: e.message };
       console.error(`[MistakeAnalyzer] Model ${model} request failed:`, e.message);
     }
@@ -114,7 +139,8 @@ function sanitizeDashes(value) {
   return value;
 }
 
-router.post('/analyze-command', analyzeLimiter, requireToolLogin, checkToolEnabled('mistake_analyzer'), async (req, res) => {
+// Per-IP pre-auth limit first; the per-user limiters run after requireToolLogin.
+router.post('/analyze-command', analyzePreAuthLimiter, requireToolLogin, analyzeLimiter, analyzeGlobalLimiter, checkToolEnabled('mistake_analyzer'), async (req, res) => {
   try {
     const { command } = req.body;
     if (!command || typeof command !== 'string' || !command.trim()) {
@@ -135,6 +161,9 @@ router.post('/analyze-command', analyzeLimiter, requireToolLogin, checkToolEnabl
       data = await callGemini(apiKey, `${SYSTEM_PROMPT}\n\nStudent's command:\n${command.trim()}`);
     } catch (e) {
       console.error('[MistakeAnalyzer] All Gemini models failed:', JSON.stringify(e.detail).slice(0, 300));
+      if (e.timedOut) {
+        return res.status(504).json({ error: 'The analyzer took too long to answer. Please try again in a moment.' });
+      }
       return res.status(502).json({ error: 'Could not reach the analyzer right now. Please try again in a moment.' });
     }
 

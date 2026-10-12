@@ -5,7 +5,7 @@
    fingerprint ruleset (headers + HTML signatures).
 ═══════════════════════════════════════════════════════════ */
 
-const { fetchWithTimeout } = require('./utils');
+const { safeFetch } = require('./utils');
 
 const SECURITY_HEADERS = [
   'strict-transport-security',
@@ -51,25 +51,6 @@ function headersToObject(headers) {
   return out;
 }
 
-async function fetchWithRedirects(url, maxHops = 5) {
-  const chain = [];
-  let current = url;
-  let finalRes = null;
-
-  for (let i = 0; i < maxHops; i++) {
-    const res = await fetchWithTimeout(current, { redirect: 'manual' }, 7000);
-    chain.push({ url: current, status: res.status });
-    const location = res.headers.get('location');
-    if (res.status >= 300 && res.status < 400 && location) {
-      current = new URL(location, current).toString();
-      continue;
-    }
-    finalRes = res;
-    break;
-  }
-  return { chain, finalRes, finalUrl: current };
-}
-
 async function webRecon(domain) {
   const urls = [`https://${domain}`, `http://${domain}`];
   let result = null;
@@ -77,23 +58,26 @@ async function webRecon(domain) {
 
   for (const base of urls) {
     try {
-      const { chain, finalRes, finalUrl } = await fetchWithRedirects(base);
-      if (finalRes) {
-        const body = await finalRes.text().catch(() => '');
-        const headers = headersToObject(finalRes.headers);
-        const titleMatch = body.match(/<title[^>]*>([^<]*)<\/title>/i);
+      // safeFetch validates the IP of the base host AND of every redirect
+      // hop (manual follow, capped), so a redirect to an internal address
+      // is refused instead of followed.
+      const res = await safeFetch(base, { maxRedirects: 5, timeoutMs: 8000 });
+      const body = await res.text().catch(() => '');
+      const headers = headersToObject(res.headers);
+      // [^<>]* (not [^>]*) and only the head of the page: the old pattern
+      // backtracked quadratically on a body full of '<title' (seconds of CPU).
+      const titleMatch = body.slice(0, 65536).match(/<title\b[^<>]*>([^<]*)<\/title>/i);
 
-        result = {
-          finalUrl,
-          statusCode: finalRes.status,
-          redirectChain: chain,
-          title: titleMatch ? titleMatch[1].trim().slice(0, 200) : null,
-          headers,
-          bodySnippet: body.slice(0, 50000) // capped for downstream module reuse, not returned raw to client
-        };
-        protocolUsed = base.startsWith('https') ? 'https' : 'http';
-        break;
-      }
+      result = {
+        finalUrl: res.finalUrl,
+        statusCode: res.status,
+        redirectChain: res.redirectChain,
+        title: titleMatch ? titleMatch[1].trim().slice(0, 200) : null,
+        headers,
+        bodySnippet: body.slice(0, 50000) // capped for downstream module reuse, not returned raw to client
+      };
+      protocolUsed = base.startsWith('https') ? 'https' : 'http';
+      break;
     } catch (e) {
       continue;
     }
@@ -158,7 +142,9 @@ async function loginPanelDetection(domain, protocol = 'https') {
   const found = [];
   for (const path of LOGIN_PATHS) {
     try {
-      const res = await fetchWithTimeout(`${protocol}://${domain}${path}`, { redirect: 'manual', method: 'GET' }, 4000);
+      // Don't follow redirects: we want the target's own status for the
+      // path, and following a 30x could be steered at an internal host.
+      const res = await safeFetch(`${protocol}://${domain}${path}`, { method: 'GET', maxRedirects: 0, timeoutMs: 4000 });
       if (res.status === 200 || res.status === 401 || res.status === 403) {
         found.push({ path, status: res.status });
       }
@@ -172,14 +158,16 @@ async function loginPanelDetection(domain, protocol = 'https') {
 async function robotsAndSitemap(domain, protocol = 'https') {
   const out = { robotsTxt: null, sitemapXml: null };
   try {
-    const res = await fetchWithTimeout(`${protocol}://${domain}/robots.txt`, {}, 5000);
+    // No redirect follow + pinned public IP, so the body we read is the
+    // target's own robots.txt (never an internal URL a 30x pointed at).
+    const res = await safeFetch(`${protocol}://${domain}/robots.txt`, { maxRedirects: 0, timeoutMs: 5000, maxBytes: 64 * 1024 });
     if (res.status === 200) {
       const text = await res.text();
       out.robotsTxt = text.slice(0, 5000);
     }
   } catch (e) {}
   try {
-    const res = await fetchWithTimeout(`${protocol}://${domain}/sitemap.xml`, {}, 5000);
+    const res = await safeFetch(`${protocol}://${domain}/sitemap.xml`, { method: 'HEAD', maxRedirects: 0, timeoutMs: 5000 });
     if (res.status === 200) {
       out.sitemapXml = { found: true, contentTypeOk: (res.headers.get('content-type') || '').includes('xml') };
     }

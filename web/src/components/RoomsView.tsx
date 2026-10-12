@@ -505,6 +505,9 @@ export default function RoomsView({ challenges: rooms, icons, i18n }: { challeng
         const data = await res.json().catch(() => ({}));
         correct = !!(res.ok && data.success);
         if (res.status === 429) return fail('[!] ' + (data.error || data.message || 'Too many attempts. Try again in a moment.'));
+        if (correct && data.recorded === false && data.reason === 'suspended') {
+          return fail('[!] Your account is suspended, so this solve was not counted.');
+        }
         if (correct && data.recorded === false && data.reason === 'login_required') {
           return fail('[!] Correct, but your session expired. Please log in again and resubmit.');
         }
@@ -520,7 +523,7 @@ export default function RoomsView({ challenges: rooms, icons, i18n }: { challeng
       const { data, error } = await sb.rpc('submit_ctf_flag', { p_challenge_id: c.uuid, p_flag: f });
       if (error) return fail('[!] Server error. Please try again.');
       const r = (Array.isArray(data) ? data[0] : data) || {};
-      if (r.error === 'rate_limited' || r.error === 'locked') return fail('[!] ' + (r.message || 'Try again in a moment.'));
+      if (r.error === 'rate_limited' || r.error === 'locked' || r.error === 'suspended') return fail('[!] ' + (r.message || 'Try again in a moment.'));
       correct = !!(r.correct || r.already_solved);
       already = !!r.already_solved;
       earned = r.already_solved ? 0 : (r.xp_earned || r.points_earned || c.xp);

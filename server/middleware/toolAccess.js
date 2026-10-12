@@ -3,7 +3,8 @@
    ═══════════════════════════════════════════════════════════
    Shared helpers for any tool route (Mistake Analyzer,
    AlexRecon) that needs to:
-     1. Require the caller to be logged in (requireToolLogin)
+     1. Require the caller to be logged in and not suspended
+        (requireToolLogin)
      2. Check the admin "enable/disable" switch (checkToolEnabled)
      3. Log a usage event for the admin dashboard (logToolUsage)
 
@@ -25,11 +26,54 @@ function getSupabaseAdmin() {
   return supabaseAdmin;
 }
 
+// ── Banned / suspended users ─────────────────────────────────
+// Admin panel ka "Suspend"/"Ban" sirf profiles.is_banned set karta hai,
+// session/refresh token chalta rehta hai. Isliye har tool request pe
+// is_banned check karte hain (service-role client se, RLS se independent).
+// Per user ~60 s cache, taaki har request pe ek extra DB query na ho.
+const BAN_CACHE_MS = 60 * 1000;
+const BAN_CACHE_MAX = 5000;
+const banCache = new Map(); // uid -> { banned, at }
+
+async function isUserBanned(uid) {
+  const now = Date.now();
+  const cached = banCache.get(uid);
+  if (cached && now - cached.at < BAN_CACHE_MS) return cached.banned;
+
+  const db = getSupabaseAdmin();
+  if (!db) return cached ? cached.banned : false;
+
+  try {
+    const { data, error } = await db
+      .from('profiles')
+      .select('is_banned')
+      .eq('id', uid)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+
+    const banned = !!(data && data.is_banned);
+    if (banCache.size >= BAN_CACHE_MAX) {
+      // Simple cleanup: drop expired entries, and if still full just reset.
+      for (const [k, v] of banCache) if (now - v.at >= BAN_CACHE_MS) banCache.delete(k);
+      if (banCache.size >= BAN_CACHE_MAX) banCache.clear();
+    }
+    banCache.set(uid, { banned, at: now });
+    return banned;
+  } catch (e) {
+    // DB hiccup: agar pehle se pata hai ki banned hai to block hi rakho,
+    // warna fail open (same as checkToolEnabled), taaki ek Supabase glitch
+    // saare tools offline na kar de.
+    console.error('[ToolAccess] ban check failed:', e.message);
+    return cached ? cached.banned : false;
+  }
+}
+
 // Express middleware: the caller must send a valid Supabase access token
 // ("Authorization: Bearer <token>"). The token is verified server-side with
 // auth.getUser(), and the user id comes ONLY from that verified token.
 // Any userId the client puts in the body/query is overwritten, so a caller
 // can never read or write another user's data by guessing a UUID.
+// Suspended users (profiles.is_banned) get 403 even with a valid token.
 // Fails closed: if Supabase isn't configured, the request is rejected.
 async function requireAuth(req, res, next) {
   try {
@@ -46,6 +90,10 @@ async function requireAuth(req, res, next) {
     }
 
     const uid = data.user.id;
+    if (await isUserBanned(uid)) {
+      return res.status(403).json({ error: 'Your account is suspended.' });
+    }
+
     req.authUserId = uid;
     req.toolUserId = uid;
     if (req.body && typeof req.body === 'object') req.body.userId = uid;
@@ -104,4 +152,4 @@ function logToolUsage(toolKey, userId) {
     });
 }
 
-module.exports = { requireAuth, requireToolLogin, checkToolEnabled, logToolUsage, getSupabaseAdmin };
+module.exports = { requireAuth, requireToolLogin, checkToolEnabled, logToolUsage, getSupabaseAdmin, isUserBanned };

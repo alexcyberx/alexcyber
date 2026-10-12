@@ -8,19 +8,42 @@
 ═══════════════════════════════════════════════════════════ */
 
 const dns = require('dns').promises;
+const net = require('net');
 const { fetchWithTimeout, withTimeout } = require('../alexrecon/modules/utils');
+const { resolvePublic, isPublicAddress } = require('./target');
 
+// value = already normalised by routes.js (bare IP or hostname).
+// ipapi.co sirf IP leta hai (/{ip}/json/), domain bhejne pe "Invalid IP
+// Address" aata tha. Isliye domain ho to pehle dns.lookup se uska public
+// IP nikalte hain, phir ipapi ko woh IP bhejte hain.
 async function ipLookup(value) {
+  let ip = value;
+  let domain = null;
+  if (!net.isIP(value)) {
+    domain = value;
+    try {
+      ({ ip } = await withTimeout(resolvePublic(value), 6000, 'DNS lookup'));
+    } catch (err) {
+      if (err.privateTarget) {
+        return { found: false, note: `${value} is a private or internal address, so it has no public location.` };
+      }
+      return { found: false, note: `Could not resolve ${value}.` };
+    }
+  } else if (!isPublicAddress(value)) {
+    return { found: false, note: `${value} is a private or internal address, so it has no public location.` };
+  }
+
   try {
-    const res = await fetchWithTimeout(`https://ipapi.co/${encodeURIComponent(value)}/json/`, {}, 6000);
+    const res = await fetchWithTimeout(`https://ipapi.co/${encodeURIComponent(ip)}/json/`, {}, 6000);
     const data = await res.json();
     if (data.error) {
       return { found: false, note: data.reason || 'Lookup failed.' };
     }
     return {
       found: true,
-      ip: data.ip || null,
-      hostname: data.hostname || null,
+      ip: data.ip || ip,
+      hostname: data.hostname || domain,
+      domain,
       countryName: data.country_name || null,
       countryCode: data.country_code || null,
       city: data.city || null,

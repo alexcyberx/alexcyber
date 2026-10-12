@@ -50,10 +50,14 @@ function toast(message: string) {
   setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 350); }, 3200);
 }
 
+// A suspended account is signed out on load (the DB refuses its writes anyway).
+class BannedError extends Error {}
+
 async function loadNavUser(authUser: User): Promise<NavUser> {
   const sb = browserSupabase()!;
   let name = authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'User';
-  const { data, error } = await sb.from('profiles').select('full_name').eq('id', authUser.id).maybeSingle();
+  const { data, error } = await sb.from('profiles').select('full_name, is_banned').eq('id', authUser.id).maybeSingle();
+  if (data?.is_banned) throw new BannedError();
   if (data?.full_name) {
     name = data.full_name;
   } else if (!data && !error) {
@@ -123,7 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const sb = browserSupabase();
     if (!sb) return;
     const { data } = await sb.auth.getUser();
-    if (data.user) setUser(await loadNavUser(data.user));
+    if (data.user) setUser(await loadNavUser(data.user).catch(() => null));
   }, []);
 
   // Session + auth events
@@ -134,7 +138,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const apply = async (session: Session | null) => {
       if (!session) { if (!cancelled) setUser(null); return; }
-      const nu = await loadNavUser(session.user);
+      let nu: NavUser;
+      try {
+        nu = await loadNavUser(session.user);
+      } catch (e) {
+        if (!(e instanceof BannedError)) throw e;
+        await sb.auth.signOut();
+        clearUserStorage();
+        if (!cancelled) setUser(null);
+        toast('Your account is suspended. Contact support if you think this is a mistake.');
+        return;
+      }
       if (cancelled) return;
       setUser(nu);
       // Daily login XP: the RPC itself makes sure it is only once per day.

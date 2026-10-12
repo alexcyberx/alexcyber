@@ -1268,7 +1268,12 @@ async function arToggleSchedule(id, newActiveState) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId: window._currentUser.id, is_active: newActiveState })
     });
-    if (res.ok) arLoadSchedules();
+    if (res.ok) { arLoadSchedules(); return; }
+    // e.g. the 3-active-schedules cap, or AlexRecon switched off by the admin
+    const data = await res.json().catch(() => ({}));
+    const st = document.getElementById('arScheduleStatus');
+    const msg = data.error || 'Could not update this schedule.';
+    if (st) st.textContent = msg; else alert(msg);
   } catch (e) {
     console.error('AlexRecon schedule toggle error:', e);
   }
