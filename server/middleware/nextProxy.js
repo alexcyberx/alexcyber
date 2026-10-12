@@ -28,12 +28,15 @@ const NEXT_PAGES = {
   profile:      '/profile',
   publicProfile: '/u',
   ctf:          '/rooms',
+  resources:    '/resources',
+  community:    '/community',
 };
 
 // Exact paths go to Next; /tutorials/<course> stays in the SPA.
 // /search-index.json feeds the nav search on the Next pages.
 const EXACT = new Set([...Object.values(NEXT_PAGES), '/search-index.json']);
-const PREFIXES = ['/blog/', '/u/', '/_next/'];
+// /community/<thread-id> is a real Next route too.
+const PREFIXES = ['/blog/', '/u/', '/community/', '/_next/'];
 
 function isNextPath(p) {
   const clean = p.length > 1 ? p.replace(/\/+$/, '') : p;
