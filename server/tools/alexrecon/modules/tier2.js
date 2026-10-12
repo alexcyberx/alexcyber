@@ -224,8 +224,9 @@ async function githubOrgIntel(orgOrDomainBase) {
       publicRepos: org.public_repos,
       blog: org.blog || null,
       email: org.email || null,
-      publicMembers: members.map(m => m.login).slice(0, 30),
-      recentRepos: repos.map(r => ({ name: r.name, url: r.html_url, language: r.language })).slice(0, 10),
+      // Guard the shape: a non-array body here shouldn't sink the whole module.
+      publicMembers: (Array.isArray(members) ? members : []).map(m => m.login).slice(0, 30),
+      recentRepos: (Array.isArray(repos) ? repos : []).map(r => ({ name: r.name, url: r.html_url, language: r.language })).slice(0, 10),
       note: 'Limited to publicly indexed GitHub organization data. LinkedIn and other scraping is intentionally not performed.'
     };
   } catch (err) {

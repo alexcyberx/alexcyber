@@ -121,6 +121,9 @@ const net = require('net');
 const http = require('http');
 const https = require('https');
 const zlib = require('zlib');
+// ipaddr.js is not in package.json: it comes in with express (express ->
+// proxy-addr -> ipaddr.js@1.9.1, pinned in package-lock) and is used here
+// as-is. If express is ever dropped/upgraded, add it as a direct dependency.
 const ipaddr = require('ipaddr.js');
 
 // HTTP(S) follow-up fetches are only allowed to these ports. The common-port
@@ -180,17 +183,47 @@ function safeLookup(hostname, options, callback) {
   });
 }
 
-function decodeBody(buf, encoding) {
-  if (!encoding) return buf;
-  try {
-    const enc = String(encoding).toLowerCase();
-    if (enc.includes('br')) return zlib.brotliDecompressSync(buf);
-    if (enc.includes('gzip')) return zlib.gunzipSync(buf);
-    if (enc.includes('deflate')) return zlib.inflateSync(buf);
-  } catch (e) {
-    // Fall back to the raw bytes if decompression fails.
-  }
-  return buf;
+// Decompresses a gzip/br/deflate body but never produces more than maxBytes.
+// The raw read is already capped, but a target can ignore our
+// "Accept-Encoding: identity" and send a tiny zip bomb (657 bytes of brotli
+// -> 400 MB), so the DECODED size needs its own cap. Output is streamed and
+// we stop at the cap, keeping the prefix (enough for title / JS checks).
+// Resolves { buf, truncated }.
+function decodeBody(buf, encoding, maxBytes = MAX_FETCH_BYTES) {
+  const enc = String(encoding || '').toLowerCase();
+  let decoder = null;
+  // Lenient finishFlush: a body we cut at the raw cap still decodes up to the cut.
+  if (enc.includes('br')) decoder = zlib.createBrotliDecompress({ finishFlush: zlib.constants.BROTLI_OPERATION_FLUSH });
+  else if (enc.includes('gzip')) decoder = zlib.createGunzip({ finishFlush: zlib.constants.Z_SYNC_FLUSH });
+  else if (enc.includes('deflate')) decoder = zlib.createInflate({ finishFlush: zlib.constants.Z_SYNC_FLUSH });
+  if (!decoder || !buf.length) return Promise.resolve({ buf, truncated: false });
+
+  return new Promise((resolve) => {
+    const out = [];
+    let size = 0;
+    let finished = false;
+    const finish = (truncated, failed) => {
+      if (finished) return;
+      finished = true;
+      decoder.destroy(); // stop inflating - nothing past the cap is ever produced
+      // Mislabelled body (says gzip, isn't): keep the raw bytes, already <= maxBytes.
+      if (failed && size === 0) return resolve({ buf, truncated: false });
+      resolve({ buf: Buffer.concat(out, size), truncated });
+    };
+    decoder.on('data', (chunk) => {
+      if (finished) return;
+      if (size + chunk.length > maxBytes) {
+        out.push(chunk.subarray(0, maxBytes - size));
+        size = maxBytes;
+        return finish(true);
+      }
+      out.push(chunk);
+      size += chunk.length;
+    });
+    decoder.on('end', () => finish(false));
+    decoder.on('error', () => finish(false, true)); // corrupt stream: keep what decoded
+    decoder.end(buf);
+  });
 }
 
 // One validated, size-capped, deadline-bounded request. Does NOT follow
@@ -220,6 +253,7 @@ function rawRequest(urlStr, opts) {
     }
 
     let settled = false;
+    let finishing = false; // body fully read, decode in progress
     let req;
     const done = (fn, arg) => {
       if (settled) return;
@@ -258,27 +292,31 @@ function rawRequest(urlStr, opts) {
       const clen = Number(res.headers['content-length']);
       if (Number.isFinite(clen) && clen > maxBytes) truncated = true;
       res.on('data', (chunk) => {
-        if (settled) return;
-        received += chunk.length;
-        if (received > maxBytes) {
+        if (settled || finishing) return;
+        if (received + chunk.length > maxBytes) {
+          chunks.push(chunk.subarray(0, maxBytes - received)); // keep up to the cap
+          received = maxBytes;
           truncated = true;
           res.destroy(); // stop reading; we have enough
           return;
         }
+        received += chunk.length;
         chunks.push(chunk);
       });
       const finish = () => {
-        if (settled) return;
-        let buf = Buffer.concat(chunks);
-        buf = decodeBody(buf, res.headers['content-encoding']);
-        done(resolve, buildResponse(res, buf, truncated));
+        if (settled || finishing) return;
+        finishing = true; // 'end' and 'close' both land here; decode once
+        // Decoded size is capped too (zip bombs), see decodeBody.
+        decodeBody(Buffer.concat(chunks), res.headers['content-encoding'], maxBytes)
+          .then(({ buf, truncated: cut }) => done(resolve, buildResponse(res, buf, truncated || cut)));
       };
       res.on('end', finish);
       res.on('close', finish);
-      res.on('error', (e) => done(reject, e));
+      // Once the body is in hand, a late socket error must not throw it away.
+      res.on('error', (e) => { if (!finishing) done(reject, e); });
     });
 
-    req.on('error', (e) => done(reject, e));
+    req.on('error', (e) => { if (!finishing) done(reject, e); });
     req.end();
   });
 }
@@ -379,15 +417,27 @@ const MULTI_PART_SUFFIXES = new Set([
   'com.sg', 'edu.sg', 'gov.sg',
   'co.jp', 'or.jp', 'ne.jp', 'go.jp', 'ac.jp',
   'com.cn', 'net.cn', 'org.cn', 'gov.cn',
-  'com.mx', 'com.tr', 'com.ua', 'com.ar', 'com.pl'
+  'com.mx', 'com.tr', 'com.ua', 'com.ar', 'com.pl',
+  // Shared-hosting platforms: each user/app gets its own subdomain, so the
+  // brand is the label in front of the platform (alex.github.io -> "alex"),
+  // not the platform itself - otherwise we'd report GitHub's own org/buckets.
+  'github.io', 'gitlab.io', 'vercel.app', 'netlify.app', 'onrender.com',
+  'herokuapp.com', 'pages.dev', 'workers.dev', 'web.app', 'firebaseapp.com',
+  'appspot.com', 'azurewebsites.net', 'cloudfront.net', 'blogspot.com',
+  'wordpress.com', 'wixsite.com', 'glitch.me', 'repl.co', 'fly.dev',
+  'railway.app', 'up.railway.app', 'surge.sh'
 ]);
 
 function registrableDomain(domain) {
   const parts = String(domain || '').split('.').filter(Boolean);
   if (parts.length <= 2) return parts.join('.');
-  const lastTwo = parts.slice(-2).join('.');
-  if (MULTI_PART_SUFFIXES.has(lastTwo)) return parts.slice(-3).join('.');
-  return lastTwo;
+  // Longest known suffix wins (x.up.railway.app -> x, not "up").
+  for (const n of [3, 2]) {
+    if (parts.length > n && MULTI_PART_SUFFIXES.has(parts.slice(-n).join('.'))) {
+      return parts.slice(-(n + 1)).join('.');
+    }
+  }
+  return parts.slice(-2).join('.');
 }
 
 function registrableLabel(domain) {

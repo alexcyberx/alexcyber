@@ -20,7 +20,9 @@ const { withTimeout } = require('./modules/utils');
 
 const CHECK_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
 const MAX_SCHEDULES_PER_TICK = 25;        // bound one tick's work
+const MAX_RUNS_PER_USER_PER_TICK = 3;     // same as the per-user active cap in routes.js
 const SCAN_DEADLINE_MS = 3 * 60 * 1000;   // hard cap per scheduled scan
+const BANNED_LOOKUP_CHUNK = 100;          // ids per .in() query (PostgREST puts them in the URL)
 
 const FREQUENCY_MS = {
   daily: 24 * 60 * 60 * 1000,
@@ -47,20 +49,50 @@ let runScanForTarget = null;
 let running = false;
 
 // Returns the set of user_ids (from the given list) whose profile is banned,
-// so the scheduler never runs scans on a banned user's behalf.
+// so the scheduler never runs scans on a banned user's behalf. Looked up in
+// chunks: this now covers every due row, and one huge .in() list would
+// overflow the request URL.
 async function fetchBannedUserIds(db, userIds) {
   const unique = [...new Set(userIds.filter(Boolean))];
-  if (!unique.length) return new Set();
-  const { data, error } = await db
-    .from('profiles')
-    .select('id')
-    .in('id', unique)
-    .eq('is_banned', true);
-  if (error) {
-    console.error('[AlexRecon Scheduler] banned-user lookup failed:', error.message);
-    return new Set(); // fail safe-ish: don't crash the tick
+  const banned = new Set();
+  for (let i = 0; i < unique.length; i += BANNED_LOOKUP_CHUNK) {
+    const { data, error } = await db
+      .from('profiles')
+      .select('id')
+      .in('id', unique.slice(i, i + BANNED_LOOKUP_CHUNK))
+      .eq('is_banned', true);
+    if (error) {
+      console.error('[AlexRecon Scheduler] banned-user lookup failed:', error.message);
+      continue; // fail safe-ish: don't crash the tick
+    }
+    (data || []).forEach(r => banned.add(r.id));
   }
-  return new Set((data || []).map(r => r.id));
+  return banned;
+}
+
+// Never-run rows first, then the oldest last_run_at - so whatever has
+// waited longest runs first and no row can be pushed back forever.
+function oldestFirst(a, b) {
+  const ta = a.last_run_at ? new Date(a.last_run_at).getTime() : 0;
+  const tb = b.last_run_at ? new Date(b.last_run_at).getTime() : 0;
+  return ta - tb;
+}
+
+// Picks this tick's work from the due, non-banned rows (already oldest
+// first): at most MAX_RUNS_PER_USER_PER_TICK per user, so one account with
+// a pile of rows can't take every slot, and MAX_SCHEDULES_PER_TICK in all.
+// Rows left out stay due and come first next tick.
+function pickForTick(rows) {
+  const perUser = new Map();
+  const picked = [];
+  for (const s of rows) {
+    if (picked.length >= MAX_SCHEDULES_PER_TICK) break;
+    const n = perUser.get(s.user_id) || 0;
+    if (n >= MAX_RUNS_PER_USER_PER_TICK) continue;
+    perUser.set(s.user_id, n + 1);
+    picked.push(s);
+  }
+  return picked;
 }
 
 // Atomically claim a due schedule by stamping last_run_at BEFORE scanning,
@@ -120,30 +152,33 @@ function startAlexReconScheduler(getSupabaseAdmin, runScanFn) {
         return;
       }
 
+      // Oldest first in the query too, so if PostgREST's max-rows limit
+      // cuts the list, it's the newest runs that wait, not the oldest.
       const { data: schedules, error } = await db
         .from('alexrecon_schedules')
         .select('*')
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .order('last_run_at', { ascending: true, nullsFirst: true });
 
       if (error) {
         console.error('[AlexRecon Scheduler] fetch failed:', error.message);
         return;
       }
 
-      const due = (schedules || []).filter(isDue).slice(0, MAX_SCHEDULES_PER_TICK);
-      if (!due.length) return;
+      const dueAll = (schedules || []).filter(isDue).sort(oldestFirst);
+      if (!dueAll.length) return;
 
-      const banned = await fetchBannedUserIds(db, due.map(s => s.user_id));
+      // Drop banned users' rows BEFORE capping the tick: they are never
+      // claimed, so they stay due forever and would otherwise fill all 25
+      // slots every tick and starve everyone else.
+      const banned = await fetchBannedUserIds(db, dueAll.map(s => s.user_id));
+      if (banned.size) console.log(`[AlexRecon Scheduler] skipping ${banned.size} banned user(s)`);
+      const due = pickForTick(dueAll.filter(s => !banned.has(s.user_id)));
+      if (!due.length) return;
 
       console.log(`[AlexRecon Scheduler] ${due.length} due schedule(s) this tick`);
 
       for (const schedule of due) {
-        // Skip banned users entirely (don't even claim their rows).
-        if (banned.has(schedule.user_id)) {
-          console.log(`[AlexRecon Scheduler] skipping banned user ${schedule.user_id}`);
-          continue;
-        }
-
         // Claim first (stamp last_run_at). If another tick/instance already
         // took it, skip without scanning.
         const claimed = await claimSchedule(db, schedule);

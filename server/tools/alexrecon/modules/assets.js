@@ -18,41 +18,76 @@ function isValidSubdomain(clean, domain) {
   return clean === domain || clean.endsWith('.' + domain);
 }
 
+// crt.sh answers for mid-size orgs / universities run to several MB (9000
+// cert rows is ~3 MB), so crt.sh gets its own cap, well above the 2 MB
+// default every other fetch uses.
+const CRTSH_MAX_BYTES = 16 * 1024 * 1024; // 16 MB
+
+// Body was cut at CRTSH_MAX_BYTES, so it ends mid-row. crt.sh rows are flat
+// objects: close the array after the last complete "}" and keep every row
+// that arrived whole. A "}" inside a string just fails to parse, so step
+// back to the previous one (a few tries max).
+function salvageRows(text) {
+  let end = text.lastIndexOf('}');
+  for (let tries = 0; end > 0 && tries < 5; tries++) {
+    try {
+      const rows = JSON.parse(text.slice(0, end + 1) + ']');
+      if (Array.isArray(rows)) return rows;
+    } catch (e) {}
+    end = text.lastIndexOf('}', end - 1);
+  }
+  return null;
+}
+
 // crt.sh can be slow/rate-limited - give it more room than most
 // modules, but still bounded so it can't hang the whole scan.
 async function subdomainEnumeration(domain) {
   try {
     const res = await safeFetch(
       `https://crt.sh/?q=%25.${encodeURIComponent(domain)}&output=json`,
-      { timeoutMs: 12000 }
+      { timeoutMs: 12000, maxBytes: CRTSH_MAX_BYTES }
     );
     if (!res.ok) {
       return { source: 'crt.sh', available: false, upstreamError: true, note: `crt.sh returned status ${res.status}`, subdomains: [] };
     }
     const text = await res.text();
-    let rows;
-    try {
-      rows = JSON.parse(text);
-    } catch (e) {
-      // crt.sh occasionally returns malformed/partial JSON under load
-      return { source: 'crt.sh', available: false, upstreamError: true, note: 'crt.sh response could not be parsed (service may be under load).', subdomains: [] };
+    let rows = null;
+    if (res.truncated) {
+      // Our own size cap, not a crt.sh fault - keep what we got.
+      rows = salvageRows(text);
+      if (!rows) {
+        return { source: 'crt.sh', available: false, note: `crt.sh result is too large to read (over ${CRTSH_MAX_BYTES / 1048576} MB).`, subdomains: [] };
+      }
+    } else {
+      try {
+        rows = JSON.parse(text);
+      } catch (e) {}
+      if (!Array.isArray(rows)) {
+        // crt.sh occasionally returns malformed/partial JSON under load
+        return { source: 'crt.sh', available: false, upstreamError: true, note: 'crt.sh response could not be parsed (service may be under load).', subdomains: [] };
+      }
     }
 
     const names = new Set();
     for (const row of rows) {
-      if (!row.name_value) continue;
+      if (!row || typeof row.name_value !== 'string') continue;
       row.name_value.split('\n').forEach(n => {
         const clean = n.trim().toLowerCase().replace(/^\*\./, '');
         if (isValidSubdomain(clean, domain)) names.add(clean);
       });
     }
 
-    return {
+    const result = {
       source: 'crt.sh',
       available: true,
       count: names.size,
       subdomains: Array.from(names).sort()
     };
+    if (res.truncated) {
+      result.truncated = true;
+      result.note = `crt.sh result is too large (over ${CRTSH_MAX_BYTES / 1048576} MB); showing subdomains from the first ${rows.length} certificates.`;
+    }
+    return result;
   } catch (err) {
     return { source: 'crt.sh', available: false, upstreamError: true, note: `Could not reach crt.sh: ${err.message}`, subdomains: [] };
   }

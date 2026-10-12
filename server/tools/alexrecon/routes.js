@@ -30,7 +30,7 @@ const router = express.Router();
 const { createClient } = require('@supabase/supabase-js');
 const { reconLimiter } = require('../../middleware/rateLimit');
 
-const { detectTargetType, normalizeDomain, classifyTarget, registrableLabel, runModulesParallel, assertPublicDomain } = require('./modules/utils');
+const { classifyTarget, registrableLabel, runModulesParallel, assertPublicDomain } = require('./modules/utils');
 const { dnsIntelligence, axfrCheck, wildcardCheck } = require('./modules/dns');
 const { sslIntelligence } = require('./modules/ssl');
 const { webRecon, loginPanelDetection, robotsAndSitemap } = require('./modules/webrecon');
