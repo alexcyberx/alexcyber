@@ -230,3 +230,20 @@ ALTER POLICY "Users can update own alexrecon scans" ON public.alexrecon_scans US
 -- ── 8) attack detector: auto-blocks expire (server/middleware/attackDetection.js
 -- sets expires_at; NULL = permanent manual block from the admin panel) ──
 ALTER TABLE public.blocked_ips ADD COLUMN IF NOT EXISTS expires_at timestamptz;
+
+-- ── 9) a manual block is permanent even when an expired auto-block row exists ──
+CREATE OR REPLACE FUNCTION public.block_ip(p_ip text, p_reason text DEFAULT 'Manually blocked'::text)
+ RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public'
+AS $function$
+begin
+  if not public.acx_is_admin() then
+    raise exception 'Only admins can block IPs';
+  end if;
+  insert into public.blocked_ips (ip, reason, expires_at)
+  values (left(p_ip, 64), left(coalesce(p_reason, 'Manually blocked'), 200), null)
+  on conflict (ip) do update set reason = excluded.reason, expires_at = null, created_at = now();
+
+  insert into public.security_logs (ip, event_type, details)
+  values (left(p_ip, 64), 'ip_blocked', 'IP ' || left(p_ip, 64) || ' blocked manually by admin');
+end;
+$function$;

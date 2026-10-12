@@ -53,13 +53,24 @@ function detectTargetType(input) {
 // pasted "https://example.com/", "www.example.com:443" or "example.com."
 // is recognised as the same domain instead of falling through to 'org'.
 function normalizeTarget(input) {
+  // Way longer than any hostname: junk (and the string work below must not
+  // run on a 100 KB field, see stripTrailingDots).
+  if (String(input || '').length > 2048) return '';
   let val = String(input || '').trim().toLowerCase();
   val = val.replace(/^[a-z][a-z0-9+.\-]*:\/\//, ''); // strip scheme (http://, https://, ...)
   if (val.includes('@')) val = val.split('@').pop(); // strip user:pass@ userinfo
   val = val.split('/')[0].split('?')[0].split('#')[0]; // strip path/query/fragment
   val = val.replace(/:\d+$/, '');                    // strip trailing :port
-  val = val.replace(/\.+$/, '');                     // strip trailing dot(s)
+  val = stripTrailingDots(val);                      // strip trailing dot(s)
   return val;
+}
+
+// Linear: /\.+$/ is quadratic in V8 on a long run of dots followed by any
+// other character (99 KB of dots froze the process for ~8 s).
+function stripTrailingDots(v) {
+  let end = v.length;
+  while (end > 0 && v.charCodeAt(end - 1) === 46) end--;
+  return end === v.length ? v : v.slice(0, end);
 }
 
 // Full hostname normalisation for modules that need a bare hostname
@@ -121,10 +132,20 @@ const net = require('net');
 const http = require('http');
 const https = require('https');
 const zlib = require('zlib');
-// ipaddr.js is not in package.json: it comes in with express (express ->
-// proxy-addr -> ipaddr.js@1.9.1, pinned in package-lock) and is used here
-// as-is. If express is ever dropped/upgraded, add it as a direct dependency.
-const ipaddr = require('ipaddr.js');
+const ipaddr = require('ipaddr.js'); // direct dependency in package.json
+
+// Ranges ipaddr.js 1.9.1 still calls 'unicast' but that are not ordinary
+// public addresses (benchmarking, documentation, reserved, IPv4-compatible
+// / NAT64 / 6to4 / Teredo embeddings, site-local). AlexUtils uses the same check.
+// Two lists: in one BlockList the IPv6 rules (::/96, ::ffff:0:0/96) would
+// also match every IPv4 address.
+const EXTRA_BLOCKED_V4 = new net.BlockList();
+[['198.18.0.0', 15], ['192.0.0.0', 24], ['192.0.2.0', 24], ['198.51.100.0', 24], ['203.0.113.0', 24], ['240.0.0.0', 4]]
+  .forEach(([p, l]) => EXTRA_BLOCKED_V4.addSubnet(p, l, 'ipv4'));
+const EXTRA_BLOCKED_V6 = new net.BlockList();
+[['::', 96], ['::ffff:0:0', 96], ['::ffff:0:0:0', 96], ['64:ff9b::', 96], ['64:ff9b:1::', 48], ['100::', 64],
+  ['2001::', 23], ['2001:db8::', 32], ['2002::', 16], ['fc00::', 7], ['fe80::', 10], ['fec0::', 10], ['ff00::', 8]]
+  .forEach(([p, l]) => EXTRA_BLOCKED_V6.addSubnet(p, l, 'ipv6'));
 
 // HTTP(S) follow-up fetches are only allowed to these ports. The common-port
 // TCP check (ports.js) and the TLS handshake (ssl.js) are separate features
@@ -147,9 +168,9 @@ function isPublicIP(ip) {
     // IPv4-mapped / translated IPv6 is a classic SSRF bypass - refuse it
     // outright rather than trusting the embedded IPv4.
     if (typeof addr.isIPv4MappedAddress === 'function' && addr.isIPv4MappedAddress()) return false;
-    return addr.range() === 'unicast';
+    return addr.range() === 'unicast' && !EXTRA_BLOCKED_V6.check(addr.toNormalizedString(), 'ipv6');
   }
-  return addr.range() === 'unicast';
+  return addr.range() === 'unicast' && !EXTRA_BLOCKED_V4.check(addr.toString(), 'ipv4');
 }
 
 function isPrivateIP(ip) {

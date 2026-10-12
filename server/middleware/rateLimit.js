@@ -115,8 +115,19 @@ const traceLimiter = makeToolLimiter({
 const traceMetadataLimiter = makeToolLimiter({ max: 20, message: 'Too many image checks. Please wait a few minutes and try again.' });
 const tracePasswordLimiter = makeToolLimiter({ max: 30, message: 'Too many password checks. Please wait a few minutes and try again.' });
 
+// Cheap per-IP limit in front of the login check of /api/tools/analyze-command,
+// so junk/anonymous requests can't hammer Supabase auth (the per-user
+// analyzeLimiter only runs after a valid login).
+const analyzePreAuthLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => res.status(429).json({ error: 'Too many requests. Please wait a few minutes and try again.' })
+});
+
 module.exports = {
-  loginLimiter, flagLimiter, reconLimiter,
+  loginLimiter, flagLimiter, reconLimiter, analyzePreAuthLimiter,
   analyzeLimiter, analyzeGlobalLimiter,
   utilsDnsLimiter, utilsIpLimiter, utilsMacLimiter, utilsSslLimiter, utilsCveLimiter,
   traceLimiter, traceMetadataLimiter, tracePasswordLimiter

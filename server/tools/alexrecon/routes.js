@@ -88,7 +88,33 @@ const MAX_ACTIVE_SCHEDULES_PER_USER = 3;
 // Core scan runner, shared by the POST /scan route and the scheduler.
 // Returns the full response payload; does not write HTTP itself so
 // it can be reused from a non-request context (the cron tick).
-async function runAlexReconScan({ target, userId, projectId, triggeredBy }) {
+// Max 2 scans at a time per process (Render free: 512 MB shared with the Next
+// child; one scan can hold several MB of crt.sh data). Manual scans and the
+// scheduler share the slots; a few wait in a queue, more get a 503.
+const MAX_CONCURRENT_SCANS = 2;
+const MAX_QUEUED_SCANS = 10;
+let runningScans = 0;
+const scanQueue = [];
+
+function runAlexReconScan(opts) {
+  if (runningScans >= MAX_CONCURRENT_SCANS && scanQueue.length >= MAX_QUEUED_SCANS) {
+    return Promise.reject(Object.assign(new Error('AlexRecon is busy right now. Please try again in a minute.'), { statusCode: 503 }));
+  }
+  return new Promise((resolve, reject) => {
+    const run = () => {
+      runningScans++;
+      runAlexReconScanNow(opts).then(resolve, reject).finally(() => {
+        runningScans--;
+        const nextRun = scanQueue.shift();
+        if (nextRun) nextRun();
+      });
+    };
+    if (runningScans < MAX_CONCURRENT_SCANS) run();
+    else scanQueue.push(run);
+  });
+}
+
+async function runAlexReconScanNow({ target, userId, projectId, triggeredBy }) {
   const startedAt = Date.now();
 
   if (!target || typeof target !== 'string' || !target.trim()) {

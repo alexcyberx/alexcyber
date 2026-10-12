@@ -278,7 +278,9 @@ async function bearerUser(req) {
     if (error && (error.name === 'AuthRetryableFetchError' || error.status === 429)) {
       return { unverifiable: true };
     }
-    const uid = !error && data && data.user ? data.user.id : null;
+    let uid = !error && data && data.user ? data.user.id : null;
+    // Suspended account ko "logged in" ki chhoot nahi milti.
+    if (uid && await require('./toolAccess').isUserBanned(uid)) uid = null;
     if (tokenCache.size > 1000) tokenCache.clear();
     tokenCache.set(key, { uid, at: Date.now() });
     return { uid };
@@ -299,12 +301,36 @@ setInterval(() => {
   for (const [k, v] of tokenCache.entries()) {
     if (now - v.at >= TOKEN_CACHE_MS) tokenCache.delete(k);
   }
+  for (const [ip, b] of logBudget.entries()) {
+    if (now - b.start >= OFFENSE_WINDOW_MS) logBudget.delete(ip);
+  }
 }, 5 * 60 * 1000);
 
 /* ── Evidence logging ───────────────────────────────────── */
+// Per IP max LOG_BUDGET rows per window: low-confidence matches and skipped
+// blocks never stop a request, so without this one IP could write rows
+// forever (and fill the free-tier DB). After the budget one marker row.
+const LOG_BUDGET = 20;
+const logBudget = new Map(); // ip -> { start, n }
+
+function withinLogBudget(ip) {
+  const now = Date.now();
+  let b = logBudget.get(ip);
+  if (!b || now - b.start >= OFFENSE_WINDOW_MS) { b = { start: now, n: 0 }; logBudget.set(ip, b); }
+  b.n++;
+  if (b.n <= LOG_BUDGET) return 'log';
+  return b.n === LOG_BUDGET + 1 ? 'marker' : 'drop';
+}
+
 function logSecurityEvent(eventType, ip, details) {
   const db = getSupabaseAdmin();
   if (!db) return;
+  const verdict = withinLogBudget(ip || 'unknown');
+  if (verdict === 'drop') return;
+  if (verdict === 'marker') {
+    eventType = 'log_suppressed';
+    details = JSON.stringify({ note: `More than ${LOG_BUDGET} events from this IP in ${OFFENSE_WINDOW_MS / 60000} minutes; the rest of this window is not logged.` });
+  }
   db.from('security_logs')
     .insert({ event_type: eventType, ip: ip || 'unknown', details, created_at: new Date().toISOString() })
     .then(({ error }) => {
@@ -374,10 +400,16 @@ async function refreshBlockedIPCache() {
   const db = getSupabaseAdmin();
   if (!db) return;
   try {
-    const { data, error } = await db.from('blocked_ips').select('*');
-    if (!error && data) {
-      blockedIPCache = new Set(data.filter(r => !isExpired(r)).map(r => r.ip));
+    // Only active rows (PostgREST returns max 1000 rows per call, so page).
+    const active = [];
+    for (let from = 0; from < 20000; from += 1000) {
+      let q = db.from('blocked_ips').select('*').range(from, from + 999);
+      const { data, error } = await q;
+      if (error || !data) { if (from === 0) return; break; }
+      active.push(...data.filter(r => !isExpired(r)).map(r => r.ip));
+      if (data.length < 1000) break;
     }
+    blockedIPCache = new Set(active);
   } catch (e) {
     console.error('[AttackDetection] blocked-IP cache refresh failed:', e.message);
   }
@@ -424,11 +456,18 @@ function attackDetector(req, res, next) {
     // Truncate to keep log rows small; full payload rarely needs to exceed this for evidence purposes.
     // Sensitive fields are already '[redacted]' by scanRequest.
     matchedValue: String(match.matchedValue).slice(0, 500),
-    userAgent: ua,
+    userAgent: String(ua).slice(0, 300),
   };
 
-  // Low confidence: sirf evidence ke liye log, block count nahi.
-  const count = match.confidence === 'high' ? recordOffense(ip) : 0;
+  // Browser ne kisi DOOSRI site ke kehne par bheja (img/iframe/link): koi bhi
+  // page visitor ke browser se 5 payload URLs bhej kar uska IP ban karwa
+  // sakta tha. Aise requests sirf log hote hain. Scanners/curl ye header
+  // nahi bhejte, isliye wo pehle jaise count hote hain.
+  const crossSite = (req.get('Sec-Fetch-Site') || '').toLowerCase() === 'cross-site';
+  if (crossSite) details.crossSite = true;
+
+  // Low confidence ya cross-site: sirf evidence ke liye log, block count nahi.
+  const count = match.confidence === 'high' && !crossSite ? recordOffense(ip) : 0;
   if (count < OFFENSE_THRESHOLD) {
     logSecurityEvent(match.eventType, ip, JSON.stringify(details));
     // Not blocked yet - request continues normally. We only log, we don't

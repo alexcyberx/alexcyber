@@ -17,7 +17,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { analyzeLimiter, analyzeGlobalLimiter } = require('../../middleware/rateLimit');
+const { analyzeLimiter, analyzeGlobalLimiter, analyzePreAuthLimiter } = require('../../middleware/rateLimit');
 const { requireToolLogin, checkToolEnabled, logToolUsage } = require('../../middleware/toolAccess');
 
 // Try models in this order, if one is retired/unavailable for this
@@ -139,8 +139,8 @@ function sanitizeDashes(value) {
   return value;
 }
 
-// Limiters run after requireToolLogin so they are keyed by the user, not the IP.
-router.post('/analyze-command', requireToolLogin, analyzeLimiter, analyzeGlobalLimiter, checkToolEnabled('mistake_analyzer'), async (req, res) => {
+// Per-IP pre-auth limit first; the per-user limiters run after requireToolLogin.
+router.post('/analyze-command', analyzePreAuthLimiter, requireToolLogin, analyzeLimiter, analyzeGlobalLimiter, checkToolEnabled('mistake_analyzer'), async (req, res) => {
   try {
     const { command } = req.body;
     if (!command || typeof command !== 'string' || !command.trim()) {

@@ -64,7 +64,9 @@ async function webRecon(domain) {
       const res = await safeFetch(base, { maxRedirects: 5, timeoutMs: 8000 });
       const body = await res.text().catch(() => '');
       const headers = headersToObject(res.headers);
-      const titleMatch = body.match(/<title[^>]*>([^<]*)<\/title>/i);
+      // [^<>]* (not [^>]*) and only the head of the page: the old pattern
+      // backtracked quadratically on a body full of '<title' (seconds of CPU).
+      const titleMatch = body.slice(0, 65536).match(/<title\b[^<>]*>([^<]*)<\/title>/i);
 
       result = {
         finalUrl: res.finalUrl,

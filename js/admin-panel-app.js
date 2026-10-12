@@ -1420,7 +1420,7 @@ async function renderSecurity() {
       { count: attackCount, error: attackErr },
       { data: adminEvents, error: adminEventsErr }
     ] = await Promise.all([
-      sb.from('blocked_ips').select('ip, reason, created_at').order('created_at', { ascending: false }),
+      sb.from('blocked_ips').select('*').order('created_at', { ascending: false }),
       sb.from('security_logs').select('id, event_type, details, ip, created_at').order('created_at', { ascending: false }).limit(30),
       sb.from('security_logs').select('id', { count: 'exact', head: true }).eq('event_type', 'failed_login').gte('created_at', since24h),
       sb.from('security_logs').select('id', { count: 'exact', head: true }).in('event_type', ['sqli_attempt','xss_attempt','path_traversal','bot_scan']).gte('created_at', since24h),
@@ -1429,7 +1429,9 @@ async function renderSecurity() {
     if (ipsErr) throw ipsErr;
     if (logsErr) throw logsErr;
 
-    _secBlockedIPs = ips || [];
+    // Auto-blocks expire after 24 h (expires_at); the server ignores expired
+    // rows, so only show / count the ones that still block.
+    _secBlockedIPs = (ips || []).filter(r => !r.expires_at || new Date(r.expires_at) > new Date());
     _secLogs = logs || [];
 
     // Stat cards (use dedicated 24h count queries, not the 30-row limited

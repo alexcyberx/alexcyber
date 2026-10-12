@@ -19,9 +19,9 @@ function isValidSubdomain(clean, domain) {
 }
 
 // crt.sh answers for mid-size orgs / universities run to several MB (9000
-// cert rows is ~3 MB), so crt.sh gets its own cap, well above the 2 MB
-// default every other fetch uses.
-const CRTSH_MAX_BYTES = 16 * 1024 * 1024; // 16 MB
+// cert rows is ~3 MB), so crt.sh gets its own cap above the 2 MB default.
+// Not higher: a 16 MB answer cost ~70 MB of RAM per scan (512 MB box).
+const CRTSH_MAX_BYTES = 6 * 1024 * 1024; // 6 MB
 
 // Body was cut at CRTSH_MAX_BYTES, so it ends mid-row. crt.sh rows are flat
 // objects: close the array after the last complete "}" and keep every row

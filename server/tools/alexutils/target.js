@@ -61,6 +61,9 @@ function isHostname(host) {
 // Strip scheme, userinfo, path/query/fragment, port, [] around IPv6 and
 // trailing dots; lowercase; IDN -> punycode. Returns '' for junk.
 function normalizeHost(input) {
+  // Hostnames are <= 253 chars; anything far longer is junk. Checked first,
+  // because the string work below must never run on a 100 KB body field.
+  if (String(input || '').length > 2048) return '';
   let v = String(input || '').trim().toLowerCase();
   v = v.replace(/^[a-z][a-z0-9+.\-]*:\/\//, ''); // http://, https://, ...
   v = v.split(/[/?#]/)[0];                        // path / query / fragment
@@ -71,9 +74,17 @@ function normalizeHost(input) {
   } else if (!net.isIPv6(v)) {
     v = v.replace(/:\d*$/, '');                   // host:port
   }
-  v = v.replace(/\.+$/, '');                      // example.com. -> example.com
+  v = stripTrailingDots(v);                       // example.com. -> example.com
   if (/[^\x00-\x7f]/.test(v) && !/\s/.test(v)) v = domainToASCII(v) || v;
   return v;
+}
+
+// Linear: /\.+$/ is quadratic in V8 on a long run of dots followed by any
+// other character (99 KB of dots froze the process for ~8 s).
+function stripTrailingDots(v) {
+  let end = v.length;
+  while (end > 0 && v.charCodeAt(end - 1) === 46) end--;
+  return end === v.length ? v : v.slice(0, end);
 }
 
 // Resolve a hostname and make sure EVERY answer is public. Returns
@@ -100,4 +111,4 @@ function privateTargetError() {
   });
 }
 
-module.exports = { normalizeHost, isHostname, isInternalName, isPublicAddress, resolvePublic };
+module.exports = { normalizeHost, stripTrailingDots, isHostname, isInternalName, isPublicAddress, resolvePublic };

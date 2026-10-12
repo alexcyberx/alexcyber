@@ -69,7 +69,8 @@ const SECRET_PATTERNS = [
 
 async function jsRecon(baseUrl, homepageBody, capFiles = 8) {
   const scriptSrcs = new Set();
-  const scriptRegex = /<script[^>]+src=["']([^"']+)["']/gi;
+  // [^<>]*? stops at the next tag, so a page full of '<script ' can't make it backtrack
+  const scriptRegex = /<script\b[^<>]*?\bsrc=["']([^"'<>]+)["']/gi;
   let match;
   while ((match = scriptRegex.exec(homepageBody || '')) !== null) {
     try {
