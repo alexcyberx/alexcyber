@@ -258,7 +258,7 @@ const TOKEN_CACHE_MS = 5 * 60 * 1000;
 const tokenCache = new Map(); // sha256(token) -> { uid, at }
 
 // Resolves { uid } for a valid token, { uid: null } for no/invalid token,
-// { unverifiable: true } if Supabase is down/unconfigured (fail open).
+// { unverifiable: true } if Supabase is down/unconfigured/rate-limited (fail open).
 async function bearerUser(req) {
   const header = req.headers['authorization'] || '';
   const token = header.startsWith('Bearer ') ? header.slice(7).trim() : null;
@@ -272,8 +272,10 @@ async function bearerUser(req) {
   if (!db) return { unverifiable: true };
   try {
     const { data, error } = await db.auth.getUser(token);
-    // Network/5xx/429 error ka matlab "token galat" nahi hai: fail open, cache nahi.
-    if (error && !(error.status >= 400 && error.status < 500 && error.status !== 429)) {
+    // Sirf network/5xx (AuthRetryableFetchError) aur 429 pe fail open, cache nahi.
+    // Baaki har error (gateway/WAF ka HTML 4xx bhi, jo AuthUnknownError bina
+    // status ke aata hai) = "logged in nahi": warna junk header se ban bypass.
+    if (error && (error.name === 'AuthRetryableFetchError' || error.status === 429)) {
       return { unverifiable: true };
     }
     const uid = !error && data && data.user ? data.user.id : null;
