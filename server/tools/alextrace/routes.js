@@ -38,7 +38,8 @@ const router = express.Router();
 const multer = require('multer');
 const { createClient } = require('@supabase/supabase-js');
 const { requireToolLogin, checkToolEnabled, logToolUsage } = require('../../middleware/toolAccess');
-const { traceLimiter } = require('../../middleware/rateLimit');
+// Separate buckets: 8 password checks must not lock out lookups (and vice versa).
+const { traceLimiter, traceMetadataLimiter, tracePasswordLimiter } = require('../../middleware/rateLimit');
 
 const { isValidUsername, isValidEmail } = require('./modules/utils');
 const { usernameEnumeration } = require('./modules/username');
@@ -143,7 +144,7 @@ router.post('/lookup', traceLimiter, async (req, res) => {
   }
 });
 
-router.post('/metadata', traceLimiter, (req, res) => {
+router.post('/metadata', traceMetadataLimiter, (req, res) => {
   upload.single('image')(req, res, async (uploadErr) => {
     if (uploadErr) {
       return res.status(400).json({ error: uploadErr.message || 'Could not process the uploaded image.' });
@@ -168,7 +169,7 @@ router.post('/metadata', traceLimiter, (req, res) => {
 // is used only in-memory for this single computation - it is never
 // logged (see the catch block below, which logs only err.message,
 // never req.body) and never written to Supabase or anywhere else.
-router.post('/password-check', traceLimiter, (req, res) => {
+router.post('/password-check', tracePasswordLimiter, (req, res) => {
   try {
     const { password } = req.body;
     const analysis = analyzePassword(password);
