@@ -28,6 +28,9 @@ const NEXT_PAGES = {
   profile:      '/profile',
   publicProfile: '/u',
   ctf:          '/rooms',
+  // Exact paths only: /tools/alexrecon|alexutils|alextrace are still SPA pages.
+  tools:        '/tools',
+  mistakeAnalyzer: '/tools/mistake-analyzer',
 };
 
 // Exact paths go to Next; /tutorials/<course> stays in the SPA.

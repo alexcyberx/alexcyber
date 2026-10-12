@@ -1,5 +1,6 @@
 import { serverSupabase } from './supabase';
 import { pathForPage } from './routes';
+import { TOOLS, plainDesc } from './tools';
 
 export type SearchEntry = {
   type: 'course' | 'chapter' | 'ctf' | 'tool' | 'blog';
@@ -12,18 +13,16 @@ export type SearchEntry = {
 // Course key (content_chapters.course) -> SPA page id
 const COURSE_PAGE: Record<string, string> = { forensics: 'learn', attacks: 'learn2', 'ethical-hacking': 'learn3' };
 
-// Tools are not in the DB yet; same list as the tool cards / js/search.js fallback.
-const TOOLS: SearchEntry[] = [
-  { type: 'tool', title: 'Cyber Mistake Analyzer', sub: 'Tool • Learning', href: '/tools/mistake-analyzer', tags: ['mistake', 'analyzer', 'command', 'nmap', 'feedback', 'learning', 'correction'] },
-  { type: 'tool', title: 'AlexRecon', sub: 'Tool • Recon', href: '/tools/alexrecon', tags: ['recon', 'reconnaissance', 'dns', 'ssl', 'subdomain', 'port', 'scan', 'attack', 'surface', 'domain'] },
-  { type: 'tool', title: 'AlexUtils', sub: 'Tool • Utilities', href: '/tools/alexutils', tags: ['utils', 'ip', 'dns', 'lookup', 'ssl', 'hash', 'base64', 'subnet', 'cve'] },
-  { type: 'tool', title: 'AlexTrace', sub: 'Tool • OSINT', href: '/tools/alextrace', tags: ['trace', 'osint', 'footprint', 'username', 'breach', 'email', 'metadata', 'exposure'] },
-];
-
 const words = (...parts: (string | null | undefined)[]) =>
   Array.from(new Set(parts.filter(Boolean).join(' ').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)));
 
 const cap = (s: string | null) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
+
+// Tools are not in the DB yet: the shared list (lib/tools.ts), tagged like
+// buildToolSearchEntries() in js/search.js (tag + title + text + extra tags).
+const TOOL_ENTRIES: SearchEntry[] = TOOLS.map((t) => ({
+  type: 'tool', title: t.title, sub: `Tool • ${t.tag}`, href: t.href, tags: words(t.tag, t.title, plainDesc(t), ...t.searchTags),
+}));
 
 // One index for the nav search on every Next page (built on the server, cached).
 export async function buildSearchIndex(): Promise<SearchEntry[]> {
@@ -60,6 +59,6 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
       out.push({ type: 'blog', title: p.title, sub: `Blog${p.category ? ' • ' + cap(p.category) : ''}`, href: `/blog/${encodeURIComponent(p.slug)}`, tags: words(p.title, p.category, ...(p.tags || [])) });
     });
   }
-  out.push(...TOOLS);
+  out.push(...TOOL_ENTRIES);
   return out.filter((e) => e.title && e.href);
 }
