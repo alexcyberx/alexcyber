@@ -10,6 +10,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { authHeaders } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { browserSupabase } from '@/lib/supabase';
 import type { Challenge, CtfI18n, Difficulty } from '@/lib/ctf';
@@ -44,14 +45,6 @@ function labStartedAt(id: string): number | null {
     if (Date.now() - d.startedAt > LAB_SECS * 1000) { store.del('l', 'acx_lab_active_' + id); return null; }
     return d.startedAt;
   } catch { return null; }
-}
-
-async function authHeaders(): Promise<Record<string, string>> {
-  const sb = browserSupabase();
-  if (!sb) return {};
-  const { data } = await sb.auth.getSession();
-  const t = data.session?.access_token;
-  return t ? { Authorization: 'Bearer ' + t } : {};
 }
 
 function playSolveSound() {
