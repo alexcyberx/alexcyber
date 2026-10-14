@@ -31,6 +31,10 @@ const NEXT_PAGES = {
   // Exact paths only: /tools/alexrecon|alexutils|alextrace are still SPA pages.
   tools:        '/tools',
   mistakeAnalyzer: '/tools/mistake-analyzer',
+  resources:    '/resources',
+  // community: '/community' is ported (web/src/app/community) but stays on the
+  // SPA until the owner decides whether the forum stays. To switch it on, add
+  // it here and '/community/' to PREFIXES.
 };
 
 // Exact paths go to Next; /tutorials/<course> stays in the SPA.
