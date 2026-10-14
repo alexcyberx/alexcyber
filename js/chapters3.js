@@ -195,7 +195,7 @@ function loadEthicalChapter(index) {
       </div>
       <p>CEH exam mein yeh distinction bahut poochha jaata hai, konsi technique passive hai konsi active. Abhi is module mein sirf passive side dekhenge. Footprinting ka poora point sirf info jama karna nahi hai. Point yeh hai ki us info se target ka attack surface samjho, matlab wo saare rasta jahan se andar ghusa ja sakta hai.</p>
       <div class="info-box">
-        <p><strong>Real world context:</strong> AlexCyberX ek fintech company PayNova ka external assessment kar raha hai, sirf naam mila hai, aur kuch nahi. Isi scenario ko use karenge har technique dikhane ke liye.</p>
+        <p><strong>Real world context:</strong> AlexCyberX ek fintech company PayNova ka external assessment kar raha hai, sirf naam mila hai, aur kuch nahi. Isi scenario ko use karenge har technique dikhane ke liye. PayNova ek kaalpanik (fictional) company hai: commands mein <code>paynova.example</code> likha hai, jo sirf examples ke liye reserved domain hai. Inhe kabhi kisi asli website par mat chalana; practice sirf apne lab, hamare CTF rooms ya <code>scanme.nmap.org</code> jaise allowed targets par karo.</p>
       </div>
       <p><strong>Try karo abhi, scroll mat karo:</strong> apna naam google karo, dekho kitna nikalta hai ek search mein. Companies ka bhi waisa hi footprint hota hai, bas scale bada hota hai.</p>
 
@@ -214,15 +214,15 @@ function loadEthicalChapter(index) {
           <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
         </div>`).join('')}
       </div>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">site:paynova.com filetype:pdf
-site:paynova.com inurl:admin
-site:paynova.com intitle:"index of"</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">site:paynova.example filetype:pdf
+site:paynova.example inurl:admin
+site:paynova.example intitle:"index of"</pre>
       <p>Pehla PayNova ke saare public PDF nikaal dega, kabhi kabhi internal doc galti se upload ho jaate hain, yahin pakde jaate hain. Doosra admin login panel dhundta hai. Teesra un folders ko dhundta hai jinki listing galti se on reh gayi, matlab poora folder bina password ke dikh raha hai.</p>
       <p>Iska ek naam bhi hai, Google Hacking Database, jahan naye dorks add hote rehte hain. Purane dorks kaam karna band kar dete hain jab Google apna indexing badal deta hai, isliye ek baar seekh ke chhod dena kaafi nahi.</p>
 
       <h2>3. WHOIS Aur DNS</h2>
       <p>Har domain ka ek WHOIS record hota hai, public database mein. Domain kab bana, kab expire hoga, kiske naam pe hai agar privacy on nahi hai, sab yahin milta hai.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">whois paynova.com</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">whois paynova.example</pre>
       <div style="display:flex;flex-direction:column;gap:8px;margin:0 0 20px;">
         ${[
           ['A record','IP address batata hai'],
@@ -235,8 +235,8 @@ site:paynova.com intitle:"index of"</pre>
           <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
         </div>`).join('')}
       </div>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">nslookup paynova.com
-dig paynova.com ANY</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">nslookup paynova.example
+dig paynova.example ANY</pre>
       <div class="info-box">
         <p><strong>Mission update:</strong> PayNova ka WHOIS check karne pe pata chalta hai domain teen saal purana hai, lekin SSL certificate sirf do mahine ka hai. Matlab kuch recently badla hai, naya server, naya subdomain, ya migration. Agla topic isi pe hai.</p>
       </div>
@@ -244,8 +244,8 @@ dig paynova.com ANY</pre>
       <h2>4. Subdomain Enumeration, Certificate Transparency</h2>
       <p>Jab bhi naya SSL certificate issue hota hai, ek public log mein record ho jaata hai, company chahe ya na chahe. Isko Certificate Transparency kehte hain. Yeh banaya gaya tha fraud rokne ke liye, lekin attacker ke liye recon source ban gaya.</p>
       <p>CT logs se woh subdomains bhi mil jaate hain jo abhi search engine mein aaye bhi nahi.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">curl -s "https://crt.sh/?q=%.paynova.com&output=json" | grep name_value</pre>
-      <p>Yahi command PayNova ka naya subdomain nikaal deta hai, api-v2.paynova.com. Naya API subdomain matlab zyada chance hai yeh abhi dev ya staging phase mein hai. Dev environment mein security utni tight nahi hoti jitni production mein, yeh pattern baar baar dikhta hai, isliye subdomain list carefully check karni chahiye.</p>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">curl -s "https://crt.sh/?q=%.paynova.example&output=json" | grep name_value</pre>
+      <p>Yahi command PayNova ka naya subdomain nikaal deta hai, api-v2.paynova.example. Naya API subdomain matlab zyada chance hai yeh abhi dev ya staging phase mein hai. Dev environment mein security utni tight nahi hoti jitni production mein, yeh pattern baar baar dikhta hai, isliye subdomain list carefully check karni chahiye.</p>
 
       <h2>5. OSINT, Employees Aur Tech Stack</h2>
       <p>OSINT matlab Open Source Intelligence, publicly available sources se info uthana, social media, job postings, news, forums.</p>
@@ -290,7 +290,7 @@ dig paynova.com ANY</pre>
 
       <h2>3. Host Discovery, Live Systems Dhundna</h2>
       <p>Bade network mein sabse pehla sawaal hota hai, kaunse IP addresses pe actually koi device baitha hai. Sabse basic tarika ping hai, lekin real world mein bahut systems ping ko block kar dete hain, isliye sirf ping pe depend nahi karna chahiye.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">ping api-v2.paynova.com
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">ping api-v2.paynova.example
 nmap -sn 192.168.1.0/24</pre>
       <p>Doosra command Nmap ka hai, jo is poore module ka sabse important tool hai. <code style="background:#1c1c1c;color:#ff8080;padding:2px 6px;border-radius:3px;">-sn</code> flag sirf host discovery karta hai, ports scan nahi karta, matlab yeh sirf batata hai kaun sa system live hai, kitni jaldi.</p>
       <div class="info-box">
@@ -312,7 +312,7 @@ nmap -sn 192.168.1.0/24</pre>
           <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
         </div>`).join('')}
       </div>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">nmap -sS -sV -p- api-v2.paynova.com</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">nmap -sS -sV -p- api-v2.paynova.example</pre>
       <p>Yeh command api-v2 pe saare 65535 ports check karega (<code style="background:#1c1c1c;color:#ff8080;padding:2px 6px;border-radius:3px;">-p-</code> ka matlab hi yeh hai), aur har open port pe service version bhi bata dega. Scan result mein PayNova ke is subdomain pe port 22, 443, aur ek unusual port 8081 open milta hai, jispe ek internal-looking dashboard chal raha hai.</p>
       <div class="info-box">
         <p><strong>Mission update:</strong> port 8081 wala dashboard scope mein hai, lekin abhi sirf note kar lo, exploit karna agle modules ka kaam hai. Scanning ka poora point yeh hai ki tumhe pata chal jaaye kya kya explore karna hai, karna nahi hai abhi.</p>
@@ -335,7 +335,7 @@ nmap -sn 192.168.1.0/24</pre>
 
       <h2>6. Banner Grabbing</h2>
       <p>Ek baar open port aur service pata chal jaaye, agla step hai us service ka exact version pata karna, kyunki har version ki apni known vulnerabilities hoti hain. Isko banner grabbing kehte hain.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">nc -nv api-v2.paynova.com 22</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">nc -nv api-v2.paynova.example 22</pre>
       <p>Yeh command SSH port se seedha connect karke uska banner grab karta hai, jo aksar exact software version reveal kar deta hai, jaise OpenSSH 7.4. Ek baar version pata chal jaaye, uske against public vulnerability databases mein search karke pata chal jaata hai us version mein koi known exploit hai ya nahi. Yeh cheez agle module, Vulnerability Analysis, mein detail mein karenge.</p>
 
       <p>Is module ke baad tumhare paas PayNova ke live systems, unke open ports, aur unpe chalne wali services ki poori list honi chahiye. Yeh list hi agle module ka input banegi, jahan hum ek kadam aur andar jaakar enumeration karenge, matlab in services se detailed information nikalenge. AlexCyberX ke agle module mein milte hain.</p>
@@ -367,14 +367,14 @@ nmap -sn 192.168.1.0/24</pre>
 
       <h2>3. SSH Aur Username Enumeration</h2>
       <p>Bahut purane OpenSSH versions mein ek quirk hota hai, agar tum galat username bhejte ho to server ka response time thoda alag hota hai us case se jab username sahi ho lekin password galat ho. Isko timing attack kehte hain, aur is difference se attacker valid usernames guess kar sakta hai bina kisi password ke.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">nmap -p22 --script ssh-enum-users api-v2.paynova.com</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">nmap -p22 --script ssh-enum-users api-v2.paynova.example</pre>
       <div class="info-box">
         <p><strong>Yaad rakhna:</strong> yeh technique sirf purane, unpatched OpenSSH versions pe kaam karti hai. Banner grabbing mein humein OpenSSH 7.4 mila tha, jo is issue ke liye vulnerable hai. Yehi wo connection hai jo pichle module se yahan tak aaya, isliye banner grab karna kabhi skip mat karna.</p>
       </div>
 
       <h2>4. Web Application Enumeration</h2>
       <p>Port 8081 wala dashboard sabse interesting target hai, kyunki yeh custom banaya hua lagta hai, na ki koi standard software. Aise custom applications mein enumeration ka matlab hai unke hidden endpoints, admin panels, aur configuration files dhundna jo public link pe kahin nahi diye gaye.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">gobuster dir -u http://api-v2.paynova.com:8081 -w /usr/share/wordlists/dirb/common.txt</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">gobuster dir -u http://api-v2.paynova.example:8081 -w /usr/share/wordlists/dirb/common.txt</pre>
       <p>Gobuster ek wordlist leta hai aur har entry ko URL ke end mein laga ke check karta hai wahan kuch exist karta hai ya nahi. Is scan mein <code style="background:#1c1c1c;color:#ff8080;padding:2px 6px;border-radius:3px;">/api/v1/debug</code> naam ka ek endpoint milta hai, jo normally production mein disabled hona chahiye tha.</p>
       <div class="info-box">
         <p><strong>PayNova mission update:</strong> debug endpoint milna bade findings mein se ek hai. Debug routes aksar internal error messages, stack traces, ya kabhi kabhi database structure tak reveal kar dete hain. Iska poora exploitation Web Application Hacking module mein karenge, abhi sirf note kar lo.</p>
@@ -382,7 +382,7 @@ nmap -sn 192.168.1.0/24</pre>
 
       <h2>5. DNS Zone Transfer</h2>
       <p>Kabhi kabhi DNS server galti se misconfigured hota hai aur kisi ko bhi apna poora zone file de deta hai, jisme company ke saare internal aur external subdomains, IP addresses, aur mail server details hoti hain. Isko zone transfer kehte hain, aur yeh check karna har enumeration phase ka standard step hai.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">dig axfr paynova.com @ns1.paynova.com</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">dig axfr paynova.example @ns1.paynova.example</pre>
       <p>PayNova ke case mein yeh properly configured hai aur transfer refuse ho jaata hai, jo achi security practice hai. Lekin yeh check karna zaroori hai har assessment mein, kyunki bahut companies isko miss kar dete hain, aur jab misconfigured hota hai to yeh sabse asaan internal network map mil jaata hai bina kuch bhi exploit kiye.</p>
 
       <h2>6. Enumeration Ke Baad Ka Kadam</h2>
@@ -451,7 +451,7 @@ nmap -sn 192.168.1.0/24</pre>
           <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
         </div>`).join('')}
       </div>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">nikto -h http://api-v2.paynova.com:8081</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">nikto -h http://api-v2.paynova.example:8081</pre>
       <p>Nikto ka result confirm karta hai jo humein enumeration mein manually mila tha, debug endpoint accessible hai, aur saath mein yeh bhi batata hai ki server ka response header thoda purana software version reveal kar raha hai.</p>
 
       <h2>5. False Positives Aur Manual Verification</h2>
@@ -500,7 +500,7 @@ nmap -sn 192.168.1.0/24</pre>
           <div><div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;">${r[0]}</div><div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:2px;">${r[1]}</div></div>
         </div>`).join('')}
       </div>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">hydra -l admin -P /usr/share/wordlists/rockyou.txt ssh://api-v2.paynova.com</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">hydra -l admin -P /usr/share/wordlists/rockyou.txt ssh://api-v2.paynova.example</pre>
       <p>Yeh command Hydra tool se, ek fixed username <code style="background:#1c1c1c;color:#ff8080;padding:2px 6px;border-radius:3px;">-l admin</code> ke against, ek poori password list <code style="background:#1c1c1c;color:#ff8080;padding:2px 6px;border-radius:3px;">-P</code> try karega SSH pe. Real assessment mein yeh sirf tab try karte hain jab scope document mein explicitly allowed ho, kyunki brute force attacks account lockouts trigger kar sakte hain.</p>
       <div class="info-box">
         <p><strong>Yaad rakhna:</strong> agar PayNova ka account lockout policy hai teen galat attempts ke baad, brute force try karna un accounts ko lock kar dega, jo genuine users ke liye disruption ban jaayega. Isliye scope mein clearly poochna zaroori hai brute force allowed hai ya nahi.</p>
@@ -803,7 +803,7 @@ file suspicious_file.exe</pre>
 
       <h2>3. SYN Flood Samajhna</h2>
       <p>TCP connection banane ke liye teen step ka handshake hota hai, SYN, SYN-ACK, ACK. SYN Flood mein attacker sirf SYN packets bhejta rehta hai, kabhi bhi final ACK nahi bhejta. Server har incomplete connection ko thodi der ke liye memory mein hold karta hai, aur agar itne saare fake requests aa jaayein, server ki memory bhar jaati hai aur real connections ke liye jagah hi nahi bachti.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">hping3 -S -p 443 --flood api-v2.paynova.com</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">hping3 -S -p 443 --flood api-v2.paynova.example</pre>
       <div class="info-box">
         <p><strong>Bahut zaroori:</strong> yeh command sirf ek isolated, tumhare khud ke lab environment mein try karna, kabhi bhi kisi real system pe, PayNova ho ya koi aur, bina explicit written scope approval ke. DoS testing scope document mein alag se mention hona chahiye kyunki yeh actual service disrupt kar sakta hai, jo normal vulnerability scanning se bahut zyada risky hai.</p>
       </div>
@@ -876,7 +876,7 @@ file suspicious_file.exe</pre>
 
       <h2>4. TCP Session Hijacking Ka Concept</h2>
       <p>Network level pe, har TCP connection mein sequence numbers hote hain jo track karte hain kaunsa packet kis order mein hai. Agar attacker in sequence numbers ko predict kar le, aur apne fake packets sahi sequence number ke saath bhej de, server unhe legitimate maan lega, chahe wo asli connection se na aaye ho.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">tcpdump -i eth0 -n host api-v2.paynova.com</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">tcpdump -i eth0 -n host api-v2.paynova.example</pre>
       <p>Yeh command traffic capture karta hai jisse sequence number pattern analyze kiya ja sakta hai. Modern systems mein sequence numbers randomly generate hote hain isliye yeh attack ab utna common nahi hai jitna pehle tha, lekin concept samajhna important hai kyunki yeh application level attacks ki foundation hai.</p>
 
       <h2>5. Cookie Security Aur Defense</h2>
@@ -933,7 +933,7 @@ file suspicious_file.exe</pre>
           <div><div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;">${r[0]}</div><div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:2px;">${r[1]}</div></div>
         </div>`).join('')}
       </div>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">nmap -f -T2 api-v2.paynova.com</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">nmap -f -T2 api-v2.paynova.example</pre>
       <p>Yeh command <code style="background:#1c1c1c;color:#ff8080;padding:2px 6px;border-radius:3px;">-f</code> se packets fragment karta hai aur <code style="background:#1c1c1c;color:#ff8080;padding:2px 6px;border-radius:3px;">-T2</code> se scan ki speed slow kar deta hai, dono hi IDS detection ka chance kam karte hain, lekin scan bhi kaafi slow ho jaata hai.</p>
 
       <h2>4. Firewalls Aur Unhe Bypass Karna</h2>
@@ -999,8 +999,8 @@ file suspicious_file.exe</pre>
 
       <h2>3. Server Fingerprinting</h2>
       <p>Sabse pehla step hai pata karna server exactly kaunsa software chala raha hai aur kaunsa version, kyunki har server type aur version ke apne known issues hote hain.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">curl -I https://api-v2.paynova.com
-whatweb api-v2.paynova.com</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">curl -I https://api-v2.paynova.example
+whatweb api-v2.paynova.example</pre>
       <p>Pehla command HTTP response headers dikhata hai, jinme aksar Server header hota hai jo software aur version reveal kar deta hai, jaise nginx 1.18.0. Doosra tool, WhatWeb, aur bhi detail deta hai, jaise CMS, plugins, aur backend technologies.</p>
       <div class="info-box">
         <p><strong>Yaad rakhna:</strong> yeh exactly wahi banner grabbing hai jo humne Scanning module mein SSH ke liye kiya tha, bas ab HTTP layer pe. Concept same hai, jitna zyada version info milegi, utna specific tumhara agla research hoga.</p>
@@ -1008,7 +1008,7 @@ whatweb api-v2.paynova.com</pre>
 
       <h2>4. Directory Traversal</h2>
       <p>Agar server sahi se configured nahi hai, attacker file paths manipulate karke server ke un files tak pahunch sakta hai jo publicly accessible nahi honi chahiye thi, jaise configuration files ya system files.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">https://api-v2.paynova.com/download?file=../../../../etc/passwd</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">https://api-v2.paynova.example/download?file=../../../../etc/passwd</pre>
       <p>Yeh <code style="background:#1c1c1c;color:#ff8080;padding:2px 6px;border-radius:3px;">../</code> pattern folder ko upar jaane ke liye use hota hai, aur agar server input ko sahi se sanitize nahi karta, attacker root directory tak pahunch sakta hai. Yeh vulnerability tab hoti hai jab application user input ko directly file path mein use karti hai bina validation ke.</p>
 
       <h2>5. Web Server Ke Specific Attacks</h2>
@@ -1078,8 +1078,8 @@ whatweb api-v2.paynova.com</pre>
 
       <h2>3. Broken Access Control, Deep Dive</h2>
       <p>Yeh is waqt OWASP list mein number one hai, kyunki yeh sabse common aur samajhne mein sabse asaan hai attacker ke liye. Iska matlab hai ek user un resources tak pahunch jaata hai jo unke liye nahi hain.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">https://api-v2.paynova.com/account?id=1024
-https://api-v2.paynova.com/account?id=1025</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">https://api-v2.paynova.example/account?id=1024
+https://api-v2.paynova.example/account?id=1025</pre>
       <p>Agar sirf URL mein ek number badalne se dusre user ka account dikh jaaye, isko Insecure Direct Object Reference kehte hain, jo Broken Access Control ka sabse common example hai. Server yeh check hi nahi karta ki request bhejne wala user actually us account ka malik hai ya nahi.</p>
       <div class="info-box">
         <p><strong>PayNova mission update:</strong> port 8081 wala debug dashboard is check ke liye perfect candidate hai, agar wahan koi account ya user ID based endpoint hai, yeh test karna zaroori hai ki proper authorization checks hain ya nahi.</p>
@@ -1103,7 +1103,7 @@ https://api-v2.paynova.com/account?id=1025</pre>
 
       <h2>5. Security Misconfiguration Aur Vulnerable Components</h2>
       <p>Bahut si real-world breaches sirf isliye hoti hain kyunki koi library ya framework purana chhod diya gaya tha. Attacker public vulnerability databases check karta hai, dekhta hai target kaunse components use kar raha hai, aur unke known issues dhundta hai, exactly jaisa humne Vulnerability Analysis module mein CVE ke saath kiya tha.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">wappalyzer api-v2.paynova.com</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">wappalyzer api-v2.paynova.example</pre>
       <p>Yeh tool batata hai website kaunse frameworks, libraries, aur CMS use kar rahi hai. Ek baar yeh list mil jaaye, har ek ko check karna hai purana version to nahi, aur agar hai to uske known exploits dhundhne hain.</p>
 
       <h2>6. Defense, Secure Coding Practices</h2>
@@ -1176,7 +1176,7 @@ https://api-v2.paynova.com/account?id=1025</pre>
 
       <h2>6. Automated Testing Aur Manual Verification</h2>
       <p>Manual testing time-consuming hai, isliye automated tools bhi use hote hain, jo systematically alag alag payloads try karte hain.</p>
-      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">sqlmap -u "https://api-v2.paynova.com:8081/api/v1/debug?id=1" --dbs</pre>
+      <pre style="background:#0e0e12;border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px 16px;overflow-x:auto;font-size:13px;color:#ddd;">sqlmap -u "https://api-v2.paynova.example:8081/api/v1/debug?id=1" --dbs</pre>
       <p>SQLMap ek powerful tool hai jo automatically detect kar leta hai vulnerability hai ya nahi, aur agar hai to database structure, tables, aur data tak nikal sakta hai. Real assessment mein iska use sirf scope ke andar aur client ki explicit permission ke saath hota hai, kyunki yeh production database ko affect kar sakta hai.</p>
       <div class="info-box">
         <p><strong>Bahut zaroori:</strong> SQLMap jaise tools bahut powerful hain aur agar galat use kiye jaayein, real production data corrupt ya delete ho sakta hai. Isliye scope document mein clearly likha hona chahiye ki data extraction allowed hai ya sirf detection tak limited hai.</p>
@@ -1303,7 +1303,7 @@ aircrack-ng -w rockyou.txt capture.cap</pre>
 jadx-gui paynova.apk</pre>
       <p>Pehla tool APK ko decompile karke uske resources aur manifest file nikal deta hai. Doosra tool, JADX, Java code jaisa readable output deta hai, jisse actual application logic samjha ja sakta hai. Kabhi kabhi developers galti se API keys, hardcoded credentials, ya internal URLs source code mein chhod dete hain, jo yahan expose ho jaate hain.</p>
       <div class="info-box">
-        <p><strong>PayNova mission connection:</strong> Footprinting module mein humein <code style="background:#1c1c1c;color:#ff8080;padding:2px 6px;border-radius:3px;">api-v2.paynova.com</code> subdomain mila tha. Mobile app analysis mein aksar yehi internal API endpoints hardcoded milte hain app ke code mein, jo attacker ko wahi subdomain confirm kar deta hai jo humne pehle discover kiya tha.</p>
+        <p><strong>PayNova mission connection:</strong> Footprinting module mein humein <code style="background:#1c1c1c;color:#ff8080;padding:2px 6px;border-radius:3px;">api-v2.paynova.example</code> subdomain mila tha. Mobile app analysis mein aksar yehi internal API endpoints hardcoded milte hain app ke code mein, jo attacker ko wahi subdomain confirm kar deta hai jo humne pehle discover kiya tha.</p>
       </div>
 
       <h2>5. Root Detection Aur Jailbreak Bypass</h2>
@@ -1469,7 +1469,7 @@ strings extracted_firmware | grep -i "password"</pre>
         </div>`).join('')}
       </div>
       <div class="info-box">
-        <p><strong>PayNova mission update:</strong> yehi <code style="background:#1c1c1c;color:#ff8080;padding:2px 6px;border-radius:3px;">api-v2.paynova.com</code> subdomain jo humne Footprinting module mein discover kiya tha, likely ek API Gateway ke peeche Lambda functions ko point kar raha hoga. Cloud assessment mein yeh confirm karna zaroori hota hai ki gateway level pe proper rate limiting aur authentication hai.</p>
+        <p><strong>PayNova mission update:</strong> yehi <code style="background:#1c1c1c;color:#ff8080;padding:2px 6px;border-radius:3px;">api-v2.paynova.example</code> subdomain jo humne Footprinting module mein discover kiya tha, likely ek API Gateway ke peeche Lambda functions ko point kar raha hoga. Cloud assessment mein yeh confirm karna zaroori hota hai ki gateway level pe proper rate limiting aur authentication hai.</p>
       </div>
 
       <h2>6. Cloud Security Best Practices</h2>
