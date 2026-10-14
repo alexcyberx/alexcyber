@@ -19,7 +19,7 @@ export const TOOLS: Tool[] = [
   {
     key: 'mistake_analyzer', page: 'mistakeAnalyzer', href: '/tools/mistake-analyzer',
     title: 'Cyber Mistake Analyzer', tag: 'Learning',
-    desc: "Paste a command like `nmap -A target.com`, get instant feedback on what's right, what's wrong, and a better version.",
+    desc: "Paste a command like `nmap -A scanme.nmap.org`, get instant feedback on what's right, what's wrong, and a better version.",
     searchTags: ['mistake', 'analyzer', 'command', 'nmap', 'feedback', 'learning', 'correction'],
     addedAt: '2026-09-16',
   },

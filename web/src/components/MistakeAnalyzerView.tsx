@@ -11,7 +11,7 @@
 //   is not JSON; the request gives up after 40 s.
 // - The login token goes in the Authorization header (no userId in the body).
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ToolIcon } from '@/components/ToolsHub';
 import { authHeaders } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -145,6 +145,8 @@ export default function MistakeAnalyzerView() {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<{ text: string; error: boolean }>({ text: '', error: false });
   const [result, setResult] = useState<Analysis | null>(null);
+  // A double click lands before React re-renders the disabled button: one request at a time.
+  const inFlight = useRef(false);
 
   // Logged out: open the login modal and come back here after it.
   useEffect(() => { if (ready && !user) openAuth('login', PATH); }, [ready, user, openAuth]);
@@ -152,11 +154,13 @@ export default function MistakeAnalyzerView() {
   const fail = (t: string) => setStatus({ text: t, error: true });
 
   async function analyze() {
+    if (inFlight.current) return;
     const cmd = command.trim();
     if (!cmd) return fail('Please enter a command first.');
     if (!user) { fail('Please log in to use the analyzer.'); openAuth('login', PATH); return; }
-    if (cmd.length > MAX_LEN) return fail(`Command is too long (max ${MAX_LEN} characters).`);
+    if (cmd.length > MAX_LEN) { setResult(null); return fail(`Command is too long (max ${MAX_LEN} characters).`); }
 
+    inFlight.current = true;
     setBusy(true);
     setStatus({ text: 'Analyzing...', error: false });
     setResult(null);
@@ -177,6 +181,7 @@ export default function MistakeAnalyzerView() {
       const timedOut = e instanceof DOMException && (e.name === 'TimeoutError' || e.name === 'AbortError');
       fail(timedOut ? 'The analyzer took too long to answer. Please try again in a moment.' : 'Network error. Please try again.');
     } finally {
+      inFlight.current = false;
       setBusy(false);
     }
   }
@@ -206,7 +211,7 @@ export default function MistakeAnalyzerView() {
           <textarea
             id="cmaInput"
             rows={3}
-            placeholder="e.g. nmap -A target.com"
+            placeholder="e.g. nmap -A scanme.nmap.org"
             value={command}
             onChange={(e) => setCommand(e.target.value)}
             style={{ width: '100%', background: '#0a0a0c', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: 12, fontFamily: MONO, fontSize: 13, color: '#f4f4f5', resize: 'vertical', boxSizing: 'border-box' }}
