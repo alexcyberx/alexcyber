@@ -17,7 +17,7 @@ export default async function BlogIndexPage() {
 
   return (
     <div id="blogPage" className="page active">
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px 80px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'calc(var(--nav-h) + 32px) 24px 80px' }}>
         <div id="blogListView">
           <div className="blog-hero">
             <div style={{ fontSize: 10, letterSpacing: 4, color: '#dc1414', fontFamily: "'Rajdhani',sans-serif", fontWeight: 700, marginBottom: 14, padding: '3px 14px', border: '1px solid #dc141433', borderRadius: 20, background: '#dc14140a', display: 'inline-block' }}>BLOG</div>
