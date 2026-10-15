@@ -70,7 +70,7 @@ export default async function HomePage() {
                 <div className="card-footer">
                   <span className="card-chapters">{n === 1 ? '1 Chapter' : `${n} Chapters`}</span>
                   <div className="card-arrow">
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6.5 3l3 3-3 3" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6.5 3l3 3-3 3" style={{ stroke: 'var(--accent)' }} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </div>
                 </div>
               </a>

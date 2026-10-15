@@ -100,8 +100,8 @@ function TranslateLoader({ lang, done, total }: { lang: string; done: number; to
     <div id="xlLoader" style={{ position: 'fixed', top: '30%', left: 0, right: 0, margin: '0 auto', width: 'fit-content', zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, background: 'rgba(8,8,10,0.82)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderRadius: 14, padding: '18px 28px' }}>
         <svg width="32" height="32" viewBox="0 0 36 36" fill="none" style={{ animation: 'xlspin 0.85s linear infinite' }}>
-          <circle cx="18" cy="18" r="15" stroke="rgba(16,185,129,0.12)" strokeWidth="2.5" />
-          <path d="M18 3a15 15 0 0 1 15 15" stroke="#10b981" strokeWidth="3" strokeLinecap="round" />
+          <circle cx="18" cy="18" r="15" stroke="rgba(var(--accent-rgb),0.12)" strokeWidth="2.5" />
+          <path d="M18 3a15 15 0 0 1 15 15" style={{ stroke: 'var(--accent)' }} strokeWidth="3" strokeLinecap="round" />
         </svg>
         <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, fontWeight: 600, color: 'var(--fg-1)', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>Translating to {lang}</div>
         <div style={{ width: 160, height: 3, background: 'rgba(var(--fg-rgb),0.07)', borderRadius: 3, overflow: 'hidden' }}>

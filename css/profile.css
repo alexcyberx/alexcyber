@@ -37,7 +37,7 @@
 }
 .pf-banner-glow {
   position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 20% 60%, rgba(16,185,129,0.18) 0%, transparent 55%);
+  background: radial-gradient(ellipse at 20% 60%, rgba(var(--accent-rgb),0.18) 0%, transparent 55%);
   pointer-events: none;
 }
 .pf-back-btn {
@@ -72,12 +72,12 @@
 .pf-avatar {
   width: 68px; height: 68px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--red) 0%, #065f46 100%);
+  background: linear-gradient(135deg, var(--red) 0%, var(--accent-deep) 100%);
   display: flex; align-items: center; justify-content: center;
   font-family: 'Rajdhani', sans-serif;
   font-size: 26px; font-weight: 700; color: #fff;
   border: 3px solid var(--line-strong);
-  box-shadow: 0 4px 20px rgba(16,185,129,0.28);
+  box-shadow: 0 4px 20px rgba(var(--accent-rgb),0.28);
   flex-shrink: 0;
 }
 .pf-identity-text { padding-bottom: 2px; }
@@ -190,10 +190,10 @@
   display: flex; align-items: center; justify-content: center;
   margin: 0 auto 8px;
 }
-.pf-stat-icon--green  { background: rgba(16,185,129,0.12); color: var(--accent); }
+.pf-stat-icon--green  { background: rgba(var(--accent-rgb),0.12); color: var(--accent); }
 .pf-stat-icon--dim    { background: rgba(var(--fg-rgb),0.04); color: var(--text-dim); }
 .pf-stat-icon--gold   { background: rgba(245,158,11,0.12); color: #f59e0b; }
-.pf-stat-icon--red    { background: rgba(16,185,129,0.12);  color: var(--red); }
+.pf-stat-icon--red    { background: rgba(var(--accent-rgb),0.12);  color: var(--red); }
 .pf-stat-val {
   font-family: 'Rajdhani', sans-serif;
   font-size: 22px; font-weight: 700; color: var(--white);
@@ -272,7 +272,7 @@
   text-transform: uppercase; letter-spacing: 0.8px;
   padding: 2px 7px; border-radius: 5px;
 }
-.pf-daily-diff--easy   { color: var(--accent); background: rgba(16,185,129,0.1); }
+.pf-daily-diff--easy   { color: var(--accent); background: rgba(var(--accent-rgb),0.1); }
 .pf-daily-diff--medium { color: #f59e0b; background: rgba(245,158,11,0.1); }
 .pf-daily-diff--hard   { color: #ef4444; background: rgba(239,68,68,0.1);  }
 .pf-daily-btn {
@@ -467,8 +467,8 @@
 }
 .pf-lb-row:hover { border-color: var(--border-hover); }
 .pf-lb-row--me {
-  border-color: rgba(16,185,129,0.3);
-  background: rgba(16,185,129,0.04);
+  border-color: rgba(var(--accent-rgb),0.3);
+  background: rgba(var(--accent-rgb),0.04);
 }
 .pf-lb-rank {
   font-family: 'Rajdhani', sans-serif;
@@ -496,7 +496,7 @@
 .pf-lb-you {
   font-size: 9px; font-weight: 600;
   color: var(--red);
-  background: rgba(16,185,129,0.1);
+  background: rgba(var(--accent-rgb),0.1);
   padding: 1px 5px; border-radius: 4px;
   vertical-align: middle; margin-left: 5px;
 }
@@ -553,7 +553,7 @@
   border-radius: 11px;
   position: relative;
 }
-.pf-notif-row--unread { border-color: rgba(16,185,129,0.2); }
+.pf-notif-row--unread { border-color: rgba(var(--accent-rgb),0.2); }
 .pf-notif-type-dot {
   width: 7px; height: 7px;
   border-radius: 50%;
@@ -604,7 +604,7 @@
   -webkit-appearance: none;
 }
 .pf-input::placeholder { color: var(--fg-4); }
-.pf-input:focus  { border-color: rgba(16,185,129,0.35); }
+.pf-input:focus  { border-color: rgba(var(--accent-rgb),0.35); }
 .pf-input:disabled { color: var(--fg-4); cursor: not-allowed; }
 .pf-msg {
   font-family: 'Inter', sans-serif;
@@ -629,8 +629,8 @@
 .pf-logout-btn {
   width: 100%;
   padding: 12px;
-  background: rgba(16,185,129,0.07);
-  border: 1px solid rgba(16,185,129,0.18);
+  background: rgba(var(--accent-rgb),0.07);
+  border: 1px solid rgba(var(--accent-rgb),0.18);
   border-radius: 10px;
   font-family: 'Rajdhani', sans-serif;
   font-size: 14px; font-weight: 700; color: #e06060;

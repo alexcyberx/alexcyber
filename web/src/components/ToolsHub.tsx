@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { browserSupabase } from '@/lib/supabase';
 import { TOOLS, readDisabledTools, type DisabledTools } from '@/lib/tools';
 
-const S = { stroke: '#10b981' } as const;
+const S = { style: { stroke: 'var(--accent)' } } as const;
 
 // Same SVGs as the old cards (also used in the analyzer page header).
 export function ToolIcon({ toolKey }: { toolKey: string }) {
@@ -105,7 +105,7 @@ export default function ToolsHub({ initial }: { initial: DisabledTools }) {
               <span className="card-chapters">Free</span>
               <div className="card-arrow">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M2 6h8M6.5 3l3 3-3 3" stroke="#10b981" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M2 6h8M6.5 3l3 3-3 3" style={{ stroke: 'var(--accent)' }} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
             </div>

@@ -138,7 +138,7 @@ Not migrated yet (still SPA): AlexRecon, AlexUtils, AlexTrace, community (switch
   the admin panel keep their red, because there red marks attacks/failures inside the lessons.
 - **Theme vars.** Neutral greys and translucent whites now go through `--fg-1..4`, `--fg-rgb`, `--surface/2/3`, `--line-strong`,
   `--nav-bg`, `--overlay` (mapped by `scripts/themeify.py`, kept for reference). `[data-theme="light"]` in variables.css
-  redefines them.
+  redefines them: warm off-white background (`#f4f4ef`, cards `#fdfdf8`) and purple primary `#573CFA` (owner palette); dark keeps green.
 - **Which pages theme.** Only Next pages: `web/src/app/layout.tsx` runs `THEME_BOOT` (lib/theme.ts) in `<head>` before first
   paint and sets `<html data-theme>`. The choice is `localStorage acx_theme` = `dark` (default) / `light` / `system`.
   `components/ThemeToggle.tsx` sits next to the language button (desktop menu + mobile chips). The old SPA never sets

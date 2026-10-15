@@ -80,7 +80,7 @@
 .chapter-item:hover { color: var(--white); background: rgba(var(--fg-rgb),0.03); }
 .chapter-item.active {
   color: var(--white); border-left-color: var(--red);
-  background: rgba(16,185,129,0.06); font-weight: 500;
+  background: rgba(var(--accent-rgb),0.06); font-weight: 500;
 }
 .chapter-num { font-size: 10px; color: var(--text-dim); font-family: 'Rajdhani', monospace; min-width: 20px; opacity: 0.5; }
 .chapter-item.active .chapter-num { color: var(--red); opacity: 1; }
@@ -146,7 +146,7 @@
 }
 .topic-banner::before {
   content: ''; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
-  background: radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.1) 0%, transparent 70%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(var(--accent-rgb),0.1) 0%, transparent 70%);
 }
 .topic-banner-tag {
   font-size: 10px; font-weight: 600; letter-spacing: 2px;
@@ -184,7 +184,7 @@
 
 .info-box {
   border: 1px solid rgba(var(--fg-rgb),0.06);
-  border-radius: 8px; background: rgba(16,185,129,0.04);
+  border-radius: 8px; background: rgba(var(--accent-rgb),0.04);
   padding: 14px 16px; margin-bottom: 20px;
 }
 .info-box p { margin: 0; font-size: 13px; color: var(--fg-2); }

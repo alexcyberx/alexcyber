@@ -7,9 +7,10 @@
   --accent: #10b981;
   --accent-bright: #34d399;
   --accent-deep: #059669;
+  --accent-rgb: 16,185,129;
   --on-accent: #03120c;
   --red: var(--accent);
-  --red-dim: rgba(16,185,129,0.12);
+  --red-dim: rgba(var(--accent-rgb),0.12);
   --dark: #0b0d0d;
   --surface: #111413;
   --surface2: #161a19;
@@ -38,30 +39,32 @@
 
 /* Light theme (Next pages set data-theme on <html>; the old SPA never does). */
 [data-theme="light"] {
-  --accent: #059669;
-  --accent-bright: #047857;
-  --accent-deep: #065f46;
+  /* Light: warm off-white paper + purple primary (#573CFA), owner's palette. */
+  --accent: #573cfa;
+  --accent-bright: #4a2fe6;
+  --accent-deep: #3d24c8;
+  --accent-rgb: 87,60,250;
   --on-accent: #ffffff;
-  --red-dim: rgba(5,150,105,0.10);
-  --dark: #f5f7f6;
-  --surface: #ffffff;
-  --surface2: #f0f3f2;
-  --surface3: #e7ecea;
-  --line-strong: #d3dad7;
-  --border: rgba(10,25,18,0.10);
-  --border-hover: rgba(10,25,18,0.18);
-  --text: #3c4541;
-  --text-dim: #66706b;
-  --white: #0c1310;
-  --fg-1: #0c1310;
-  --fg-2: #2c3531;
-  --fg-3: #4f5954;
-  --fg-4: #7a8480;
-  --fg-rgb: 10,25,18;
-  --glow: rgba(16,185,129,0.10);
-  --glow-border: rgba(5,150,105,0.40);
-  --nav-bg: rgba(245,247,246,0.88);
-  --overlay: rgba(240,243,242,0.94);
+  --red-dim: rgba(87,60,250,0.09);
+  --dark: #f4f4ef;
+  --surface: #fdfdf8;
+  --surface2: #eeeee8;
+  --surface3: #e5e5de;
+  --line-strong: #d4d4cc;
+  --border: rgba(28,26,39,0.11);
+  --border-hover: rgba(28,26,39,0.20);
+  --text: #3b3a45;
+  --text-dim: #66656f;
+  --white: #1c1a27;
+  --fg-1: #1c1a27;
+  --fg-2: #2f2d3a;
+  --fg-3: #4f4e59;
+  --fg-4: #7a7983;
+  --fg-rgb: 28,26,39;
+  --glow: rgba(87,60,250,0.07);
+  --glow-border: rgba(87,60,250,0.38);
+  --nav-bg: rgba(244,244,239,0.88);
+  --overlay: rgba(236,236,230,0.94);
   color-scheme: light;
 }
 
@@ -101,9 +104,9 @@ body::after {
 .cursor-glow {
   position: fixed; left: 0; top: 0; width: 640px; height: 640px; margin: -320px 0 0 -320px;
   border-radius: 50%; pointer-events: none; z-index: 0; opacity: 0; transition: opacity .3s;
-  background: radial-gradient(circle, rgba(16,185,129,0.07) 0%, transparent 65%);
+  background: radial-gradient(circle, rgba(var(--accent-rgb),0.07) 0%, transparent 65%);
   will-change: transform;
 }
 .cursor-glow.on { opacity: 1; }
-[data-theme="light"] .cursor-glow { background: radial-gradient(circle, rgba(16,185,129,0.09) 0%, transparent 65%); }
+
 [data-theme="light"] body::after { opacity: 0.15; }

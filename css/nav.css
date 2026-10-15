@@ -434,7 +434,7 @@ nav {
   display: flex;
   align-items: center;
   background: rgba(10,10,14,0.98);
-  border-bottom: 1px solid rgba(16,185,129,0.35);
+  border-bottom: 1px solid rgba(var(--accent-rgb),0.35);
   height: 48px;
   gap: 0;
   backdrop-filter: blur(20px);
