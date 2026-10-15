@@ -29,6 +29,8 @@ nav {
   outline: none !important;
   padding: 0 !important;
 }
+.nav-logo { gap: 9px; }
+.logo-mark { width: 26px; height: 26px; flex-shrink: 0; display: block; }
 .logo-text {
   font-family: 'Rajdhani', sans-serif;
   font-size: 20px;

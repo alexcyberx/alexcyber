@@ -7,6 +7,7 @@
 // the old SPA are plain <a href> (full page load into index.html); the old
 // SPA reads ?auth= / ?lang= / #section on load (see js/router.js).
 
+import LogoMark from '@/components/LogoMark';
 import ThemeToggle, { ThemeIcon } from '@/components/ThemeToggle';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -169,7 +170,8 @@ export default function Nav() {
     <>
       <nav id="mainNav" className={'nx' + (scrolled ? ' nx-scrolled' : '')}>
         <span className="nx-progress" style={{ transform: `scaleX(${progress})` }} aria-hidden="true" />
-        <a className="nav-logo" href="/">
+        <a className="nav-logo" href="/" aria-label="AlexCyberX home">
+          <LogoMark />
           <div className="logo-text"><strong>Alex <em>CyberX</em></strong></div>
         </a>
 

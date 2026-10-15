@@ -16,6 +16,12 @@ export const metadata: Metadata = {
   description: 'AlexCyberX: free cybersecurity education in Hindi with hands-on CTF labs.',
   openGraph: { siteName: 'AlexCyberX', locale: 'en_IN', type: 'website' },
   twitter: { card: 'summary_large_image', site: '@alexcyberx', creator: '@alexcyberx' },
+  // brand/ (served by Express at the root): Glitch X mark.
+  icons: {
+    icon: [{ url: '/favicon.ico', sizes: 'any' }, { url: '/favicon.svg', type: 'image/svg+xml' }],
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/site.webmanifest',
 };
 
 export const viewport: Viewport = {

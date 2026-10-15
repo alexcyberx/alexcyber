@@ -105,3 +105,11 @@ nav.nx .hamburger.open span:nth-child(1), nav.nx .hamburger.open span:nth-child(
 .m-theme-panel.open { grid-template-rows: 1fr; }
 .m-theme-inner { overflow: hidden; }
 .m-theme-panel:not(.open) .tp-card { animation: none; }
+
+/* Logo mark: the lower half glitches a bit further on hover. */
+nav.nx .logo-mark .lm-low, nav.nx .logo-mark .lm-bar { transition: transform .35s cubic-bezier(.34,1.56,.64,1); }
+nav.nx .nav-logo:hover .logo-mark .lm-low { transform: translateX(3px); }
+nav.nx .nav-logo:hover .logo-mark .lm-bar { transform: translateX(-3px); }
+nav.nx .logo-mark { filter: drop-shadow(0 0 0 transparent); transition: filter .3s; }
+nav.nx .nav-logo:hover .logo-mark { filter: drop-shadow(0 0 8px rgba(var(--accent-rgb),0.6)); }
+@media (max-width: 480px) { .logo-mark { width: 22px; height: 22px; } }

@@ -161,6 +161,14 @@ Not migrated yet (still SPA): AlexRecon, AlexUtils, AlexTrace, community (switch
 - Mobile: Language and Theme share one row split by a thin line; Theme expands the preview cards below.
 - All motion is off under `prefers-reduced-motion`.
 
+## Logo and site icons (2026-10-15)
+
+- Official mark "Glitch X" (owner's pick), files in `brand/` (see `brand/README.md`). Express serves `/brand/*` and the root
+  icons `/favicon.ico`, `/favicon.svg`, `/apple-touch-icon.png`, `/site.webmanifest`. The Next layout `metadata.icons` and
+  `index.html` link them.
+- Navbar shows the mark before "Alex CyberX": inline on Next pages (`components/LogoMark.tsx`, follows the theme accent,
+  small glitch on hover), `brand/logo-mark-green.svg` on the old SPA.
+
 ## Deploy on Render
 **One service (current):** the Express service also runs Next.js.
 - Render's build command stays `npm install`. The root `postinstall` (`scripts/build-web.js`) builds `web/` when
