@@ -114,7 +114,7 @@ app.get('/js/flags.js', (req, res) => {
 });
 app.use(nextProxy);
 
-const PUBLIC_DIRS = ['css', 'js', 'pages', 'components', 'diagrams'];
+const PUBLIC_DIRS = ['css', 'js', 'pages', 'components', 'diagrams', 'brand'];
 PUBLIC_DIRS.forEach((dir) => {
   app.use('/' + dir, express.static(path.join(ROOT, dir), { dotfiles: 'deny' }));
 });
@@ -122,6 +122,10 @@ PUBLIC_DIRS.forEach((dir) => {
 // Root ki public files (index.html '/' route se serve hoti hai, neeche)
 ['robots.txt', 'sitemap.xml'].forEach((f) => {
   app.get('/' + f, (req, res) => res.sendFile(path.join(ROOT, f)));
+});
+// Site icons (brand/): browsers ask for these at the root.
+['favicon.ico', 'favicon.svg', 'apple-touch-icon.png', 'site.webmanifest'].forEach((f) => {
+  app.get('/' + f, (req, res) => res.set('Cache-Control', 'public, max-age=86400').sendFile(path.join(ROOT, 'brand', f)));
 });
 
 // Admin panel secret URL pe hai (pehle static se serve hota tha)

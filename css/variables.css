@@ -1,20 +1,107 @@
 /* ═══════════════════════════════════════════
    SHARED VARIABLES & BASE
 ═══════════════════════════════════════════ */
-:root {
-  --red: #dc1414;
+:root, .force-dark {
+  /* Brand: green (owner, 2026-10). --red is the old name, kept so every
+     existing rule picks up the new accent without a rename. */
+  --accent: #10b981;
+  --accent-bright: #34d399;
+  --accent-deep: #059669;
+  --accent-rgb: 16,185,129;
+  --on-accent: #03120c;
+  --red: var(--accent);
+  --red-dim: rgba(var(--accent-rgb),0.12);
+  --dark: #0b0d0d;
+  --surface: #111413;
+  --surface2: #161a19;
+  --surface3: #1c2120;
+  --line-strong: #2a302e;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.12);
+  --text: #b3bab7;
+  --text-dim: #6f7874;
+  --white: #f2f5f4;
+  /* Neutral text steps and the base of every translucent tint
+     (rgba(var(--fg-rgb), a)): scripts/themeify.py maps old greys onto these. */
+  --fg-1: #f2f5f4;
+  --fg-2: #c9cfcc;
+  --fg-3: #8f9894;
+  --fg-4: #5c6460;
+  --fg-rgb: 255,255,255;
+  --glow: rgba(52,211,153,0.10);
+  --glow-border: rgba(52,211,153,0.35);
+  --nav-bg: rgba(11,13,13,0.92);
+  --overlay: rgba(11,13,13,0.96);
+  --nav-h: 58px;
+  --sidebar-w: 260px;
+  color-scheme: dark;
+}
+
+/* Blue theme (Next pages: <html data-theme="blue">; the old SPA stays green).
+   Navy + LinkedIn Blue #0A66C2, owner's palette. Green is the default (:root). */
+[data-theme="blue"] {
+  --accent: #2f86e6;
+  --accent-bright: #5aa2f0;
+  --accent-deep: #0a66c2;
+  --accent-rgb: 47,134,230;
+  --on-accent: #ffffff;
+  --red-dim: rgba(10,102,194,0.16);
+  --dark: #070d1a;
+  --surface: #0c1526;
+  --surface2: #111c31;
+  --surface3: #17243d;
+  --line-strong: #22324f;
+  --border: rgba(140,180,255,0.10);
+  --border-hover: rgba(140,180,255,0.18);
+  --text: #b3c0d4;
+  --text-dim: #6f7f98;
+  --white: #f2f6fc;
+  --fg-1: #f2f6fc;
+  --fg-2: #c9d4e6;
+  --fg-3: #8d9bb3;
+  --fg-4: #5d6c85;
+  --fg-rgb: 200,220,255;
+  --glow: rgba(47,134,230,0.14);
+  --glow-border: rgba(90,162,240,0.45);
+  --nav-bg: rgba(7,13,26,0.88);
+  --overlay: rgba(7,13,26,0.95);
+}
+/* Red theme: the original AlexCyberX look (#dc1414 on near-black), with the glow. */
+[data-theme="red"] {
+  --accent: #dc1414;
+  --accent-bright: #ff3b3b;
+  --accent-deep: #b01010;
+  --accent-rgb: 220,20,20;
+  --on-accent: #ffffff;
   --red-dim: rgba(220,20,20,0.12);
   --dark: #060608;
   --surface: #0c0c0f;
   --surface2: #111115;
+  --surface3: #18181d;
+  --line-strong: #26262c;
   --border: rgba(255,255,255,0.06);
-  --border-hover: rgba(255,255,255,0.1);
+  --border-hover: rgba(255,255,255,0.11);
   --text: #b0b0b8;
   --text-dim: #6a6a7a;
   --white: #f4f4f5;
-  --nav-h: 58px;
-  --sidebar-w: 260px;
+  --fg-1: #f4f4f5;
+  --fg-2: #c8c8d0;
+  --fg-3: #8a8a95;
+  --fg-4: #5a5a68;
+  --fg-rgb: 255,255,255;
+  --glow: rgba(255,40,40,0.12);
+  --glow-border: rgba(255,70,70,0.45);
+  --nav-bg: rgba(6,6,8,0.92);
+  --overlay: rgba(6,6,8,0.96);
 }
+[data-theme="red"] .glow-orb { width: 1000px; height: 650px; background: radial-gradient(ellipse, rgba(220,20,20,0.16) 0%, transparent 70%); }
+[data-theme="red"] .cursor-glow { background: radial-gradient(circle, rgba(220,20,20,0.10) 0%, transparent 65%); }
+[data-theme="red"] .btn-primary, [data-theme="red"] .nav-btn.fill { box-shadow: 0 8px 26px rgba(220,20,20,0.35); }
+[data-theme="red"] .pf-banner { background: linear-gradient(135deg, #1a0505 0%, #0d0d12 55%, #080814 100%); }
+[data-theme="blue"] .glow-orb { width: 1100px; height: 700px; background: radial-gradient(ellipse, rgba(10,102,194,0.30) 0%, transparent 70%); }
+[data-theme="blue"] .cursor-glow { background: radial-gradient(circle, rgba(47,134,230,0.12) 0%, transparent 65%); }
+[data-theme="blue"] .btn-primary, [data-theme="blue"] .nav-btn.fill { box-shadow: 0 8px 26px rgba(10,102,194,0.45); }
+[data-theme="blue"] .pf-banner { background: linear-gradient(135deg, #0a2a55 0%, #0c1526 60%, #070d1a 100%); }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -41,5 +128,19 @@ body::after {
 /* SCROLLBAR */
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 2px; }
+
+
+/* Mouse spotlight (js/spotlight.js): cards light up where the cursor is. */
+.spot-on {
+  background-image: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), var(--glow), transparent 60%) !important;
+  border-color: var(--glow-border) !important;
+}
+.cursor-glow {
+  position: fixed; left: 0; top: 0; width: 640px; height: 640px; margin: -320px 0 0 -320px;
+  border-radius: 50%; pointer-events: none; z-index: 0; opacity: 0; transition: opacity .3s;
+  background: radial-gradient(circle, rgba(var(--accent-rgb),0.07) 0%, transparent 65%);
+  will-change: transform;
+}
+.cursor-glow.on { opacity: 1; }
 

@@ -56,10 +56,10 @@ export default function SiteRuntime() {
 
   if (!maintenance) return null;
   return (
-    <div style={{ position: 'fixed', inset: 0, background: '#0a0a0d', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: 24, fontFamily: 'system-ui,-apple-system,sans-serif', zIndex: 999999 }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'var(--surface)', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: 24, fontFamily: 'system-ui,-apple-system,sans-serif', zIndex: 999999 }}>
       <div style={{ fontSize: 40, marginBottom: 16 }}>🛠️</div>
       <h1 style={{ fontSize: 22, margin: '0 0 10px' }}>{maintenance} is under maintenance</h1>
-      <p style={{ color: '#9a9aa5', fontSize: 14, maxWidth: 420, lineHeight: 1.6 }}>We&apos;re making some improvements and will be back shortly. Please check back soon.</p>
+      <p style={{ color: 'var(--fg-3)', fontSize: 14, maxWidth: 420, lineHeight: 1.6 }}>We&apos;re making some improvements and will be back shortly. Please check back soon.</p>
     </div>
   );
 }

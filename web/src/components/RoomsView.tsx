@@ -100,14 +100,14 @@ function TranslateLoader({ lang, done, total }: { lang: string; done: number; to
     <div id="xlLoader" style={{ position: 'fixed', top: '30%', left: 0, right: 0, margin: '0 auto', width: 'fit-content', zIndex: 99999, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, background: 'rgba(8,8,10,0.82)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderRadius: 14, padding: '18px 28px' }}>
         <svg width="32" height="32" viewBox="0 0 36 36" fill="none" style={{ animation: 'xlspin 0.85s linear infinite' }}>
-          <circle cx="18" cy="18" r="15" stroke="rgba(220,20,20,0.12)" strokeWidth="2.5" />
-          <path d="M18 3a15 15 0 0 1 15 15" stroke="#dc1414" strokeWidth="3" strokeLinecap="round" />
+          <circle cx="18" cy="18" r="15" stroke="rgba(var(--accent-rgb),0.12)" strokeWidth="2.5" />
+          <path d="M18 3a15 15 0 0 1 15 15" style={{ stroke: 'var(--accent)' }} strokeWidth="3" strokeLinecap="round" />
         </svg>
-        <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, fontWeight: 600, color: '#e0e0e0', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>Translating to {lang}</div>
-        <div style={{ width: 160, height: 3, background: 'rgba(255,255,255,0.07)', borderRadius: 3, overflow: 'hidden' }}>
-          <div id="xlBar" style={{ height: '100%', width: (total ? Math.round(done / total * 100) : 0) + '%', background: 'linear-gradient(90deg,#dc1414,#ff5555)', borderRadius: 3, transition: 'width 0.12s' }}></div>
+        <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, fontWeight: 600, color: 'var(--fg-1)', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>Translating to {lang}</div>
+        <div style={{ width: 160, height: 3, background: 'rgba(var(--fg-rgb),0.07)', borderRadius: 3, overflow: 'hidden' }}>
+          <div id="xlBar" style={{ height: '100%', width: (total ? Math.round(done / total * 100) : 0) + '%', background: 'linear-gradient(90deg,var(--accent),#6ee7b7)', borderRadius: 3, transition: 'width 0.12s' }}></div>
         </div>
-        <div id="xlStatus" style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: '#484858' }}>{done ? `${done} / ${total} done` : 'Starting...'}</div>
+        <div id="xlStatus" style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: 'var(--fg-4)' }}>{done ? `${done} / ${total} done` : 'Starting...'}</div>
       </div>
       <style>{'@keyframes xlspin{to{transform:rotate(360deg)}}'}</style>
     </div>
@@ -643,7 +643,7 @@ export default function RoomsView({ challenges: rooms, icons, i18n }: { challeng
                       </div>
                       <div id="ctfDailyChallengeInner">
                         {daily === null ? (
-                          <div style={{ color: '#4a4a5a', fontSize: 12 }}>No challenges available.</div>
+                          <div style={{ color: 'var(--fg-4)', fontSize: 12 }}>No challenges available.</div>
                         ) : daily === 'done' ? (
                           <div className="ctf-daily-done">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5L13 5" stroke="#4ade80" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -731,15 +731,15 @@ export default function RoomsView({ challenges: rooms, icons, i18n }: { challeng
                   <span style={{ fontSize: 12, color: 'var(--text-dim)' }}>{solvers[shown.id] ?? shown.solvers} solvers</span>
                 </div>
 
-                <div id="ctfChallengeCard" style={{ display: 'block', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: 16, marginBottom: 14 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.2, color: '#dc1414', textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#dc1414', display: 'inline-block' }}></span>CHALLENGE
+                <div id="ctfChallengeCard" style={{ display: 'block', background: 'rgba(var(--fg-rgb),0.03)', border: '1px solid rgba(var(--fg-rgb),0.06)', borderRadius: 10, padding: 16, marginBottom: 14 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.2, color: 'var(--accent)', textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--accent)', display: 'inline-block' }}></span>CHALLENGE
                   </div>
                   <div id="modalChallengeBadges" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}></div>
-                  <div id="modalChallengeAuthor" style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, color: '#505068', textTransform: 'uppercase', marginBottom: 12 }}>{shown.author ? `Author: ${shown.author}` : ''}</div>
+                  <div id="modalChallengeAuthor" style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, color: 'var(--fg-4)', textTransform: 'uppercase', marginBottom: 12 }}>{shown.author ? `Author: ${shown.author}` : ''}</div>
                   {shown.scenario
-                    ? <div id="modalChallengeScenario" style={{ fontSize: 12.5, color: '#a0a0b8', lineHeight: 1.85 }} dangerouslySetInnerHTML={{ __html: shown.scenario }} />
-                    : <div id="modalChallengeScenario" style={{ fontSize: 12.5, color: '#a0a0b8', lineHeight: 1.85 }}>{shown.desc}</div>}
+                    ? <div id="modalChallengeScenario" style={{ fontSize: 12.5, color: 'var(--fg-3)', lineHeight: 1.85 }} dangerouslySetInnerHTML={{ __html: shown.scenario }} />
+                    : <div id="modalChallengeScenario" style={{ fontSize: 12.5, color: 'var(--fg-3)', lineHeight: 1.85 }}>{shown.desc}</div>}
                 </div>
 
                 <div className="ctf-modal-hint-wrap" id="ctfHintWrap" style={{ marginBottom: 16, display: shown.hints.length ? 'block' : 'none' }}>

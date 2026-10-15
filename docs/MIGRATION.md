@@ -129,6 +129,57 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 
 Not migrated yet (still SPA): AlexRecon, AlexUtils, AlexTrace, community (switched off), admin panel.
 
+## Theme: green / blue / red, mouse glow (2026-10-15)
+
+- **Two dark themes, no light mode** (owner's choice). Green is the default (`:root` in `css/variables.css`: `--accent`
+  `#10b981`, `--accent-bright`, `--accent-deep`, `--accent-rgb`, `--on-accent`; the old name `--red` points at `--accent`).
+  Blue is `[data-theme="blue"]`: navy background and LinkedIn Blue (`#0A66C2` family). Red is `[data-theme="red"]`: the
+  original AlexCyberX look (`#dc1414` on near-black). The light theme and "System" option were removed.
+- Hard-coded brand reds were swapped for green across css/, index.html, pages/, components/, js/ and web/src. Red stays
+  where it means danger (logout, errors, wrong answers, delete, timers). Course chapter content (`js/chapters*.js`,
+  `js/chapter-content/`) and the admin panel keep their red.
+- Neutral greys and translucent whites go through `--fg-1..4`, `--fg-rgb`, `--surface/2/3`, `--line-strong`, `--nav-bg`,
+  `--overlay` (mapped by `scripts/themeify.py`, kept for reference), so each theme only redefines variables.
+- **Which pages theme.** Only Next pages: `web/src/app/layout.tsx` runs `THEME_BOOT` (lib/theme.ts) in `<head>` before first
+  paint and sets `<html data-theme="dark|blue">`. Choice: `localStorage acx_theme` = `green` (default) / `blue` / `red`; any other
+  saved value falls back to green. `components/ThemeToggle.tsx` sits next to the language button (desktop menu + mobile
+  cards: each option is a mini live preview, Matrix/Midnight/Crimson; switching grows the new theme as a circle from the click point via the View Transitions API, instant where unsupported or with reduced motion). The old SPA never sets `data-theme`, so its pages stay green until they move to Next.
+- **Mouse glow.** `js/spotlight.js` (index.html + Next layout) adds `.spot-on` + `--mx/--my` to the card under the cursor and
+  moves one soft `.cursor-glow` behind the page. Mouse only.
+- Test: `theme.js` (11 checks) plus the usual suites.
+
+## Navbar upgrade (2026-10-15)
+
+- Next pages only: `web/src/app/nav-upgrade.css` on top of the shared `css/nav.css`; markup in `components/Nav.tsx`
+  (same ids, so the old tests and i18n keep working). The old SPA nav is unchanged.
+- One sliding hover pill behind the links, an accent underline under the current page's link, lighter bar at the top that
+  turns into stronger glass + shadow on scroll, and a 2px reading-progress line along the bottom edge.
+- "More" is a panel with an icon tile and a one-line description per link (staggered entrance). It now lives outside
+  `.nav-center` and is placed in JS, so the 1024-1366px overflow can no longer clip it.
+- Avatar menu fades/scales in (with a hover bridge), Sign Up has a light sweep, buttons lift, the hamburger morph is
+  springier, the mobile sheet drops open with staggered rows, and mobile Login / Sign Up text is centred.
+- Mobile: Language and Theme share one row split by a thin line; Theme expands the preview cards below.
+- All motion is off under `prefers-reduced-motion`.
+
+## Logo and site icons (2026-10-15)
+
+- Official mark "Glitch X" (owner's pick), files in `brand/` (see `brand/README.md`). Express serves `/brand/*` and the root
+  icons `/favicon.ico`, `/favicon.svg`, `/apple-touch-icon.png`, `/site.webmanifest`. The Next layout `metadata.icons` and
+  `index.html` link them.
+- Navbar shows the mark before "Alex CyberX": inline on Next pages (`components/LogoMark.tsx`, follows the theme accent,
+  small glitch on hover), `brand/logo-mark-green.svg` on the old SPA.
+
+## Search: command palette (2026-10-15)
+
+- `components/NavSearch.tsx` + `app/search.css` (Next pages). The nav pill (`#navSearchPill`, shows Ctrl K / ⌘ K) and the
+  mobile icon (`#navSearchToggle`) open one palette, portalled to `<body>` (the nav's backdrop-filter would trap it).
+- Opens with Ctrl/Cmd+K anywhere or `/` when not typing; Esc, click outside or Ctrl+K again closes. Arrow keys move,
+  Enter opens. Results are grouped (Courses, CTF Rooms, Tools, Chapters, Blog) with type icons and highlighted matches;
+  multi-word queries match all words. Empty state: last 5 searches (`localStorage acx_recent_search`, removable) and
+  quick links. No results: suggestion chips. Loading: sweep line + skeleton rows. `?q=` still opens it with that text.
+- Same ids as before (`#desktopSearchInput`, `#navSearchDesktopResults`, `.search-result-item`), so the old tests run.
+  Test: `search.js` (15 checks). Reduced motion turns the animation off.
+
 ## Deploy on Render
 **One service (current):** the Express service also runs Next.js.
 - Render's build command stays `npm install`. The root `postinstall` (`scripts/build-web.js`) builds `web/` when

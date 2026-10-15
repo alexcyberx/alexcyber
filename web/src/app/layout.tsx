@@ -6,7 +6,10 @@ import Nav from '@/components/Nav';
 import SiteRuntime from '@/components/SiteRuntime';
 import { AuthProvider } from '@/lib/auth-context';
 import { SITE_URL } from '@/lib/blog';
+import { THEME_BOOT } from '@/lib/theme';
 import './compat.css';
+import './nav-upgrade.css';
+import './search.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -14,10 +17,16 @@ export const metadata: Metadata = {
   description: 'AlexCyberX: free cybersecurity education in Hindi with hands-on CTF labs.',
   openGraph: { siteName: 'AlexCyberX', locale: 'en_IN', type: 'website' },
   twitter: { card: 'summary_large_image', site: '@alexcyberx', creator: '@alexcyberx' },
+  // brand/ (served by Express at the root): Glitch X mark.
+  icons: {
+    icon: [{ url: '/favicon.ico', sizes: 'any' }, { url: '/favicon.svg', type: 'image/svg+xml' }],
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/site.webmanifest',
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0a0a0f',
+  themeColor: '#0b0d0d',
   colorScheme: 'dark',
 };
 
@@ -28,13 +37,14 @@ const SHARED_CSS = ['variables', 'nav', 'home', 'learn', 'auth', 'profile', 'mod
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600;700&display=swap"
         />
         {SHARED_CSS.map((name) => (
           // eslint-disable-next-line @next/next/no-css-tags
@@ -52,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CookieBanner />
         <LegacyI18n />
         <SiteRuntime />
+        <script src="/js/spotlight.js" defer />
       </body>
     </html>
   );

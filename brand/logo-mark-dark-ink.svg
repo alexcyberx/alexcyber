@@ -1,0 +1,7 @@
+<!-- AlexCyberX mark for light backgrounds. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs><clipPath id="at"><rect x="0" y="0" width="64" height="31"/></clipPath><clipPath id="ab"><rect x="0" y="33" width="64" height="31"/></clipPath></defs>
+  <g clip-path="url(#at)" stroke="#0c1310" stroke-width="7" stroke-linecap="square"><path d="M19 17 45 47M45 17 19 47"/></g>
+  <g clip-path="url(#ab)" transform="translate(4 0)" stroke="#059669" stroke-width="7" stroke-linecap="square"><path d="M19 17 45 47M45 17 19 47"/></g>
+  <rect x="10" y="31.2" width="9" height="1.6" fill="#059669"/><rect x="47" y="31.2" width="7" height="1.6" fill="#0c1310" opacity=".55"/>
+</svg>

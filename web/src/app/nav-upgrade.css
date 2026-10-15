@@ -1,0 +1,115 @@
+/* Navbar upgrade for the Next pages (Nav.tsx). css/nav.css stays the base,
+   shared with the old SPA; everything here is Next-only and additive. */
+
+/* Bar: lighter at the top, stronger glass + soft shadow once the page scrolls. */
+nav.nx { transition: background .35s ease, box-shadow .35s ease, border-color .35s ease; border-bottom-color: transparent; background: color-mix(in srgb, var(--nav-bg) 70%, transparent); }
+nav.nx.nx-scrolled { background: var(--nav-bg); border-bottom-color: var(--border); box-shadow: 0 10px 30px -18px rgba(0,0,0,0.8), 0 1px 0 rgba(var(--accent-rgb),0.06); }
+.nx-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; transform-origin: 0 50%; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--accent) 30%, var(--accent-bright)); box-shadow: 0 0 10px rgba(var(--accent-rgb),0.6); transition: transform .12s linear; }
+
+/* Logo: accent word glows on hover. */
+nav.nx .logo-text em { transition: text-shadow .3s ease, color .3s ease; }
+nav.nx .nav-logo:hover .logo-text em { text-shadow: 0 0 14px rgba(var(--accent-rgb),0.75); color: var(--accent-bright); }
+
+/* Links: one sliding hover pill + an active underline for the current page. */
+nav.nx .nav-center { position: absolute; }
+@media (max-width: 1023px) and (min-width: 769px) { nav.nx .nav-center { position: relative; left: auto; } }
+nav.nx .nav-link { position: relative; z-index: 1; background: none !important; transition: color .25s ease; }
+nav.nx .nav-link:hover, nav.nx .nav-link.active { color: var(--white); }
+.nx-pill { position: absolute; left: 0; top: 50%; height: 30px; margin-top: -15px; border-radius: 9px; pointer-events: none; z-index: 0;
+  background: rgba(var(--fg-rgb),0.06); border: 1px solid rgba(var(--fg-rgb),0.06); opacity: 0;
+  transition: transform .38s cubic-bezier(.22,1,.36,1), width .38s cubic-bezier(.22,1,.36,1), opacity .2s ease; }
+.nx-pill.on { opacity: 1; }
+.nx-mark { position: absolute; left: 0; bottom: -3px; height: 2px; border-radius: 2px; pointer-events: none; z-index: 1;
+  background: var(--accent); box-shadow: 0 0 10px rgba(var(--accent-rgb),0.9); transition: transform .45s cubic-bezier(.22,1,.36,1), width .45s; }
+@media (max-width: 1366px) and (min-width: 769px) { .nx-mark { bottom: 0; } }
+
+/* More dropdown: scales in from the trigger, items stagger in, each with an icon tile + one line of description. */
+nav.nx .nav-dropdown-trigger svg { transition: transform .35s cubic-bezier(.22,1,.36,1); }
+nav.nx .nx-menu.nav-dropdown-menu { width: 280px; padding: 7px; border-radius: 14px; transform-origin: top center;
+  background: color-mix(in srgb, var(--surface) 94%, transparent); border: 1px solid var(--border-hover);
+  backdrop-filter: blur(18px) saturate(160%); -webkit-backdrop-filter: blur(18px) saturate(160%);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(var(--accent-rgb),0.05);
+  transform: translateY(-8px) scale(.97); transition: opacity .22s ease, transform .32s cubic-bezier(.22,1,.36,1), visibility .22s; }
+nav.nx .nx-menu.nav-dropdown-menu.open { transform: none; }
+nav.nx .nx-menu::before { content: ''; position: absolute; left: 0; right: 0; top: -12px; height: 12px; } /* hover bridge */
+.nx-item { gap: 11px !important; padding: 9px 10px !important; border-radius: 10px !important; text-decoration: none; position: relative; }
+.nx-menu.open .nx-item { animation: nx-item-in .38s cubic-bezier(.22,1,.36,1) both; animation-delay: calc(var(--i) * 40ms + 40ms); }
+@keyframes nx-item-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.nx-item-ic { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; flex-shrink: 0;
+  background: var(--red-dim); border: 1px solid rgba(var(--accent-rgb),0.18); color: var(--accent); transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s; }
+.nx-item-ic svg { color: var(--accent) !important; opacity: 1 !important; }
+.nx-item:hover .nx-item-ic { transform: scale(1.08) rotate(-4deg); box-shadow: 0 0 16px rgba(var(--accent-rgb),0.35); }
+.nx-item-tx { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.nx-item-tx b { font: 600 12.5px 'Inter', sans-serif; color: var(--white); }
+.nx-item-tx small { font: 400 11px 'Inter', sans-serif; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nx-item-go { margin-left: auto; color: var(--text-dim); opacity: 0; transform: translateX(-4px); transition: opacity .2s, transform .3s cubic-bezier(.22,1,.36,1); flex-shrink: 0; }
+.nx-item:hover .nx-item-go { opacity: 1; transform: none; color: var(--accent-bright); }
+.nx-item.current { background: rgba(var(--accent-rgb),0.08) !important; }
+
+/* Buttons: lift on hover, Sign Up gets a light sweep. */
+nav.nx .nav-btn { transition: transform .25s cubic-bezier(.22,1,.36,1), background .2s, border-color .2s, color .2s, box-shadow .25s; }
+nav.nx .nav-btn:hover { transform: translateY(-1px); }
+nav.nx .nav-btn:active { transform: translateY(0) scale(.97); }
+nav.nx .nav-btn.fill:hover { box-shadow: 0 8px 22px rgba(var(--accent-rgb),0.40); }
+.nx-shine { position: relative; overflow: hidden; }
+.nx-shine::after { content: ''; position: absolute; top: 0; bottom: 0; left: -60%; width: 45%; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.45), transparent); transform: skewX(-18deg); }
+.nx-shine:hover::after { animation: nx-sweep .8s ease; }
+@keyframes nx-sweep { to { left: 120%; } }
+nav.nx :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+
+/* Avatar menu: animated instead of an instant show/hide, with a hover bridge. */
+nav.nx .nav-avatar .nav-avatar-dropdown { display: block; opacity: 0; visibility: hidden; transform: translateY(-6px) scale(.97); transform-origin: top right;
+  transition: opacity .2s ease, transform .3s cubic-bezier(.22,1,.36,1), visibility .2s; border-radius: 14px;
+  background: color-mix(in srgb, var(--surface) 94%, transparent); border-color: var(--border-hover);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+nav.nx .nav-avatar:hover .nav-avatar-dropdown, nav.nx .nav-avatar:focus-within .nav-avatar-dropdown { opacity: 1; visibility: visible; transform: none; }
+nav.nx .nav-avatar-dropdown::before { content: ''; position: absolute; left: 0; right: 0; top: -14px; height: 14px; }
+nav.nx .nav-avatar-pic { transition: box-shadow .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1); }
+nav.nx .nav-avatar:hover .nav-avatar-pic { box-shadow: 0 0 0 2px var(--dark), 0 0 0 3.5px var(--accent), 0 0 16px rgba(var(--accent-rgb),0.5); transform: scale(1.05); }
+
+/* Hamburger: springier morph, accent when open. */
+nav.nx .hamburger span { transition: transform .4s cubic-bezier(.68,-0.4,.27,1.4), opacity .25s, background .25s; }
+nav.nx .hamburger.open span:nth-child(1), nav.nx .hamburger.open span:nth-child(3) { background: var(--accent); }
+
+/* Mobile menu: drops open as a sheet, rows stagger in. Login / Sign Up text centred. */
+.nx-mobile.show { animation: nx-sheet .38s cubic-bezier(.22,1,.36,1); }
+@keyframes nx-sheet { from { opacity: 0; clip-path: inset(0 0 100% 0 round 0 0 16px 16px); } to { opacity: 1; clip-path: inset(0 0 0 0 round 0 0 16px 16px); } }
+.nx-mobile.show > * { animation: nx-row .42s cubic-bezier(.22,1,.36,1) both; }
+.nx-mobile.show > *:nth-child(1) { animation-delay: .03s; } .nx-mobile.show > *:nth-child(2) { animation-delay: .06s; }
+.nx-mobile.show > *:nth-child(3) { animation-delay: .09s; } .nx-mobile.show > *:nth-child(4) { animation-delay: .12s; }
+.nx-mobile.show > *:nth-child(5) { animation-delay: .15s; } .nx-mobile.show > *:nth-child(6) { animation-delay: .18s; }
+.nx-mobile.show > *:nth-child(7) { animation-delay: .21s; } .nx-mobile.show > *:nth-child(8) { animation-delay: .24s; }
+.nx-mobile.show > *:nth-child(n+9) { animation-delay: .27s; }
+@keyframes nx-row { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.nx-mobile { border-radius: 0 0 16px 16px; box-shadow: 0 30px 60px -20px rgba(0,0,0,0.7); }
+.nx-mobile .m-auth a, .nx-mobile .m-auth button { justify-content: center; text-align: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-pill, .nx-mark, .nx-progress, nav.nx .nx-menu, nav.nx .nav-avatar-dropdown, nav.nx .hamburger span { transition: none; }
+  .nx-mobile.show, .nx-mobile.show > *, .nx-menu.open .nx-item, .nx-shine:hover::after { animation: none; }
+}
+
+/* Mobile: Language | Theme split row; Theme expands the preview cards. */
+.m-split { display: flex; align-items: center; }
+.m-split > a.m-nav { flex: 1; min-width: 0; }
+.m-split-line { width: 1px; height: 22px; background: var(--border-hover); flex-shrink: 0; margin: 0 4px; }
+.mobile-menu button.m-nav.m-theme-btn { width: auto; flex-shrink: 0; gap: 8px; padding: 13px 12px; }
+.m-theme-btn svg:last-child { transition: transform .35s cubic-bezier(.22,1,.36,1); opacity: .7; }
+.m-theme-btn.open { color: var(--white); }
+.m-theme-btn.open svg:last-child { transform: rotate(180deg); }
+.m-theme-btn .tp-icon { transition: transform .5s cubic-bezier(.22,1,.36,1); }
+.m-theme-btn.open .tp-icon { transform: rotate(180deg); }
+.m-theme-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s cubic-bezier(.22,1,.36,1); }
+.m-theme-panel.open { grid-template-rows: 1fr; }
+.m-theme-inner { overflow: hidden; }
+.m-theme-panel:not(.open) .tp-card { animation: none; }
+
+/* Logo mark: the lower half glitches a bit further on hover. */
+nav.nx .logo-mark .lm-low, nav.nx .logo-mark .lm-bar { transition: transform .35s cubic-bezier(.34,1.56,.64,1); }
+nav.nx .nav-logo:hover .logo-mark .lm-low { transform: translateX(3px); }
+nav.nx .nav-logo:hover .logo-mark .lm-bar { transform: translateX(-3px); }
+nav.nx .logo-mark { filter: drop-shadow(0 0 0 transparent); transition: filter .3s; }
+nav.nx .nav-logo:hover .logo-mark { filter: drop-shadow(0 0 8px rgba(var(--accent-rgb),0.6)); }
+@media (max-width: 480px) { .logo-mark { width: 22px; height: 22px; } }

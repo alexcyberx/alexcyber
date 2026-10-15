@@ -1,0 +1,8 @@
+<!-- AlexCyberX wordmark: Glitch X + "Alex CyberX". -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 64">
+  <defs><clipPath id="wt"><rect x="0" y="0" width="64" height="31"/></clipPath><clipPath id="wb"><rect x="0" y="33" width="64" height="31"/></clipPath></defs>
+  <g clip-path="url(#wt)" stroke="#f3f6f5" stroke-width="7" stroke-linecap="square"><path d="M19 17 45 47M45 17 19 47"/></g>
+  <g clip-path="url(#wb)" transform="translate(4 0)" stroke="#10b981" stroke-width="7" stroke-linecap="square"><path d="M19 17 45 47M45 17 19 47"/></g>
+  <rect x="10" y="31.2" width="9" height="1.6" fill="#10b981"/><rect x="47" y="31.2" width="7" height="1.6" fill="#f3f6f5" opacity=".55"/>
+  <text x="74" y="43" font-family="Rajdhani, 'Arial Narrow', sans-serif" font-weight="700" font-size="34" letter-spacing="1" fill="#f3f6f5">Alex <tspan fill="#10b981">CyberX</tspan></text>
+</svg>

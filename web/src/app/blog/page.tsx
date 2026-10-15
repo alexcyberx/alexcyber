@@ -20,9 +20,9 @@ export default async function BlogIndexPage() {
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'calc(var(--nav-h) + 32px) 24px 80px' }}>
         <div id="blogListView">
           <div className="blog-hero">
-            <div style={{ fontSize: 10, letterSpacing: 4, color: '#dc1414', fontFamily: "'Rajdhani',sans-serif", fontWeight: 700, marginBottom: 14, padding: '3px 14px', border: '1px solid #dc141433', borderRadius: 20, background: '#dc14140a', display: 'inline-block' }}>BLOG</div>
-            <h1 style={{ fontFamily: "'Rajdhani',sans-serif", fontSize: 34, fontWeight: 700, color: '#f4f4f5', marginBottom: 12 }}>Articles, News &amp; Writeups</h1>
-            <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: '#8a8a95', lineHeight: 1.7 }}>Tutorials, CVE breakdowns, tool guides and CTF writeups from the AlexCyberX team.</p>
+            <div style={{ fontSize: 10, letterSpacing: 4, color: 'var(--accent)', fontFamily: "'Rajdhani',sans-serif", fontWeight: 700, marginBottom: 14, padding: '3px 14px', border: '1px solid var(--glow-border)', borderRadius: 20, background: 'var(--red-dim)', display: 'inline-block' }}>BLOG</div>
+            <h1 style={{ fontFamily: "'Rajdhani',sans-serif", fontSize: 34, fontWeight: 700, color: 'var(--fg-1)', marginBottom: 12 }}>Articles, News &amp; Writeups</h1>
+            <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 14, color: 'var(--fg-3)', lineHeight: 1.7 }}>Tutorials, CVE breakdowns, tool guides and CTF writeups from the AlexCyberX team.</p>
           </div>
 
           {posts === null ? (
