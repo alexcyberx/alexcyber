@@ -25,7 +25,7 @@ The list of migrated paths lives in one place: `NEXT_PAGES` in `server/middlewar
 | 4b | `/rooms` (CTF list, room view, labs flow) | Done |
 | 5a | Security fixes in tools, community, admin panel (no page moves) | Done |
 | 5b | `/tools`, `/tools/mistake-analyzer`, `/resources` (+ `/community`, `/community/<id>` ported, switched off) | Done |
-| 5c | AlexRecon, AlexUtils, AlexTrace | |
+| 5c | `/tools/alexrecon`, `/tools/alexutils`, `/tools/alextrace` | Done |
 | 5d | Admin panel | |
 
 All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
@@ -125,9 +125,27 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
   turns them on (`NEXT_PAGES.community` + the `/community/` prefix).
 - Blog, resources and community pages now start below the fixed nav (the old 40px padding put the page title
   and the blog post's "Back to Blog" button under the 58px nav), on the SPA too.
-- AlexRecon, AlexUtils, AlexTrace (`/tools/<name>`) are still SPA pages (step 5c).
+- AlexRecon, AlexUtils, AlexTrace moved in step 5c (below).
 
-Not migrated yet (still SPA): AlexRecon, AlexUtils, AlexTrace, community (switched off), admin panel.
+## Step 5c: AlexRecon, AlexUtils, AlexTrace on Next
+- `/tools/alexrecon`, `/tools/alexutils`, `/tools/alextrace` (`src/app/tools/<name>/page.tsx`, static) now have the
+  Next navbar, themes and search. Not a React rewrite: the page markup is read from `index.html` at build time
+  (`src/lib/legacy-tools.ts`, one source for both apps; "Back to Tools" becomes a link) and the logic is the SPA's
+  own script, so every feature, API call, rate limit and error message is unchanged. Server routes untouched.
+- The tool code moved out of `js/page-scripts.js` into `js/tools/alexrecon.js`, `alexutils.js`, `alextrace.js`
+  (+ `js/tools/common.js`); `index.html` loads them right after `page-scripts.js`, the Next pages load them via
+  `src/components/LegacyTool.tsx`. That component gives the scripts what the SPA did: `escapeHtml()`,
+  `window._currentUser` (from the Next login), `showAuth()` (the Next login modal, back to the tool after), the
+  fetch wrapper that adds `Authorization: Bearer <token>` to `/api/` calls, and jsPDF for the PDF export; then it
+  calls the tool's init function. Logged out: the login modal opens on the page.
+- Each tool page links its own stylesheet (`/css/alexrecon.css` etc.).
+- Themes: the three tool stylesheets, the page markup and the HTML the scripts build use the theme variables
+  (`python3 scripts/themeify.py --tools`), plus by hand: the attack-surface graph reads `--accent`/`--fg-*` when it
+  draws, and the HTML export / print view carry the current theme's values. Status colours (green/amber/red) stay.
+- A markup change in `index.html` for these pages needs a redeploy of `web/`; a script change does not
+  (Express serves `/js`).
+
+Not migrated yet (still SPA): community (switched off), admin panel.
 
 ## Theme: green / blue / red, mouse glow (2026-10-15)
 

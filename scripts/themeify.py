@@ -103,8 +103,81 @@ def do_tsx(s):
     return s
 
 
+# ── Tool pages (step 5c): AlexRecon / AlexUtils / AlexTrace ─────────────────
+#   python3 scripts/themeify.py --tools
+# Same neutral mapping, plus the brand accent (the old hard-coded green
+# #10b981 / rgba(16,185,129,a), which was red #dc1414 before) -> --accent, and
+# white text/icons on a tinted background -> --fg-1. Status colours (#4ade80,
+# #fbbf24, #f87171, ...) stay as they are. Only style="..." strings in the JS
+# are touched; colours set from JS code (canvas, exports) are done by hand.
+TOOL_CSS = ['css/alexrecon.css', 'css/alexutils.css', 'css/alextrace.css']
+TOOL_JS = ['js/tools/alexrecon.js', 'js/tools/alexutils.js', 'js/tools/alextrace.js']
+TOOL_SLICES = [('<div id="alexReconPage" class="page">', '</div><!-- end #alexTracePage -->')]
+
+ACCENT_ALPHA = re.compile(r'#10b981([0-9a-fA-F]{2})\b', re.I)
+
+
+def accent(val):
+    val = ACCENT_ALPHA.sub(lambda m: 'rgba(var(--accent-rgb),%s)' % round(int(m.group(1), 16) / 255, 2), val)
+    val = re.sub(r'#10b981\b', 'var(--accent)', val, flags=re.I)
+    val = re.sub(r'#03120c\b', 'var(--on-accent)', val, flags=re.I)
+    return re.sub(r'rgba\(\s*16\s*,\s*185\s*,\s*129\s*,', 'rgba(var(--accent-rgb),', val)
+
+
+def tool_decls(body):
+    on_accent = re.search(r'background(-color)?\s*:\s*var\(--(red|accent)\)', body)
+    body = css_decls(accent(body))
+    white = 'var(--on-accent)' if on_accent else 'var(--fg-1)'
+    return re.sub(r'(?<![\w-])(color\s*:\s*)#fff(fff)?\b', lambda m: m.group(1) + white, body, flags=re.I)
+
+
+SVG_TAG = re.compile(r'<(path|circle|rect|line|polyline|polygon|ellipse)\b[^<>]*?/?>')
+
+
+def svg_attrs(tag):
+    # stroke="#10b981" -> style="stroke:var(--accent)" (var() is not allowed in
+    # presentation attributes), grey icons -> --fg-3.
+    if 'style=' in tag:
+        return tag
+    m = re.search(r'\s(stroke|fill)="(#[0-9a-fA-F]{3,6})"', tag)
+    if not m:
+        return tag
+    col = m.group(2).lower()
+    var = 'var(--accent)' if col == '#10b981' else ('var(--fg-3)' if col == '#8a8a95' else None)
+    if not var:
+        return tag
+    return tag.replace(m.group(0), ' style="%s:%s"' % (m.group(1), var))
+
+
+def do_tool_html(s):
+    s = re.sub(r'style="([^"]*)"', lambda m: 'style="' + tool_decls(m.group(1)) + '"', s)
+    return SVG_TAG.sub(lambda m: svg_attrs(m.group(0)), s)
+
+
+def do_tool_css(s):
+    return re.sub(r'\{([^{}]*)\}', lambda m: '{' + tool_decls(m.group(1)) + '}', s)
+
+
+def tools_main():
+    changed = []
+    for f in TOOL_CSS:
+        s = open(f).read(); n = do_tool_css(s)
+        if n != s: open(f, 'w').write(n); changed.append(f)
+    for f in TOOL_JS:
+        s = open(f).read(); n = do_tool_html(s)
+        if n != s: open(f, 'w').write(n); changed.append(f)
+    s = open('index.html').read(); n = s
+    for a, b in TOOL_SLICES:
+        i = n.index(a); j = n.index(b, i)
+        n = n[:i] + do_tool_html(n[i:j]) + n[j:]
+    if n != s: open('index.html', 'w').write(n); changed.append('index.html')
+    print('\n'.join(changed))
+
+
 def main():
     import glob
+    if '--tools' in sys.argv:
+        return tools_main()
     changed = []
     for f in CSS_FILES:
         s = open(f).read(); n = do_css(s)
