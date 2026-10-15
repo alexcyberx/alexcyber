@@ -1,7 +1,7 @@
 'use client';
 
-// Nav theme picker: Green / Blue (lib/theme.ts). One button with a small menu
-// on desktop; `inline` renders two chips for the mobile menu.
+// Nav theme picker: Green / Blue / Red (lib/theme.ts). One button with a small menu
+// on desktop; `inline` renders the same choices as chips for the mobile menu.
 
 import { useEffect, useRef, useState } from 'react';
 import { applyPref, readPref, type ThemePref } from '@/lib/theme';
@@ -9,6 +9,7 @@ import { applyPref, readPref, type ThemePref } from '@/lib/theme';
 const OPTIONS: { value: ThemePref; label: string; color: string }[] = [
   { value: 'green', label: 'Green', color: '#10b981' },
   { value: 'blue', label: 'Blue', color: '#0a66c2' },
+  { value: 'red', label: 'Red', color: '#dc1414' },
 ];
 
 function Swatch({ color, size = 12 }: { color: string; size?: number }) {

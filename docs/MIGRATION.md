@@ -129,19 +129,19 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 
 Not migrated yet (still SPA): AlexRecon, AlexUtils, AlexTrace, community (switched off), admin panel.
 
-## Theme: green / blue, mouse glow (2026-10-15)
+## Theme: green / blue / red, mouse glow (2026-10-15)
 
 - **Two dark themes, no light mode** (owner's choice). Green is the default (`:root` in `css/variables.css`: `--accent`
   `#10b981`, `--accent-bright`, `--accent-deep`, `--accent-rgb`, `--on-accent`; the old name `--red` points at `--accent`).
-  Blue is `[data-theme="blue"]`: navy background and LinkedIn Blue (`#0A66C2` family). The light theme and "System" option
-  were removed.
+  Blue is `[data-theme="blue"]`: navy background and LinkedIn Blue (`#0A66C2` family). Red is `[data-theme="red"]`: the
+  original AlexCyberX look (`#dc1414` on near-black). The light theme and "System" option were removed.
 - Hard-coded brand reds were swapped for green across css/, index.html, pages/, components/, js/ and web/src. Red stays
   where it means danger (logout, errors, wrong answers, delete, timers). Course chapter content (`js/chapters*.js`,
   `js/chapter-content/`) and the admin panel keep their red.
 - Neutral greys and translucent whites go through `--fg-1..4`, `--fg-rgb`, `--surface/2/3`, `--line-strong`, `--nav-bg`,
   `--overlay` (mapped by `scripts/themeify.py`, kept for reference), so each theme only redefines variables.
 - **Which pages theme.** Only Next pages: `web/src/app/layout.tsx` runs `THEME_BOOT` (lib/theme.ts) in `<head>` before first
-  paint and sets `<html data-theme="dark|blue">`. Choice: `localStorage acx_theme` = `green` (default) / `blue`; any other
+  paint and sets `<html data-theme="dark|blue">`. Choice: `localStorage acx_theme` = `green` (default) / `blue` / `red`; any other
   saved value falls back to green. `components/ThemeToggle.tsx` sits next to the language button (desktop menu + mobile
   chips). The old SPA never sets `data-theme`, so its pages stay green until they move to Next.
 - **Mouse glow.** `js/spotlight.js` (index.html + Next layout) adds `.spot-on` + `--mx/--my` to the card under the cursor and
