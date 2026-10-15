@@ -2,8 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 // The one tool list: hub cards (/tools) and nav search.
 // Same texts as the #toolsPage cards in index.html (js/search.js still reads
-// those on the SPA). Only the Mistake Analyzer page is on Next so far; the
-// other three hrefs are SPA pages (they ask for login there).
+// those on the SPA). All four tool pages are on Next (AlexRecon, AlexUtils and
+// AlexTrace since step 5c: components/LegacyTool.tsx); they ask for login there.
 export type Tool = {
   key: string;          // tool_settings.tool_key
   page: string;         // SPA page id (js/router.js PAGE_TO_PATH)
