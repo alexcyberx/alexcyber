@@ -158,6 +158,7 @@ Not migrated yet (still SPA): AlexRecon, AlexUtils, AlexTrace, community (switch
   `.nav-center` and is placed in JS, so the 1024-1366px overflow can no longer clip it.
 - Avatar menu fades/scales in (with a hover bridge), Sign Up has a light sweep, buttons lift, the hamburger morph is
   springier, the mobile sheet drops open with staggered rows, and mobile Login / Sign Up text is centred.
+- Mobile: Language and Theme share one row split by a thin line; Theme expands the preview cards below.
 - All motion is off under `prefers-reduced-motion`.
 
 ## Deploy on Render

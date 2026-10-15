@@ -90,3 +90,18 @@ nav.nx .hamburger.open span:nth-child(1), nav.nx .hamburger.open span:nth-child(
   .nx-pill, .nx-mark, .nx-progress, nav.nx .nx-menu, nav.nx .nav-avatar-dropdown, nav.nx .hamburger span { transition: none; }
   .nx-mobile.show, .nx-mobile.show > *, .nx-menu.open .nx-item, .nx-shine:hover::after { animation: none; }
 }
+
+/* Mobile: Language | Theme split row; Theme expands the preview cards. */
+.m-split { display: flex; align-items: center; }
+.m-split > a.m-nav { flex: 1; min-width: 0; }
+.m-split-line { width: 1px; height: 22px; background: var(--border-hover); flex-shrink: 0; margin: 0 4px; }
+.mobile-menu button.m-nav.m-theme-btn { width: auto; flex-shrink: 0; gap: 8px; padding: 13px 12px; }
+.m-theme-btn svg:last-child { transition: transform .35s cubic-bezier(.22,1,.36,1); opacity: .7; }
+.m-theme-btn.open { color: var(--white); }
+.m-theme-btn.open svg:last-child { transform: rotate(180deg); }
+.m-theme-btn .tp-icon { transition: transform .5s cubic-bezier(.22,1,.36,1); }
+.m-theme-btn.open .tp-icon { transform: rotate(180deg); }
+.m-theme-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s cubic-bezier(.22,1,.36,1); }
+.m-theme-panel.open { grid-template-rows: 1fr; }
+.m-theme-inner { overflow: hidden; }
+.m-theme-panel:not(.open) .tp-card { animation: none; }

@@ -32,7 +32,7 @@ function Preview({ o }: { o: Opt }) {
   );
 }
 
-function ThemeIcon() {
+export function ThemeIcon() {
   // Half-filled circle in the current accent: reads as "appearance" without colour dots.
   return (
     <svg className="tp-icon" width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">

@@ -7,7 +7,7 @@
 // the old SPA are plain <a href> (full page load into index.html); the old
 // SPA reads ?auth= / ?lang= / #section on load (see js/router.js).
 
-import ThemeToggle from '@/components/ThemeToggle';
+import ThemeToggle, { ThemeIcon } from '@/components/ThemeToggle';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
@@ -81,6 +81,7 @@ export default function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [mMoreOpen, setMMoreOpen] = useState(false);
+  const [mThemeOpen, setMThemeOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const path = usePathname() || '/';
   const centerRef = useRef<HTMLDivElement>(null);
@@ -141,7 +142,7 @@ export default function Nav() {
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
-    if (!menuOpen) setMMoreOpen(false);
+    if (!menuOpen) { setMMoreOpen(false); setMThemeOpen(false); }
   }, [menuOpen]);
 
   useEffect(() => {
@@ -293,11 +294,21 @@ export default function Nav() {
         <a className="m-nav" href="/#about" data-i18n="nav.about" suppressHydrationWarning>About</a>
         <a className="m-nav" href="/#contact" data-i18n="nav.contact" suppressHydrationWarning>Contact</a>
         <div className="m-divider"></div>
-        <a className="m-nav" href="/?lang=1" onClick={(e) => { setMenuOpen(false); openLangModal(e); }} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <GlobeIcon size={15} />
-          <span id="mLangLabel" data-i18n="nav.lang" suppressHydrationWarning>Select Language</span>
-        </a>
-        <ThemeToggle inline />
+        {/* Language | Theme on one row; Theme opens the preview cards below. */}
+        <div className="m-split">
+          <a className="m-nav" href="/?lang=1" onClick={(e) => { setMenuOpen(false); openLangModal(e); }} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <GlobeIcon size={15} />
+            <span id="mLangLabel" data-i18n="nav.lang" suppressHydrationWarning>Select Language</span>
+          </a>
+          <span className="m-split-line" aria-hidden="true" />
+          <button className={'m-nav m-theme-btn' + (mThemeOpen ? ' open' : '')} onClick={(e) => { e.stopPropagation(); setMThemeOpen((v) => !v); }}
+            aria-expanded={mThemeOpen} aria-controls="mThemePanel">
+            <ThemeIcon /> <span>Theme</span> <Chevron />
+          </button>
+        </div>
+        <div className={'m-theme-panel' + (mThemeOpen ? ' open' : '')} id="mThemePanel">
+          <div className="m-theme-inner"><ThemeToggle inline /></div>
+        </div>
         <div className="m-divider"></div>
         {user ? (
           <div className="m-auth" id="mobileUserBtns">
