@@ -128,7 +128,6 @@ app.use('/api/lab/sqli101', recordLabSolve('web-03'), require('./labs/web03-sqli
 app.use('/api/lab/robots', recordLabSolve('web-04'), require('./labs/web04-robots/routes'));
 app.use('/api/lab/packet', recordLabSolve('for-01'), require('./labs/for01-packet/routes'));
 app.use('/api/lab/metadata', recordLabSolve('for-02'), require('./labs/for02-metadata/routes'));
-app.use('/api/lab/loghunter', require('./labs/for03-loghunter/routes'));
 app.use('/api/lab/caesar', require('./labs/cry01-caesar/routes'));
 app.use('/api/lab/base64', require('./labs/cry02-base64/routes'));
 app.use('/api/lab/deserialize', require('./labs/web06-deserialize/routes'));
@@ -221,8 +220,7 @@ app.listen(PORT, () => {
 // INSTANCE_DURATION_SEC, jo difficulty ke hisaab se alag hai -
 // Easy 15min, Medium 30min, Hard 45min) - ek single global TTL nahi,
 // warna Easy labs ka instance expire hone ke baad bhi der tak memory
-// mein reh jaata (waste, though not a bug), aur for-03 (45min) global
-// 35min TTL se pehle hi galat tarike se clean ho jaata.
+// mein reh jaata (waste, though not a bug).
 const CLEANUP_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
 
 function cleanExpiredInstances(labName, instancesObj, ttlSec, hasSqlDb = false) {
@@ -253,7 +251,6 @@ setInterval(() => {
       { name: 'robots',    path: './labs/web04-robots/routes',    sql: false, ttlSec: 20 * 60 }, // Easy 15min + 5min buffer
       { name: 'packet',    path: './labs/for01-packet/routes',    sql: false, ttlSec: 35 * 60 }, // Medium 30min + 5min buffer
       { name: 'metadata',  path: './labs/for02-metadata/routes',  sql: false, ttlSec: 20 * 60 }, // Easy 15min + 5min buffer
-      { name: 'loghunter', path: './labs/for03-loghunter/routes', sql: false, ttlSec: 50 * 60 }, // Hard 45min + 5min buffer
     ];
     labConfigs.forEach(({ name, path: p, sql, ttlSec }) => {
       try {

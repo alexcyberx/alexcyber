@@ -135,22 +135,6 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     hasLabFlow: true,
     solvers: 178
   },
-  {
-    id: 'for-03', addedAt: '2026-09-16', cat: 'Forensics', iconClass: 'ctf-cat-forensics',
-    title: 'Log Hunter',
-    desc: 'CorpX SOC pulled a full day of Apache access logs after detecting unusual activity. 2,156 requests, one attacker hidden in the noise. Find the IP, identify both tools used, and name the path that was targeted for SQL injection.',
-    author: 'AlexCyberX',
-    diff: 'Hard', pts: 350, xp: 600,
-    hints: [
-      'Count requests per IP with awk and uniq -c. One IP has far more requests than any legitimate visitor.',
-      'Filter by the attacker IP and check unique User-Agent strings. Two distinct tools were used at different times of day.',
-      'The flag uses the SQL injection tool name only (not the directory scanner). Strip the query string from the path, keep only the base PHP file.'
-    ],
-    labUrl: '/pages/labs/lab-loghunter.html',
-    labApiPath: '/api/lab/loghunter',
-    hasLabFlow: false,
-    solvers: 14
-  },
 
   // ── CRYPTO ──
   {
