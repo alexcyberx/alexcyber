@@ -776,3 +776,18 @@ footer {
     border-bottom: 1px solid var(--border);
   }
 }
+
+/* Big screens: the hero content grows with the screen so the first view is
+   filled instead of a small block with empty space around it. */
+@media (min-width: 1280px) {
+  .hero { max-width: min(1440px, 90vw); padding-left: 32px; padding-right: 32px; }
+  .hero-inner { grid-template-columns: 1fr 1.12fr; gap: clamp(40px, 3.5vw, 80px); align-items: center; }
+  .hero-title { font-size: clamp(72px, min(6.4vw, 12.5vh), 132px); margin-bottom: clamp(24px, 3vh, 40px); }
+  .hero-badge { font-size: 13px; padding: 7px 16px 7px 12px; margin-bottom: clamp(20px, 3vh, 32px); }
+  .hero-sub { font-size: clamp(16px, 1.05vw, 20px); max-width: 580px; margin-bottom: clamp(28px, 4vh, 44px); }
+  .hero-actions .btn-primary, .hero-actions .btn-secondary { font-size: 15px; padding: 15px 30px; border-radius: 10px; }
+  .hero-terminal { min-height: clamp(380px, 52vh, 560px); }
+  .ht-col-left, .ht-col-right { font-size: clamp(12px, 0.7vw, 14px); padding: 22px 20px; }
+  .ht-col-left .ht-line, .ht-col-right .ht-line { margin-bottom: clamp(5px, 0.7vh, 9px); }
+  .ht-title { font-size: 12px; }
+}
