@@ -781,17 +781,18 @@ footer {
    filled with only a small gap. Courses start below the fold. */
 @media (min-width: 1280px) {
   .hero {
-    --u: max(1px, min(100vw / 1366, 100svh / 768));
+    --u: max(1px, min(100vw / 1366, 100svh / 700));
     min-height: 100vh; min-height: 100svh;
-    max-width: calc(1100 * var(--u));
-    padding: calc(var(--nav-h) + 16 * var(--u)) calc(48 * var(--u)) calc(24 * var(--u));
+    /* Use the full width, lined up with the nav's side padding. */
+    max-width: none; width: 100%;
+    padding: calc(var(--nav-h) + 16 * var(--u)) clamp(32px, 6vw, 160px) calc(24 * var(--u));
     justify-content: center;
   }
-  .hero-inner { grid-template-columns: 1fr 1.12fr; gap: calc(48 * var(--u)); align-items: center; }
+  .hero-inner { grid-template-columns: 1fr 1.1fr; gap: calc(64 * var(--u)); align-items: center; }
   .hero-left { min-height: 0; }
   .hero-badge { font-size: calc(11 * var(--u)); padding: calc(5 * var(--u)) calc(14 * var(--u)) calc(5 * var(--u)) calc(10 * var(--u)); margin-bottom: calc(20 * var(--u)); gap: calc(8 * var(--u)); }
-  .hero-title { font-size: calc(86 * var(--u)); margin-bottom: calc(28 * var(--u)); }
-  .hero-sub { font-size: calc(15 * var(--u)); max-width: calc(480 * var(--u)); margin-bottom: calc(32 * var(--u)); }
+  .hero-title { font-size: max(calc(86 * var(--u)), min(6.6vw, 15svh)); margin-bottom: calc(28 * var(--u)); }
+  .hero-sub { font-size: calc(15 * var(--u)); max-width: calc(520 * var(--u)); margin-bottom: calc(32 * var(--u)); }
   .hero-actions { gap: calc(12 * var(--u)); }
   .hero-actions .btn-primary, .hero-actions .btn-secondary { font-size: calc(13 * var(--u)); padding: calc(12 * var(--u)) calc(24 * var(--u)); border-radius: calc(8 * var(--u)); gap: calc(8 * var(--u)); }
   .hero-right { height: auto; }
