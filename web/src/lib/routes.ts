@@ -20,10 +20,8 @@ export const SPA_PATHS: Record<string, string> = {
   privacy: '/privacy-policy',
   terms: '/terms-of-service',
   disclaimer: '/disclaimer',
-  refund: '/refund-policy',
   cookie: '/cookie-notice',
-  donotsell: '/do-not-sell',
-  legalwarning: '/legal-warning',
+  reportbug: '/report-a-bug',
 };
 
 export function pathForPage(pageId: string | null | undefined, fallback = '/'): string {

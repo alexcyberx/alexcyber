@@ -59,10 +59,8 @@ const PAGE_TO_PATH = {
   privacy:     '/privacy-policy',
   terms:       '/terms-of-service',
   disclaimer:  '/disclaimer',
-  refund:      '/refund-policy',
   cookie:      '/cookie-notice',
-  donotsell:   '/do-not-sell',
-  legalwarning:'/legal-warning'
+  reportbug:   '/report-a-bug'
 };
 
 const PATH_TO_PAGE = {};
@@ -212,7 +210,7 @@ function showPage(page, skipPush) {
   }
 
   // Legal pages
-  const legalPages = ['privacy', 'terms', 'disclaimer', 'refund', 'cookie', 'donotsell', 'legalwarning'];
+  const legalPages = ['privacy', 'terms', 'disclaimer', 'cookie', 'reportbug'];
   legalPages.forEach(id => {
     const el = document.getElementById(id + 'Page');
     if (el) el.classList.toggle('active', page === id);
@@ -230,10 +228,8 @@ function showPage(page, skipPush) {
     privacy:     { title: 'Privacy Policy - AlexCyberX', desc: 'Read the AlexCyberX privacy policy covering how user data is collected, used, and protected.' },
     terms:       { title: 'Terms of Service - AlexCyberX', desc: 'Terms of Service for using the AlexCyberX cybersecurity education platform.' },
     disclaimer:  { title: 'Disclaimer - AlexCyberX', desc: 'Legal disclaimer for AlexCyberX educational content and CTF labs.' },
-    refund:      { title: 'Refund Policy - AlexCyberX', desc: 'Refund policy for AlexCyberX paid tools and subscriptions.' },
     cookie:      { title: 'Cookie Notice - AlexCyberX', desc: 'How AlexCyberX uses cookies across the platform.' },
-    donotsell:   { title: 'Do Not Sell My Info - AlexCyberX', desc: 'Opt out of data sharing on AlexCyberX.' },
-    legalwarning:{ title: 'Legal Warning - AlexCyberX', desc: 'Legal warning regarding unauthorized use of AlexCyberX cybersecurity tools and CTF content.' },
+    reportbug:   { title: 'Report a Bug - AlexCyberX', desc: 'How to report bugs and security problems on AlexCyberX: what is in scope, what we promise, and the rules for testing.' },
     tools:       { title: 'Cybersecurity Tools - AlexCyberX', desc: 'Free cybersecurity tools by AlexCyberX: AlexRecon (attack-surface recon), AlexUtils (IP/DNS/SSL/CVE utilities), AlexTrace (OSINT digital footprint audit), and Cyber Mistake Analyzer.' },
     mistakeAnalyzer: { title: 'Cyber Mistake Analyzer - AlexCyberX', desc: 'Paste a command like nmap -A scanme.nmap.org and get instant feedback on what is right, what is wrong, and a corrected version. Free learning tool by AlexCyberX.' },
     alexrecon:   { title: 'AlexRecon - Free Attack Surface Reconnaissance Tool | AlexCyberX', desc: 'AlexRecon generates a combined attack-surface report for any domain: DNS, SSL, subdomains, port scanning, tech stack, and risk indicators. Free recon tool by AlexCyberX.' },

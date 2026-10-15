@@ -99,6 +99,8 @@ export default function AuthModals() {
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
   const [pw2, setPw2] = useState('');
+  // DPDP: under-18 users need a parent/guardian's permission (privacy policy, section 8)
+  const [ageOk, setAgeOk] = useState(false);
   const [name, setName] = useState('');
   const [remember, setRemember] = useState(true);
   const firstInput = useRef<HTMLInputElement | null>(null);
@@ -150,6 +152,7 @@ export default function AuthModals() {
     if (!EMAIL_RE.test(em)) return setMsg({ type: 'error', text: 'Please enter a valid email address.' });
     if (pw.length < 8) return setMsg({ type: 'error', text: 'Password must be at least 8 characters.' });
     if (pw !== pw2) return setMsg({ type: 'error', text: 'Passwords do not match.' });
+    if (!ageOk) return setMsg({ type: 'error', text: 'Please confirm you are 18+ or have permission from your parent/guardian.' });
     if (!sb) return notConfigured();
     setBusy(true);
     try {
@@ -162,7 +165,7 @@ export default function AuthModals() {
     } catch { /* don't block signups on a settings read error */ }
     const { data, error } = await sb.auth.signUp({
       email: em, password: pw,
-      options: { data: { full_name: n, username: '', bio: '' }, emailRedirectTo: window.location.origin + '/' },
+      options: { data: { full_name: n, username: '', bio: '', age_confirmed: true }, emailRedirectTo: window.location.origin + '/' },
     });
     setBusy(false);
     if (error) {
@@ -293,7 +296,11 @@ export default function AuthModals() {
             <label className="auth-label" htmlFor="signupConfirm">Confirm Password</label>
             <PasswordInput id="signupConfirm" value={pw2} onChange={setPw2} placeholder="Re-enter your password" autoComplete="new-password" />
           </div>
-          <div className="auth-terms">By creating an account you agree to our <a href="/terms-of-service">Terms of Service</a> and <a href="/privacy-policy">Privacy Policy</a>.</div>
+          <label className="auth-remember" style={{ marginBottom: 12 }}>
+            <input type="checkbox" id="signupAge" checked={ageOk} onChange={(e) => setAgeOk(e.target.checked)} />
+            <span>Main 18+ hoon, ya mere parent/guardian ne permission di hai</span>
+          </label>
+          <div className="auth-terms">By creating an account (also with Google) you confirm this and agree to our <a href="/terms-of-service">Terms of Service</a> and <a href="/privacy-policy">Privacy Policy</a>.</div>
           <button className="auth-btn" type="submit" disabled={busy}>{busy ? 'Please wait...' : 'Create Account'}</button>
           {divider}
           <button className="auth-google-btn" type="button" onClick={doGoogle}><GoogleIcon /> Sign up with Google</button>
