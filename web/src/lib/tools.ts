@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-// The one tool list: hub cards (/tools), nav search and the home "New on AlexCyberX" row.
+// The one tool list: hub cards (/tools) and nav search.
 // Same texts as the #toolsPage cards in index.html (js/search.js still reads
 // those on the SPA). Only the Mistake Analyzer page is on Next so far; the
 // other three hrefs are SPA pages (they ask for login there).
@@ -12,7 +12,7 @@ export type Tool = {
   tag: string;
   desc: string;         // `backticks` -> <code>
   searchTags: string[]; // data-search-tags of the old card
-  addedAt: string;      // date shown in the home "New on AlexCyberX" row
+  addedAt: string;      // when the tool was added
 };
 
 export const TOOLS: Tool[] = [
