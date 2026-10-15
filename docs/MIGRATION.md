@@ -143,7 +143,7 @@ Not migrated yet (still SPA): AlexRecon, AlexUtils, AlexTrace, community (switch
 - **Which pages theme.** Only Next pages: `web/src/app/layout.tsx` runs `THEME_BOOT` (lib/theme.ts) in `<head>` before first
   paint and sets `<html data-theme="dark|blue">`. Choice: `localStorage acx_theme` = `green` (default) / `blue` / `red`; any other
   saved value falls back to green. `components/ThemeToggle.tsx` sits next to the language button (desktop menu + mobile
-  chips). The old SPA never sets `data-theme`, so its pages stay green until they move to Next.
+  cards: each option is a mini live preview, Matrix/Midnight/Crimson; switching grows the new theme as a circle from the click point via the View Transitions API, instant where unsupported or with reduced motion). The old SPA never sets `data-theme`, so its pages stay green until they move to Next.
 - **Mouse glow.** `js/spotlight.js` (index.html + Next layout) adds `.spot-on` + `--mx/--my` to the card under the cursor and
   moves one soft `.cursor-glow` behind the page. Mouse only.
 - Test: `theme.js` (11 checks) plus the usual suites.
