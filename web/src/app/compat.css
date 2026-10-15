@@ -75,11 +75,4 @@ a.pf-notif-row--link:hover { border-color: rgba(var(--accent-rgb),0.35); }
 .theme-chips { display: flex; gap: 6px; padding: 4px 0; }
 .theme-chip { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 0; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); font: 500 12px 'Inter', sans-serif; cursor: pointer; }
 .theme-chip.on { border-color: var(--glow-border); color: var(--accent-bright); background: var(--red-dim); }
-/* Light theme: things that should stay readable on white */
-[data-theme="light"] .glow-orb { opacity: 0.6; }
-[data-theme="light"] .nav-btn.ghost { color: var(--text); }
-[data-theme="light"] .hero-terminal { background: var(--dark); box-shadow: 0 20px 50px rgba(28,26,39,0.18); }
-[data-theme="light"] .pf-banner { background: linear-gradient(135deg, #e8e3ff 0%, #f4f4ef 60%, #fdfdf8 100%); }
-[data-theme="light"] .pf-back-btn { background: rgba(255,255,255,0.7); }
-[data-theme="light"] .cursor-glow { opacity: 0; }
-[data-theme="light"] .cursor-glow.on { opacity: 0.7; }
+.theme-swatch { display: inline-block; border-radius: 50%; flex-shrink: 0; }

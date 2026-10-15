@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════
    SHARED VARIABLES & BASE
 ═══════════════════════════════════════════ */
-:root, .force-dark, [data-theme="light"] .hero-terminal, [data-theme="light"] .terminal {
+:root, .force-dark {
   /* Brand: green (owner, 2026-10). --red is the old name, kept so every
      existing rule picks up the new accent without a rename. */
   --accent: #10b981;
@@ -37,36 +37,39 @@
   color-scheme: dark;
 }
 
-/* Light theme (Next pages set data-theme on <html>; the old SPA never does). */
-[data-theme="light"] {
-  /* Light: warm off-white paper + purple primary (#573CFA), owner's palette. */
-  --accent: #573cfa;
-  --accent-bright: #4a2fe6;
-  --accent-deep: #3d24c8;
-  --accent-rgb: 87,60,250;
+/* Blue theme (Next pages: <html data-theme="blue">; the old SPA stays green).
+   Navy + LinkedIn Blue #0A66C2, owner's palette. Green is the default (:root). */
+[data-theme="blue"] {
+  --accent: #2f86e6;
+  --accent-bright: #5aa2f0;
+  --accent-deep: #0a66c2;
+  --accent-rgb: 47,134,230;
   --on-accent: #ffffff;
-  --red-dim: rgba(87,60,250,0.09);
-  --dark: #f4f4ef;
-  --surface: #fdfdf8;
-  --surface2: #eeeee8;
-  --surface3: #e5e5de;
-  --line-strong: #d4d4cc;
-  --border: rgba(28,26,39,0.11);
-  --border-hover: rgba(28,26,39,0.20);
-  --text: #3b3a45;
-  --text-dim: #66656f;
-  --white: #1c1a27;
-  --fg-1: #1c1a27;
-  --fg-2: #2f2d3a;
-  --fg-3: #4f4e59;
-  --fg-4: #7a7983;
-  --fg-rgb: 28,26,39;
-  --glow: rgba(87,60,250,0.07);
-  --glow-border: rgba(87,60,250,0.38);
-  --nav-bg: rgba(244,244,239,0.88);
-  --overlay: rgba(236,236,230,0.94);
-  color-scheme: light;
+  --red-dim: rgba(10,102,194,0.16);
+  --dark: #070d1a;
+  --surface: #0c1526;
+  --surface2: #111c31;
+  --surface3: #17243d;
+  --line-strong: #22324f;
+  --border: rgba(140,180,255,0.10);
+  --border-hover: rgba(140,180,255,0.18);
+  --text: #b3c0d4;
+  --text-dim: #6f7f98;
+  --white: #f2f6fc;
+  --fg-1: #f2f6fc;
+  --fg-2: #c9d4e6;
+  --fg-3: #8d9bb3;
+  --fg-4: #5d6c85;
+  --fg-rgb: 200,220,255;
+  --glow: rgba(47,134,230,0.14);
+  --glow-border: rgba(90,162,240,0.45);
+  --nav-bg: rgba(7,13,26,0.88);
+  --overlay: rgba(7,13,26,0.95);
 }
+[data-theme="blue"] .glow-orb { width: 1100px; height: 700px; background: radial-gradient(ellipse, rgba(10,102,194,0.30) 0%, transparent 70%); }
+[data-theme="blue"] .cursor-glow { background: radial-gradient(circle, rgba(47,134,230,0.12) 0%, transparent 65%); }
+[data-theme="blue"] .btn-primary, [data-theme="blue"] .nav-btn.fill { box-shadow: 0 8px 26px rgba(10,102,194,0.45); }
+[data-theme="blue"] .pf-banner { background: linear-gradient(135deg, #0a2a55 0%, #0c1526 60%, #070d1a 100%); }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -109,4 +112,3 @@ body::after {
 }
 .cursor-glow.on { opacity: 1; }
 
-[data-theme="light"] body::after { opacity: 0.15; }

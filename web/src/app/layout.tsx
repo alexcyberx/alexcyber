@@ -18,11 +18,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: dark)', color: '#0b0d0d' },
-    { media: "(prefers-color-scheme: light)", color: "#f4f4ef" },
-  ],
-  colorScheme: 'dark light',
+  themeColor: '#0b0d0d',
+  colorScheme: 'dark',
 };
 
 // The stylesheets are the old site's own files (served by Express from /css),
