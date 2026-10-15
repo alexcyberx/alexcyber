@@ -781,15 +781,16 @@ footer {
    filled with only a small gap. Courses start below the fold. */
 @media (min-width: 1280px) {
   .hero {
-    --u: max(1px, min(100vw / 1366, 100svh / 700));
+    --u: max(1px, min(100vw / 1366, 100svh / 650));
     min-height: 100vh; min-height: 100svh;
     /* Use the full width, lined up with the nav's side padding. */
     max-width: none; width: 100%;
-    padding: calc(var(--nav-h) + 16 * var(--u)) clamp(32px, 6vw, 160px) calc(24 * var(--u));
-    justify-content: center;
+    padding: calc(var(--nav-h) + 20 * var(--u)) clamp(32px, 6vw, 160px) calc(20 * var(--u));
+    /* Content starts right under the nav (no empty band above the heading). */
+    justify-content: flex-start;
   }
-  .hero-inner { grid-template-columns: 1fr 1.1fr; gap: calc(64 * var(--u)); align-items: center; }
-  .hero-left { min-height: 0; }
+  .hero-inner { grid-template-columns: 1fr 1.1fr; gap: calc(64 * var(--u)); align-items: start; }
+  .hero-left { min-height: 0; justify-content: flex-start; padding-top: calc(28 * var(--u)); }
   .hero-badge { font-size: calc(11 * var(--u)); padding: calc(5 * var(--u)) calc(14 * var(--u)) calc(5 * var(--u)) calc(10 * var(--u)); margin-bottom: calc(20 * var(--u)); gap: calc(8 * var(--u)); }
   .hero-title { font-size: max(calc(86 * var(--u)), min(6.6vw, 15svh)); margin-bottom: calc(28 * var(--u)); }
   .hero-sub { font-size: calc(15 * var(--u)); max-width: calc(520 * var(--u)); margin-bottom: calc(32 * var(--u)); }
