@@ -122,8 +122,6 @@ const DICT = {
   'hero.roadmap':    { hi:'Cybersecurity mein naye ho? Community roadmap follow karo, jaano aage kya seekhna hai', en:'New to cybersecurity? Follow the community roadmap to know what to learn next', bn:'সাইবার নিরাপত্তায় নতুন? কমিউনিটি রোডম্যাপ অনুসরণ করে জানুন এরপর কী শিখবেন', pa:'ਸਾਈਬਰ ਸੁਰੱਖਿਆ ਵਿੱਚ ਨਵੇਂ ਹੋ? ਕਮਿਊਨਿਟੀ ਰੋਡਮੈਪ ਫਾਲੋ ਕਰੋ ਅਤੇ ਜਾਣੋ ਅੱਗੇ ਕੀ ਸਿੱਖਣਾ ਹੈ', te:'సైబర్ సెక్యూరిటీలో కొత్తగా వచ్చారా? తర్వాత ఏమి నేర్చుకోవాలో తెలుసుకోవడానికి కమ్యూనిటీ రోడ్‌మ్యాప్‌ను అనుసరించండి', ta:'சைபர் பாதுகாப்பில் புதியவரா? அடுத்து என்ன கற்க வேண்டும் என்பதை அறிய கம்யூனிட்டி ரோட்மேப்பைப் பின்பற்றுங்கள்', mr:'सायबर सुरक्षेत नवीन आहात? पुढे काय शिकायचे हे जाणून घेण्यासाठी कम्युनिटी रोडमॅप फॉलो करा' },
 
   // TRUST MARQUEE
-  'new.label':       { hi:'Naya', en:'Latest', bn:'নতুন', pa:'ਨਵਾਂ', te:'కొత్తవి', ta:'புதியவை', mr:'नवीन' },
-  'new.title':       { hi:'AlexCyberX par naya kya hai', en:'New on AlexCyberX', bn:'AlexCyberX-এ নতুন কী', pa:'AlexCyberX ਤੇ ਨਵਾਂ ਕੀ ਹੈ', te:'AlexCyberXలో కొత్తవి', ta:'AlexCyberX-இல் புதியவை', mr:'AlexCyberX वर नवीन काय' },
 
   // LEARN PAGE BANNER
   'learn.tag':   { hi:'Network Forensics', en:'Network Forensics', bn:'নেটওয়ার্ক ফরেনসিক্স', pa:'ਨੈੱਟਵਰਕ ਫੋਰੈਂਸਿਕਸ', te:'నెట్వర్క్ ఫోరెన్సిక్స్', ta:'நெட்வொர்க் தடயவியல்', mr:'नेटवर्क फॉरेन्सिक्स' },

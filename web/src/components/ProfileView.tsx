@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { browserSupabase } from '@/lib/supabase';
 
-type Notif = { id: string; title: string; body: string | null; type: string; read: boolean; created_at: string };
+type Notif = { id: string; title: string; body: string | null; type: string; link: string | null; read: boolean; created_at: string };
 
 function timeAgo(iso: string): string {
   const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
@@ -67,7 +67,7 @@ export default function ProfileView() {
   const loadNotifs = useCallback(async () => {
     const sb = browserSupabase();
     if (!sb || !user) return;
-    const { data, error } = await sb.rpc('get_notifications', { p_user_id: user.id, p_limit: 30 });
+    const { data, error } = await sb.rpc('get_notifications_feed', { p_limit: 30 });
     if (error) { setNotifErr(true); return; }
     setNotifErr(false);
     setNotifs((data as Notif[]) || []);
@@ -177,8 +177,10 @@ export default function ProfileView() {
               : notifErr ? <div className="pf-empty">Could not load notifications.</div>
               : notifs === null ? <div className="pf-empty">Loading…</div>
               : notifs.length === 0 ? <div className="pf-empty">No notifications yet.</div>
-              : notifs.map((n) => (
-                <div key={n.id} className={'pf-notif-row' + (n.read ? '' : ' pf-notif-row--unread')}>
+              : notifs.map((n) => {
+                const Row = n.link ? 'a' : 'div';
+                return (
+                <Row key={n.id} {...(n.link ? { href: n.link } : {})} className={'pf-notif-row' + (n.read ? '' : ' pf-notif-row--unread') + (n.link ? ' pf-notif-row--link' : '')}>
                   <div className={`pf-notif-type-dot pf-notif-type-dot--${n.type}`}></div>
                   <div className="pf-notif-body">
                     <div className="pf-notif-title">{n.title}</div>
@@ -186,8 +188,9 @@ export default function ProfileView() {
                     <div className="pf-notif-time">{timeAgo(n.created_at)}</div>
                   </div>
                   {!n.read && <div className="pf-notif-unread-pip"></div>}
-                </div>
-              ))}
+                </Row>
+                );
+              })}
           </div>
         </div>
 

@@ -4,7 +4,7 @@ import { pathForPage } from './routes';
 
 // The static parts of the home page (hero, about, contact info, footer) are
 // read from index.html at build time, so the text and markup have one source
-// while the SPA still has its own copy. Dynamic parts (what's new, course cards,
+// while the SPA still has its own copy. Dynamic parts (course cards,
 // contact form) are React components.
 const INDEX = readFileSync(path.join(process.cwd(), '..', 'index.html'), 'utf8');
 
@@ -33,7 +33,7 @@ export function homeSections() {
   const leftStart = contactLeft.indexOf('<div class="contact-left"');
   if (leftStart < 0) throw new Error('index.html: contact-left not found');
   return {
-    hero: clean(slice('<!-- HERO -->', '<!-- WHATS NEW (Next: HomeWhatsNew) -->')),
+    hero: clean(slice('<!-- HERO -->', '<!-- END HERO -->')),
     about: clean(slice('<!-- ABOUT -->', '<!-- CONTACT -->')),
     contactLeft: clean(contactLeft.slice(leftStart)),
     footer: clean(slice('<!-- FOOTER -->', '</div><!-- end #homePage -->')),

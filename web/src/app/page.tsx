@@ -1,11 +1,9 @@
 import type { Metadata } from 'next';
 import ContactForm from '@/components/ContactForm';
 import CourseIcon from '@/components/CourseIcon';
-import HomeWhatsNew from '@/components/HomeWhatsNew';
 import Reveal from '@/components/Reveal';
 import { getCoursesWithCounts } from '@/lib/courses';
 import { homeJsonLd, homeSections } from '@/lib/home';
-import { getNewItems } from '@/lib/whats-new';
 import { pathForPage } from '@/lib/routes';
 
 export const revalidate = 300;
@@ -28,7 +26,7 @@ const html = (s: string) => ({ __html: s });
 
 export default async function HomePage() {
   const s = homeSections();
-  const [courses, newItems] = await Promise.all([getCoursesWithCounts(), getNewItems()]);
+  const courses = await getCoursesWithCounts();
   const homeCourses = courses?.courses.filter((c) => c.show_on_home) ?? [];
 
   return (
@@ -39,7 +37,6 @@ export default async function HomePage() {
 
       <div dangerouslySetInnerHTML={html(s.hero)} suppressHydrationWarning style={{ display: 'contents' }} />
 
-      <HomeWhatsNew items={newItems} now={Date.now()} />
 
       <section className="section" id="tutorials">
         <div className="section-label" data-i18n="courses.label" data-reveal suppressHydrationWarning>Courses</div>
