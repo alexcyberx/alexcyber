@@ -19,7 +19,7 @@ The list of migrated paths lives in one place: `NEXT_PAGES` in `server/middlewar
 | Step | Paths | Status |
 |------|-------|--------|
 | 1 | `/blog`, `/blog/<slug>`, `/blog/sitemap.xml` | Done |
-| 2 | `/tutorials` (course list) and the 7 legal pages | Done |
+| 2 | `/tutorials` (course list) and the legal pages (now 5: privacy, terms, disclaimer, cookie, report-a-bug; refund / do-not-sell / legal-warning redirect) | Done |
 | 3 | Home + login/signup/reset modals + nav search | Done |
 | 4 | `/leaderboard`, `/u/<id>`, `/profile` | Done |
 | 4b | `/rooms` (CTF list, room view, labs flow) | Done |

@@ -20,25 +20,15 @@ export const LEGAL_PAGES = {
     title: 'Disclaimer - AlexCyberX',
     desc: 'Legal disclaimer for AlexCyberX educational content and CTF labs.',
   },
-  refund: {
-    path: '/refund-policy', file: 'refund.html',
-    title: 'Refund Policy - AlexCyberX',
-    desc: 'Refund policy for AlexCyberX paid tools and subscriptions.',
-  },
   cookie: {
     path: '/cookie-notice', file: 'cookie.html',
     title: 'Cookie Notice - AlexCyberX',
     desc: 'How AlexCyberX uses cookies across the platform.',
   },
-  donotsell: {
-    path: '/do-not-sell', file: 'donotsell.html',
-    title: 'Do Not Sell My Info - AlexCyberX',
-    desc: 'Opt out of data sharing on AlexCyberX.',
-  },
-  legalwarning: {
-    path: '/legal-warning', file: 'legalwarning.html',
-    title: 'Legal Warning - AlexCyberX',
-    desc: 'Legal warning regarding unauthorized use of AlexCyberX cybersecurity tools and CTF content.',
+  reportbug: {
+    path: '/report-a-bug', file: 'reportbug.html',
+    title: 'Report a Bug - AlexCyberX',
+    desc: 'How to report bugs and security problems on AlexCyberX: what is in scope, what we promise, and the rules for testing.',
   },
 } as const;
 

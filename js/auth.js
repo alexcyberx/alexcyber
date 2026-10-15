@@ -252,6 +252,7 @@ async function doSignup() {
   if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) { authMsg('error','signupError','Please enter a valid email address.'); return; }
   if (pw.length < 8) { authMsg('error','signupError','Password must be at least 8 characters.'); return; }
   if (pw !== pw2) { authMsg('error','signupError','Passwords do not match.'); return; }
+  if (!document.getElementById('signupAge')?.checked) { authMsg('error','signupError','Please confirm you are 18+ or have permission from your parent/guardian.'); return; }
 
   if (!_supabase) { warnNotConfigured('signupError'); return; }
 
@@ -268,7 +269,7 @@ async function doSignup() {
   setBtnLoading(btn, true, 'Create Account');
   const { data, error } = await _supabase.auth.signUp({
     email, password: pw,
-    options: { data: { full_name: name, username: '', bio: '' } }
+    options: { data: { full_name: name, username: '', bio: '', age_confirmed: true } }
   });
   setBtnLoading(btn, false, 'Create Account');
 

@@ -95,6 +95,18 @@ const ROOT = path.join(__dirname, '..');
 // NEXT_EMBEDDED=1: Next isi service mein child process ki tarah chalta hai
 // (server/nextEmbedded.js), proxy usi ko point karta hai.
 require('./nextEmbedded').start();
+
+// Removed legal pages (2026-10): old links go to their replacement.
+const MOVED = { '/refund-policy': '/privacy-policy', '/do-not-sell': '/privacy-policy', '/legal-warning': '/report-a-bug' };
+app.get(Object.keys(MOVED), (req, res) => res.redirect(301, MOVED[req.path.replace(/\/+$/, '')] || '/'));
+
+// RFC 9116: where security researchers report problems.
+app.get('/.well-known/security.txt', (req, res) => {
+  const site = (process.env.NEXT_PUBLIC_SITE_URL || process.env.RENDER_EXTERNAL_URL || ('https://' + req.get('host'))).replace(/\/$/, '');
+  const expires = new Date(Date.now() + 365 * 24 * 3600 * 1000).toISOString();
+  res.type('text/plain').send(
+    `Contact: ${site}/report-a-bug\nExpires: ${expires}\nPolicy: ${site}/report-a-bug\nPreferred-Languages: en, hi\nCanonical: ${site}/.well-known/security.txt\n`);
+});
 const nextProxy = require('./middleware/nextProxy');
 app.get('/js/flags.js', (req, res) => {
   res.type('application/javascript').set('Cache-Control', 'no-cache');
@@ -187,7 +199,7 @@ app.get([
   '/community', '/community/*',
   '/leaderboard', '/u', '/u/*',
   '/privacy-policy', '/terms-of-service', '/disclaimer',
-  '/refund-policy', '/cookie-notice', '/do-not-sell', '/legal-warning'
+  '/cookie-notice', '/report-a-bug'
 ], (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));
 });

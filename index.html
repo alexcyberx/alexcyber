@@ -753,17 +753,13 @@
     <span class="foot-sep">·</span>
     <a href="#" onclick="showPage('privacy')">Privacy Policy</a>
     <span class="foot-sep">·</span>
-    <a href="#" onclick="showPage('refund')">Refund Policy</a>
-    <span class="foot-sep">·</span>
     <a href="#" onclick="showPage('cookie')">Cookie Notice</a>
-    <span class="foot-sep">·</span>
-    <a href="#" onclick="showPage('donotsell')">Do Not Sell My Info</a>
     <span class="foot-sep">·</span>
     <a href="#" onclick="showPage('disclaimer')">Disclaimer</a>
     <span class="foot-sep">·</span>
-    <a href="#" onclick="showPage('legalwarning')" style="color:#dc1414;">Legal Warning</a>
+    <a href="#" onclick="showPage('reportbug')">Report a Bug</a>
   </div>
-  <div class="foot-copy" data-i18n="footer.copy">© 2025 AlexCyberX. All rights reserved.</div>
+  <div class="foot-copy" data-i18n="footer.copy">© 2026 AlexCyberX. All rights reserved.</div>
 </footer>
 
 </div><!-- end #homePage -->
@@ -1731,7 +1727,11 @@
         </button>
       </div>
     </div>
-    <div class="auth-terms">By creating an account you agree to our <a href="#" onclick="showAuth(''); showPage('terms')">Terms of Service</a> and <a href="#" onclick="showAuth(''); showPage('privacy')">Privacy Policy</a>.</div>
+    <label class="auth-remember" style="margin-bottom:12px">
+      <input type="checkbox" id="signupAge"/>
+      <span>Main 18+ hoon, ya mere parent/guardian ne permission di hai</span>
+    </label>
+    <div class="auth-terms">By creating an account (also with Google) you confirm this and agree to our <a href="#" onclick="showAuth(''); showPage('terms')">Terms of Service</a> and <a href="#" onclick="showAuth(''); showPage('privacy')">Privacy Policy</a>.</div>
     <button class="auth-btn" onclick="doSignup()">Create Account</button>
     <div class="auth-divider"><div class="auth-divider-line"></div><div class="auth-divider-text">or continue with</div><div class="auth-divider-line"></div></div>
     <button class="auth-google-btn" onclick="doGoogleLogin()">
@@ -2004,14 +2004,12 @@
 <div id="privacyPage" class="legal-page"></div>
 <div id="termsPage" class="legal-page"></div>
 <div id="disclaimerPage" class="legal-page"></div>
-<div id="refundPage" class="legal-page"></div>
 <div id="cookiePage" class="legal-page"></div>
-<div id="donotsellPage" class="legal-page"></div>
-<div id="legalwarningPage" class="legal-page"></div>
+<div id="reportbugPage" class="legal-page"></div>
 
 <script>
 // Load legal pages dynamically - sanitized to strip inline scripts
-['privacy','terms','disclaimer','refund','cookie','donotsell','legalwarning'].forEach(function(page) {
+['privacy','terms','disclaimer','cookie','reportbug'].forEach(function(page) {
   fetch('pages/' + page + '.html')
     .then(function(r){ return r.text(); })
     .then(function(html){
@@ -2086,10 +2084,8 @@ function loadScriptOnce(src) {
     else if (p === '/privacy-policy') { id = 'privacyPage'; }
     else if (p === '/terms-of-service') { id = 'termsPage'; }
     else if (p === '/disclaimer') { id = 'disclaimerPage'; }
-    else if (p === '/refund-policy') { id = 'refundPage'; }
     else if (p === '/cookie-notice') { id = 'cookiePage'; }
-    else if (p === '/do-not-sell') { id = 'donotsellPage'; }
-    else if (p === '/legal-warning') { id = 'legalwarningPage'; }
+    else if (p === '/report-a-bug') { id = 'reportbugPage'; }
     if (!id) return;
 
     if (protectedPage) {

@@ -186,7 +186,7 @@ const DICT = {
   'form.status.success':        { hi:'Message mil gaya! Jaldi reply karenge.', en:'Message received! We will reply soon.', bn:'বার্তা পাওয়া গেছে! শীঘ্রই উত্তর দেব।', pa:'ਸੁਨੇਹਾ ਮਿਲ ਗਿਆ! ਜਲਦੀ ਜਵਾਬ ਦੇਵਾਂਗੇ।', te:'సందేశం అందింది! త్వరలో సమాధానం ఇస్తాము.', ta:'செய்தி கிடைத்தது! விரைவில் பதிலளிப்போம்.', mr:'संदेश मिळाला! लवकरच उत्तर देऊ.' },
 
   // FOOTER
-  'footer.copy':     { hi:'© 2025 AlexCyberX. All rights reserved.', en:'© 2025 AlexCyberX. All rights reserved.', bn:'© 2025 AlexCyberX. সর্বস্বত্ব সংরক্ষিত।', pa:'© 2025 AlexCyberX. ਸਾਰੇ ਅਧਿਕਾਰ ਸੁਰੱਖਿਅਤ।', te:'© 2025 AlexCyberX. అన్ని హక్కులు రిజర్వ్ చేయబడ్డాయి.', ta:'© 2025 AlexCyberX. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.', mr:'© 2025 AlexCyberX. सर्व हक्क राखीव.' },
+  'footer.copy':     { hi:'© 2026 AlexCyberX. All rights reserved.', en:'© 2026 AlexCyberX. All rights reserved.', bn:'© 2026 AlexCyberX. সর্বস্বত্ব সংরক্ষিত।', pa:'© 2026 AlexCyberX. ਸਾਰੇ ਅਧਿਕਾਰ ਸੁਰੱਖਿਅਤ।', te:'© 2026 AlexCyberX. అన్ని హక్కులు రిజర్వ్ చేయబడ్డాయి.', ta:'© 2026 AlexCyberX. அனைத்து உரிமைகளும் பாதுகாக்கப்பட்டவை.', mr:'© 2026 AlexCyberX. सर्व हक्क राखीव.' },
 };
 
 /* ─── GET SINGLE DICT STRING (for dynamic messages like form status) ─── */
