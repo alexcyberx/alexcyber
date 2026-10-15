@@ -225,12 +225,12 @@ function showTranslateLoader(langName) {
   loader.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;gap:10px;background:rgba(8,8,10,0.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:14px;padding:18px 28px;">
       <svg width="32" height="32" viewBox="0 0 36 36" fill="none" style="animation:xlspin 0.85s linear infinite;">
-        <circle cx="18" cy="18" r="15" stroke="rgba(220,20,20,0.12)" stroke-width="2.5"/>
-        <path d="M18 3a15 15 0 0 1 15 15" stroke="#dc1414" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="18" cy="18" r="15" stroke="rgba(16,185,129,0.12)" stroke-width="2.5"/>
+        <path d="M18 3a15 15 0 0 1 15 15" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
       </svg>
       <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:#e0e0e0;letter-spacing:0.3px;white-space:nowrap;">Translating to ${escapeHtml(langName)}</div>
       <div style="width:160px;height:3px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;">
-        <div id="xlBar" style="height:100%;width:0%;background:linear-gradient(90deg,#dc1414,#ff5555);border-radius:3px;transition:width 0.12s;"></div>
+        <div id="xlBar" style="height:100%;width:0%;background:linear-gradient(90deg,#10b981,#6ee7b7);border-radius:3px;transition:width 0.12s;"></div>
       </div>
       <div id="xlStatus" style="font-family:'Inter',sans-serif;font-size:11px;color:#484858;">Starting...</div>
     </div>

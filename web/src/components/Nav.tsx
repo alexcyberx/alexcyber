@@ -5,6 +5,7 @@
 // the old SPA are plain <a href> (full page load into index.html); the old
 // SPA reads ?auth= / ?lang= / #section on load (see js/router.js).
 
+import ThemeToggle from '@/components/ThemeToggle';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
@@ -141,6 +142,7 @@ export default function Nav() {
             <GlobeIcon />
             <span style={{ fontSize: 11, letterSpacing: 0.3 }} id="langNavLabel" suppressHydrationWarning>Language</span>
           </a>
+          <ThemeToggle />
           {!user && (
             <>
               <a className="nav-btn ghost" id="navLoginBtn" href={`/?auth=login&next=${next}`} onClick={(e) => { e.preventDefault(); openAuth('login'); }} data-i18n="nav.login" suppressHydrationWarning>Login</a>
@@ -211,6 +213,7 @@ export default function Nav() {
           <GlobeIcon size={15} />
           <span id="mLangLabel" data-i18n="nav.lang" suppressHydrationWarning>Select Language</span>
         </a>
+        <ThemeToggle inline />
         <div className="m-divider"></div>
         {user ? (
           <div className="m-auth" id="mobileUserBtns">

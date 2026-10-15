@@ -51,7 +51,7 @@ export default async function PublicProfilePage({ params }: Props) {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginTop: 20 }}>
               <div style={card}><div id="ppXP" style={num('#818cf8')}>{u.xp.toLocaleString('en-US')}</div><div style={{ fontSize: 10, color: 'var(--text-dim)', marginTop: 2 }}>Total XP</div></div>
               <div style={card}><div id="ppLevel" style={num('#4ade80')}>{levelFromXp(u.xp)}</div><div style={{ fontSize: 10, color: 'var(--text-dim)', marginTop: 2 }}>Level</div></div>
-              <div style={card}><div id="ppCTFSolves" style={num('#dc1414')}>{u.ctf_solves}</div><div style={{ fontSize: 10, color: 'var(--text-dim)', marginTop: 2 }}>CTF Solves</div></div>
+              <div style={card}><div id="ppCTFSolves" style={num('#10b981')}>{u.ctf_solves}</div><div style={{ fontSize: 10, color: 'var(--text-dim)', marginTop: 2 }}>CTF Solves</div></div>
             </div>
             <div style={{ marginTop: 24 }}>
               <div className="pf-section-label">Rank</div>

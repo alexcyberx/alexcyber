@@ -129,6 +129,25 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 
 Not migrated yet (still SPA): AlexRecon, AlexUtils, AlexTrace, community (switched off), admin panel.
 
+## Theme: green brand, mouse glow, Dark / Light / System (2026-10-15)
+
+- **Brand colour is green** (owner's choice, look modelled on cyberctf.org). `css/variables.css` defines `--accent` (`#10b981`),
+  `--accent-bright`, `--accent-deep`, `--on-accent`; the old name `--red` now points at `--accent`. Hard-coded brand reds were
+  swapped for the greens across css/, index.html, pages/, components/, js/ and web/src. Red is kept where it means danger
+  (logout, errors, "wrong", delete, timers running out). Course chapter content (`js/chapters*.js`, `js/chapter-content/`) and
+  the admin panel keep their red, because there red marks attacks/failures inside the lessons.
+- **Theme vars.** Neutral greys and translucent whites now go through `--fg-1..4`, `--fg-rgb`, `--surface/2/3`, `--line-strong`,
+  `--nav-bg`, `--overlay` (mapped by `scripts/themeify.py`, kept for reference). `[data-theme="light"]` in variables.css
+  redefines them.
+- **Which pages theme.** Only Next pages: `web/src/app/layout.tsx` runs `THEME_BOOT` (lib/theme.ts) in `<head>` before first
+  paint and sets `<html data-theme>`. The choice is `localStorage acx_theme` = `dark` (default) / `light` / `system`.
+  `components/ThemeToggle.tsx` sits next to the language button (desktop menu + mobile chips). The old SPA never sets
+  `data-theme`, so its pages stay dark until they move to Next. The home terminal and the About terminal stay dark in light mode.
+- **Mouse glow.** `js/spotlight.js` (loaded by index.html and the Next layout) adds `.spot-on` + `--mx/--my` to the card under
+  the cursor and moves one soft `.cursor-glow` behind the page. Mouse only; touch devices get nothing.
+- Test: `theme.js` (14 checks: default dark, toggle, persistence before first paint, system + live device change, contrast,
+  spotlight, SPA stays dark, mobile chips) plus the usual suites.
+
 ## Deploy on Render
 **One service (current):** the Express service also runs Next.js.
 - Render's build command stays `npm install`. The root `postinstall` (`scripts/build-web.js`) builds `web/` when

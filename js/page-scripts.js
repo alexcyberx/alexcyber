@@ -134,12 +134,12 @@ async function handleAnalyzeCommand() {
   const command = input.value.trim();
   if (!command) {
     status.textContent = 'Please enter a command first.';
-    status.style.color = '#dc1414';
+    status.style.color = '#10b981';
     return;
   }
   if (!window._currentUser) {
     status.textContent = 'Please log in to use the analyzer.';
-    status.style.color = '#dc1414';
+    status.style.color = '#10b981';
     return;
   }
 
@@ -159,7 +159,7 @@ async function handleAnalyzeCommand() {
 
     if (!res.ok) {
       status.textContent = data.error || 'Something went wrong. Please try again.';
-      status.style.color = '#dc1414';
+      status.style.color = '#10b981';
       return;
     }
 
@@ -168,7 +168,7 @@ async function handleAnalyzeCommand() {
   } catch (e) {
     console.error('Cyber Mistake Analyzer error:', e);
     status.textContent = 'Network error. Please try again.';
-    status.style.color = '#dc1414';
+    status.style.color = '#10b981';
   } finally {
     btn.disabled = false;
     btn.style.opacity = '1';
@@ -213,8 +213,8 @@ function renderAnalyzerResult(data) {
       </div>
 
       <div>
-        <div style="font-family:'Inter',sans-serif;font-size:11px;color:#dc1414;letter-spacing:0.5px;margin-bottom:8px;">✕ WHAT TO FIX</div>
-        ${listHtml(data.didWrong, '#dc1414')}
+        <div style="font-family:'Inter',sans-serif;font-size:11px;color:#10b981;letter-spacing:0.5px;margin-bottom:8px;">✕ WHAT TO FIX</div>
+        ${listHtml(data.didWrong, '#ef4444')}
       </div>
 
       <div>
@@ -303,12 +303,12 @@ async function handleRunRecon() {
   const target = input.value.trim();
   if (!target) {
     status.textContent = 'Please enter a domain to scan.';
-    status.style.color = '#dc1414';
+    status.style.color = '#10b981';
     return;
   }
   if (!window._currentUser) {
     status.textContent = 'Please log in to run a scan.';
-    status.style.color = '#dc1414';
+    status.style.color = '#10b981';
     return;
   }
 
@@ -328,7 +328,7 @@ async function handleRunRecon() {
 
     if (!res.ok) {
       status.textContent = data.error || 'Something went wrong. Please try again.';
-      status.style.color = '#dc1414';
+      status.style.color = '#10b981';
       return;
     }
 
@@ -338,7 +338,7 @@ async function handleRunRecon() {
   } catch (e) {
     console.error('AlexRecon error:', e);
     status.textContent = 'Network error. Please try again.';
-    status.style.color = '#dc1414';
+    status.style.color = '#10b981';
   } finally {
     btn.disabled = false;
     btn.style.opacity = '1';
@@ -513,7 +513,7 @@ function renderReconReport(data) {
   if (m.jsRecon) {
     const js = m.jsRecon.data || {};
     const findingsHtml = (js.findings || []).map(f => `
-      <div style="border-left:2px solid #dc141455;padding-left:10px;margin-bottom:10px;">
+      <div style="border-left:2px solid #10b98155;padding-left:10px;margin-bottom:10px;">
         <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#8a8a95;word-break:break-all;">${escapeHtml(f.file)}</div>
         ${f.possibleFindings && f.possibleFindings.length ? `<div style="margin-top:4px;">${arChipList(f.possibleFindings.map(pf => `${pf.type} x${pf.matchCount}`))}</div>` : ''}
         ${f.endpointsFound && f.endpointsFound.length ? `<div style="margin-top:4px;">${arChipList(f.endpointsFound)}</div>` : ''}
@@ -630,7 +630,7 @@ async function arLoadScanFromHistory(scanId) {
     const data = await res.json();
     if (!res.ok) {
       status.textContent = data.error || 'Could not load this scan.';
-      status.style.color = '#dc1414';
+      status.style.color = '#10b981';
       return;
     }
     status.textContent = '';
@@ -639,7 +639,7 @@ async function arLoadScanFromHistory(scanId) {
   } catch (e) {
     console.error('AlexRecon load scan error:', e);
     status.textContent = 'Network error loading scan.';
-    status.style.color = '#dc1414';
+    status.style.color = '#10b981';
   }
 }
 
@@ -749,7 +749,7 @@ function arExportHtml(data) {
 <title>AlexRecon Report - ${escapeHtml(data.target)}</title>
 <style>
   body { background:#0a0a0c; color:#f4f4f5; font-family:Arial,sans-serif; padding:24px; max-width:900px; margin:0 auto; }
-  h1 { color:#dc1414; }
+  h1 { color:#10b981; }
   details { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px 16px; margin-bottom:10px; }
   summary { cursor:pointer; font-weight:700; }
 </style>
@@ -834,8 +834,8 @@ function arExportPdf(data) {
 let _arGraph = null; // { nodes, links, canvas, ctx, transform, animId }
 
 const AR_NODE_COLORS = {
-  root: '#dc1414',
-  domain: '#dc1414',
+  root: '#10b981',
+  domain: '#10b981',
   subdomain: '#f472b6',
   ip: '#60a5fa',
   port: '#fbbf24',
@@ -1188,12 +1188,12 @@ async function handleCreateSchedule() {
   const target = input.value.trim();
   if (!target) {
     status.textContent = 'Please enter a domain to schedule.';
-    status.style.color = '#dc1414';
+    status.style.color = '#10b981';
     return;
   }
   if (!window._currentUser) {
     status.textContent = 'Please log in to create a schedule.';
-    status.style.color = '#dc1414';
+    status.style.color = '#10b981';
     return;
   }
 
@@ -1209,7 +1209,7 @@ async function handleCreateSchedule() {
     const data = await res.json();
     if (!res.ok) {
       status.textContent = data.error || 'Could not create schedule.';
-      status.style.color = '#dc1414';
+      status.style.color = '#10b981';
       return;
     }
     status.textContent = 'Schedule created.';
@@ -1219,7 +1219,7 @@ async function handleCreateSchedule() {
   } catch (e) {
     console.error('AlexRecon schedule create error:', e);
     status.textContent = 'Network error. Please try again.';
-    status.style.color = '#dc1414';
+    status.style.color = '#10b981';
   }
 }
 
@@ -1251,7 +1251,7 @@ async function arLoadSchedules() {
           <div style="display:flex;align-items:center;gap:8px;">
             <span style="font-size:10px;letter-spacing:1px;font-family:'Rajdhani',sans-serif;font-weight:700;color:${activeColor};border:1px solid ${activeColor}55;background:${activeColor}15;padding:3px 10px;border-radius:20px;">${s.is_active ? 'ACTIVE' : 'PAUSED'}</span>
             <button onclick="arToggleSchedule('${s.id}', ${!s.is_active})" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:5px 10px;font-family:'Inter',sans-serif;font-size:11px;color:#ccc;cursor:pointer;">${s.is_active ? 'Pause' : 'Resume'}</button>
-            <button onclick="arDeleteSchedule('${s.id}')" style="background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.3);border-radius:6px;padding:5px 10px;font-family:'Inter',sans-serif;font-size:11px;color:#f87171;cursor:pointer;">Delete</button>
+            <button onclick="arDeleteSchedule('${s.id}')" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:5px 10px;font-family:'Inter',sans-serif;font-size:11px;color:#f87171;cursor:pointer;">Delete</button>
           </div>
         </div>`;
     }).join('');
@@ -2004,7 +2004,7 @@ function atLookupPanel() {
   return `
     <div class="at-card">
       <div class="at-card-title">
-        <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="#dc1414" stroke-width="1.2"/><path d="M13.5 13.5 17.5 17.5" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="#10b981" stroke-width="1.2"/><path d="M13.5 13.5 17.5 17.5" stroke="#10b981" stroke-width="1.2" stroke-linecap="round"/></svg>
         Check your exposure
       </div>
       <div class="at-card-sub">Enter a username and/or email. AlexTrace checks 25+ platforms and known data breaches.</div>
@@ -2137,7 +2137,7 @@ function atRenderReport(data) {
     parts.push(`
       <div class="at-card">
         <div class="at-card-title">
-          <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="6" cy="6" r="2" stroke="#dc1414" stroke-width="1.2"/><circle cx="14" cy="14" r="2" stroke="#dc1414" stroke-width="1.2"/><path d="M7.5 7.5 12.5 12.5" stroke="#dc1414" stroke-width="1.2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><circle cx="6" cy="6" r="2" stroke="#10b981" stroke-width="1.2"/><circle cx="14" cy="14" r="2" stroke="#10b981" stroke-width="1.2"/><path d="M7.5 7.5 12.5 12.5" stroke="#10b981" stroke-width="1.2"/></svg>
           Identity Correlation
         </div>
         <div class="at-card-sub">How easily these findings link back to one identity (confidence: ${report.correlation.confidence}%)</div>
@@ -2150,7 +2150,7 @@ function atRenderReport(data) {
     parts.push(`
       <div class="at-card">
         <div class="at-card-title">
-          <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 10h5M11 10h5M9 5l2 10" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 10h5M11 10h5M9 5l2 10" stroke="#10b981" stroke-width="1.2" stroke-linecap="round"/></svg>
           Deep Correlation, pivoting from GitHub
         </div>
         <div class="at-card-sub">What a real investigator would find just by reading the public GitHub profile.</div>
@@ -2171,7 +2171,7 @@ function atRenderReport(data) {
     parts.push(`
       <div class="at-card">
         <div class="at-card-title">
-          <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="#dc1414" stroke-width="1.2"/></svg>
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="#10b981" stroke-width="1.2"/></svg>
           Platform Results for "${escapeHtml(ur.username)}"
         </div>
         <div class="at-card-sub">Checked ${ur.checkedPlatforms} platforms across Developer, Social, Gaming, Forums, Creative, and Professional categories.</div>
@@ -2192,7 +2192,7 @@ function atRenderReport(data) {
     parts.push(`
       <div class="at-card">
         <div class="at-card-title">
-          <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="2.5" y="4" width="15" height="12" rx="2" stroke="#dc1414" stroke-width="1.2"/><path d="M3 5.5 10 11l7-5.5" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="2.5" y="4" width="15" height="12" rx="2" stroke="#10b981" stroke-width="1.2"/><path d="M3 5.5 10 11l7-5.5" stroke="#10b981" stroke-width="1.2" stroke-linecap="round"/></svg>
           Email Intelligence
         </div>
         <div class="at-card-sub">${escapeHtml(er.email)}</div>
@@ -2210,7 +2210,7 @@ function atRenderReport(data) {
   parts.push(`
     <div class="at-card">
       <div class="at-card-title">
-        <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M10 3 3 17h14L10 3Z" stroke="#dc1414" stroke-width="1.2" stroke-linejoin="round"/><path d="M10 8.5v3.5" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/><circle cx="10" cy="14.2" r="0.6" fill="#dc1414"/></svg>
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M10 3 3 17h14L10 3Z" stroke="#10b981" stroke-width="1.2" stroke-linejoin="round"/><path d="M10 8.5v3.5" stroke="#10b981" stroke-width="1.2" stroke-linecap="round"/><circle cx="10" cy="14.2" r="0.6" fill="#10b981"/></svg>
         What to do next
       </div>
       <ul class="at-actions-list">
@@ -2274,7 +2274,7 @@ function atBreachPanel() {
   return `
     <div class="at-card">
       <div class="at-card-title">
-        <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M10 3 3 17h14L10 3Z" stroke="#dc1414" stroke-width="1.2" stroke-linejoin="round"/><path d="M10 8.5v3.5" stroke="#dc1414" stroke-width="1.2" stroke-linecap="round"/><circle cx="10" cy="14.2" r="0.6" fill="#dc1414"/></svg>
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M10 3 3 17h14L10 3Z" stroke="#10b981" stroke-width="1.2" stroke-linejoin="round"/><path d="M10 8.5v3.5" stroke="#10b981" stroke-width="1.2" stroke-linecap="round"/><circle cx="10" cy="14.2" r="0.6" fill="#10b981"/></svg>
         Was this service ever breached?
       </div>
       <div class="at-card-sub">Type a platform or company name (e.g. "Canva", "LinkedIn") to check known public breaches, when they happened, and what data was exposed.</div>
@@ -2344,7 +2344,7 @@ function atPasswordPanel() {
   return `
     <div class="at-card">
       <div class="at-card-title">
-        <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="4.5" y="9" width="11" height="8" rx="1.5" stroke="#dc1414" stroke-width="1.2"/><path d="M6.5 9V6.5a3.5 3.5 0 0 1 7 0V9" stroke="#dc1414" stroke-width="1.2"/></svg>
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="4.5" y="9" width="11" height="8" rx="1.5" stroke="#10b981" stroke-width="1.2"/><path d="M6.5 9V6.5a3.5 3.5 0 0 1 7 0V9" stroke="#10b981" stroke-width="1.2"/></svg>
         How strong is this password pattern?
       </div>
       <div class="at-card-sub">Checked entirely on the server in memory and never stored or logged. Still, avoid typing a password you actually use anywhere real, a similar made-up one works just as well to learn from.</div>
@@ -2435,7 +2435,7 @@ function atMetadataPanel() {
   return `
     <div class="at-card">
       <div class="at-card-title">
-        <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="2.5" y="4" width="15" height="12" rx="2" stroke="#dc1414" stroke-width="1.2"/><circle cx="7.5" cy="9" r="1.5" stroke="#dc1414" stroke-width="1.1"/><path d="M4 15l4-4 3 3 2.5-2.5L16 15" stroke="#dc1414" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><rect x="2.5" y="4" width="15" height="12" rx="2" stroke="#10b981" stroke-width="1.2"/><circle cx="7.5" cy="9" r="1.5" stroke="#10b981" stroke-width="1.1"/><path d="M4 15l4-4 3 3 2.5-2.5L16 15" stroke="#10b981" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Check a photo before you post it
       </div>
       <div class="at-card-sub">See what hidden data (GPS location, device, timestamp) is embedded in an image. Nothing is uploaded to storage, it's checked and discarded.</div>
@@ -2561,7 +2561,7 @@ function atRenderMetadataResult(data) {
       <div class="at-card">${rows.join('')}</div>
       <div class="at-card">
         <div class="at-card-title">
-          <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M10 3 3 17h14L10 3Z" stroke="#dc1414" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M10 3 3 17h14L10 3Z" stroke="#10b981" stroke-width="1.2" stroke-linejoin="round"/></svg>
           What to do next
         </div>
         <ul class="at-actions-list">

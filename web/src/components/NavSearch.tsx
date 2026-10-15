@@ -49,7 +49,7 @@ function Highlight({ text, q }: { text: string; q: string }) {
 
 function Results({ results, q, active, onPick }: { results: SearchEntry[]; q: string; active: number; onPick: (e: SearchEntry) => void }) {
   if (!results.length) {
-    return <div className="search-no-results">No results for &quot;<strong style={{ color: '#888' }}>{q}</strong>&quot;</div>;
+    return <div className="search-no-results">No results for &quot;<strong style={{ color: 'var(--fg-3)' }}>{q}</strong>&quot;</div>;
   }
   return (
     <>

@@ -25,8 +25,8 @@ a.cma-back { text-decoration: none; }
 /* Community: thread rows are links now; badges, report and lock UI are new in the Next port */
 a.comm-thread-row { color: inherit; text-decoration: none; }
 .comm-badge { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 20px; border: 1px solid var(--border); font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; vertical-align: 2px; line-height: 1.6; color: var(--text-dim); }
-.comm-badge--pinned { color: var(--red); border-color: #dc141433; background: #dc14140a; }
-.comm-badge--locked { color: #a1a1aa; background: rgba(255,255,255,0.03); }
+.comm-badge--pinned { color: var(--red); border-color: var(--glow-border); background: var(--red-dim); }
+.comm-badge--locked { color: var(--fg-3); background: rgba(var(--fg-rgb),0.03); }
 .comm-vote-btn:disabled, .comm-vote-btn:disabled:hover { opacity: 0.4; cursor: not-allowed; color: var(--text-dim); border-color: var(--border); }
 .comm-report-btn { float: right; background: none; border: none; padding: 0; font-family: 'Inter', sans-serif; font-size: 11px; color: var(--text-dim); cursor: pointer; transition: color 0.15s; }
 .comm-report-btn:hover { color: #e06060; }
@@ -35,17 +35,17 @@ a.comm-thread-row { color: inherit; text-decoration: none; }
 .comm-report-form { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 .comm-report-form .profile-input { flex: 1; min-width: 120px; width: auto; padding: 8px 12px; font-size: 12px; }
 .comm-report-send, .comm-report-cancel { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); }
-.comm-report-send { background: var(--red); border-color: var(--red); color: #fff; }
+.comm-report-send { background: var(--red); border-color: var(--red); color: var(--on-accent); }
 .comm-report-send:disabled { opacity: 0.6; cursor: default; }
 .comm-msg { font-family: 'Inter', sans-serif; font-size: 12px; color: #e06060; margin-top: 10px; }
 .comm-msg.ok { color: #60c060; }
 .profile-msg.comm-msg { margin-top: 0; color: #e06060; }
-.comm-locked-note { margin-top: 20px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,0.02); font-size: 13px; color: var(--text-dim); }
+.comm-locked-note { margin-top: 20px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: rgba(var(--fg-rgb),0.02); font-size: 13px; color: var(--text-dim); }
 /* Profile notifications: new rooms / courses / blog posts are announced automatically and link to the thing */
 a.pf-notif-row--link { color: inherit; text-decoration: none; cursor: pointer; transition: border-color .2s; }
-a.pf-notif-row--link:hover { border-color: rgba(220,20,20,0.35); }
+a.pf-notif-row--link:hover { border-color: rgba(16,185,129,0.35); }
 .pf-notif-type-dot--ctf    { background: var(--red); }
-.pf-notif-type-dot--course { background: #10b981; }
+.pf-notif-type-dot--course { background: var(--accent); }
 .pf-notif-type-dot--blog   { background: #3b82f6; }
 .pf-notif-type-dot--tool   { background: #f59e0b; }
 /* Home terminal: interactive, same box (HeroTerminal.tsx) */
@@ -56,11 +56,30 @@ a.pf-notif-row--link:hover { border-color: rgba(220,20,20,0.35); }
 .ht-session { display: block !important; flex: 0 0 auto !important; overflow: hidden; }
 .ht-session-col { border-right: none !important; overflow-y: auto; height: 100%; box-sizing: border-box; scrollbar-width: thin; }
 .ht-session-col .ht-line { white-space: pre-wrap; word-break: break-word; display: block; }
-.ht-out-in { color: #e2e8f0; }
-.ht-out-out { color: #c8c8d0; }
-.ht-out-dim { color: #6b6b78; }
+.ht-out-in { color: var(--fg-1); }
+.ht-out-out { color: var(--fg-2); }
+.ht-out-dim { color: var(--fg-4); }
 .ht-out-link a { color: #7dd3fc; text-decoration: none; }
 .ht-out-link a:hover { text-decoration: underline; }
 .ht-prompt-line .ht-pr { margin-right: 6px; }
-.ht-type-hint { position: absolute; right: 14px; bottom: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6b6b78; pointer-events: none; }
-.ht-type-hint b { color: #ff1a1a; font-weight: 600; }
+.ht-type-hint { position: absolute; right: 14px; bottom: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--fg-4); pointer-events: none; }
+.ht-type-hint b { color: var(--accent-bright); font-weight: 600; }
+/* Theme picker (ThemeToggle.tsx) */
+.theme-toggle { position: relative; display: inline-flex; }
+.theme-btn { display: inline-flex !important; align-items: center; justify-content: center; padding: 7px 9px !important; }
+.theme-menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 150px; padding: 5px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border-hover); box-shadow: 0 12px 32px rgba(0,0,0,0.28); z-index: 1200; }
+.theme-item { display: flex; align-items: center; gap: 9px; width: 100%; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--text); font: 500 12.5px 'Inter', sans-serif; cursor: pointer; text-align: left; }
+.theme-item:hover { background: rgba(var(--fg-rgb),0.06); color: var(--white); }
+.theme-item.on { color: var(--accent-bright); }
+.theme-check { margin-left: auto; }
+.theme-chips { display: flex; gap: 6px; padding: 4px 0; }
+.theme-chip { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 0; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); font: 500 12px 'Inter', sans-serif; cursor: pointer; }
+.theme-chip.on { border-color: var(--glow-border); color: var(--accent-bright); background: var(--red-dim); }
+/* Light theme: things that should stay readable on white */
+[data-theme="light"] .glow-orb { opacity: 0.6; }
+[data-theme="light"] .nav-btn.ghost { color: var(--text); }
+[data-theme="light"] .hero-terminal { background: var(--dark); box-shadow: 0 20px 50px rgba(10,25,18,0.18); }
+[data-theme="light"] .pf-banner { background: linear-gradient(135deg, #dff3ea 0%, #f1f5f3 60%, #ffffff 100%); }
+[data-theme="light"] .pf-back-btn { background: rgba(255,255,255,0.7); }
+[data-theme="light"] .cursor-glow { opacity: 0; }
+[data-theme="light"] .cursor-glow.on { opacity: 0.7; }

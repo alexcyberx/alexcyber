@@ -6,6 +6,7 @@ import Nav from '@/components/Nav';
 import SiteRuntime from '@/components/SiteRuntime';
 import { AuthProvider } from '@/lib/auth-context';
 import { SITE_URL } from '@/lib/blog';
+import { THEME_BOOT } from '@/lib/theme';
 import './compat.css';
 
 export const metadata: Metadata = {
@@ -17,8 +18,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0a0a0f',
-  colorScheme: 'dark',
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#0b0d0d' },
+    { media: '(prefers-color-scheme: light)', color: '#f5f7f6' },
+  ],
+  colorScheme: 'dark light',
 };
 
 // The stylesheets are the old site's own files (served by Express from /css),
@@ -28,8 +32,9 @@ const SHARED_CSS = ['variables', 'nav', 'home', 'learn', 'auth', 'profile', 'mod
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
@@ -52,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CookieBanner />
         <LegacyI18n />
         <SiteRuntime />
+        <script src="/js/spotlight.js" defer />
       </body>
     </html>
   );
