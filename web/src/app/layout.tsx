@@ -8,6 +8,7 @@ import { AuthProvider } from '@/lib/auth-context';
 import { SITE_URL } from '@/lib/blog';
 import { THEME_BOOT } from '@/lib/theme';
 import './compat.css';
+import './nav-upgrade.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

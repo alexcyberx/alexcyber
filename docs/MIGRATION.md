@@ -148,6 +148,18 @@ Not migrated yet (still SPA): AlexRecon, AlexUtils, AlexTrace, community (switch
   moves one soft `.cursor-glow` behind the page. Mouse only.
 - Test: `theme.js` (11 checks) plus the usual suites.
 
+## Navbar upgrade (2026-10-15)
+
+- Next pages only: `web/src/app/nav-upgrade.css` on top of the shared `css/nav.css`; markup in `components/Nav.tsx`
+  (same ids, so the old tests and i18n keep working). The old SPA nav is unchanged.
+- One sliding hover pill behind the links, an accent underline under the current page's link, lighter bar at the top that
+  turns into stronger glass + shadow on scroll, and a 2px reading-progress line along the bottom edge.
+- "More" is a panel with an icon tile and a one-line description per link (staggered entrance). It now lives outside
+  `.nav-center` and is placed in JS, so the 1024-1366px overflow can no longer clip it.
+- Avatar menu fades/scales in (with a hover bridge), Sign Up has a light sweep, buttons lift, the hamburger morph is
+  springier, the mobile sheet drops open with staggered rows, and mobile Login / Sign Up text is centred.
+- All motion is off under `prefers-reduced-motion`.
+
 ## Deploy on Render
 **One service (current):** the Express service also runs Next.js.
 - Render's build command stays `npm install`. The root `postinstall` (`scripts/build-web.js`) builds `web/` when
