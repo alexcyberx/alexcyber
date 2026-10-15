@@ -8,7 +8,7 @@ from any icon set, font or other logo. Before a trademark filing, run a trademar
 |---|---|
 | `logo-mark-green.svg` / `-blue.svg` / `-red.svg` | Mark only, transparent, on dark backgrounds (one per theme) |
 | `logo-mark-dark-ink.svg` | Mark for light backgrounds (print, documents) |
-| `logo-wordmark.svg` | Mark + "Alex CyberX" (the text uses the Rajdhani font, so outside the site it may fall back) |
+| `logo-wordmark.svg` / `logo-wordmark-dark-ink.svg` | Mark + "Alex CyberX", text outlined (Rajdhani Bold, SIL OFL), looks the same everywhere; dark-ink for light backgrounds |
 | `favicon.svg`, `favicon.ico` (16/32/48), `favicon-32.png` | Browser tab (dark tile, no border) |
 | `apple-touch-icon.png` (180), `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` | Phone home screen / install |
 | `site.webmanifest` | Install manifest |

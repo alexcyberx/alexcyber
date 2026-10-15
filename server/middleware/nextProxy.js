@@ -32,10 +32,10 @@ const NEXT_PAGES = {
   resources:    '/resources',
 };
 
-// The community forum is ported (web/src/app/community) but stays on the SPA
-// until the owner decides whether the forum stays. NEXT_COMMUNITY=1 switches
-// it on: /community and the /community/<thread-id> pages.
-const COMMUNITY_ON = process.env.NEXT_COMMUNITY === '1';
+// The community forum (web/src/app/community): /community and the
+// /community/<thread-id> pages. On by default since 2026-10-15 (owner: move
+// the remaining pages); NEXT_COMMUNITY=0 sends it back to the SPA.
+const COMMUNITY_ON = process.env.NEXT_COMMUNITY !== '0';
 if (COMMUNITY_ON) NEXT_PAGES.community = '/community';
 
 // Exact paths go to Next; /tutorials/<course> stays in the SPA.

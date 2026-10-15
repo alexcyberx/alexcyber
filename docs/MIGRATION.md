@@ -120,9 +120,8 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 - `/resources` (`ResourcesView.tsx`): login gate, filters, cards are real `target=_blank` links (no popup
   blocker); the download counter counts once per user per resource per day (DB, `resource_download_log`).
 - `/community` and `/community/<id>` are ported (pinned first, approved-only reply counts, a real URL per
-  thread with its own title/description, lock enforced in the UI, Report button, DB error messages inline) but
-  **switched off**: the owner decides first whether the forum stays. `NEXT_COMMUNITY=1` on the Express service
-  turns them on (`NEXT_PAGES.community` + the `/community/` prefix).
+  thread with its own title/description, lock enforced in the UI, Report button, DB error messages inline).
+  **On by default since 2026-10-15**; `NEXT_COMMUNITY=0` on the Express service sends them back to the SPA.
 - Blog, resources and community pages now start below the fixed nav (the old 40px padding put the page title
   and the blog post's "Back to Blog" button under the 58px nav), on the SPA too.
 - AlexRecon, AlexUtils, AlexTrace (`/tools/<name>`) are still SPA pages (step 5c).

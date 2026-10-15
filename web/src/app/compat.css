@@ -110,3 +110,6 @@ a.pf-notif-row--link:hover { border-color: rgba(var(--accent-rgb),0.35); }
 /* View transition used for the circle reveal */
 ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 @media (prefers-reduced-motion: reduce) { .tp-pop, .tp-card { animation: none; } .theme-btn .tp-icon { transition: none; } }
+/* CTF filter chips: room count */
+.ctf-filter-count { display: inline-block; min-width: 16px; margin-left: 6px; padding: 0 5px; border-radius: 999px; font: 600 10px 'Inter', sans-serif; line-height: 16px; text-align: center; background: rgba(var(--fg-rgb),0.08); color: var(--text-dim); }
+.ctf-filter-btn.active .ctf-filter-count { background: rgba(var(--accent-rgb),0.2); color: var(--accent-bright); }
