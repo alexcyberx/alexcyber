@@ -6,7 +6,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { complete, run, type Line, type TermItem } from '@/lib/terminal';
+import { complete, run, showTyped, text, type Lang, type Line, type TermItem } from '@/lib/terminal';
+
+// Same key and default as js/i18n.js. Read on every command, so a language
+// change from the nav picker shows up without a reload.
+function readLang(): Lang {
+  try { return (localStorage.getItem('acx_lang_v4') || 'en') === 'hl' ? 'hl' : 'en'; } catch { return 'en'; }
+}
 
 type Props = { demoHtml: string; rooms: TermItem[]; tools: TermItem[]; courses: TermItem[] };
 
@@ -18,11 +24,19 @@ export default function HeroTerminal({ demoHtml, rooms, tools, courses }: Props)
   const [hist, setHist] = useState<string[]>([]);
   const [hi, setHi] = useState(-1);
   const [height, setHeight] = useState<number | undefined>();
+  const [lang, setLang] = useState<Lang>('en');
   const demoRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const prompt = `${user ? user.name.split(' ')[0].toLowerCase() : 'guest'}@alexcyberx:~$`;
   const data = { rooms, tools, courses, userName: user?.name || null };
+
+  useEffect(() => {
+    setLang(readLang());
+    const onStorage = () => setLang(readLang());
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   // Keep the newest line in view inside the box.
   useEffect(() => {
@@ -34,14 +48,18 @@ export default function HeroTerminal({ demoHtml, rooms, tools, courses }: Props)
   function startSession() {
     if (session) return;
     if (demoRef.current) setHeight(demoRef.current.offsetHeight);
-    setLines([{ kind: 'dim', text: "AlexCyberX terminal. Type 'help' for commands." }]);
+    const l = readLang();
+    setLang(l);
+    setLines([{ kind: 'dim', text: text(l).intro }]);
     setSession(true);
   }
 
   function submit() {
     const cmd = input.trim();
-    const res = run(cmd, data, hist);
-    const echo: Line = { kind: 'in', text: `${prompt} ${input}` };
+    const l = readLang();
+    setLang(l);
+    const res = run(cmd, data, hist, l);
+    const echo: Line = { kind: 'in', text: `${prompt} ${showTyped(input)}` };
     if (cmd) setHist((h) => [...h, cmd].slice(-50));
     setHi(-1);
     setInput('');
@@ -84,7 +102,7 @@ export default function HeroTerminal({ demoHtml, rooms, tools, courses }: Props)
               </div>
             ))}
             <div className="ht-line ht-prompt-line">
-              <span className="ht-pr">{prompt}</span> <span className="ht-c">{input}</span><span className="ht-cursor2"></span>
+              <span className="ht-pr">{prompt}</span> <span className="ht-c">{showTyped(input)}</span><span className="ht-cursor2"></span>
             </div>
           </div>
         </div>
@@ -98,7 +116,7 @@ export default function HeroTerminal({ demoHtml, rooms, tools, courses }: Props)
         aria-label="Terminal: type a command, for example help"
         autoComplete="off" autoCapitalize="off" spellCheck={false}
       />
-      {!session && <div className="ht-type-hint">Click here and type <b>help</b></div>}
+      {!session && <div className="ht-type-hint" suppressHydrationWarning>{text(lang).hint[0]} <b>{text(lang).hint[1]}</b></div>}
     </div>
   );
 }

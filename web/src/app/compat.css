@@ -50,6 +50,8 @@ a.pf-notif-row--link:hover { border-color: rgba(220,20,20,0.35); }
 .pf-notif-type-dot--tool   { background: #f59e0b; }
 /* Home terminal: interactive, same box (HeroTerminal.tsx) */
 .hero-terminal.ht-interactive { position: relative; cursor: text; }
+/* Premium mono face for the whole terminal; size and spacing unchanged. */
+.hero-terminal, .hero-terminal .ht-body, .hero-terminal .ht-col-left, .hero-terminal .ht-col-right, .hero-terminal .ht-type-hint { font-family: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace !important; }
 .ht-hidden-input { position: absolute; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; border: 0; padding: 0; pointer-events: none; }
 .ht-session { display: block !important; flex: 0 0 auto !important; overflow: hidden; }
 .ht-session-col { border-right: none !important; overflow-y: auto; height: 100%; box-sizing: border-box; scrollbar-width: thin; }
