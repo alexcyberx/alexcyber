@@ -169,6 +169,17 @@ Not migrated yet (still SPA): AlexRecon, AlexUtils, AlexTrace, community (switch
 - Navbar shows the mark before "Alex CyberX": inline on Next pages (`components/LogoMark.tsx`, follows the theme accent,
   small glitch on hover), `brand/logo-mark-green.svg` on the old SPA.
 
+## Search: command palette (2026-10-15)
+
+- `components/NavSearch.tsx` + `app/search.css` (Next pages). The nav pill (`#navSearchPill`, shows Ctrl K / ⌘ K) and the
+  mobile icon (`#navSearchToggle`) open one palette, portalled to `<body>` (the nav's backdrop-filter would trap it).
+- Opens with Ctrl/Cmd+K anywhere or `/` when not typing; Esc, click outside or Ctrl+K again closes. Arrow keys move,
+  Enter opens. Results are grouped (Courses, CTF Rooms, Tools, Chapters, Blog) with type icons and highlighted matches;
+  multi-word queries match all words. Empty state: last 5 searches (`localStorage acx_recent_search`, removable) and
+  quick links. No results: suggestion chips. Loading: sweep line + skeleton rows. `?q=` still opens it with that text.
+- Same ids as before (`#desktopSearchInput`, `#navSearchDesktopResults`, `.search-result-item`), so the old tests run.
+  Test: `search.js` (15 checks). Reduced motion turns the animation off.
+
 ## Deploy on Render
 **One service (current):** the Express service also runs Next.js.
 - Render's build command stays `npm install`. The root `postinstall` (`scripts/build-web.js`) builds `web/` when
