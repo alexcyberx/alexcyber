@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
 import ContactForm from '@/components/ContactForm';
 import CourseIcon from '@/components/CourseIcon';
+import HeroTerminal from '@/components/HeroTerminal';
 import Reveal from '@/components/Reveal';
 import { getCoursesWithCounts } from '@/lib/courses';
+import { getRooms } from '@/lib/ctf';
 import { homeJsonLd, homeSections } from '@/lib/home';
 import { pathForPage } from '@/lib/routes';
+import { TOOLS } from '@/lib/tools';
 
 export const revalidate = 300;
 
@@ -26,7 +29,7 @@ const html = (s: string) => ({ __html: s });
 
 export default async function HomePage() {
   const s = homeSections();
-  const courses = await getCoursesWithCounts();
+  const [courses, rooms] = await Promise.all([getCoursesWithCounts(), getRooms().catch(() => [])]);
   const homeCourses = courses?.courses.filter((c) => c.show_on_home) ?? [];
 
   return (
@@ -35,7 +38,19 @@ export default async function HomePage() {
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={html(json)} />
       ))}
 
-      <div dangerouslySetInnerHTML={html(s.hero)} suppressHydrationWarning style={{ display: 'contents' }} />
+      <section className="hero" id="home">
+        <div className="hero-inner">
+          <div className="hero-left" dangerouslySetInnerHTML={html(s.heroLeft)} suppressHydrationWarning />
+          <div className="hero-right">
+            <HeroTerminal
+              demoHtml={s.terminalDemo}
+              rooms={rooms.map((r) => ({ title: r.title, href: '/rooms?open=' + encodeURIComponent(r.id), note: `${r.diff} · ${r.cat}` }))}
+              tools={TOOLS.map((t) => ({ title: t.title, href: t.href, note: t.tag }))}
+              courses={(courses?.courses || []).map((c) => ({ title: c.title, href: pathForPage(c.page_key, '/tutorials') }))}
+            />
+          </div>
+        </div>
+      </section>
 
 
       <section className="section" id="tutorials">
