@@ -23,7 +23,10 @@ The list of migrated paths lives in one place: `NEXT_PAGES` in `server/middlewar
 | 3 | Home + login/signup/reset modals + nav search | Done |
 | 4 | `/leaderboard`, `/u/<id>`, `/profile` | Done |
 | 4b | `/rooms` (CTF list, room view, labs flow) | Done |
-| 5 | Tools, community, resources, admin panel | |
+| 5a | Security fixes in tools, community, admin panel (no page moves) | Done |
+| 5b | `/tools`, `/tools/mistake-analyzer`, `/resources` (+ `/community`, `/community/<id>` ported, switched off) | Done |
+| 5c | AlexRecon, AlexUtils, AlexTrace | |
+| 5d | Admin panel | |
 
 All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 
@@ -106,7 +109,25 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
   (kept through the login modal).
 - `/rooms/<anything>` is still the old SPA.
 
-Not migrated yet (still SPA): tools, community, resources, admin panel.
+## Step 5b: tools hub, Mistake Analyzer, resources, community
+- `/tools` (ISR 1 min, `ToolsHub.tsx`): same 4 cards, now real links. The admin on/off switch (`tool_settings`)
+  is read on the server and again in the browser (on load, on focus, when the tab comes back), so a tool that
+  is switched back on works without a reload. One tool list for hub, nav search and home marquee:
+  `src/lib/tools.ts`.
+- `/tools/mistake-analyzer` (`MistakeAnalyzerView.tsx`): login modal when logged out, token in the
+  `Authorization` header, the model's JSON is checked and normalized before it is shown, the server's own error
+  text is shown (session expired, suspended, rate limit, switched off, timeout), one request at a time.
+- `/resources` (`ResourcesView.tsx`): login gate, filters, cards are real `target=_blank` links (no popup
+  blocker); the download counter counts once per user per resource per day (DB, `resource_download_log`).
+- `/community` and `/community/<id>` are ported (pinned first, approved-only reply counts, a real URL per
+  thread with its own title/description, lock enforced in the UI, Report button, DB error messages inline) but
+  **switched off**: the owner decides first whether the forum stays. `NEXT_COMMUNITY=1` on the Express service
+  turns them on (`NEXT_PAGES.community` + the `/community/` prefix).
+- Blog, resources and community pages now start below the fixed nav (the old 40px padding put the page title
+  and the blog post's "Back to Blog" button under the 58px nav), on the SPA too.
+- AlexRecon, AlexUtils, AlexTrace (`/tools/<name>`) are still SPA pages (step 5c).
+
+Not migrated yet (still SPA): AlexRecon, AlexUtils, AlexTrace, community (switched off), admin panel.
 
 ## Deploy on Render
 **One service (current):** the Express service also runs Next.js.
