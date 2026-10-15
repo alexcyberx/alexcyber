@@ -2,7 +2,7 @@
    CYBER MISTAKE ANALYZER, backend route
    ═══════════════════════════════════════════════════════════
    POST /api/tools/analyze-command
-   Body: { command: "nmap -A target.com" }
+   Body: { command: "nmap -A scanme.nmap.org" }
 
    Sends the student's command to Google's Gemini API (free tier)
    and asks it to return structured feedback: what was done right,

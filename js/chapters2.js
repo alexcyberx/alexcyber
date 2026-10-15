@@ -447,7 +447,7 @@ Attacker  ←    SYN-ACK      ←  Server
           ['Infection Phase','Malware se machines compromise hoti hain, email, exploit, USB'],
           ['C2 Registration','Infected machine attacker ke C2 server se connect hoti hai'],
           ['Idle Phase','Bot wait karta hai, normal usage continue rehti hai'],
-          ['Attack Command','Attacker C2 se "attack target.com" command deta hai'],
+          ['Attack Command','Attacker C2 se "attack target.example" command deta hai'],
           ['Coordinated Attack','Lakhs machines simultaneously flood karte hain target ko'],
         ].map((r,i,a)=>`
         <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border:1px solid rgba(${i===4?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:10px 20px;display:grid;grid-template-columns:180px 1fr;gap:8px;align-items:center;">

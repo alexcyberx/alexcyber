@@ -28,12 +28,22 @@ const NEXT_PAGES = {
   profile:      '/profile',
   publicProfile: '/u',
   ctf:          '/rooms',
+  // Exact paths only: /tools/alexrecon|alexutils|alextrace are still SPA pages.
+  tools:        '/tools',
+  mistakeAnalyzer: '/tools/mistake-analyzer',
+  resources:    '/resources',
 };
+
+// The community forum is ported (web/src/app/community) but stays on the SPA
+// until the owner decides whether the forum stays. NEXT_COMMUNITY=1 switches
+// it on: /community and the /community/<thread-id> pages.
+const COMMUNITY_ON = process.env.NEXT_COMMUNITY === '1';
+if (COMMUNITY_ON) NEXT_PAGES.community = '/community';
 
 // Exact paths go to Next; /tutorials/<course> stays in the SPA.
 // /search-index.json feeds the nav search on the Next pages.
 const EXACT = new Set([...Object.values(NEXT_PAGES), '/search-index.json']);
-const PREFIXES = ['/blog/', '/u/', '/_next/'];
+const PREFIXES = ['/blog/', '/u/', '/_next/', ...(COMMUNITY_ON ? ['/community/'] : [])];
 
 function isNextPath(p) {
   const clean = p.length > 1 ? p.replace(/\/+$/, '') : p;

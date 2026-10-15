@@ -252,7 +252,7 @@ Domain legitimate?    From address aur Return-Path compare karo</code></pre>
 Observe hoga:
 EHLO mail.sender.com        Greeting, sender identify karta hai
 MAIL FROM: user@sender.com  Sender declare karta hai
-RCPT TO: victim@target.com  Recipient specify karta hai
+RCPT TO: victim@target.example  Recipient specify karta hai
 DATA                        Message body shuru hoti hai
 .                           Message body khatam
 QUIT                        Session band karta hai
