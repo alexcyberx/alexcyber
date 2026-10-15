@@ -281,8 +281,7 @@
   .hero-right { display: flex; }
 }
 @media (min-width: 1400px) {
-  .hero { max-width: 1300px; }
+  /* The home hero sizes itself on big screens (css/home.css). */
   .section { max-width: 1300px; }
-  .hero-title { font-size: 88px; }
 }
 
