@@ -33,7 +33,9 @@ export function homeSections() {
   const leftStart = contactLeft.indexOf('<div class="contact-left"');
   if (leftStart < 0) throw new Error('index.html: contact-left not found');
   return {
-    hero: clean(slice('<!-- HERO -->', '<!-- END HERO -->')),
+    heroLeft: clean(slice('<div class="hero-left">', '<!-- /HERO LEFT -->')),
+    // Starting screen of the home terminal (HeroTerminal makes it interactive).
+    terminalDemo: clean(slice('<!-- TERMINAL DEMO -->', '<!-- /TERMINAL DEMO -->')),
     about: clean(slice('<!-- ABOUT -->', '<!-- CONTACT -->')),
     contactLeft: clean(contactLeft.slice(leftStart)),
     footer: clean(slice('<!-- FOOTER -->', '</div><!-- end #homePage -->')),
