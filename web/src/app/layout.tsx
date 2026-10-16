@@ -4,6 +4,7 @@ import CookieBanner from '@/components/CookieBanner';
 import LegacyI18n from '@/components/LegacyI18n';
 import Nav from '@/components/Nav';
 import SiteRuntime from '@/components/SiteRuntime';
+import ThemeSync from '@/components/ThemeSync';
 import { AuthProvider } from '@/lib/auth-context';
 import { SITE_URL } from '@/lib/blog';
 import { THEME_BOOT } from '@/lib/theme';
@@ -37,7 +38,9 @@ const SHARED_CSS = ['variables', 'nav', 'home', 'learn', 'auth', 'profile', 'mod
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="dark" suppressHydrationWarning>
+    // No data-theme here: THEME_BOOT / ThemeSync own it. A value in JSX was
+    // written back as "dark" (green) whenever React rendered <html> itself.
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -52,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ))}
       </head>
       <body>
+        <ThemeSync />
         {/* Same fixed background glow as index.html (css/home.css) */}
         <div className="glow-orb"></div>
         <AuthProvider>
