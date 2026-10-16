@@ -1,9 +1,10 @@
 const express = require('express');
+const { flagFor } = require('../flags');
 const router  = express.Router();
 const { flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt }  = require('../../middleware/logger');
 
-const FLAG     = process.env.FLAG_ROBOTS || 'ACX{r0b0ts_txt_l34ks_s3cr3ts}';
+const FLAG     = flagFor('web-04'); // server/labs/flags.js
 const PASSCODE = 'NX-2024-INTERNAL';
 const INSTANCE_DURATION_SEC = 30 * 60;
 const instances = {};

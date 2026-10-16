@@ -50,11 +50,12 @@ components, diagrams) -> routes -> SPA catch-all (clean URLs -> `index.html`) ->
 | `server/routes/authEmailHook.js` | Supabase Auth email hook -> Resend, signature verified with `standardwebhooks`. |
 | `server/middleware/` | `attackDetection`, `rateLimit` (login 20/15min, flag 10/min, analyze 15/10min, recon 6/10min, trace 8/10min), `toolAccess` (requireAuth, checkToolEnabled, logToolUsage), `logger`. |
 | `server/db/sqlite.js` | sql.js wrapper that mimics better-sqlite3 for lab databases. |
-| `data/hidden.db` | SQLite file for the "hidden-sight" lab. |
+| `data/hidden.db` | SQLite file for the "hidden-sight" lab's attempt log, created at runtime (not in git). |
+| `server/labs/flags.js` | Every lab flag: `ACX{<theme>_<12 hex>}`, the tail is HMAC-SHA256 of the slug with `FLAG_SECRET` (else the service-role key). No flag is in the repo; on start-up the server writes sha256 of each flag to `ctf_challenges.flag_hash`. |
 
 ### Lab routes (`/api/lab/...`)
-web01 (SQLi), web02 (stored XSS), hidden (hidden-sight), cookie, sqli101, robots, packet, metadata,
-loghunter, caesar, base64, deserialize, deserialize-medium, aichat-easy, plus hint / search / admin-search.
+hidden (hidden-sight), cookie, sqli101, robots, packet, metadata,
+caesar, base64, deserialize, deserialize-medium, aichat-easy, plus hint / search / admin-search.
 
 ## 6. Auth model
 - Login: Supabase Auth (email+password, Google OAuth, password reset). Session key `alexcyberx-auth`
@@ -76,9 +77,9 @@ loghunter, caesar, base64, deserialize, deserialize-medium, aichat-easy, plus hi
 `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (required), `ALLOWED_ORIGIN`, `PORT`,
 `RESEND_API_KEY`, `EMAIL_FROM_ADDRESS`, `SEND_EMAIL_HOOK_SECRET`,
 `GROQ_API_KEY` (or `AI_API_KEY` + `AI_BASE_URL`), `GEMINI_API_KEY`, `AI_MODEL_EASY`, `AI_MODEL_FALLBACK`,
-`AI_GLOBAL_PER_MIN`, `AI_GLOBAL_PER_DAY`, lab flags `FLAG_*` (WEB01, WEB02, WEB06, WEB07, HIDDEN, COOKIE,
-SQLI101, ROBOTS, PACKET, METADATA, LOGHUNTER, CAESAR, BASE64, AI_EASY). Names only — never commit values.
-Note: labs have default flags hard-coded as fallbacks; set `FLAG_*` on Render for anything real.
+`AI_GLOBAL_PER_MIN`, `AI_GLOBAL_PER_DAY`, optional `FLAG_SECRET` (lab flags, see `server/labs/flags.js`;
+without it the service-role key is the secret). Names only — never commit values. The old per-lab `FLAG_*`
+variables are no longer read.
 
 ## 9. Known gaps (as-is)
 1. **Two kinds of labs.** Static pages in `pages/labs/` (web-06, web-07, for-03, cry-01, cry-02, ai-01) and
@@ -88,7 +89,6 @@ Note: labs have default flags hard-coded as fallbacks; set `FLAG_*` on Render fo
 2. Stale data: `ctf_challenges.lab_url` in the DB still points to `/pages/labs/lab-hidden.html` etc. for the
    server-rendered labs (those files don't exist and are not used — the frontend uses `labApiPath`), and
    `for-03` has `lab_url = NULL`. Harmless today, but confusing: set them to the real launch path or clear them.
-   Also `server/labs/web01-sqli` and `web02-xss` are mounted but have no challenge row/page (unused legacy labs).
 3. Dead cron job (see 7). 4. Lab/instance state and rate limits are in memory (lost on restart, not shared
    across instances). 5. No automated tests. 6. Schema/RLS SQL is not in the repo
    (only `supabase/migrations/2026-10-09_*`); export with `supabase db dump`.

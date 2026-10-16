@@ -1,9 +1,10 @@
 const express = require('express');
+const { flagFor } = require('../flags');
 const router  = express.Router();
 const { flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt }  = require('../../middleware/logger');
 
-const FLAG = process.env.FLAG_CAESAR || 'ACX{veni_vidi_vici_shift3}';
+const FLAG = flagFor('cry-01'); // server/labs/flags.js
 const SHIFT = 3;
 
 // Session id, dusre labs jaisa hi resolve hota hai: header > query > ip fallback

@@ -19,19 +19,19 @@
 
    Env vars: see server/ai/llm.js for the shared AI settings
    (GROQ_API_KEY, models, site-wide limits). This lab adds:
-     FLAG_AI_EASY      the flag for this challenge (optional, has a default)
      AI_EASY_MAX_MSGS  messages allowed per session (default 20)
 
    GET /health shows whether the key works and which models answer (no secrets).
 ═══════════════════════════════════════════════════════════ */
 
 const express = require('express');
+const { flagFor } = require('../flags');
 const router  = express.Router();
 const { flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt }  = require('../../middleware/logger');
 const llm = require('../../ai/llm');
 
-const FLAG = process.env.FLAG_AI_EASY || 'ACX{h3lpd3sk_b0t_sp1ll3d_th3_b34ns}';
+const FLAG = flagFor('ai-01'); // server/labs/flags.js
 
 const MAX_MSGS_PER_SESSION = llm.num('AI_EASY_MAX_MSGS', 20);
 const MAX_MSG_CHARS        = 500;

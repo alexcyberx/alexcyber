@@ -1,9 +1,10 @@
 const express  = require('express');
+const { flagFor } = require('../flags');
 const router   = express.Router();
 const { flagLimiter, loginLimiter } = require('../../middleware/rateLimit');
 const { logAttempt }  = require('../../middleware/logger');
 
-const FLAG = process.env.FLAG_COOKIE || 'ACX{c00k13s_4r3_n0t_s3cur3}';
+const FLAG = flagFor('web-02'); // server/labs/flags.js
 const INSTANCE_DURATION_SEC = 30 * 60;
 const instances = {};
 
