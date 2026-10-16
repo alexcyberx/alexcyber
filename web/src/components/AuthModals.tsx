@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { browserSupabase, setRememberMe } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
+import { uiText, useUiLang } from '@/lib/ui-text';
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
@@ -93,6 +94,7 @@ const GoogleIcon = () => (
 );
 
 export default function AuthModals() {
+  const lang = useUiLang();
   const { modal, openAuth, closeAuth, afterSignIn, nextPath } = useAuth();
   const [msg, setMsg] = useState<Msg>(null);
   const [busy, setBusy] = useState(false);
@@ -169,7 +171,7 @@ export default function AuthModals() {
     });
     setBusy(false);
     if (error) {
-      const text = /already registered/i.test(error.message) ? 'Ye email already registered hai.'
+      const text = /already registered/i.test(error.message) ? uiText('auth.registered', lang)
         : /password/i.test(error.message) ? 'Password must be at least 8 characters.'
         : 'Could not create account. Please try again.';
       return setMsg({ type: 'error', text });
@@ -298,7 +300,7 @@ export default function AuthModals() {
           </div>
           <label className="auth-remember" style={{ marginBottom: 12 }}>
             <input type="checkbox" id="signupAge" checked={ageOk} onChange={(e) => setAgeOk(e.target.checked)} />
-            <span>Main 18+ hoon, ya mere parent/guardian ne permission di hai</span>
+            <span>{uiText('auth.age', lang)}</span>
           </label>
           <div className="auth-terms">By creating an account (also with Google) you confirm this and agree to our <a href="/terms-of-service">Terms of Service</a> and <a href="/privacy-policy">Privacy Policy</a>.</div>
           <button className="auth-btn" type="submit" disabled={busy}>{busy ? 'Please wait...' : 'Create Account'}</button>

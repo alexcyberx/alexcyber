@@ -193,7 +193,10 @@ Not migrated yet (still SPA): admin panel only (community is on Next by default 
   paint and sets `<html data-theme="dark|blue">`. Choice: `localStorage acx_theme2` = `green` (default) / `blue` / `red` (new key since 2026-10-16: tabs running the first picker rewrote `acx_theme` to "dark"; a blue/red value there is carried over once); any other
   saved value falls back to green. `<html>` has no `data-theme` in JSX (React wrote "dark" back whenever it built the
   document in the browser, e.g. the error/not-found shell, where `THEME_BOOT` never runs); `components/ThemeSync.tsx` paints
-  the saved choice on mount and puts it back if anything changes it. `components/ThemeToggle.tsx` sits next to the language button (desktop menu + mobile
+  the saved choice on mount and puts it back if anything changes it.
+- **Language on React parts.** Text React renders itself (404 page, parts of the auth modal) comes from
+  `web/src/lib/ui-text.ts` (`useUiLang` + `uiText`, all 8 picker languages). `js/i18n.js` `applyLanguage()` fires
+  `acx:lang` so it updates without a reload. Static text keeps using `data-i18n` keys in `js/i18n.js`. `components/ThemeToggle.tsx` sits next to the language button (desktop menu + mobile
   cards: each option is a mini live preview, Matrix/Midnight/Crimson; switching grows the new theme as a circle from the click point via the View Transitions API, instant where unsupported or with reduced motion). The old SPA never sets `data-theme`, so its pages stay green until they move to Next.
 - **Mouse glow.** `js/spotlight.js` (index.html + Next layout) adds `.spot-on` + `--mx/--my` to the card under the cursor and
   moves one soft `.cursor-glow` behind the page. Mouse only.
