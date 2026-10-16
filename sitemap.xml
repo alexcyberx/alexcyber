@@ -19,7 +19,14 @@
   </url>
 
   <url>
-    <loc>https://alexcyberx.com/tutorials/cyber-attacks</loc>
+    <loc>https://alexcyberx.com/tutorials/network-forensics</loc>
+    <lastmod>2026-10-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://alexcyberx.com/tutorials/cyber-attacks-fundamentals</loc>
     <lastmod>2025-01-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>

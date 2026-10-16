@@ -1307,105 +1307,105 @@
 
     <!-- Back link -->
     <div style="margin-bottom:20px;">
-      <a onclick="showPage('tools')" style="cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;display:inline-flex;align-items:center;gap:6px;">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2M5.5 2.5 2 6l3.5 3.5" stroke="#8a8a95" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <a onclick="showPage('tools')" style="cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;color:var(--fg-3);display:inline-flex;align-items:center;gap:6px;">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2M5.5 2.5 2 6l3.5 3.5" style="stroke:var(--fg-3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Back to Tools
       </a>
     </div>
 
     <!-- Header -->
     <div style="margin-bottom:28px;">
-      <div style="font-size:10px;letter-spacing:4px;color:#10b981;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid #10b98133;border-radius:20px;background:#10b9810a;display:inline-block;">RECON</div>
+      <div style="font-size:10px;letter-spacing:4px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid rgba(var(--accent-rgb),0.2);border-radius:20px;background:rgba(var(--accent-rgb),0.04);display:inline-block;">RECON</div>
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
         <div class="card-icon-wrap" style="margin-bottom:0;">
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-            <circle cx="9" cy="9" r="6" stroke="#10b981" stroke-width="1.2"/>
-            <path d="M13.5 13.5 17.5 17.5" stroke="#10b981" stroke-width="1.2" stroke-linecap="round"/>
-            <circle cx="9" cy="9" r="2.4" stroke="#10b981" stroke-width="1"/>
+            <circle cx="9" cy="9" r="6" style="stroke:var(--accent)" stroke-width="1.2"/>
+            <path d="M13.5 13.5 17.5 17.5" style="stroke:var(--accent)" stroke-width="1.2" stroke-linecap="round"/>
+            <circle cx="9" cy="9" r="2.4" style="stroke:var(--accent)" stroke-width="1"/>
           </svg>
         </div>
-        <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(22px,6vw,30px);font-weight:700;color:#f4f4f5;">AlexRecon</h1>
+        <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(22px,6vw,30px);font-weight:700;color:var(--fg-1);">AlexRecon</h1>
       </div>
-      <p style="font-family:'Inter',sans-serif;font-size:13px;color:#666;line-height:1.7;">Enter a domain to get a combined attack-surface report: DNS, web, SSL, subdomains, tech stack, JS/cloud exposure, and risk indicators, all in one scan.</p>
+      <p style="font-family:'Inter',sans-serif;font-size:13px;color:var(--fg-4);line-height:1.7;">Enter a domain to get a combined attack-surface report: DNS, web, SSL, subdomains, tech stack, JS/cloud exposure, and risk indicators, all in one scan.</p>
     </div>
 
     <!-- Legal disclaimer -->
-    <div style="background:rgba(16,185,129,0.06);border:1px solid #10b98133;border-radius:10px;padding:14px 16px;margin-bottom:20px;">
-      <p style="font-family:'Inter',sans-serif;font-size:12px;color:#ccc;line-height:1.7;margin:0;">Only scan domains you own or are explicitly authorized to test. AlexRecon performs passive/low-impact reconnaissance for educational purposes only.</p>
+    <div style="background:rgba(var(--accent-rgb),0.06);border:1px solid rgba(var(--accent-rgb),0.2);border-radius:10px;padding:14px 16px;margin-bottom:20px;">
+      <p style="font-family:'Inter',sans-serif;font-size:12px;color:var(--fg-2);line-height:1.7;margin:0;">Only scan domains you own or are explicitly authorized to test. AlexRecon performs passive/low-impact reconnaissance for educational purposes only.</p>
     </div>
 
     <!-- Input box -->
-    <div class="ar-box" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;margin-bottom:20px;">
-      <label style="display:block;font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;margin-bottom:8px;letter-spacing:0.5px;">TARGET DOMAIN</label>
-      <input id="arInput" type="text" placeholder="e.g. example.com" style="width:100%;background:#0a0a0c;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#f4f4f5;box-sizing:border-box;" />
+    <div class="ar-box" style="background:rgba(var(--fg-rgb),0.02);border:1px solid rgba(var(--fg-rgb),0.08);border-radius:14px;padding:20px;margin-bottom:20px;">
+      <label style="display:block;font-family:'Inter',sans-serif;font-size:11px;color:var(--fg-3);margin-bottom:8px;letter-spacing:0.5px;">TARGET DOMAIN</label>
+      <input id="arInput" type="text" placeholder="e.g. example.com" style="width:100%;background:var(--surface);border:1px solid rgba(var(--fg-rgb),0.1);border-radius:8px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--fg-1);box-sizing:border-box;" />
       <div style="display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;">
-        <button id="arRunBtn" onclick="handleRunRecon()" style="background:var(--red);border:none;border-radius:8px;padding:10px 22px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#03120c;cursor:pointer;letter-spacing:0.5px;flex-shrink:0;">Run Recon</button>
-        <span id="arStatus" style="font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;line-height:1.5;"></span>
+        <button id="arRunBtn" onclick="handleRunRecon()" style="background:var(--red);border:none;border-radius:8px;padding:10px 22px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--on-accent);cursor:pointer;letter-spacing:0.5px;flex-shrink:0;">Run Recon</button>
+        <span id="arStatus" style="font-family:'Inter',sans-serif;font-size:12px;color:var(--fg-3);line-height:1.5;"></span>
       </div>
     </div>
 
     <!-- Attack Surface Graph -->
     <div id="arGraphSection" style="display:none;margin-bottom:20px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-        <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;">Attack Surface Graph</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--fg-1);">Attack Surface Graph</div>
         <div style="display:flex;gap:6px;">
-          <button onclick="arGraphZoom(1.2)" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;width:28px;height:28px;color:#ccc;cursor:pointer;font-size:14px;">+</button>
-          <button onclick="arGraphZoom(0.8)" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;width:28px;height:28px;color:#ccc;cursor:pointer;font-size:14px;">-</button>
-          <button onclick="arGraphReset()" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:6px;height:28px;padding:0 10px;color:#ccc;cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;">Reset</button>
+          <button onclick="arGraphZoom(1.2)" style="background:rgba(var(--fg-rgb),0.03);border:1px solid rgba(var(--fg-rgb),0.1);border-radius:6px;width:28px;height:28px;color:var(--fg-2);cursor:pointer;font-size:14px;">+</button>
+          <button onclick="arGraphZoom(0.8)" style="background:rgba(var(--fg-rgb),0.03);border:1px solid rgba(var(--fg-rgb),0.1);border-radius:6px;width:28px;height:28px;color:var(--fg-2);cursor:pointer;font-size:14px;">-</button>
+          <button onclick="arGraphReset()" style="background:rgba(var(--fg-rgb),0.03);border:1px solid rgba(var(--fg-rgb),0.1);border-radius:6px;height:28px;padding:0 10px;color:var(--fg-2);cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;">Reset</button>
         </div>
       </div>
-      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:8px;position:relative;overflow:hidden;">
+      <div style="background:rgba(var(--fg-rgb),0.02);border:1px solid rgba(var(--fg-rgb),0.08);border-radius:14px;padding:8px;position:relative;overflow:hidden;">
         <canvas id="arGraphCanvas" style="width:100%;height:420px;display:block;cursor:grab;touch-action:none;"></canvas>
-        <div id="arGraphTooltip" style="display:none;position:absolute;pointer-events:none;background:#141416;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;font-family:'Inter',sans-serif;font-size:11px;color:#f4f4f5;max-width:260px;z-index:5;"></div>
+        <div id="arGraphTooltip" style="display:none;position:absolute;pointer-events:none;background:var(--surface2);border:1px solid rgba(var(--fg-rgb),0.15);border-radius:8px;padding:8px 12px;font-family:'Inter',sans-serif;font-size:11px;color:var(--fg-1);max-width:260px;z-index:5;"></div>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;">
-        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#10b981;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">Domain</span></div>
-        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#f472b6;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">Subdomain</span></div>
-        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#60a5fa;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">IP</span></div>
-        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#fbbf24;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">Port/Service</span></div>
-        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#a78bfa;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">Tech</span></div>
-        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#4ade80;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">Low Risk</span></div>
-        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#f87171;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;">High Risk</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:var(--accent);display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:var(--fg-3);">Domain</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#f472b6;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:var(--fg-3);">Subdomain</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#60a5fa;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:var(--fg-3);">IP</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#fbbf24;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:var(--fg-3);">Port/Service</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#a78bfa;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:var(--fg-3);">Tech</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#4ade80;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:var(--fg-3);">Low Risk</span></div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="width:9px;height:9px;border-radius:50%;background:#f87171;display:inline-block;"></span><span style="font-family:'Inter',sans-serif;font-size:11px;color:var(--fg-3);">High Risk</span></div>
       </div>
     </div>
 
     <!-- Report -->
     <div id="arExportBar" style="display:none;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-      <button onclick="arExportReport('pdf')" class="ar-export-btn" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#f4f4f5;cursor:pointer;">Export PDF</button>
-      <button onclick="arExportReport('json')" class="ar-export-btn" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#f4f4f5;cursor:pointer;">Export JSON</button>
-      <button onclick="arExportReport('csv')" class="ar-export-btn" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#f4f4f5;cursor:pointer;">Export CSV</button>
-      <button onclick="arExportReport('html')" class="ar-export-btn" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:#f4f4f5;cursor:pointer;">Export HTML</button>
+      <button onclick="arExportReport('pdf')" class="ar-export-btn" style="background:rgba(var(--fg-rgb),0.03);border:1px solid rgba(var(--fg-rgb),0.1);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:var(--fg-1);cursor:pointer;">Export PDF</button>
+      <button onclick="arExportReport('json')" class="ar-export-btn" style="background:rgba(var(--fg-rgb),0.03);border:1px solid rgba(var(--fg-rgb),0.1);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:var(--fg-1);cursor:pointer;">Export JSON</button>
+      <button onclick="arExportReport('csv')" class="ar-export-btn" style="background:rgba(var(--fg-rgb),0.03);border:1px solid rgba(var(--fg-rgb),0.1);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:var(--fg-1);cursor:pointer;">Export CSV</button>
+      <button onclick="arExportReport('html')" class="ar-export-btn" style="background:rgba(var(--fg-rgb),0.03);border:1px solid rgba(var(--fg-rgb),0.1);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;color:var(--fg-1);cursor:pointer;">Export HTML</button>
     </div>
     <div id="arReport" style="display:none;"></div>
 
     <!-- Scan history -->
     <div style="margin-top:32px;">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin-bottom:12px;">Recent Scans</div>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--fg-1);margin-bottom:12px;">Recent Scans</div>
       <div id="arHistory" style="display:flex;flex-direction:column;gap:8px;"></div>
     </div>
 
     <!-- Scheduled Scans -->
     <div style="margin-top:32px;">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin-bottom:6px;">Scheduled Scans</div>
-      <p style="font-family:'Inter',sans-serif;font-size:11px;color:#666;line-height:1.6;margin-bottom:14px;">Runs automatically in the background. Note: on the free hosting tier the app can go to sleep when idle, so a scheduled scan may run a bit late if it happens while the app is asleep, it will catch up the next time the app wakes up.</p>
+      <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--fg-1);margin-bottom:6px;">Scheduled Scans</div>
+      <p style="font-family:'Inter',sans-serif;font-size:11px;color:var(--fg-4);line-height:1.6;margin-bottom:14px;">Runs automatically in the background. Note: on the free hosting tier the app can go to sleep when idle, so a scheduled scan may run a bit late if it happens while the app is asleep, it will catch up the next time the app wakes up.</p>
 
-      <div class="ar-box" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;margin-bottom:14px;">
+      <div class="ar-box" style="background:rgba(var(--fg-rgb),0.02);border:1px solid rgba(var(--fg-rgb),0.08);border-radius:14px;padding:16px;margin-bottom:14px;">
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
           <div style="flex:1;min-width:160px;">
-            <label style="display:block;font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;margin-bottom:6px;">DOMAIN</label>
-            <input id="arScheduleInput" type="text" placeholder="e.g. example.com" style="width:100%;background:#0a0a0c;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#f4f4f5;box-sizing:border-box;" />
+            <label style="display:block;font-family:'Inter',sans-serif;font-size:11px;color:var(--fg-3);margin-bottom:6px;">DOMAIN</label>
+            <input id="arScheduleInput" type="text" placeholder="e.g. example.com" style="width:100%;background:var(--surface);border:1px solid rgba(var(--fg-rgb),0.1);border-radius:8px;padding:10px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--fg-1);box-sizing:border-box;" />
           </div>
           <div>
-            <label style="display:block;font-family:'Inter',sans-serif;font-size:11px;color:#8a8a95;margin-bottom:6px;">FREQUENCY</label>
-            <select id="arScheduleFrequency" style="background:#0a0a0c;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px;font-family:'Inter',sans-serif;font-size:13px;color:#f4f4f5;">
+            <label style="display:block;font-family:'Inter',sans-serif;font-size:11px;color:var(--fg-3);margin-bottom:6px;">FREQUENCY</label>
+            <select id="arScheduleFrequency" style="background:var(--surface);border:1px solid rgba(var(--fg-rgb),0.1);border-radius:8px;padding:10px;font-family:'Inter',sans-serif;font-size:13px;color:var(--fg-1);">
               <option value="daily">Daily</option>
               <option value="weekly" selected>Weekly</option>
               <option value="monthly">Monthly</option>
             </select>
           </div>
-          <button onclick="handleCreateSchedule()" style="background:var(--red);border:none;border-radius:8px;padding:10px 18px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#03120c;cursor:pointer;">Add Schedule</button>
+          <button onclick="handleCreateSchedule()" style="background:var(--red);border:none;border-radius:8px;padding:10px 18px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--on-accent);cursor:pointer;">Add Schedule</button>
         </div>
-        <span id="arScheduleStatus" style="display:block;margin-top:8px;font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;"></span>
+        <span id="arScheduleStatus" style="display:block;margin-top:8px;font-family:'Inter',sans-serif;font-size:12px;color:var(--fg-3);"></span>
       </div>
 
       <div id="arScheduleList" style="display:flex;flex-direction:column;gap:8px;"></div>
@@ -1423,24 +1423,24 @@
 
     <!-- Back link -->
     <div style="margin-bottom:20px;">
-      <a onclick="showPage('tools')" style="cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;display:inline-flex;align-items:center;gap:6px;">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2M5.5 2.5 2 6l3.5 3.5" stroke="#8a8a95" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <a onclick="showPage('tools')" style="cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;color:var(--fg-3);display:inline-flex;align-items:center;gap:6px;">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2M5.5 2.5 2 6l3.5 3.5" style="stroke:var(--fg-3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Back to Tools
       </a>
     </div>
 
     <!-- Header -->
     <div style="margin-bottom:24px;">
-      <div style="font-size:10px;letter-spacing:4px;color:#10b981;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid #10b98133;border-radius:20px;background:#10b9810a;display:inline-block;">UTILITIES</div>
+      <div style="font-size:10px;letter-spacing:4px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid rgba(var(--accent-rgb),0.2);border-radius:20px;background:rgba(var(--accent-rgb),0.04);display:inline-block;">UTILITIES</div>
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
         <div class="card-icon-wrap" style="margin-bottom:0;">
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-            <path d="M12.5 2.5a3.6 3.6 0 00-3.6 4.5L2.5 13.4a1.7 1.7 0 002.4 2.4l6.4-6.4a3.6 3.6 0 004.5-3.6l-2.6 2.6-2-2 2.6-2.6a3.6 3.6 0 00-2.5-.7z" stroke="#10b981" stroke-width="1.2" stroke-linejoin="round"/>
+            <path d="M12.5 2.5a3.6 3.6 0 00-3.6 4.5L2.5 13.4a1.7 1.7 0 002.4 2.4l6.4-6.4a3.6 3.6 0 004.5-3.6l-2.6 2.6-2-2 2.6-2.6a3.6 3.6 0 00-2.5-.7z" style="stroke:var(--accent)" stroke-width="1.2" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(22px,6vw,30px);font-weight:700;color:#f4f4f5;">AlexUtils</h1>
+        <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(22px,6vw,30px);font-weight:700;color:var(--fg-1);">AlexUtils</h1>
       </div>
-      <p style="font-family:'Inter',sans-serif;font-size:13px;color:#666;line-height:1.7;">A toolkit of everyday cybersecurity utilities, all in one place.</p>
+      <p style="font-family:'Inter',sans-serif;font-size:13px;color:var(--fg-4);line-height:1.7;">A toolkit of everyday cybersecurity utilities, all in one place.</p>
     </div>
 
     <!-- Tabs -->
@@ -1461,27 +1461,27 @@
 
     <!-- Back link -->
     <div style="margin-bottom:20px;">
-      <a onclick="showPage('tools')" style="cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;color:#8a8a95;display:inline-flex;align-items:center;gap:6px;">
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2M5.5 2.5 2 6l3.5 3.5" stroke="#8a8a95" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <a onclick="showPage('tools')" style="cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;color:var(--fg-3);display:inline-flex;align-items:center;gap:6px;">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6H2M5.5 2.5 2 6l3.5 3.5" style="stroke:var(--fg-3)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Back to Tools
       </a>
     </div>
 
     <!-- Header -->
     <div style="margin-bottom:24px;">
-      <div style="font-size:10px;letter-spacing:4px;color:#10b981;font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid #10b98133;border-radius:20px;background:#10b9810a;display:inline-block;">OSINT</div>
+      <div style="font-size:10px;letter-spacing:4px;color:var(--accent);font-family:'Rajdhani',sans-serif;font-weight:700;margin-bottom:14px;padding:3px 14px;border:1px solid rgba(var(--accent-rgb),0.2);border-radius:20px;background:rgba(var(--accent-rgb),0.04);display:inline-block;">OSINT</div>
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap;">
         <div class="card-icon-wrap" style="margin-bottom:0;">
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-            <circle cx="10" cy="7" r="3" stroke="#10b981" stroke-width="1.2"/>
-            <path d="M4.5 16.5c0-2.8 2.5-5 5.5-5s5.5 2.2 5.5 5" stroke="#10b981" stroke-width="1.2" stroke-linecap="round"/>
-            <path d="M15.5 3.5 17 5M17 3.5l-1.5 1.5" stroke="#10b981" stroke-width="1.1" stroke-linecap="round"/>
-            <circle cx="16.2" cy="4.2" r="2.2" stroke="#10b981" stroke-width="1"/>
+            <circle cx="10" cy="7" r="3" style="stroke:var(--accent)" stroke-width="1.2"/>
+            <path d="M4.5 16.5c0-2.8 2.5-5 5.5-5s5.5 2.2 5.5 5" style="stroke:var(--accent)" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M15.5 3.5 17 5M17 3.5l-1.5 1.5" style="stroke:var(--accent)" stroke-width="1.1" stroke-linecap="round"/>
+            <circle cx="16.2" cy="4.2" r="2.2" style="stroke:var(--accent)" stroke-width="1"/>
           </svg>
         </div>
-        <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(22px,6vw,30px);font-weight:700;color:#f4f4f5;">AlexTrace</h1>
+        <h1 style="font-family:'Rajdhani',sans-serif;font-size:clamp(22px,6vw,30px);font-weight:700;color:var(--fg-1);">AlexTrace</h1>
       </div>
-      <p style="font-family:'Inter',sans-serif;font-size:13px;color:#666;line-height:1.7;">See what an attacker could learn about you in fifteen minutes, then fix it. AlexTrace checks your username across platforms, your email against known breaches, and any photo you upload for hidden location data.</p>
+      <p style="font-family:'Inter',sans-serif;font-size:13px;color:var(--fg-4);line-height:1.7;">See what an attacker could learn about you in fifteen minutes, then fix it. AlexTrace checks your username across platforms, your email against known breaches, and any photo you upload for hidden location data.</p>
     </div>
 
     <!-- Tabs -->
@@ -2122,6 +2122,10 @@ function loadScriptOnce(src) {
 <script src="/js/ctf-sync.js" defer></script>
 
 <script src="/js/page-scripts.js"></script>
+<script src="/js/tools/common.js"></script>
+<script src="/js/tools/alexrecon.js"></script>
+<script src="/js/tools/alexutils.js"></script>
+<script src="/js/tools/alextrace.js"></script>
 <!-- COOKIE CONSENT BANNER -->
 <div id="cookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#111118;border-top:1px solid rgba(255,255,255,0.08);padding:14px 20px;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
   <p style="margin:0;font-size:12px;color:#9090a0;flex:1;min-width:200px;">We use strictly necessary cookies to keep you logged in and remember your preferences. <a href="#" onclick="showPage('cookie')" style="color:#10b981;text-decoration:none;">Cookie Notice</a></p>

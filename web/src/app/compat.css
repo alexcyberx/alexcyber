@@ -110,3 +110,40 @@ a.pf-notif-row--link:hover { border-color: rgba(var(--accent-rgb),0.35); }
 /* View transition used for the circle reveal */
 ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 @media (prefers-reduced-motion: reduce) { .tp-pop, .tp-card { animation: none; } .theme-btn .tp-icon { transition: none; } }
+/* CTF filter chips: room count */
+.ctf-filter-count { display: inline-block; min-width: 16px; margin-left: 6px; padding: 0 5px; border-radius: 999px; font: 600 10px 'Inter', sans-serif; line-height: 16px; text-align: center; background: rgba(var(--fg-rgb),0.08); color: var(--text-dim); }
+.ctf-filter-btn.active .ctf-filter-count { background: rgba(var(--accent-rgb),0.2); color: var(--accent-bright); }
+
+/* Course pages (/tutorials/<course>/<chapter>, CourseShell.tsx + ChapterView.tsx).
+   Layout and lesson styles come from css/learn.css; the lesson HTML keeps its own inline colours. */
+.course-page .lsn-breadcrumb { min-width: 0; }
+.course-page .lsn-breadcrumb a { color: var(--text-dim); text-decoration: none; font-family: 'Inter', sans-serif; font-size: 12px; transition: color 0.2s; flex-shrink: 0; }
+.course-page .lsn-breadcrumb a:hover { color: var(--white); }
+.course-page .lsn-breadcrumb svg { color: var(--fg-4); flex-shrink: 0; }
+.course-page #lsnBreadcrumbLabel { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.course-page .lsn-left { min-width: 0; }
+.course-page .lsn-toggle { color: var(--fg-3); }
+.course-page .lsn-toggle:hover { color: var(--white); }
+.course-page .chapter-arrow { color: var(--accent); }
+.course-page .chapter-item:focus-visible, .course-page .chapter-nav-btn:focus-visible, .course-page .lsn-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.course-page .chapter-nav-btn svg { flex-shrink: 0; }
+.course-page .chapter-nav-btn.next svg { color: var(--accent); }
+.course-page a.chapter-nav-btn:hover { border-color: rgba(var(--accent-rgb),0.35); }
+.course-gate .info-box a { color: var(--accent-bright); text-decoration: none; font-weight: 600; }
+.course-gate .info-box a:hover { text-decoration: underline; }
+/* Hidden until React knows the reader (login gate) and the language (translation);
+   shown anyway after 6 s if scripts never run. */
+.acx-noauth .chapter-body, .acx-xl-wait .chapter-body { visibility: hidden; animation: acx-show 0s 6s forwards; }
+@keyframes acx-show { to { visibility: visible; } }
+.chapter-body.xl-busy { visibility: hidden; }
+/* "Translating to ..." (js/translate.js showTranslateLoader, themed) */
+.xl-loader { position: sticky; top: calc(var(--nav-h) + 60px); z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 10px;
+  width: fit-content; max-width: 100%; margin: 0 auto 20px; padding: 18px 28px; border-radius: 14px; border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 85%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.xl-loader svg { animation: xlspin 0.85s linear infinite; }
+@keyframes xlspin { to { transform: rotate(360deg); } }
+.xl-loader-title { font: 600 12px 'Inter', sans-serif; color: var(--fg-1); letter-spacing: 0.3px; white-space: nowrap; }
+.xl-loader-bar { width: 160px; height: 3px; background: rgba(var(--fg-rgb),0.07); border-radius: 3px; overflow: hidden; }
+.xl-loader-bar > div { height: 100%; background: linear-gradient(90deg, var(--accent-deep), var(--accent-bright)); border-radius: 3px; transition: width 0.12s; }
+.xl-loader-status { font: 400 11px 'Inter', sans-serif; color: var(--fg-4); }
+@media (prefers-reduced-motion: reduce) { .xl-loader svg { animation: none; } }

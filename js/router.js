@@ -71,8 +71,9 @@ function getPageFromPath(path) {
   const clean = path.replace(/\/$/, '');
   if (PATH_TO_PAGE[clean]) return PATH_TO_PAGE[clean];
   // tutorials sub-paths
-  if (clean === '/tutorials/cyber-attacks-fundamentals') return 'learn2';
-  if (clean === '/tutorials/ethical-hacking') return 'learn3';
+  // (also /tutorials/<course>/<chapter>, the chapter URLs of the Next pages)
+  if (/^\/tutorials\/cyber-attacks-fundamentals(\/|$)/.test(clean)) return 'learn2';
+  if (/^\/tutorials\/ethical-hacking(\/|$)/.test(clean)) return 'learn3';
   if (clean.startsWith('/tutorials/')) return 'learn';
   // rooms/lab sub-paths → handled separately (lab access gate)
   if (clean.startsWith('/rooms/')) return 'ctf';
@@ -765,6 +766,7 @@ window.addEventListener('message', function(e){
   // replaceState neeche query string hata deta hai; cross-app links (/?auth=...) ke liye pehle save karo
   window._acxEntrySearch = window.location.search;
   window._acxEntryHash = window.location.hash;
+  window._acxEntryPath = window.location.pathname;
   const path = window.location.pathname;
   const page = getPageFromPath(path);
   history.replaceState({ page }, '', path);
@@ -813,8 +815,12 @@ window.addEventListener('load', function handleCrossAppLinks() {
   }
   // Deep links from the Next search: /tutorials/<course>?ch=<chapter-slug>, /rooms?open=<ctf-id>
   var chSlug = params.get('ch');
+  // Chapter URL of the Next course pages (/tutorials/<course>/<chapter>), when the SPA serves it (proxy off).
+  var entryPath = window._acxEntryPath || window.location.pathname;
+  var chPath = entryPath.match(/^\/tutorials\/[a-z0-9-]+\/([a-z0-9-]+)\/?$/);
+  if (!chSlug && chPath) chSlug = chPath[1];
   var openCtf = params.get('open');
-  if (chSlug && typeof acxOpenChapterBySlug === 'function') { acxOpenChapterBySlug(getPageFromPath(window.location.pathname), chSlug); handled = true; }
+  if (chSlug && typeof acxOpenChapterBySlug === 'function') { acxOpenChapterBySlug(getPageFromPath(entryPath), chSlug); handled = true; }
   if (openCtf && /^[a-z0-9-]+$/.test(openCtf)) {
     acxWhenOnPage('ctf', function() { if (typeof openCTFModal === 'function') openCTFModal(openCtf); }, 400);
     handled = true;
@@ -853,6 +859,12 @@ function acxOpenChapterBySlug(page, slug, navigate) {
               open: function(i) { window.loadEthicalChapter(i); } }
   }[page];
   if (!cfg || !slug) return;
+  // Course pages are on Next now: every chapter has its own URL there.
+  var nextCourse = window.ACX_NEXT_PAGES && window.ACX_NEXT_PAGES[page];
+  if (nextCourse && /^[a-z0-9-]+$/.test(slug)) {
+    window.location.href = nextCourse + '/' + slug;
+    return;
+  }
   var toSlug = function(t) { return String(t || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); };
   // From a deep link the SPA's own first routing opens the page (after auth);
   // from the search we navigate ourselves.

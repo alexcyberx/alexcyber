@@ -219,6 +219,11 @@ export default function RoomsView({ challenges: rooms, icons, i18n }: { challeng
   const solvedList = challenges.filter((c) => solved[c.id]);
   const totalXP = solvedList.reduce((sum, c) => sum + c.xp, 0);
   const categories = new Set(challenges.map((c) => c.cat)).size;
+  const catCount = useMemo(() => {
+    const m: Record<string, number> = {};
+    challenges.forEach((c) => { m[c.cat] = (m[c.cat] || 0) + 1; });
+    return m;
+  }, [challenges]);
   const daily = useMemo(() => {
     if (!challenges.length) return null;
     const d = new Date();
@@ -664,10 +669,12 @@ export default function RoomsView({ challenges: rooms, icons, i18n }: { challeng
             </div>
 
             <div className="ctf-filters">
-              <button className={'ctf-filter-btn' + (cat === 'all' ? ' active' : '')} data-cat="all" onClick={() => setCat('all')}>All</button>
-              {CAT_FILTERS.map((f) => (
+              <button className={'ctf-filter-btn' + (cat === 'all' ? ' active' : '')} data-cat="all" onClick={() => setCat('all')}>All<span className="ctf-filter-count">{challenges.length}</span></button>
+              {/* Only categories that have rooms, with how many. */}
+              {CAT_FILTERS.filter((f) => catCount[f.cat]).map((f) => (
                 <button key={f.cat} className={'ctf-filter-btn' + (cat === f.cat ? ' active' : '')} data-cat={f.cat} onClick={() => setCat(f.cat)}>
                   <svg width="12" height="12" viewBox="0 0 20 20" fill="none" style={{ verticalAlign: -2, marginRight: 4 }}>{f.icon}</svg>{f.cat}
+                  <span className="ctf-filter-count">{catCount[f.cat]}</span>
                 </button>
               ))}
               <div className="ctf-filter-sep"></div>
