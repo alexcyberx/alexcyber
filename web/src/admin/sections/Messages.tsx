@@ -67,7 +67,7 @@ export default function Messages({ setBadge }: SectionProps) {
       </div>
       <button className="adm-btn ghost" onClick={load}>Refresh</button>
     </>}>
-      {list == null ? <Empty>Loading…</Empty> : err ? <Empty>Could not load messages: {err}</Empty> : !shown.length ? <Empty>{list.length ? 'No messages match.' : 'No messages yet.'}</Empty> : (
+      {list == null ? <Empty>Loading...</Empty> : err ? <Empty>Could not load messages: {err}</Empty> : !shown.length ? <Empty>{list.length ? 'No messages match.' : 'No messages yet.'}</Empty> : (
         <ul className="adm-inbox" id="admInbox">
           {shown.map((m) => (
             <li key={m.id} className={m.is_read ? '' : 'unread'}>
@@ -85,7 +85,7 @@ export default function Messages({ setBadge }: SectionProps) {
       )}
       {open && (
         <Modal title={'Message from ' + (open.name || open.email || 'unknown')} onClose={() => setOpen(null)}>
-          <p className="adm-dim">{open.email} · {dateTime(open.created_at)}</p>
+          <p className="adm-dim">{open.email}<br />{dateTime(open.created_at)}</p>
           <div className="adm-msg-body" id="admMsgBody">{open.message}</div>
           <div className="adm-actions">
             {open.email && <a className="adm-btn primary" href={replyHref(open)}>Reply by email</a>}

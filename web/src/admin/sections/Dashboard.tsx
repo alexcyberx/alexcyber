@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { SectionProps } from '../AdminApp';
 import { adminSupabase } from '../sb';
-import { AreaChart, Card, Empty, Stat, num, timeAgo, useToast } from '../ui';
+import { Card, Empty, Stat, TrendChart, num, timeAgo, useToast } from '../ui';
 
 type Stats = { users: number | null; new7: number | null; active: number | null; solves: number | null; unread: number | null };
 type Views = { total: number; today: number; trend: { views: number; date?: string; day?: string }[] } | null;
@@ -63,20 +63,17 @@ export default function Dashboard({ go, setBadge }: SectionProps) {
         <Stat label="Total users" value={num(stats?.users)} sub={stats?.new7 != null ? `+${num(stats.new7)} this week` : undefined} />
         <Stat label="Active (24 h)" value={num(stats?.active)} />
         <Stat label="CTF solves" value={num(stats?.solves)} />
-        <Stat label="Unread messages" value={num(stats?.unread)} sub={stats?.unread ? <button className="adm-link" onClick={() => go('messages')}>Open inbox →</button> : undefined} />
-        <Stat label="Page views" value={views ? num(views.total) : views === null ? '–' : '…'} sub={views ? `${num(views.today)} today` : undefined} />
+        <Stat label="Unread messages" value={num(stats?.unread)} sub={stats?.unread ? <button className="adm-link" onClick={() => go('messages')}>Open inbox</button> : undefined} />
+        <Stat label="Page views" value={views ? num(views.total) : views === null ? '-' : '...'} sub={views ? `${num(views.today)} today` : undefined} />
       </div>
+      <Card title="Visitor Trend" actions={<span className="adm-dim">Last 7 days</span>}>
+        {views === undefined ? <Empty>Loading...</Empty> : views === null ? <Empty>Could not load visitor trend.</Empty> : (
+          <TrendChart points={trend.map((t) => t.views || 0)} labels={trend.map((t) => (t.date || t.day || '').slice(5))} />
+        )}
+      </Card>
       <div className="adm-grid-2">
-        <Card title="Visitors, last 7 days">
-          {views === undefined ? <Empty>Loading…</Empty> : views === null ? <Empty>Could not load page views.</Empty> : (
-            <AreaChart points={trend.map((t) => t.views || 0)} labels={trend.map((t) => {
-              const d = t.date || t.day;
-              return d ? new Date(d).toLocaleDateString('en-IN', { weekday: 'short' }) : '';
-            })} />
-          )}
-        </Card>
-        <Card title="Newest users" actions={<button className="adm-link" onClick={() => go('users')}>All users →</button>}>
-          {signups == null ? <Empty>Loading…</Empty> : !signups.length ? <Empty>No sign-ups yet.</Empty> : (
+        <Card title="Recent Signups" actions={<button className="adm-link" onClick={() => go('users')}>All users</button>}>
+          {signups == null ? <Empty>Loading...</Empty> : !signups.length ? <Empty>No sign-ups yet.</Empty> : (
             <ul className="adm-list" id="admSignups">
               {signups.map((s) => (
                 <li key={s.id}>
@@ -88,17 +85,18 @@ export default function Dashboard({ go, setBadge }: SectionProps) {
             </ul>
           )}
         </Card>
+        <Card title="Quick Actions">
+          <div className="adm-quick">
+            <button className="adm-btn" onClick={() => go('notifications')}>Send announcement</button>
+            <button className="adm-btn" onClick={() => go('blog')}>Write blog post</button>
+            <button className="adm-btn" onClick={() => go('ctf')}>Manage CTF</button>
+            <button className="adm-btn" onClick={() => go('messages')}>Open inbox</button>
+            <button className={'adm-btn' + (maint ? ' danger' : '')} onClick={toggleMaintenance} disabled={maint == null || busy} id="admMaint">
+              {maint == null ? 'Maintenance mode' : maint ? 'Maintenance is ON (turn off)' : 'Maintenance mode: off'}
+            </button>
+          </div>
+        </Card>
       </div>
-      <Card title="Quick actions">
-        <div className="adm-actions">
-          <button className="adm-btn" onClick={() => go('notifications')}>Send announcement</button>
-          <button className="adm-btn" onClick={() => go('blog')}>Write blog post</button>
-          <button className="adm-btn" onClick={() => go('ctf')}>Manage CTF</button>
-          <button className={'adm-btn' + (maint ? ' danger' : '')} onClick={toggleMaintenance} disabled={maint == null || busy} id="admMaint">
-            {maint == null ? 'Maintenance: –' : maint ? 'Maintenance is ON (turn off)' : 'Maintenance mode: off'}
-          </button>
-        </div>
-      </Card>
     </div>
   );
 }

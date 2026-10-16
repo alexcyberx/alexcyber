@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import Login from './Login';
 import { adminSupabase, clearOldPanelSession, logAdminEvent, markOldPanelSession } from './sb';
+import { Icon } from './icons';
 import { ToastProvider } from './ui';
 import Dashboard from './sections/Dashboard';
 import Messages from './sections/Messages';
@@ -18,21 +19,21 @@ type Section = { id: string; label: string; group: string; icon: string; view?: 
 
 // Order and grouping of the sidebar. `old` = section id in the old panel.
 const SECTIONS: Section[] = [
-  { id: 'dashboard', label: 'Dashboard', group: 'Overview', icon: '▦', view: (p) => <Dashboard {...p} /> },
-  { id: 'analytics', label: 'Analytics', group: 'Overview', icon: '↗', old: 'analytics' },
-  { id: 'users', label: 'Users', group: 'People', icon: '👤', old: 'users' },
-  { id: 'messages', label: 'Messages', group: 'People', icon: '✉', view: (p) => <Messages {...p} /> },
-  { id: 'notifications', label: 'Notifications', group: 'People', icon: '🔔', old: 'notifications' },
-  { id: 'community', label: 'Community', group: 'People', icon: '💬', old: 'community' },
-  { id: 'content', label: 'Courses', group: 'Content', icon: '📚', old: 'content' },
-  { id: 'blog', label: 'Blog', group: 'Content', icon: '✎', old: 'blog' },
-  { id: 'resources', label: 'Resources', group: 'Content', icon: '📁', old: 'resources' },
-  { id: 'ctf', label: 'CTF', group: 'Content', icon: '⚑', old: 'ctf' },
-  { id: 'tools', label: 'Tools', group: 'Platform', icon: '🛠', old: 'toolsmanager' },
-  { id: 'gamification', label: 'XP & Leaderboard', group: 'Platform', icon: '★', old: 'gamification' },
-  { id: 'security', label: 'Security', group: 'Platform', icon: '🛡', old: 'security' },
-  { id: 'backup', label: 'Backup', group: 'Platform', icon: '⛁', old: 'backup' },
-  { id: 'settings', label: 'Settings', group: 'Platform', icon: '⚙', old: 'settings' },
+  { id: 'dashboard', label: 'Dashboard', group: 'Overview', icon: 'dashboard', view: (p) => <Dashboard {...p} /> },
+  { id: 'analytics', label: 'Analytics', group: 'Overview', icon: 'analytics', old: 'analytics' },
+  { id: 'users', label: 'Users', group: 'People', icon: 'users', old: 'users' },
+  { id: 'messages', label: 'Messages', group: 'People', icon: 'messages', view: (p) => <Messages {...p} /> },
+  { id: 'notifications', label: 'Notifications', group: 'People', icon: 'notifications', old: 'notifications' },
+  { id: 'community', label: 'Community', group: 'People', icon: 'community', old: 'community' },
+  { id: 'content', label: 'Courses', group: 'Content', icon: 'content', old: 'content' },
+  { id: 'blog', label: 'Blog', group: 'Content', icon: 'blog', old: 'blog' },
+  { id: 'resources', label: 'Resources', group: 'Content', icon: 'resources', old: 'resources' },
+  { id: 'ctf', label: 'CTF', group: 'Content', icon: 'ctf', old: 'ctf' },
+  { id: 'tools', label: 'Tools', group: 'Platform', icon: 'toolsmanager', old: 'toolsmanager' },
+  { id: 'gamification', label: 'XP & Leaderboard', group: 'Platform', icon: 'gamification', old: 'gamification' },
+  { id: 'security', label: 'Security', group: 'Platform', icon: 'security', old: 'security' },
+  { id: 'backup', label: 'Backup', group: 'Platform', icon: 'backup', old: 'backup' },
+  { id: 'settings', label: 'Settings', group: 'Platform', icon: 'settings', old: 'settings' },
 ];
 
 export const OLD_PANEL = '/panel-1b47c1ab561e.html';
@@ -116,7 +117,7 @@ export default function AdminApp() {
   const groups = useMemo(() => [...new Set(SECTIONS.map((s) => s.group))], []);
   const current = SECTIONS.find((s) => s.id === active) || SECTIONS[0];
 
-  if (gate.state === 'loading') return <div className="adm-loading">Loading…</div>;
+  if (gate.state === 'loading') return <div className="adm-loading">Loading...</div>;
   if (gate.state === 'login') return <ToastProvider><Login pending={gate.pending} onDone={(u) => { logAdminEvent('admin_login', `${u.email} logged in (2-step)`); enter(u); }} /></ToastProvider>;
 
   return (
@@ -130,7 +131,7 @@ export default function AdminApp() {
                 <div className="adm-side-title">{g}</div>
                 {SECTIONS.filter((s) => s.group === g).map((s) => (
                   <button key={s.id} className={'adm-side-item' + (s.id === current.id ? ' active' : '')} onClick={() => go(s.id)} data-sec={s.id}>
-                    <span className="adm-side-icon" aria-hidden="true">{s.icon}</span>
+                    <span className="adm-side-icon"><Icon name={s.icon} /></span>
                     <span>{s.label}</span>
                     {!s.view && <span className="adm-side-old" title="Still on the old panel">old</span>}
                     {!!badges[s.id] && <span className="adm-badge">{badges[s.id]}</span>}
@@ -139,11 +140,11 @@ export default function AdminApp() {
               </div>
             ))}
           </nav>
-          <a className="adm-side-foot" href="/">← Back to site</a>
+          <a className="adm-side-foot" href="/"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M7.5 2.5L4 6l3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></svg> Back to site</a>
         </aside>
         <div className="adm-main">
           <header className="adm-top">
-            <button className="adm-icon-btn adm-menu-btn" onClick={() => setMenuOpen((o) => !o)} aria-label="Menu">☰</button>
+            <button className="adm-icon-btn adm-menu-btn" onClick={() => setMenuOpen((o) => !o)} aria-label="Menu"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg></button>
             <h1>{current.label}</h1>
             <div className="adm-top-right">
               <span className="adm-who" id="admWho">{gate.name}</span>

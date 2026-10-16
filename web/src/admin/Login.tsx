@@ -1,6 +1,6 @@
 'use client';
 
-// Admin sign-in: password → admin role check → two-step code (TOTP). The first
+// Admin sign-in: password -> admin role check -> two-step code (TOTP). The first
 // time, the code step shows a QR to add the account to Google Authenticator.
 // Same flow as the old panel; the DB only serves admin data to an aal2 session.
 
@@ -105,7 +105,7 @@ export default function Login({ pending, onDone }: { pending: User | null; onDon
               <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required id="admPassword" />
             </label>
             {err && <p className="adm-error" id="admLoginErr">{err}</p>}
-            <button className="adm-btn primary block" disabled={busy || !sb} id="admLoginBtn">{busy ? 'Signing in…' : 'Sign in'}</button>
+            <button className="adm-btn primary block" disabled={busy || !sb} id="admLoginBtn">{busy ? 'Signing in...' : 'Sign in'}</button>
           </form>
         ) : (
           <form onSubmit={submitCode} id="admMfaForm">
@@ -124,7 +124,7 @@ export default function Login({ pending, onDone }: { pending: User | null; onDon
               <input inputMode="numeric" autoComplete="one-time-code" pattern="[0-9 ]*" maxLength={7} value={code} onChange={(e) => setCode(e.target.value)} autoFocus id="admMfaCode" />
             </label>
             {err && <p className="adm-error" id="admLoginErr">{err}</p>}
-            <button className="adm-btn primary block" disabled={busy} id="admMfaBtn">{busy ? 'Checking…' : 'Verify'}</button>
+            <button className="adm-btn primary block" disabled={busy} id="admMfaBtn">{busy ? 'Checking...' : 'Verify'}</button>
             <button type="button" className="adm-btn ghost block" onClick={cancel}>Use another account</button>
           </form>
         )}
