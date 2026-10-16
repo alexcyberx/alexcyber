@@ -68,7 +68,7 @@ Server: `requireAuth` / `requireToolLogin` verify JWT (`auth.getUser`) and ban (
 | `/api/me/seen` | logged-in | `server/routes/me.js:16` |
 | `/api/lab/admin-search` | `admin` or `moderator` (role cached 5 min, ban not checked) | `server/ai/adminSearch.js` |
 | `/auth/email-hook` | Supabase (signed webhook) | `server/routes/authEmailHook.js` |
-| Admin panel page | anyone can load the HTML; actions need admin RLS | `server/index.js:132` (UI-only gate) |
+| Admin panel page (old `.html` + new Next `/panel-1b47c1ab561e`) | anyone can load the HTML; actions need admin RLS + aal2 | `server/index.js:132`, `web/src/admin/AdminApp.tsx` (UI-only gate) |
 
 ## 5. Client-only (UI) permission checks — never rely on these
 Admin panel gate (`js/admin-panel-app.js:4869-4876`), registration toggle,
