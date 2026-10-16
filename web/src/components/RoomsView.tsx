@@ -701,8 +701,7 @@ export default function RoomsView({ challenges: rooms, icons, i18n }: { challeng
                   <div className="ctf-card-top">
                     <SvgBox className={`ctf-card-icon ${c.iconClass}`} html={icons[c.cat] || ''} />
                     <div className="ctf-card-info">
-                      {/* Real link for crawlers (room page); a click still opens the modal. */}
-                      <a className="ctf-card-title" href={`/rooms/${c.id}`} onClick={(e) => e.preventDefault()} style={{ display: 'block', textDecoration: 'none' }}>{c.title}</a>
+                      <div className="ctf-card-title">{c.title}</div>
                       <div className="ctf-card-cat">{c.cat}</div>
                     </div>
                   </div>

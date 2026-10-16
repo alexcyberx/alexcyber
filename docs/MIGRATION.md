@@ -201,8 +201,8 @@ Not migrated yet (still SPA): admin panel only (community is on Next by default 
 - **Chapters.** `lib/chapter-theme.ts` turns the chapters' old fixed colours into theme variables at render time.
 - **Mobile menu.** Language and Theme are two buttons (outline + filled, like My Profile / Sign Out); Theme opens the cards.
 - **SEO / AEO (2026-10-16).** `web/src/lib/seo.ts` (JSON-LD helpers), `app/robots.ts`, `app/sitemap.ts`,
-  `app/llms.txt/route.ts`, `app/opengraph-image.tsx`, `app/rooms/[slug]` (one page per CTF room). Express proxies
-  `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/opengraph-image` and `/rooms/*` to Next (`nextProxy.js`). The root
+  `app/llms.txt/route.ts`, `app/opengraph-image.tsx` (CTF rooms stay login-only, no public room pages). Express proxies
+  `/robots.txt`, `/sitemap.xml`, `/llms.txt` and `/opengraph-image` to Next (`nextProxy.js`). The root
   `robots.txt`/`sitemap.xml` files are only a fallback when Next is off. Set `NEXT_PUBLIC_SITE_URL` to the final domain.
 - **Mouse glow.** `js/spotlight.js` (index.html + Next layout) adds `.spot-on` + `--mx/--my` to the card under the cursor and
   moves one soft `.cursor-glow` behind the page. Mouse only.

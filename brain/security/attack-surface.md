@@ -25,7 +25,7 @@ Last verified: 2026-10-16 (commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · M
 | `/js/flags.js` | `server/index.js:111` | list of Next pages (not CTF flags) |
 | `/.well-known/security.txt` | `server/index.js:105` | builds URL from `Host` when site URL env unset (low) |
 | `/api/ctf/disabled` (GET) | `server/index.js:183` | in-memory list |
-| Next pages: `/`, `/blog*`, `/tutorials*`, `/rooms`, `/rooms/<slug>`, `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/opengraph-image`, `/tools*`, `/resources`, `/community*`, `/leaderboard`, `/profile`, `/u/*`, legal pages, `/search-index.json` | `server/middleware/nextProxy.js:16-51` | GET/HEAD only; ISR caches public data only |
+| Next pages: `/`, `/blog*`, `/tutorials*`, `/rooms`, `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/opengraph-image`, `/tools*`, `/resources`, `/community*`, `/leaderboard`, `/profile`, `/u/*`, legal pages, `/search-index.json` | `server/middleware/nextProxy.js:16-51` | GET/HEAD only; ISR caches public data only |
 | **Admin panel HTML** `/panel-1b47c1ab561e.html` + `/js/admin-panel-app.js` | `server/index.js:132` | WEAKNESS: no server auth; path is public in the repo |
 | `/auth/email-hook` (POST) | `server/routes/authEmailHook.js:118` | signed (standardwebhooks, ±5 min); WEAKNESS: no replay cache by webhook id |
 | **All CTF labs** `/api/lab/{hidden,cookie,sqli101,robots,packet,metadata,caesar,base64,deserialize,deserialize-medium,aichat-easy}` | `server/index.js:139-149`, `server/labs/*/routes.js` | no login; session = `X-Lab-Session` header → `?session=` → IP; state in memory, no cap |

@@ -1,6 +1,5 @@
 import { SITE_URL } from '@/lib/blog';
 import { COURSE_DEFS, getCourse, chapterPath } from '@/lib/chapters';
-import { getRooms } from '@/lib/ctf';
 import { TOOLS, plainDesc } from '@/lib/tools';
 
 export const revalidate = 3600;
@@ -20,9 +19,7 @@ export async function GET() {
     data.chapters.filter((c) => c.enabled && c.hasContent).forEach((c) => L.push(`- [${c.title}](${SITE_URL}${chapterPath(def, c.slug)})`));
     L.push('');
   }
-  const rooms = await getRooms().catch(() => []);
-  L.push('## CTF challenges', '', `All rooms: ${SITE_URL}/rooms`, '');
-  rooms.forEach((r) => L.push(`- [${r.title}](${SITE_URL}/rooms/${r.id}): ${r.cat}, ${r.diff}, ${r.xp} XP. ${r.desc}`));
+  L.push('## CTF challenges', '', `Hands-on Capture The Flag labs (web, forensics, crypto, AI). Free account required to play: ${SITE_URL}/rooms`, '');
   L.push('', '## Tools', '');
   TOOLS.forEach((t) => L.push(`- [${t.title}](${SITE_URL}${t.href}): ${plainDesc(t)}`));
   L.push('', '## More', '');
