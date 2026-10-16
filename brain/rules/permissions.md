@@ -13,7 +13,7 @@ Unknown. Rule of thumb: **the browser never decides permissions; RLS, RPC checks
 | `banned` (flag, not a role: `profiles.is_banned`) | admin sets it | — | Implemented |
 | `service_role` (server) | Supabase key on Render | — | Implemented; bypasses RLS |
 
-Checks: `acx_is_admin(uid)` = `profiles.role='admin'`; `acx_not_banned(uid)` = logged in and not banned (DB functions).
+Checks: `acx_is_admin(uid)` = `profiles.role='admin'`; `acx_admin_mfa()` = admin **and** session `aal2` (two-step login) — required by restrictive policies on admin data and by admin RPCs (`supabase/migrations/2026-10-21_admin_mfa.sql`); `acx_mfa_ok()` = not admin or aal2; `acx_not_banned(uid)` = logged in and not banned (DB functions).
 Server: `requireAuth` / `requireToolLogin` verify JWT (`auth.getUser`) and ban (`isUserBanned`, 60 s cache)
 (`server/middleware/toolAccess.js`); `verifyStaff` for admin search (`server/ai/adminSearch.js:124-146`).
 
@@ -64,13 +64,14 @@ Server: `requireAuth` / `requireToolLogin` verify JWT (`auth.getUser`) and ban (
 | Lab solve recording (XP) | logged-in, not banned (JWT on `/submit`) | `server/labs/recordSolve.js` |
 | `/api/tools/*`, `/api/alexutils/*`, `/api/alextrace/*` | logged-in, not banned, tool enabled | `requireToolLogin`, `checkToolEnabled` |
 | `/api/alexrecon/*` | logged-in, not banned (enabled check on scan/schedule) | `server/tools/alexrecon/routes.js:46` |
+| `/rooms/details` (CTF scenario + hints) | logged-in (token checked) | `web/src/app/rooms/details/route.ts` |
 | `/api/me/seen` | logged-in | `server/routes/me.js:16` |
 | `/api/lab/admin-search` | `admin` or `moderator` (role cached 5 min, ban not checked) | `server/ai/adminSearch.js` |
 | `/auth/email-hook` | Supabase (signed webhook) | `server/routes/authEmailHook.js` |
 | Admin panel page | anyone can load the HTML; actions need admin RLS | `server/index.js:132` (UI-only gate) |
 
 ## 5. Client-only (UI) permission checks — never rely on these
-Admin panel gate (`js/admin-panel-app.js:4869-4876`), course login gate (`ChapterView.tsx`), registration toggle,
+Admin panel gate (`js/admin-panel-app.js:4869-4876`), registration toggle,
 maintenance mode, ban sign-out, hidden/disabled challenges list (`acx_ctf_disabled`), solved state in localStorage.
 
 ## 6. Contradictions / gaps
@@ -78,8 +79,8 @@ maintenance mode, ban sign-out, hidden/disabled challenges list (`acx_ctf_disabl
    but cannot moderate. Decide: add moderator policies, or remove the role from `ALLOWED_ROLES`.
 2. Admin search does not check `is_banned`; a banned admin/mod keeps access for up to 5 min (role cache) and beyond
    if the role stays.
-3. Admin panel HTML is public; only data access is protected (RLS). No MFA/AAL2 requirement for admin policies (Missing).
+3. Admin panel HTML is public; data access is protected by RLS and, since 2026-10-16, needs the two-step login (aal2).
 4. `blog_publish_due_posts` callable by anyone (low impact).
-5. Course reading and registration are permission rules enforced only in the UI.
+5. Registration toggle is enforced only in the UI (course reading is public by decision).
 6. `profiles` public SELECT exposes `role`, `is_banned`, `last_seen` (Inferred unintended; leaderboard/profile pages
    need only name/username/xp/level/solves/bio).

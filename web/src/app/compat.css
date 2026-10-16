@@ -133,7 +133,7 @@ a.pf-notif-row--link:hover { border-color: rgba(var(--accent-rgb),0.35); }
 .course-gate .info-box a:hover { text-decoration: underline; }
 /* Hidden until React knows the reader (login gate) and the language (translation);
    shown anyway after 6 s if scripts never run. */
-.acx-noauth .chapter-body, .acx-xl-wait .chapter-body { visibility: hidden; animation: acx-show 0s 6s forwards; }
+.acx-xl-wait .chapter-body { visibility: hidden; animation: acx-show 0s 6s forwards; }
 @keyframes acx-show { to { visibility: visible; } }
 .chapter-body.xl-busy { visibility: hidden; }
 /* "Translating to ..." (js/translate.js showTranslateLoader, themed) */
@@ -147,3 +147,8 @@ a.pf-notif-row--link:hover { border-color: rgba(var(--accent-rgb),0.35); }
 .xl-loader-bar > div { height: 100%; background: linear-gradient(90deg, var(--accent-deep), var(--accent-bright)); border-radius: 3px; transition: width 0.12s; }
 .xl-loader-status { font: 400 11px 'Inter', sans-serif; color: var(--fg-4); }
 @media (prefers-reduced-motion: reduce) { .xl-loader svg { animation: none; } }
+
+/* Logged-out readers: lesson is public, this strip offers saving progress. */
+.course-save-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 0 0 18px; padding: 10px 14px; border: 1px solid var(--glow-border); border-radius: 10px; background: rgba(var(--accent-rgb), .06); font-size: 13px; color: var(--fg-2); }
+.course-save-strip a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.course-save-strip a:hover { text-decoration: underline; }

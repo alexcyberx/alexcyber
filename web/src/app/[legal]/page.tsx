@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { LEGAL_PAGES, loadLegalHtml, type LegalKey } from '@/lib/legal';
+import { OG_IMAGE } from '@/lib/seo';
 
 // Only the known legal URLs exist; anything else under / is a 404 here.
 export const dynamicParams = false;
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: p.title,
     description: p.desc,
     alternates: { canonical: p.path },
-    openGraph: { url: p.path, title: p.title, description: p.desc },
+    openGraph: { images: [OG_IMAGE], url: p.path, title: p.title, description: p.desc },
   };
 }
 

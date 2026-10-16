@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import CourseIcon from '@/components/CourseIcon';
 import { getCoursesWithCounts } from '@/lib/courses';
 import { pathForPage } from '@/lib/routes';
+import { OG_IMAGE } from '@/lib/seo';
 
 // Courses change from the admin panel; rebuild at most every 5 minutes.
 export const revalidate = 300;
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESC,
   alternates: { canonical: '/tutorials' },
-  openGraph: { url: '/tutorials', title: TITLE, description: DESC },
+  openGraph: { images: [OG_IMAGE], url: '/tutorials', title: TITLE, description: DESC },
 };
 
 export default async function CoursesPage() {

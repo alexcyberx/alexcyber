@@ -6,6 +6,7 @@ import { permanentRedirect, redirect } from 'next/navigation';
 import ChapterView from '@/components/ChapterView';
 import { CTF_I18N } from '@/lib/ctf';
 import { adjacent, chapterHtml, chapterPath, COURSE_ALIASES, getCourse, summary, type CourseData } from '@/lib/chapters';
+import { abs, breadcrumb, ld, OG_IMAGE, ORG, ORG_ID, PERSON, PERSON_ID, plain } from '@/lib/seo';
 
 type Resolved = { data: CourseData; index: number };
 
@@ -37,7 +38,7 @@ export async function chapterMetadata(course: string, chapter?: string): Promise
   return {
     title, description,
     alternates: { canonical: url },
-    openGraph: { url, title, description, type: 'article' },
+    openGraph: { images: [OG_IMAGE], url, title, description, type: 'article' },
   };
 }
 
@@ -52,6 +53,8 @@ export async function ChapterPage({ course, chapter }: { course: string; chapter
     return t ? { title: t.title, href: chapterPath(def, t.slug) } : null;
   };
   return (
+    <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: courseLd(data, chapter ? index : null, html) }} />
     <ChapterView
       key={c.slug}
       courseKey={def.key}
@@ -69,5 +72,55 @@ export async function ChapterPage({ course, chapter }: { course: string; chapter
       terms={CTF_I18N.protectedTerms}
       langNames={CTF_I18N.langNames}
     />
+    </>
   );
+}
+
+// schema.org for search engines and AI answer engines: the course with all its
+// lessons, plus (on a chapter URL) the lesson itself and its breadcrumb.
+function courseLd(data: CourseData, index: number | null, html: string): string {
+  const { def } = data;
+  const courseUrl = abs(chapterPath(def));
+  const name = def.meta.title.replace(/^Learn with AlexCyberX:\s*/, '');
+  const lessons = data.chapters.filter((c) => c.enabled && c.hasContent);
+  const course = {
+    '@type': 'Course',
+    '@id': courseUrl + '#course',
+    name,
+    description: def.meta.desc,
+    url: courseUrl,
+    provider: { '@id': ORG_ID },
+    author: { '@id': PERSON_ID },
+    inLanguage: 'hi-Latn',
+    isAccessibleForFree: true,
+    educationalLevel: 'Beginner to Advanced',
+    teaches: def.meta.desc,
+    offers: { '@type': 'Offer', price: 0, priceCurrency: 'INR', category: 'Free' },
+    hasCourseInstance: { '@type': 'CourseInstance', courseMode: 'online', courseWorkload: `PT${Math.max(1, lessons.length)}H` },
+    hasPart: lessons.map((c, i) => ({ '@type': 'LearningResource', position: i + 1, name: c.title, url: abs(chapterPath(def, c.slug)) })),
+  };
+  const graph: Record<string, unknown>[] = [ORG, PERSON, course];
+  const crumbs = [{ name: 'Home', path: '/' }, { name: 'Courses', path: '/tutorials' }, { name, path: chapterPath(def) }];
+  if (index !== null) {
+    const c = data.chapters[index];
+    const url = abs(chapterPath(def, c.slug));
+    graph.push({
+      '@type': 'LearningResource',
+      '@id': url + '#lesson',
+      name: c.title,
+      headline: c.title,
+      description: summary(html) || plain(html),
+      url,
+      learningResourceType: 'Lesson',
+      inLanguage: 'hi-Latn',
+      isAccessibleForFree: true,
+      isPartOf: { '@id': courseUrl + '#course' },
+      position: lessons.findIndex((x) => x.slug === c.slug) + 1,
+      author: { '@id': PERSON_ID },
+      publisher: { '@id': ORG_ID },
+    });
+    crumbs.push({ name: c.title, path: chapterPath(def, c.slug) });
+  }
+  graph.push(breadcrumb(crumbs));
+  return ld(graph);
 }

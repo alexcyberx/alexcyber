@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import ResourcesView from '@/components/ResourcesView';
+import { OG_IMAGE } from '@/lib/seo';
 
 const TITLE = 'Resources - AlexCyberX';
 const DESC = 'Curated cybersecurity learning resources from AlexCyberX.';
-export const metadata: Metadata = { title: TITLE, description: DESC, alternates: { canonical: '/resources' }, openGraph: { url: '/resources', title: TITLE, description: DESC } };
+export const metadata: Metadata = { title: TITLE, description: DESC, alternates: { canonical: '/resources' }, openGraph: { images: [OG_IMAGE], url: '/resources', title: TITLE, description: DESC } };
 
 // Rows are only visible to logged-in users (RLS), so the list loads in the browser.
 export default function ResourcesPage() {

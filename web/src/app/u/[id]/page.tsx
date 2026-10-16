@@ -16,6 +16,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${name} - AlexCyberX`,
     description: `${name} on AlexCyberX: level ${levelFromXp(u.xp)}, ${u.xp} XP, ${u.ctf_solves} CTF solves.`,
     alternates: { canonical: `/u/${u.id}` },
+    // Student profiles stay out of search results (privacy); links still followed.
+    robots: { index: false, follow: true },
   };
 }
 

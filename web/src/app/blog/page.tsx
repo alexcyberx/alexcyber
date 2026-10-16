@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import BlogList from '@/components/BlogList';
 import { getPublishedPosts } from '@/lib/blog';
+import { OG_IMAGE } from '@/lib/seo';
 
 // ISR: rebuilt at most every 5 minutes, so newly published posts show up without a deploy.
 export const revalidate = 300;
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
   title: 'Blog - AlexCyberX',
   description: 'Cybersecurity articles and tutorials from AlexCyberX.',
   alternates: { canonical: '/blog' },
-  openGraph: { url: '/blog', title: 'Blog - AlexCyberX', description: 'Cybersecurity articles and tutorials from AlexCyberX.' },
+  openGraph: { images: [OG_IMAGE], url: '/blog', title: 'Blog - AlexCyberX', description: 'Cybersecurity articles and tutorials from AlexCyberX.' },
 };
 
 export default async function BlogIndexPage() {

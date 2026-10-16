@@ -11,7 +11,7 @@ Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · M
    Why: runs on the real site's origin, so it can read login tokens from `localStorage` (students and admin).
    Fix: encode for script context (`JSON.stringify(s).replace(/</g,'\\u003c')`) or, better, validate session ids
    (`/^[A-Za-z0-9_-]{8,64}$/`) at one place for all labs; long term serve labs from a separate origin.
-2. **IN PROGRESS 2026-10-16** — admin panel asks for an authenticator code (TOTP enroll + verify, `js/admin-panel-app.js` `startMfa`), admin search requires `aal2` (`server/ai/adminSearch.js`); DB rule pending: `supabase/migrations/2026-10-21_admin_mfa.sql` (apply after the admin enrolls). Was: **High · MISSING — admin hardening**: no MFA on admin accounts (DB 2026-10-16: 1 admin, 0 verified MFA factors, no `aal2` policies); admin panel HTML public with client-only gate
+2. **FIXED 2026-10-16** — admin MFA live: admin enrolled (1 verified TOTP factor); migration `2026-10-21_admin_mfa.sql` applied (59 restrictive policies + 10 admin RPCs guarded; verified: admin aal1 sees 0 security logs/messages, aal2 sees all, normal users unaffected). Panel asks for an authenticator code (TOTP enroll + verify, `js/admin-panel-app.js` `startMfa`), admin search requires `aal2` (`server/ai/adminSearch.js`);  Was: **High · MISSING — admin hardening**: no MFA on admin accounts (DB 2026-10-16: 1 admin, 0 verified MFA factors, no `aal2` policies); admin panel HTML public with client-only gate
    (`server/index.js:132`, `js/admin-panel-app.js:4869`). Fix: enable Supabase MFA (TOTP) and require AAL2 for admin
    RLS policies; serve the panel only after a server-side role check; move it to Next later.
 3. **FIXED 2026-10-16** (linear `isValidEmail`, 254-char cap) — was Medium · CONFIRMED — ReDoS `server/tools/alextrace/modules/utils.js:38` (quadratic email regex, no length cap
@@ -48,7 +48,7 @@ Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · M
 - [x] Supabase Auth (email+password, Google OAuth, reset); server verifies JWT with `auth.getUser` (`server/middleware/toolAccess.js`).
 - [x] Ban check on tool APIs (`isUserBanned`, 60 s cache); 30-minute idle sign-out (`web/src/lib/auth-context.tsx:186-203`).
 - [x] Safe post-login redirects (`safeNextPath`).
-- [ ] MFA for admins (#2). [ ] Leaked-password protection (#9). [ ] Server-side registration toggle (#17).
+- [x] MFA for admins (aal2 required for admin data and RPCs). [ ] Leaked-password protection (#9). [ ] Server-side registration toggle (#17).
 
 ## Authorization / RBAC
 - [x] RLS on all public tables; admin writes need `profiles.role='admin'` policies; privileged profile columns guarded by trigger.

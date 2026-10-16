@@ -108,7 +108,9 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 - Coming back from a lab tab works the same three ways (`window.opener.acxLabReturn`, the
   `acx_return_to_modal` storage signal, `acx_back_to_ctf` after a same-tab redirect), plus `/rooms?open=<id>`
   (kept through the login modal).
-- `/rooms/<anything>` is still the old SPA.
+- Scenario and hints are not in the `/rooms` HTML (owner: CTF is login-only). After login RoomsView fetches them
+  from `/rooms/details` (Next route, Bearer token; the Express proxy passes `authorization`).
+- `/rooms/<anything>` else is still the old SPA.
 
 ## Step 5b: tools hub, Mistake Analyzer, resources, community
 - `/tools` (ISR 1 min, `ToolsHub.tsx`): same 4 cards, now real links. The admin on/off switch (`tool_settings`)
@@ -200,6 +202,10 @@ Not migrated yet (still SPA): admin panel only (community is on Next by default 
   cards: each option is a mini live preview, Matrix/Midnight/Crimson; switching grows the new theme as a circle from the click point via the View Transitions API, instant where unsupported or with reduced motion). The old SPA never sets `data-theme`, so its pages stay green until they move to Next.
 - **Chapters.** `lib/chapter-theme.ts` turns the chapters' old fixed colours into theme variables at render time.
 - **Mobile menu.** Language and Theme are two buttons (outline + filled, like My Profile / Sign Out); Theme opens the cards.
+- **SEO / AEO (2026-10-16).** `web/src/lib/seo.ts` (JSON-LD helpers), `app/robots.ts`, `app/sitemap.ts`,
+  `app/llms.txt/route.ts`, `app/opengraph-image.tsx` (CTF rooms stay login-only, no public room pages). Express proxies
+  `/robots.txt`, `/sitemap.xml`, `/llms.txt` and `/opengraph-image` to Next (`nextProxy.js`). The root
+  `robots.txt`/`sitemap.xml` files are only a fallback when Next is off. Set `NEXT_PUBLIC_SITE_URL` to the final domain.
 - **Mouse glow.** `js/spotlight.js` (index.html + Next layout) adds `.spot-on` + `--mx/--my` to the card under the cursor and
   moves one soft `.cursor-glow` behind the page. Mouse only.
 - Test: `theme.js` (11 checks) plus the usual suites.

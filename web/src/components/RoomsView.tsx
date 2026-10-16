@@ -13,7 +13,7 @@ import { createPortal } from 'react-dom';
 import { authHeaders } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { browserSupabase } from '@/lib/supabase';
-import type { Challenge, CtfI18n, Difficulty } from '@/lib/ctf';
+import type { Challenge, CtfI18n, Difficulty, RoomDetails } from '@/lib/ctf';
 import { LANG_KEY, machineTranslate, needsMt, readMtCache, roomText } from '@/lib/ctf-translate';
 
 const LAB_SECS = 30 * 60;
@@ -114,8 +114,31 @@ function TranslateLoader({ lang, done, total }: { lang: string; done: number; to
   );
 }
 
-export default function RoomsView({ challenges: rooms, icons, i18n }: { challenges: Challenge[]; icons: Record<string, string>; i18n: CtfI18n }) {
+export default function RoomsView({ challenges: cards, icons, i18n: cardI18n }: { challenges: Challenge[]; icons: Record<string, string>; i18n: CtfI18n }) {
   const { user, ready, openAuth } = useAuth();
+
+  // ── scenario + hints: login only, from /rooms/details (not in the page HTML) ──
+  const [details, setDetails] = useState<RoomDetails | null>(null);
+  useEffect(() => {
+    if (!user) { setDetails(null); return; }
+    let cancelled = false;
+    authHeaders()
+      .then((headers) => fetch('/rooms/details', { headers, cache: 'no-store' }))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: RoomDetails | null) => { if (!cancelled && d && d.rooms) setDetails(d); })
+      .catch(() => { /* network: cards still work, hints stay empty */ });
+    return () => { cancelled = true; };
+  }, [user]);
+  const rooms = useMemo(() => !details ? cards : cards.map((c) => ({ ...c, ...(details.rooms[c.id] || {}) })), [cards, details]);
+  const i18n = useMemo<CtfI18n>(() => {
+    if (!details) return cardI18n;
+    const overrides: CtfI18n['overrides'] = {};
+    Object.entries(cardI18n.overrides).forEach(([id, langs]) => {
+      overrides[id] = {};
+      Object.entries(langs).forEach(([l, t]) => { overrides[id][l] = { ...t, ...(details.overrides[id]?.[l] || {}) }; });
+    });
+    return { ...cardI18n, overrides };
+  }, [cardI18n, details]);
 
   // ── language (js/i18n.js picks it; it calls window.applyCTFTranslation) ──
   const [lang, setLang] = useState('en');
@@ -133,6 +156,7 @@ export default function RoomsView({ challenges: rooms, icons, i18n }: { challeng
     let cancelled = false;
     const cache = readMtCache(lang);
     setMt(cache);
+    if (!details) { setTranslating(null); return; } // hints come with the details
     const missing = needsMt(rooms.map((c) => c.id), lang, i18n, cache);
     if (!missing.length) { setTranslating(null); return; }
     setTranslating({ done: 0, total: missing.length * 3 });
@@ -140,7 +164,7 @@ export default function RoomsView({ challenges: rooms, icons, i18n }: { challeng
       if (!cancelled) setTranslating({ done, total });
     }).then((res) => { if (!cancelled) { setMt(res); setTranslating(null); } });
     return () => { cancelled = true; };
-  }, [lang, rooms, i18n]);
+  }, [lang, rooms, i18n, details]);
   const challenges = useMemo(() => rooms.map((c) => ({
     ...c,
     ...roomText({ title: c.title, desc: c.desc, hints: c.hints, scenario: c.scenario }, c.id, lang, i18n, mt),

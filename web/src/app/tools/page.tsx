@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import Reveal from '@/components/Reveal';
 import ToolsHub from '@/components/ToolsHub';
 import { serverSupabase } from '@/lib/supabase';
-import { readDisabledTools } from '@/lib/tools';
+import { readDisabledTools, TOOLS } from '@/lib/tools';
+import { abs, ld, OG_IMAGE, ORG } from '@/lib/seo';
 
 // Admin on/off switches (tool_settings) are read again in the browser too.
 export const revalidate = 60;
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESC,
   alternates: { canonical: '/tools' },
-  openGraph: { url: '/tools', title: TITLE, description: DESC },
+  openGraph: { images: [OG_IMAGE], url: '/tools', title: TITLE, description: DESC },
 };
 
 export default async function ToolsPage() {
@@ -22,6 +23,7 @@ export default async function ToolsPage() {
 
   return (
     <div id="toolsPage" className="page active">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: ld([ORG, { '@type': 'ItemList', name: 'Free cybersecurity tools by AlexCyberX', itemListElement: TOOLS.map((t, i) => ({ '@type': 'ListItem', position: i + 1, name: t.title, url: abs(t.href) })) }]) }} />
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'calc(var(--nav-h) + 32px) 16px 60px' }}>
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 10, letterSpacing: 4, color: 'var(--accent)', fontFamily: "'Rajdhani',sans-serif", fontWeight: 700, marginBottom: 10, padding: '3px 14px', border: '1px solid var(--glow-border)', borderRadius: 20, background: 'var(--red-dim)', display: 'inline-block' }}>TOOLS</div>

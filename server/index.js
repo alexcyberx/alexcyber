@@ -130,6 +130,7 @@ PUBLIC_DIRS.forEach((dir) => {
 
 // Admin panel secret URL pe hai (pehle static se serve hota tha)
 app.get('/panel-1b47c1ab561e.html', (req, res) => {
+  res.set('X-Robots-Tag', 'noindex, nofollow'); // never in search results
   res.sendFile(path.join(ROOT, 'panel-1b47c1ab561e.html'));
 });
 

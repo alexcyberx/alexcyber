@@ -19,9 +19,9 @@ const PREFIX = 'acx_ch_';
  *  (no Hinglish flash). ChapterView removes the classes; compat.css has a
  *  timeout fallback in case scripts fail. */
 export function prepaintScript(langs: string[]): string {
-  const k = 'alexcyberx-auth'; // AUTH_STORAGE_KEY in lib/supabase.ts
+  // Lessons are public (search engines and visitors read them); only a
+  // translation in progress hides the box until the translated text is in.
   return `(function(){try{var d=document.documentElement;` +
-    `if(!localStorage.getItem('${k}')&&!sessionStorage.getItem('${k}'))d.classList.add('acx-noauth');` +
     `var l=localStorage.getItem('${LANG_KEY}')||'en';if(l!=='hl'&&${JSON.stringify(langs)}.indexOf(l)>-1)d.classList.add('acx-xl-wait');` +
     `}catch(e){}})();`;
 }

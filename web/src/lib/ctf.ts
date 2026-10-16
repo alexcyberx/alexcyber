@@ -129,3 +129,41 @@ function loadI18n(): CtfI18n {
 }
 
 export const CTF_I18N: CtfI18n = loadI18n();
+
+// ── Login-only room texts (owner: CTF stays login-only) ──
+// The /rooms HTML ships only the card texts (title, desc, tags, ...). The
+// scenario and hints (and their translations) come from /rooms/details
+// after login, so logged-out visitors and crawlers never get them.
+
+export type RoomDetails = {
+  rooms: Record<string, { scenario: string; hints: string[] }>;
+  overrides: Record<string, Record<string, Pick<CtfText, 'hint' | 'hints' | 'scenario'>>>;
+};
+
+/** Rooms without scenario/hints, for the public page. */
+export function publicRooms(rooms: Challenge[]): Challenge[] {
+  return rooms.map((c) => ({ ...c, scenario: '', hints: [] }));
+}
+
+/** CTF_I18N without the hint/scenario translations. */
+export function publicI18n(i18n: CtfI18n): CtfI18n {
+  const overrides: CtfI18n['overrides'] = {};
+  Object.entries(i18n.overrides).forEach(([id, langs]) => {
+    overrides[id] = {};
+    Object.entries(langs).forEach(([l, t]) => { overrides[id][l] = { title: t.title, desc: t.desc }; });
+  });
+  return { ...i18n, overrides };
+}
+
+export function roomDetails(): RoomDetails {
+  const rooms: RoomDetails['rooms'] = {};
+  SEED.challenges.forEach((c) => {
+    rooms[c.id] = { scenario: c.scenario || '', hints: c.hints && c.hints.length ? c.hints : c.hint ? [c.hint] : [] };
+  });
+  const overrides: RoomDetails['overrides'] = {};
+  Object.entries(CTF_I18N.overrides).forEach(([id, langs]) => {
+    overrides[id] = {};
+    Object.entries(langs).forEach(([l, t]) => { overrides[id][l] = { hint: t.hint, hints: t.hints, scenario: t.scenario }; });
+  });
+  return { rooms, overrides };
+}

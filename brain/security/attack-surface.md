@@ -25,7 +25,7 @@ Last verified: 2026-10-16 (commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · M
 | `/js/flags.js` | `server/index.js:111` | list of Next pages (not CTF flags) |
 | `/.well-known/security.txt` | `server/index.js:105` | builds URL from `Host` when site URL env unset (low) |
 | `/api/ctf/disabled` (GET) | `server/index.js:183` | in-memory list |
-| Next pages: `/`, `/blog*`, `/tutorials*`, `/rooms`, `/tools*`, `/resources`, `/community*`, `/leaderboard`, `/profile`, `/u/*`, legal pages, `/search-index.json` | `server/middleware/nextProxy.js:16-51` | GET/HEAD only; ISR caches public data only |
+| Next pages: `/`, `/blog*`, `/tutorials*`, `/rooms`, `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/opengraph-image`, `/tools*`, `/resources`, `/community*`, `/leaderboard`, `/profile`, `/u/*`, legal pages, `/search-index.json` | `server/middleware/nextProxy.js:16-51` | GET/HEAD only; ISR caches public data only |
 | **Admin panel HTML** `/panel-1b47c1ab561e.html` + `/js/admin-panel-app.js` | `server/index.js:132` | WEAKNESS: no server auth; path is public in the repo |
 | `/auth/email-hook` (POST) | `server/routes/authEmailHook.js:118` | signed (standardwebhooks, ±5 min); WEAKNESS: no replay cache by webhook id |
 | **All CTF labs** `/api/lab/{hidden,cookie,sqli101,robots,packet,metadata,caesar,base64,deserialize,deserialize-medium,aichat-easy}` | `server/index.js:139-149`, `server/labs/*/routes.js` | no login; session = `X-Lab-Session` header → `?session=` → IP; state in memory, no cap |
@@ -47,6 +47,7 @@ Last verified: 2026-10-16 (commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · M
 ## 3. Authenticated endpoints (Supabase JWT, verified server-side)
 | Route | File | Limits | Notes |
 |---|---|---|---|
+| `GET /rooms/details` (Next) | `web/src/app/rooms/details/route.ts` | — | room scenario + hints; Bearer token checked with `auth.getUser`; `no-store`, `noindex`. The `/rooms` HTML ships only the card texts |
 | `POST /api/me/seen` | `server/routes/me.js:16` | 20/10 min/IP | service role writes `profiles.last_login_ip` |
 | `POST /api/tools/analyze-command` | `server/tools/mistake-analyzer/routes.js:143` | 60/10 min/IP pre-auth, 15/10 min/user, 150/10 min global | ≤500 chars → Gemini (key in URL, WEAKNESS) |
 | `/api/alexutils/*` (ssl-check, mac-lookup, cve-search, ip-lookup, dns-resolve) | `server/tools/alexutils/routes.js:35-136` | per-user limiters | SSRF checks in `target.js`; cve query length unbounded (low) |
