@@ -281,7 +281,7 @@ input::placeholder{color:#1e293b;font-family:'Segoe UI',sans-serif;letter-spacin
   </div>
 </div>
 <script>
-const LAB_SESSION = ${JSON.stringify(s)};
+const LAB_SESSION = ${JSON.stringify(s).replace(/</g, '\\u003c')};
 async function doUnlock() {
   const btn = document.getElementById('unlockBtn');
   const err = document.getElementById('errBox');

@@ -134,6 +134,8 @@ app.get('/panel-1b47c1ab561e.html', (req, res) => {
 });
 
 // Lab API routes
+// Session id format + instance rate limit for every lab (server/middleware/labSession.js).
+app.use('/api/lab', require('./middleware/labSession').labSessionGuard);
 // Lab-flow challenges: save the solve + XP server-side when /submit is correct.
 const { recordLabSolve } = require('./labs/recordSolve');
 app.use('/api/lab/hidden', recordLabSolve('web-01'), require('./labs/hidden-sight/routes'));

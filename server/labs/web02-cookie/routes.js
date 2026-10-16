@@ -155,7 +155,7 @@ input::placeholder{color:#374151;}
 </div>
 <div class="footer">NovaCorp Systems v3.1.0. Unauthorized access is strictly prohibited</div>
 <script>
-const LAB_SESSION = ${JSON.stringify(s)};
+const LAB_SESSION = ${JSON.stringify(s).replace(/</g, '\\u003c')};
 async function doLogin() {
   const btn = document.getElementById('loginBtn');
   const err = document.getElementById('errBox');

@@ -56,7 +56,7 @@ Static/SPA pages, Next pages, `/api/lab/*` (unauthenticated), `/api/tools/*` + `
 ## 6. Threats and scenarios
 Severity = impact × likelihood (Critical / High / Medium / Low).
 
-### T1. Session theft through reflected XSS in lab pages on the main origin — **High · CONFIRMED**
+### T1. Session theft through reflected XSS in lab pages on the main origin — **FIXED 2026-10-16** (was High · CONFIRMED; see `server/middleware/labSession.js`)
 - Evidence: `server/labs/web02-cookie/routes.js:158`, `web03-sqli101/routes.js:189`, `web04-robots/routes.js:284`
   write `?session=` into an inline `<script>` with `JSON.stringify`, which does not escape `</script>`. Reproduced
   locally 2026-10-16: `POST /api/lab/cookie/instance/restart?session=<payload>` then
@@ -135,9 +135,9 @@ anon key). WEAKNESS: the service-role key doubles as the flag secret when `FLAG_
 ## 7. Risk summary (fix order)
 | # | Threat | Severity | Status |
 |---|---|---|---|
-| T1 | Reflected XSS in lab pages on main origin → token theft | High | CONFIRMED, not fixed |
+| T1 | Reflected XSS in lab pages on main origin → token theft | High | FIXED 2026-10-16 |
 | T2 | Admin takeover (no MFA, client-gated panel) | High impact | WEAKNESS / MISSING |
-| T5 | ReDoS + unbounded lab state | Medium | CONFIRMED |
+| T5 | ReDoS + unbounded lab state | Medium | ReDoS fixed; lab state rate-limited (no global cap) |
 | T3 | Stored XSS via admin-written content | Medium | CONFIRMED sink |
 | T9 | Public profile columns, plaintext logs | Medium | WEAKNESS |
 | T4 | Flag sharing, public hints column | Medium/Low | WEAKNESS |

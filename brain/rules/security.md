@@ -31,16 +31,16 @@ Labels: Implemented · Missing · Inferred · Unknown.
 - S8. Solves/XP only through `submit_ctf_flag` or `server/labs/recordSolve.js` → `record_lab_ctf_solve`
   (service role). — Implemented.
 - S9. Labs are intentionally vulnerable only inside their sandbox (in-memory data, fake accounts). A lab must never
-  reflect input into an executable context on the main origin or touch real tables. — **Violated**: reflected XSS via
-  `?session=` in `server/labs/web02-cookie/routes.js:158`, `web03-sqli101/routes.js:189`, `web04-robots/routes.js:284`.
+  reflect input into an executable context on the main origin or touch real tables. — Implemented 2026-10-16 for the known
+  case (session ids validated in `server/middleware/labSession.js`; pages escape `<`). Labs still share the main origin.
 
 ## 4. Output and input handling
 - S10. Escape all DB/user/URL data before it reaches HTML; inside `<script>` use JSON with `<` escaped; React text
   over `dangerouslySetInnerHTML`. — Mostly implemented; gaps: lab XSS (S9), DB chapter HTML unsanitized
   (`web/src/components/ChapterView.tsx:157`, `js/chapters.js:178`), SPA `onclick` interpolation (`js/blog.js`,
   `js/resources.js`, `js/courses.js`).
-- S11. Validate length/format of every input before regex or DB work. — Implemented for tools/RPCs; gaps: AlexTrace
-  email length before a quadratic regex (`server/tools/alextrace/modules/utils.js:38`), lab session ids.
+- S11. Validate length/format of every input before regex or DB work. — Implemented for tools/RPCs; lab session ids and
+  AlexTrace email fixed 2026-10-16.
 - S12. Outbound requests to user-supplied hosts go through the SSRF guards (`safeFetch`, `safeLookup`,
   `resolvePublic`). — Implemented (`server/tools/alexrecon/modules/utils.js`, `server/tools/alexutils/target.js`).
 - S13. No `eval`, `new Function`, user-controlled paths or shell arguments. — Implemented.
@@ -69,7 +69,7 @@ Labels: Implemented · Missing · Inferred · Unknown.
 1. Business: "courses need login"; security/permissions: content is public in HTML (UI-only gate).
 2. Business: "admin can close registration"; Auth still accepts sign-ups.
 3. Business: "resources for logged-in users"; Storage bucket is public.
-4. Security S9 (labs sandboxed) vs implementation (lab pages run on the main origin and reflect input).
+4. Security S9 (labs sandboxed) vs implementation (labs run on the main origin; known reflection fixed 2026-10-16).
 5. Permissions: `moderator` accepted by admin search only.
 6. Business: paid hints possible; permissions: hints column public.
 

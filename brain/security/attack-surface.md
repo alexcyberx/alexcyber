@@ -33,7 +33,7 @@ Last verified: 2026-10-16 (commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · M
 | `/api/lab/search` (AI site search) | `server/ai/search.js:138` | cache served before limiter; 6/min, 60/h |
 
 ### Lab-specific notes (beyond the intended vulnerabilities)
-- **CONFIRMED XSS (main origin)**: `?session=` reflected into inline script — `web02-cookie/routes.js:158`,
+- **FIXED 2026-10-16** (session guard `server/middleware/labSession.js`): `?session=` was reflected into inline script — `web02-cookie/routes.js:158`,
   `web03-sqli101/routes.js:189`, `web04-robots/routes.js:284` (see T1).
 - WEAKNESS: cookie values echoed unescaped in web-02 dashboard (`web02-cookie/routes.js:291,297,303,311`) — self-XSS
   unless cookies can be planted.
@@ -51,7 +51,7 @@ Last verified: 2026-10-16 (commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · M
 | `POST /api/tools/analyze-command` | `server/tools/mistake-analyzer/routes.js:143` | 60/10 min/IP pre-auth, 15/10 min/user, 150/10 min global | ≤500 chars → Gemini (key in URL, WEAKNESS) |
 | `/api/alexutils/*` (ssl-check, mac-lookup, cve-search, ip-lookup, dns-resolve) | `server/tools/alexutils/routes.js:35-136` | per-user limiters | SSRF checks in `target.js`; cve query length unbounded (low) |
 | `/api/alexrecon/*` (scan, history, scan/:id, schedules CRUD) | `server/tools/alexrecon/routes.js:46-450` | `reconLimiter` 6/10 min **per IP**; history/schedules unlimited | user id from token overrides body/query (`toolAccess.js:99-100`); max 2 running scans, 10 queued |
-| `/api/alextrace/*` (lookup, metadata upload, password-check, breach-search, history) | `server/tools/alextrace/routes.js:77-232` | per-user limiters; **breach-search none** | **CONFIRMED ReDoS** email regex `modules/utils.js:38`; multer 15 MB image-only, in memory |
+| `/api/alextrace/*` (lookup, metadata upload, password-check, breach-search, history) | `server/tools/alextrace/routes.js:77-232` | per-user limiters; **breach-search none** | ReDoS in email regex fixed 2026-10-16 (`modules/utils.js` `isValidEmail`); multer 15 MB image-only, in memory |
 | `/api/lab/admin-search` | `server/ai/adminSearch.js:124-195` | 20/min, 300/h | staff check server-side (role cached 5 min, ban not checked — WEAKNESS); under `/api/lab/` so attack detection skips it |
 
 ## 4. Authentication / authorization surfaces

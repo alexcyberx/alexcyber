@@ -5,7 +5,7 @@ panel, or anything that renders HTML.** `[x]` = in place (verified), `[ ]` = gap
 Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · MISSING · VERIFY · REC.
 
 ## Open findings, in fix order
-1. **High · CONFIRMED vulnerability — reflected XSS in lab pages on the main origin**
+1. **FIXED 2026-10-16** (was High · CONFIRMED) — reflected XSS in lab pages on the main origin. Fix: `server/middleware/labSession.js` rejects session ids not matching `^[A-Za-z0-9_-]{1,100}$` for all `/api/lab/*`, and the three pages escape `<` in the embedded JSON. Original finding:
    Evidence: `?session=` → `const LAB_SESSION = ${JSON.stringify(s)}` inside `<script>`; reproduced locally.
    Location: `server/labs/web02-cookie/routes.js:158`, `web03-sqli101/routes.js:189`, `web04-robots/routes.js:284`.
    Why: runs on the real site's origin, so it can read login tokens from `localStorage` (students and admin).
@@ -14,9 +14,9 @@ Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · M
 2. **High · MISSING — admin hardening**: no MFA on admin accounts (DB 2026-10-16: 1 admin, 0 verified MFA factors, no `aal2` policies); admin panel HTML public with client-only gate
    (`server/index.js:132`, `js/admin-panel-app.js:4869`). Fix: enable Supabase MFA (TOTP) and require AAL2 for admin
    RLS policies; serve the panel only after a server-side role check; move it to Next later.
-3. **Medium · CONFIRMED — ReDoS** `server/tools/alextrace/modules/utils.js:38` (quadratic email regex, no length cap
+3. **FIXED 2026-10-16** (linear `isValidEmail`, 254-char cap) — was Medium · CONFIRMED — ReDoS `server/tools/alextrace/modules/utils.js:38` (quadratic email regex, no length cap
    before it, `routes.js:92`). Fix: `if (email.length > 254) reject` before the regex; use a linear regex.
-4. **Medium · CONFIRMED weakness — unbounded lab state**: any session id allocates memory (`web03-sqli101` builds a
+4. **PARTLY FIXED 2026-10-16** (session id format + `labInstanceLimiter` 40 per 10 min per IP on `instance/*`; no global cap yet) — was Medium · CONFIRMED weakness — unbounded lab state: any session id allocates memory (`web03-sqli101` builds a
    sql.js DB). `server/labs/*/routes.js`, cleanup `server/index.js:242,268`. Fix: validate session id format, cap
    instances per IP and globally, rate-limit `instance/*`.
 5. **Medium · CONFIRMED sink — unsanitized DB chapter HTML** `web/src/components/ChapterView.tsx:157` (first render),
