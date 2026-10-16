@@ -66,7 +66,9 @@ export function formatDate(iso: string | null | undefined): string {
   if (!iso) return '';
   const d = new Date(iso);
   if (isNaN(d.getTime())) return '';
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  // Fixed time zone: the server (UTC) and an Indian browser must print the same
+  // day, or React sees a mismatch and re-renders the page in the browser.
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'Asia/Kolkata' });
 }
 
 export function excerpt(post: Pick<BlogPost, 'meta_desc' | 'content'>): string {
