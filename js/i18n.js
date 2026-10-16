@@ -70,6 +70,9 @@ function showLangModal() {
 }
 
 function hideLangModal() {
+  // Closing (X) also counts as an answer: keep the current language and do
+  // not ask again on the next page (it used to pop up on every visit).
+  try { localStorage.setItem('acx_lang_seen', '1'); } catch (e) {}
   const m = document.getElementById('langModal');
   m.style.opacity = '0'; m.style.transition = 'opacity 0.22s';
   setTimeout(() => { m.style.display='none'; m.style.opacity='1'; m.style.transition=''; }, 230);
@@ -95,7 +98,7 @@ const DICT = {
   'nav.contact':    { hl:'Contact', hi:'संपर्क',   en:'Contact',      bn:'যোগাযোগ',      pa:'ਸੰਪਰਕ',      te:'సంప్రదించు',ta:'தொடர்பு',      mr:'संपर्क'    },
   'nav.login':      { hl:'Login', hi:'लॉगिन',     en:'Login',     bn:'লগইন',         pa:'ਲਾਗਿਨ',      te:'లాగిన్',   ta:'உள்நுழை',      mr:'लॉगिन'     },
   'nav.signup':     { hl:'Sign Up', hi:'साइन अप',   en:'Sign Up',    bn:'সাইন আপ',      pa:'ਸਾਈਨ ਅੱਪ',   te:'సైన్ అప్', ta:'பதிவு செய்',   mr:'साइन अप', fr:"S'inscrire"    },
-  'nav.lang':       { hl:'Hindi', hi:'हिंदी',     en:'English',       bn:'Bengali',      pa:'Punjabi',    te:'Telugu',   ta:'Tamil',        mr:'Marathi' },
+  'nav.lang':       { hl:'Hinglish', hi:'हिंदी',     en:'English',       bn:'Bengali',      pa:'Punjabi',    te:'Telugu',   ta:'Tamil',        mr:'Marathi' },
 
   'hero.cta1':      { hl:'Start Learning', hi:'सीखना शुरू करें',   en:'Start Learning', bn:'শেখা শুরু করুন',  pa:'ਸਿੱਖਣਾ ਸ਼ੁਰੂ ਕਰੋ', te:'నేర్చుకోవడం ప్రారంభించండి', ta:'கற்க தொடங்கு',  mr:'शिकणे सुरू करा' },
   'hero.cta2':      { hl:'Meet AlexCyberX', hi:'AlexCyberX से मिलें',  en:'Meet AlexCyberX', bn:'AlexCyberX জানুন', pa:'AlexCyberX ਨੂੰ ਮਿਲੋ', te:'AlexCyberX కలవండి', ta:'AlexCyberX சந்திக்கவும்', mr:'AlexCyberX ला भेटा' },

@@ -198,6 +198,8 @@ Not migrated yet (still SPA): admin panel only (community is on Next by default 
   `web/src/lib/ui-text.ts` (`useUiLang` + `uiText`, all 8 picker languages). `js/i18n.js` `applyLanguage()` fires
   `acx:lang` so it updates without a reload. Static text keeps using `data-i18n` keys in `js/i18n.js`. `components/ThemeToggle.tsx` sits next to the language button (desktop menu + mobile
   cards: each option is a mini live preview, Matrix/Midnight/Crimson; switching grows the new theme as a circle from the click point via the View Transitions API, instant where unsupported or with reduced motion). The old SPA never sets `data-theme`, so its pages stay green until they move to Next.
+- **Chapters.** `lib/chapter-theme.ts` turns the chapters' old fixed colours into theme variables at render time.
+- **Mobile menu.** Language and Theme are two buttons (outline + filled, like My Profile / Sign Out); Theme opens the cards.
 - **Mouse glow.** `js/spotlight.js` (index.html + Next layout) adds `.spot-on` + `--mx/--my` to the card under the cursor and
   moves one soft `.cursor-glow` behind the page. Mouse only.
 - Test: `theme.js` (11 checks) plus the usual suites.
