@@ -245,6 +245,8 @@ Not migrated yet (still SPA): admin panel only (community is on Next by default 
 ## Step 5d: admin panel on Next (in phases)
 - `src/app` is split into route groups: `(site)` (every public page, unchanged URLs and layout) and `(admin)`
   (own root layout: no site nav, cookie banner, page-view tracking or site CSS).
+  The site document lives in `src/components/SiteDocument.tsx`; `app/global-not-found.tsx` (experimental
+  `globalNotFound`) uses it so unknown URLs still get the site's server-rendered 404 page.
 - `/panel-1b47c1ab561e` (proxied by Express, `X-Robots-Tag: noindex`) is the new panel; code in `src/admin/`.
   Same Supabase storage key as the old panel (`alexcyberx-admin-auth`) plus its sessionStorage marker, so sections
   not ported yet open the old panel (`/panel-1b47c1ab561e.html#<section>`) without a second login.
