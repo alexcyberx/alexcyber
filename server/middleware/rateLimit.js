@@ -35,6 +35,16 @@ const flagLimiter = rateLimit({
   }
 });
 
+// Lab instance start/stop/status. Each new session id holds memory until the
+// cleanup (web-03 builds a whole sql.js DB), so cap how fast one IP can mint them.
+const labInstanceLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 40,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => res.status(429).json({ error: 'Too many lab restarts. Please wait a few minutes.' })
+});
+
 // ── Per-tool limiters (keyed by user) ──────────────────────
 // Pehle Mistake Analyzer + saare AlexUtils endpoints ek hi analyzeLimiter
 // share karte the (15 / 10 min per IP), aur AlexTrace ke lookup/metadata/
@@ -127,7 +137,7 @@ const analyzePreAuthLimiter = rateLimit({
 });
 
 module.exports = {
-  loginLimiter, flagLimiter, reconLimiter, analyzePreAuthLimiter,
+  loginLimiter, flagLimiter, labInstanceLimiter, reconLimiter, analyzePreAuthLimiter,
   analyzeLimiter, analyzeGlobalLimiter,
   utilsDnsLimiter, utilsIpLimiter, utilsMacLimiter, utilsSslLimiter, utilsCveLimiter,
   traceLimiter, traceMetadataLimiter, tracePasswordLimiter

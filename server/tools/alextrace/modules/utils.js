@@ -34,8 +34,16 @@ function isValidUsername(input) {
   return /^[a-zA-Z0-9._-]{2,39}$/.test(String(input || '').trim());
 }
 
+// Linear check (the old /^[^\s@]+@[^\s@]+\.[^\s@]+$/ backtracked quadratically
+// on long inputs like 'a@' + '.'.repeat(20000), blocking the server).
 function isValidEmail(input) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(input || '').trim());
+  const s = String(input || '').trim();
+  if (s.length > 254 || /\s/.test(s)) return false;
+  const at = s.indexOf('@');
+  if (at < 1 || at !== s.lastIndexOf('@')) return false;
+  const domain = s.slice(at + 1);
+  const dot = domain.lastIndexOf('.');
+  return dot > 0 && dot < domain.length - 1;
 }
 
 // Runs a set of named async checks in parallel with a shared cap on

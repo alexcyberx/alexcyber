@@ -186,7 +186,7 @@ input::placeholder{color:#2a3555;}
 </div>
 <div class="footer">VaultBank Employee Portal v4.2.1. Unauthorized access is strictly prohibited</div>
 <script>
-const LAB_SESSION = ${JSON.stringify(s)};
+const LAB_SESSION = ${JSON.stringify(s).replace(/</g, '\\u003c')};
 async function doLogin() {
   const btn = document.getElementById('loginBtn');
   const err = document.getElementById('errBox');
