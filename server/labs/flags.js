@@ -57,7 +57,11 @@ function isFlag(slug, input) {
 async function syncFlagHashes(db) {
   if (!db) return;
   for (const slug of Object.keys(THEMES)) {
-    const { error } = await db.from('ctf_challenges').update({ flag_hash: sha256(flagFor(slug)) }).eq('slug', slug);
+    let { error } = await db.from('ctf_challenges').update({ flag_hash: sha256(flagFor(slug)) }).eq('slug', slug);
+    // Migration not applied yet (no flag_hash column): keep the old plain
+    // column in step instead (not readable by anon/authenticated). Once the
+    // migration is in, its trigger turns any plain flag into a hash.
+    if (error && /flag_hash/.test(error.message)) ({ error } = await db.from('ctf_challenges').update({ flag: flagFor(slug) }).eq('slug', slug));
     if (error) console.error('[flags] sync', slug, error.message);
   }
   console.log('[flags] flag hashes synced');
