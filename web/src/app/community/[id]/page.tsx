@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import ThreadView from '@/components/ThreadView';
 import { getThread } from '@/lib/community';
+import { OG_IMAGE } from '@/lib/seo';
 
 // A real route for /community/<id> (the SPA showed the list on a direct visit or
 // reload: community-2). Rendered per request so a new reply survives a reload.
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const body = d.thread.body.replace(/\s+/g, ' ').trim();
   const description = body.length > 160 ? body.slice(0, 157) + '...' : body;
   const url = `/community/${d.thread.id}`;
-  return { title, description, alternates: { canonical: url }, openGraph: { type: 'article', url, title, description } };
+  return { title, description, alternates: { canonical: url }, openGraph: { images: [OG_IMAGE], type: 'article', url, title, description } };
 }
 
 export default async function ThreadPage({ params }: Props) {

@@ -8,6 +8,7 @@ import { getRooms } from '@/lib/ctf';
 import { homeJsonLd, homeSections } from '@/lib/home';
 import { pathForPage } from '@/lib/routes';
 import { TOOLS } from '@/lib/tools';
+import { OG_IMAGE } from '@/lib/seo';
 
 export const revalidate = 300;
 
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'Pavan Kumar (AlexCyberX)' }],
   alternates: { canonical: '/' },
   robots: { index: true, follow: true, 'max-snippet': -1, 'max-image-preview': 'large', 'max-video-preview': -1 },
-  openGraph: { type: 'website', url: '/', title: 'AlexCyberX - Free Cybersecurity Education in Hindi', description: 'Learn Ethical Hacking, Network Forensics, SQL Injection, XSS, MITM attacks and more. Free courses and hands-on CTF labs by Pavan Kumar from Rajasthan, India.', siteName: 'AlexCyberX', locale: 'en_IN' },
+  openGraph: { images: [OG_IMAGE], type: 'website', url: '/', title: 'AlexCyberX - Free Cybersecurity Education in Hindi', description: 'Learn Ethical Hacking, Network Forensics, SQL Injection, XSS, MITM attacks and more. Free courses and hands-on CTF labs by Pavan Kumar from Rajasthan, India.', siteName: 'AlexCyberX', locale: 'en_IN' },
   twitter: { card: 'summary_large_image', title: 'AlexCyberX - Free Cybersecurity Education in Hindi', description: 'Ethical Hacking, Network Forensics, CTF labs - free cybersecurity education platform by Pavan Kumar (AlexCyberX) from Rajasthan, India.' },
 };
 

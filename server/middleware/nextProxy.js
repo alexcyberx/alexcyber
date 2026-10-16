@@ -47,8 +47,10 @@ if (COMMUNITY_ON) NEXT_PAGES.community = '/community';
 
 // Exact paths go to Next, plus everything under the prefixes.
 // /search-index.json feeds the nav search on the Next pages.
-const EXACT = new Set([...Object.values(NEXT_PAGES), '/search-index.json']);
-const PREFIXES = ['/blog/', '/u/', '/_next/', '/tutorials/', ...(COMMUNITY_ON ? ['/community/'] : [])];
+// robots.txt, sitemap.xml and llms.txt are built by Next from one site URL
+// (NEXT_PUBLIC_SITE_URL); the files in the repo root are only the fallback.
+const EXACT = new Set([...Object.values(NEXT_PAGES), '/search-index.json', '/robots.txt', '/sitemap.xml', '/llms.txt', '/opengraph-image', '/twitter-image']);
+const PREFIXES = ['/blog/', '/u/', '/_next/', '/tutorials/', '/rooms/', ...(COMMUNITY_ON ? ['/community/'] : [])];
 
 // Old chapter deep links (SPA + the first nav search): /tutorials/<course>?ch=<slug>
 // -> /tutorials/<course>/<slug>, the chapter's own page on Next.

@@ -55,17 +55,9 @@ export default function ChapterView(p: Props) {
   const [progress, setProgress] = useState<{ name: string; done: number; total: number } | null>(null);
 
   const here = p.path;
-  const gated = ready && !user;
-
-  // The pre-paint script below hides the lesson until we know who is reading
-  // and in which language; from here on React decides.
-  useEffect(() => {
-    if (!ready) return;
-    document.documentElement.classList.remove('acx-noauth');
-  }, [ready]);
-
-  // Logged out: login modal, then back to this chapter.
-  useEffect(() => { if (gated) openAuth('login', here); }, [gated, here, openAuth]);
+  // Lessons are free and public (also for search engines); logging in only
+  // saves progress and XP, offered by the strip above the lesson.
+  const guest = ready && !user;
 
   // Course progress (same RPC + args as the SPA).
   const uid = user?.id;
@@ -112,26 +104,10 @@ export default function ChapterView(p: Props) {
       const f = t.getAttribute('fill');
       if (f && p.svgFill[f]) t.setAttribute('fill', p.svgFill[f]);
     });
-  }, [shown, gated, p.svgFill]);
+  }, [shown, p.svgFill]);
 
   // Old fixed colours -> theme variables (lib/chapter-theme.ts).
   const themed = useMemo(() => themeChapterHtml(shown), [shown]);
-
-  if (gated) {
-    return (
-      <div className="content course-gate" id={p.ids.content}>
-        <h2>{p.title}</h2>
-        <div className="info-box">
-          <p>
-            <strong>Login required:</strong> Courses are free, but you need an account to read them and to save your progress.{' '}
-            <a href={`/?auth=login&next=${encodeURIComponent(here)}`} onClick={(e) => { e.preventDefault(); openAuth('login', here); }}>Log in</a>
-            {' '}or{' '}
-            <a href={`/?auth=signup&next=${encodeURIComponent(here)}`} onClick={(e) => { e.preventDefault(); openAuth('signup', here); }}>create a free account</a>.
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   const pct = progress && progress.total ? Math.round((progress.done / progress.total) * 100) : 0;
 
@@ -146,6 +122,13 @@ export default function ChapterView(p: Props) {
           <div className="xl-loader-title">Translating to {progress.name}</div>
           <div className="xl-loader-bar"><div style={{ width: pct + '%' }} /></div>
           <div className="xl-loader-status">{progress.total ? `${progress.done} / ${progress.total} done` : 'Starting...'}</div>
+        </div>
+      )}
+      {guest && (
+        <div className="course-save-strip chapter-body" role="note">
+          <span>Free lesson. Log in to save your progress and earn XP.</span>
+          <a href={`/?auth=login&next=${encodeURIComponent(here)}`} onClick={(e) => { e.preventDefault(); openAuth('login', here); }}>Log in</a>
+          <a href={`/?auth=signup&next=${encodeURIComponent(here)}`} onClick={(e) => { e.preventDefault(); openAuth('signup', here); }}>Create free account</a>
         </div>
       )}
       <div

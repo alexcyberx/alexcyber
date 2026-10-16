@@ -11,12 +11,13 @@ import { THEME_BOOT } from '@/lib/theme';
 import './compat.css';
 import './nav-upgrade.css';
 import './search.css';
+import { OG_IMAGE } from '@/lib/seo';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: 'AlexCyberX',
   description: 'AlexCyberX: free cybersecurity education in Hindi with hands-on CTF labs.',
-  openGraph: { siteName: 'AlexCyberX', locale: 'en_IN', type: 'website' },
+  openGraph: { images: [OG_IMAGE], siteName: 'AlexCyberX', locale: 'en_IN', type: 'website' },
   twitter: { card: 'summary_large_image', site: '@alexcyberx', creator: '@alexcyberx' },
   // brand/ (served by Express at the root): Glitch X mark.
   icons: {
@@ -24,6 +25,12 @@ export const metadata: Metadata = {
     apple: '/apple-touch-icon.png',
   },
   manifest: '/site.webmanifest',
+  // Search Console / Bing Webmaster ownership tags, set on Render when the
+  // final domain is live (empty -> no tag).
+  verification: {
+    google: process.env.NEXT_PUBLIC_GSC_VERIFICATION || undefined,
+    other: process.env.NEXT_PUBLIC_BING_VERIFICATION ? { 'msvalidate.01': process.env.NEXT_PUBLIC_BING_VERIFICATION } : undefined,
+  },
 };
 
 export const viewport: Viewport = {

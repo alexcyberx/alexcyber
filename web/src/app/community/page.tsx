@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import CommunityView from '@/components/CommunityView';
 import { getThreads } from '@/lib/community';
+import { OG_IMAGE } from '@/lib/seo';
 
 // Rendered per request: a user who just posted and reloads must see the post.
 // It is one RPC, the same work the SPA did in the browser.
@@ -8,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 const TITLE = 'Community - AlexCyberX';
 const DESC = 'Join the AlexCyberX cybersecurity learning community.';
-export const metadata: Metadata = { title: TITLE, description: DESC, alternates: { canonical: '/community' }, openGraph: { url: '/community', title: TITLE, description: DESC } };
+export const metadata: Metadata = { title: TITLE, description: DESC, alternates: { canonical: '/community' }, openGraph: { images: [OG_IMAGE], url: '/community', title: TITLE, description: DESC } };
 
 export default async function CommunityPage() {
   const threads = await getThreads();

@@ -66,7 +66,7 @@ Labels: Implemented · Missing · Inferred · Unknown.
 - S23. Data retention / user self-deletion. — Missing.
 
 ## 8. Contradictions between business, security and permissions
-1. Business: "courses need login"; security/permissions: content is public in HTML (UI-only gate).
+1. ~~Courses need login~~ — resolved: lessons public by owner decision (SEO/AEO).
 2. Business: "admin can close registration"; Auth still accepts sign-ups.
 3. Business: "resources for logged-in users"; Storage bucket is public.
 4. Security S9 (labs sandboxed) vs implementation (labs run on the main origin; known reflection fixed 2026-10-16).

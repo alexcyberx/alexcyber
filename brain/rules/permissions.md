@@ -70,7 +70,7 @@ Server: `requireAuth` / `requireToolLogin` verify JWT (`auth.getUser`) and ban (
 | Admin panel page | anyone can load the HTML; actions need admin RLS | `server/index.js:132` (UI-only gate) |
 
 ## 5. Client-only (UI) permission checks — never rely on these
-Admin panel gate (`js/admin-panel-app.js:4869-4876`), course login gate (`ChapterView.tsx`), registration toggle,
+Admin panel gate (`js/admin-panel-app.js:4869-4876`), registration toggle,
 maintenance mode, ban sign-out, hidden/disabled challenges list (`acx_ctf_disabled`), solved state in localStorage.
 
 ## 6. Contradictions / gaps
@@ -80,6 +80,6 @@ maintenance mode, ban sign-out, hidden/disabled challenges list (`acx_ctf_disabl
    if the role stays.
 3. Admin panel HTML is public; data access is protected by RLS and, since 2026-10-16, needs the two-step login (aal2).
 4. `blog_publish_due_posts` callable by anyone (low impact).
-5. Course reading and registration are permission rules enforced only in the UI.
+5. Registration toggle is enforced only in the UI (course reading is public by decision).
 6. `profiles` public SELECT exposes `role`, `is_banned`, `last_seen` (Inferred unintended; leaderboard/profile pages
    need only name/username/xp/level/solves/bio).

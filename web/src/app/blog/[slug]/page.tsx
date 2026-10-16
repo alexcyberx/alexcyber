@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import BlogImage from '@/components/BlogImage';
 import ViewCounter from '@/components/ViewCounter';
 import { capitalize, excerpt, formatDate, getPostBySlug, getPublishedPosts, renderContent, safeDecode } from '@/lib/blog';
+import { abs, breadcrumb, ld, OG_IMAGE, ORG, ORG_ID, PERSON, PERSON_ID } from '@/lib/seo';
 
 export const revalidate = 300;
 
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       publishedTime: post.publish_date || undefined,
       tags: post.tags || undefined,
-      images: post.image ? [post.image] : undefined,
+      images: post.image ? [post.image] : [OG_IMAGE],
     },
     twitter: { title, description, images: post.image ? [post.image] : undefined },
   };
@@ -45,8 +46,25 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(safeDecode(slug));
   if (!post) notFound();
 
+  const url = `/blog/${encodeURIComponent(post.slug)}`;
+  const json = ld([ORG, PERSON, {
+    '@type': 'BlogPosting',
+    '@id': abs(url) + '#post',
+    headline: post.meta_title || post.title,
+    description: excerpt(post),
+    url: abs(url),
+    mainEntityOfPage: abs(url),
+    datePublished: post.publish_date || undefined,
+    image: post.image ? [post.image] : undefined,
+    keywords: post.tags && post.tags.length ? post.tags.join(', ') : undefined,
+    articleSection: post.category || undefined,
+    author: { '@id': PERSON_ID },
+    publisher: { '@id': ORG_ID },
+  }, breadcrumb([{ name: 'Home', path: '/' }, { name: 'Blog', path: '/blog' }, { name: post.title, path: url }])]);
+
   return (
     <div id="blogPage" className="page active">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: json }} />
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: 'calc(var(--nav-h) + 32px) 24px 80px' }}>
         <div id="blogDetailView">
           <div className="blog-post-wrap">

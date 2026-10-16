@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import LeaderboardList from '@/components/LeaderboardList';
 import { getLeaderboard } from '@/lib/players';
+import { OG_IMAGE } from '@/lib/seo';
 
 export const revalidate = 60;
 
 const TITLE = 'Leaderboard - AlexCyberX';
 const DESC = 'See the top ranked AlexCyberX learners by XP, level, and CTF solves.';
-export const metadata: Metadata = { title: TITLE, description: DESC, alternates: { canonical: '/leaderboard' }, openGraph: { url: '/leaderboard', title: TITLE, description: DESC } };
+export const metadata: Metadata = { title: TITLE, description: DESC, alternates: { canonical: '/leaderboard' }, openGraph: { images: [OG_IMAGE], url: '/leaderboard', title: TITLE, description: DESC } };
 
 export default async function LeaderboardPage() {
   const rows = await getLeaderboard(50);
