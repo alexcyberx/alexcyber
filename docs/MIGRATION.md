@@ -25,6 +25,7 @@ The list of migrated paths lives in one place: `NEXT_PAGES` in `server/middlewar
 | 4b | `/rooms` (CTF list, room view, labs flow) | Done |
 | 5a | Security fixes in tools, community, admin panel (no page moves) | Done |
 | 5b | `/tools`, `/tools/mistake-analyzer`, `/resources` (+ `/community`, `/community/<id>` ported, switched off) | Done |
+| 5e | Course pages `/tutorials/<course>` + every chapter `/tutorials/<course>/<chapter>` | Done |
 | 5c | AlexRecon, AlexUtils, AlexTrace | |
 | 5d | Admin panel | |
 
@@ -71,8 +72,8 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 - **Remember me** works now (it did nothing): session in localStorage, or only sessionStorage for this tab.
   Same storage adapter in `js/config.js` and `web/src/lib/supabase.ts`, so both apps share the session.
 - **Nav search** on Next pages (`src/components/NavSearch.tsx`) uses `/search-index.json`, built on the server
-  from the DB: courses, every chapter of every course, CTF rooms, blog posts, tools. Results deep-link into the
-  SPA: `/tutorials/<course>?ch=<chapter-slug>`, `/rooms?open=<ctf-id>` (handled in `js/router.js`).
+  from the DB: courses, every chapter of every course, CTF rooms, blog posts, tools. Results deep-link to
+  `/tutorials/<course>/<chapter-slug>` (since step 5e; was `?ch=`), `/rooms?open=<ctf-id>`.
 - Next pages now also run the maintenance-mode check and page-view tracking (`SiteRuntime`), which the
   migrated pages had been missing since step 1 (their visits did not count in the admin dashboard).
 - Last-seen / login IP is recorded by the server: `POST /api/me/seen` (`server/routes/me.js`).
@@ -126,6 +127,36 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 - Blog, resources and community pages now start below the fixed nav (the old 40px padding put the page title
   and the blog post's "Back to Blog" button under the 58px nav), on the SPA too.
 - AlexRecon, AlexUtils, AlexTrace (`/tools/<name>`) are still SPA pages (step 5c).
+
+## Step 5e: course pages and chapters
+- Routes: `src/app/tutorials/[course]/layout.tsx` (sub-nav, sidebar, banner: `CourseShell.tsx`, stays mounted
+  between chapters), `[course]/page.tsx` (first chapter, like the SPA), `[course]/[chapter]/page.tsx` (one
+  page per chapter, 59 built ahead), shared code in `[course]/chapter.tsx`, lesson in `ChapterView.tsx`.
+  ISR 5 min. Proxy: `learn`/`learn2`/`learn3` in `NEXT_PAGES` and the `/tutorials/` prefix.
+- **Lesson text is not copied.** `src/lib/chapters.ts` runs the SPA's own files at build time in a Node vm with
+  a tiny DOM stub and keeps what each loader writes into the content box: `js/chapter-content/forensics-NN.js`
+  (+ the list in `js/router.js`), `js/chapters2.js` (`loadCyberChapter`), `js/chapters3.js`
+  (`loadEthicalChapter`). Banner + sidebar title come from `pages/learnN.html`. The HTML is server-rendered
+  unchanged (inline styles, red highlights). A lesson text change there needs a redeploy (like the CTF rooms).
+- **URLs:** `/tutorials/<course>/<chapter-slug>` (slug = same rule as `track_chapter_view` /
+  `content_chapters.slug`). Old `?ch=<slug>` links 301 there (Express, `nextProxy.js`; `CourseShell` also does it
+  on the Next app). `/tutorials/cyber-attacks` 308s to the right course, unknown course -> `/tutorials`, unknown
+  chapter -> the course. Nav search and the SPA's own search (`acxOpenChapterBySlug`) open the chapter URL.
+  `/tutorials/sitemap.xml` lists every enabled chapter (in `robots.txt`).
+- **Same behaviour as the SPA:** admin on/off switch (`content_chapters.enabled`: hidden in the sidebar,
+  skipped by Previous/Next, its URL goes to the next enabled chapter), Forensics ch. 12 text from the DB,
+  login gate (the lesson becomes a login prompt + modal in place, back to the same chapter after login),
+  `track_chapter_view` per chapter, page titles, mobile drawer closes on a chapter click, diagram iframe
+  height messages, lighter svg text greys.
+- **Language:** `src/lib/chapter-translate.ts` is the chapter part of `js/translate.js` (same Google endpoint,
+  filters, protected terms, and the same `acx_ch_*` localStorage cache). i18n.js's language modal reaches it
+  through `applyChapterTranslation` / `restoreLabTranslation` with `currentPage = learn|learn2|learn3`.
+  A small inline script hides the lesson before hydration when it will be translated or gated (no Hinglish
+  flash); CSS shows it after 6 s if scripts never run.
+- Rollback still works: with the proxy off, `/tutorials/<course>` is the SPA again, and `js/router.js` also
+  understands the new chapter URLs (`?ch=` links too).
+- Removing the SPA copy later: `#learnPage`/`#learn2Page`/`#learn3Page` + `#learnSubNav` in `index.html`,
+  `pages/learn*.html` stay (banner source), the loader code in `js/chapters*.js` stays (it is the content source).
 
 Not migrated yet (still SPA): AlexRecon, AlexUtils, AlexTrace, community (switched off), admin panel.
 

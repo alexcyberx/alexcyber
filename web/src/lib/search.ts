@@ -49,7 +49,7 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
       if (!page) return;
       out.push({
         type: 'chapter', title: c.title, sub: `${courseTitle[c.course] || c.course} • Ch ${n}`,
-        href: `${pathForPage(page)}?ch=${encodeURIComponent(c.slug)}`, tags: words(c.title),
+        href: `${pathForPage(page)}/${encodeURIComponent(c.slug)}`, tags: words(c.title),
       });
     });
     (ctf.data || []).forEach((c) => {

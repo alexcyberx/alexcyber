@@ -17,6 +17,11 @@ const NEXT_PAGES = {
   home:         '/',
   blog:         '/blog',
   courses:      '/tutorials',
+  // Course pages + every chapter (/tutorials/<course>/<chapter>), see the
+  // /tutorials/ prefix below.
+  learn:        '/tutorials/network-forensics',
+  learn2:       '/tutorials/cyber-attacks-fundamentals',
+  learn3:       '/tutorials/ethical-hacking',
   privacy:      '/privacy-policy',
   terms:        '/terms-of-service',
   disclaimer:   '/disclaimer',
@@ -38,10 +43,18 @@ const NEXT_PAGES = {
 const COMMUNITY_ON = process.env.NEXT_COMMUNITY === '1';
 if (COMMUNITY_ON) NEXT_PAGES.community = '/community';
 
-// Exact paths go to Next; /tutorials/<course> stays in the SPA.
+// Exact paths go to Next, plus everything under the prefixes.
 // /search-index.json feeds the nav search on the Next pages.
 const EXACT = new Set([...Object.values(NEXT_PAGES), '/search-index.json']);
-const PREFIXES = ['/blog/', '/u/', '/_next/', ...(COMMUNITY_ON ? ['/community/'] : [])];
+const PREFIXES = ['/blog/', '/u/', '/_next/', '/tutorials/', ...(COMMUNITY_ON ? ['/community/'] : [])];
+
+// Old chapter deep links (SPA + the first nav search): /tutorials/<course>?ch=<slug>
+// -> /tutorials/<course>/<slug>, the chapter's own page on Next.
+function chapterRedirect(req) {
+  const m = req.path.match(/^\/tutorials\/([a-z0-9-]+)\/?$/);
+  const ch = typeof req.query.ch === 'string' ? req.query.ch : '';
+  return m && /^[a-z0-9-]{1,120}$/.test(ch) ? `/tutorials/${m[1]}/${ch}` : null;
+}
 
 function isNextPath(p) {
   const clean = p.length > 1 ? p.replace(/\/+$/, '') : p;
@@ -94,6 +107,8 @@ async function fetchWithWake(target, method, headers) {
 function nextProxy(req, res, next) {
   if (!TARGET || !isNextPath(req.path)) return next();
   if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+  const moved = chapterRedirect(req);
+  if (moved) return res.redirect(301, moved);
 
   const target = new URL(TARGET + req.originalUrl);
   const headers = { host: target.host };
