@@ -190,7 +190,7 @@ Not migrated yet (still SPA): admin panel only (community is on Next by default 
 - Neutral greys and translucent whites go through `--fg-1..4`, `--fg-rgb`, `--surface/2/3`, `--line-strong`, `--nav-bg`,
   `--overlay` (mapped by `scripts/themeify.py`, kept for reference), so each theme only redefines variables.
 - **Which pages theme.** Only Next pages: `web/src/app/layout.tsx` runs `THEME_BOOT` (lib/theme.ts) in `<head>` before first
-  paint and sets `<html data-theme="dark|blue">`. Choice: `localStorage acx_theme` = `green` (default) / `blue` / `red`; any other
+  paint and sets `<html data-theme="dark|blue">`. Choice: `localStorage acx_theme2` = `green` (default) / `blue` / `red` (new key since 2026-10-16: tabs running the first picker rewrote `acx_theme` to "dark"; a blue/red value there is carried over once); any other
   saved value falls back to green. `components/ThemeToggle.tsx` sits next to the language button (desktop menu + mobile
   cards: each option is a mini live preview, Matrix/Midnight/Crimson; switching grows the new theme as a circle from the click point via the View Transitions API, instant where unsupported or with reduced motion). The old SPA never sets `data-theme`, so its pages stay green until they move to Next.
 - **Mouse glow.** `js/spotlight.js` (index.html + Next layout) adds `.spot-on` + `--mx/--my` to the card under the cursor and

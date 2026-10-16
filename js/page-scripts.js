@@ -134,12 +134,12 @@ async function handleAnalyzeCommand() {
   const command = input.value.trim();
   if (!command) {
     status.textContent = 'Please enter a command first.';
-    status.style.color = '#10b981';
+    status.style.color = 'var(--accent)';
     return;
   }
   if (!window._currentUser) {
     status.textContent = 'Please log in to use the analyzer.';
-    status.style.color = '#10b981';
+    status.style.color = 'var(--accent)';
     return;
   }
 
@@ -159,7 +159,7 @@ async function handleAnalyzeCommand() {
 
     if (!res.ok) {
       status.textContent = data.error || 'Something went wrong. Please try again.';
-      status.style.color = '#10b981';
+      status.style.color = 'var(--accent)';
       return;
     }
 
@@ -168,7 +168,7 @@ async function handleAnalyzeCommand() {
   } catch (e) {
     console.error('Cyber Mistake Analyzer error:', e);
     status.textContent = 'Network error. Please try again.';
-    status.style.color = '#10b981';
+    status.style.color = 'var(--accent)';
   } finally {
     btn.disabled = false;
     btn.style.opacity = '1';
@@ -213,7 +213,7 @@ function renderAnalyzerResult(data) {
       </div>
 
       <div>
-        <div style="font-family:'Inter',sans-serif;font-size:11px;color:#10b981;letter-spacing:0.5px;margin-bottom:8px;">✕ WHAT TO FIX</div>
+        <div style="font-family:'Inter',sans-serif;font-size:11px;color:var(--accent);letter-spacing:0.5px;margin-bottom:8px;">✕ WHAT TO FIX</div>
         ${listHtml(data.didWrong, '#ef4444')}
       </div>
 

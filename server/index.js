@@ -208,7 +208,8 @@ app.get([
   res.sendFile(path.join(__dirname, '../index.html'));
 });
 
-// 404
+// 404 (pages: Next's themed not-found page; everything else: JSON)
+app.use(nextProxy.notFoundPage);
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
 });

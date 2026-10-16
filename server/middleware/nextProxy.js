@@ -111,6 +111,18 @@ function nextProxy(req, res, next) {
   if (req.method !== 'GET' && req.method !== 'HEAD') return next();
   const moved = chapterRedirect(req);
   if (moved) return res.redirect(301, moved);
+  forward(req, res);
+}
+
+// Browser asks for a page nobody serves: show Next's themed "Page not found"
+// (it answers 404 for any unknown path). API clients still get the JSON 404.
+function notFoundPage(req, res, next) {
+  if (!TARGET || (req.method !== 'GET' && req.method !== 'HEAD')) return next();
+  if (req.path.startsWith('/api/') || req.accepts(['json', 'html']) !== 'html') return next();
+  forward(req, res);
+}
+
+function forward(req, res) {
 
   const target = new URL(TARGET + req.originalUrl);
   const headers = { host: target.host };
@@ -150,3 +162,4 @@ nextProxy.pages = TARGET ? NEXT_PAGES : {};
 nextProxy.warmUp = warmUp;
 
 module.exports = nextProxy;
+module.exports.notFoundPage = notFoundPage;
