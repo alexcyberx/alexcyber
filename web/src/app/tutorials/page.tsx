@@ -34,7 +34,7 @@ export default async function CoursesPage() {
           ) : (
             data.courses.map((c) => {
               const n = data.counts[c.course_key] || 0;
-              // Course pages are still in the SPA; it asks for login there if needed.
+              // Course pages (app/tutorials/[course]) ask for login themselves.
               return (
                 <a key={c.course_key} className="tut-card" href={pathForPage(c.page_key, '/tutorials')}>
                   <div className="card-icon-wrap"><CourseIcon name={c.icon_key} /></div>
