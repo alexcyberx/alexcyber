@@ -274,7 +274,7 @@ async function doSignup() {
   setBtnLoading(btn, false, 'Create Account');
 
   if (error) {
-    const safeMsg = error.message.includes('already registered') ? 'Ye email already registered hai.' :
+    const safeMsg = error.message.includes('already registered') ? 'This email is already registered.' :
                     error.message.includes('Password') ? 'Password must be at least 8 characters.' :
                     'Could not create account. Please try again.';
     authMsg('error','signupError', safeMsg); return;

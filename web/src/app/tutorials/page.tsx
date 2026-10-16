@@ -25,7 +25,7 @@ export default async function CoursesPage() {
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 10, letterSpacing: 4, color: 'var(--accent)', fontFamily: "'Rajdhani',sans-serif", fontWeight: 700, marginBottom: 10, padding: '3px 14px', border: '1px solid var(--glow-border)', borderRadius: 20, background: 'var(--red-dim)', display: 'inline-block' }} data-i18n="allcourses.label" suppressHydrationWarning>COURSES</div>
           <h1 style={{ fontFamily: "'Rajdhani',sans-serif", fontSize: 'clamp(24px,6vw,32px)', fontWeight: 700, color: 'var(--fg-1)', marginBottom: 10 }} data-i18n="allcourses.heading" suppressHydrationWarning>All Courses</h1>
-          <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, color: 'var(--fg-4)', lineHeight: 1.7 }} data-i18n="allcourses.desc" suppressHydrationWarning>Saare courses ek jagah. Jitna time milta hai utna naye courses add karte rehte hain, yahan hamesha latest list milegi.</p>
+          <p style={{ fontFamily: "'Inter',sans-serif", fontSize: 13, color: 'var(--fg-4)', lineHeight: 1.7 }} data-i18n="allcourses.desc" suppressHydrationWarning>All courses in one place. New courses get added regularly, this page always shows the latest list.</p>
         </div>
 
         <div className="cards-grid" id="allCoursesGrid">

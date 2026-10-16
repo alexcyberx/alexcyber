@@ -25,10 +25,10 @@ export default function ContactForm() {
     const n = name.trim(), em = email.trim(), m = msg.trim();
     const fail = (key: string, fb: string) => setStatus({ ok: false, text: t(key, fb) });
     if (!n) return fail('form.status.nameRequired', 'Apna naam daalo.');
-    if (n.length > 60) return fail('form.status.nameTooLong', 'Naam bahut lamba hai.');
+    if (n.length > 60) return fail('form.status.nameTooLong', 'Name is too long.');
     if (!EMAIL_RE.test(em)) return fail('form.status.emailInvalid', 'Valid email daalo.');
-    if (m.length < 10) return fail('form.status.msgTooShort', 'Message kam se kam 10 characters ka hona chahiye.');
-    if (m.length > 1000) return fail('form.status.msgTooLong', 'Message 1000 characters se zyada nahi ho sakta.');
+    if (m.length < 10) return fail('form.status.msgTooShort', 'Message must be at least 10 characters.');
+    if (m.length > 1000) return fail('form.status.msgTooLong', 'Message cannot be longer than 1000 characters.');
     if (/<[^>]*>/.test(n + m)) return fail('form.status.noHtml', 'Special characters are not allowed.');
     const sb = browserSupabase();
     if (!sb) return fail('form.status.sendErrorRetry', 'Message could not be sent. Please try again in a moment.');
@@ -37,9 +37,9 @@ export default function ContactForm() {
     setBusy(false);
     if (error) {
       const limited = /too many/i.test(error.message);
-      return fail(limited ? 'form.status.tooMany' : 'form.status.sendError', limited ? 'Bahut saare messages bheje gaye. Thodi der baad try karo.' : 'Message could not be sent. Please try again.');
+      return fail(limited ? 'form.status.tooMany' : 'form.status.sendError', limited ? 'Too many messages sent. Please try again in a while.' : 'Message could not be sent. Please try again.');
     }
-    setStatus({ ok: true, text: t('form.status.success', 'Message mil gaya! Jaldi reply karenge.') });
+    setStatus({ ok: true, text: t('form.status.success', 'Message received! We will reply soon.') });
     setName(''); setEmail(''); setMsg('');
   }
 
