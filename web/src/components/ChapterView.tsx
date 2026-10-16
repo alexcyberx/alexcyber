@@ -13,10 +13,11 @@
 // The lesson HTML itself (inline styles, red highlights) is unchanged.
 
 import Link from 'next/link';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { browserSupabase } from '@/lib/supabase';
 import { currentLang, readCache, sanitize, translateChapter } from '@/lib/chapter-translate';
+import { themeChapterHtml } from '@/lib/chapter-theme';
 
 type NavTarget = { title: string; href: string } | null;
 
@@ -113,6 +114,9 @@ export default function ChapterView(p: Props) {
     });
   }, [shown, gated, p.svgFill]);
 
+  // Old fixed colours -> theme variables (lib/chapter-theme.ts).
+  const themed = useMemo(() => themeChapterHtml(shown), [shown]);
+
   if (gated) {
     return (
       <div className="content course-gate" id={p.ids.content}>
@@ -150,7 +154,7 @@ export default function ChapterView(p: Props) {
         id={p.ids.content}
         data-chapter={p.slug}
         suppressHydrationWarning
-        dangerouslySetInnerHTML={{ __html: shown }}
+        dangerouslySetInnerHTML={{ __html: themed }}
       />
       <div className="chapter-nav chapter-body" id={p.ids.nav}>
         <NavBtn dir="prev" id={p.ids.prev} target={p.prev} />

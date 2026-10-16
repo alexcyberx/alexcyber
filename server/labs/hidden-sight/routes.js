@@ -1,16 +1,18 @@
 const express    = require('express');
+const { flagFor } = require('../flags');
 const router     = express.Router();
 const { getHiddenDb } = require('../../db/sqlite');
 const { flagLimiter }  = require('../../middleware/rateLimit');
 const { logAttempt }   = require('../../middleware/logger');
 
-const FLAG  = process.env.FLAG_HIDDEN || 'ACX{c0mm3nts_4r3_n0t_s3cr3t}';
-const FLAG_ALT = 'ACX{html_comments_are_not_safe}'; // legacy alias, also accept
-const PART1_B64  = 'UEFSVDE6QUNYe2MwbW0zbnRzXw=='; // decodes to PART1:ACX{c0mm3nts_
+const FLAG  = flagFor('web-01'); // server/labs/flags.js
+// The flag is split in three: an HTML comment (base64 "PART1:..."), the
+// X-Debug-Token header on /internal/ and a hex string in portal.js.
+const PART1_B64  = Buffer.from('PART1:' + FLAG.slice(0, 13)).toString('base64'); // ACX{c0mm3nts_
 const FAKE1_B64  = 'Q29ycFgtQnVpbGQtdjIuNC4xLWludGVybmFs'; // decodes to CorpX-Build-v2.4.1-internal
 const FAKE2_B64  = 'c2Vzc2lvbl9iYWNrdXBfa2V5X0RPX05PVF9TSEFSRQ=='; // decodes to session_backup_key_DO_NOT_SHARE
-const PART2_HDR  = '4r3_';   // hidden in X-Debug-Token response header on /internal/
-const PART3_HEX  = '6e30745f7333637233747d'; // hex of n0t_s3cr3t}
+const PART2_HDR  = FLAG.slice(13, 17); // 4r3_ , hidden in X-Debug-Token response header on /internal/
+const PART3_HEX  = Buffer.from(FLAG.slice(17)).toString('hex'); // n0t_s3cr3t_..}
 
 const INSTANCE_DURATION_SEC = 30 * 60; // 30 minutes per instance
 
@@ -251,7 +253,7 @@ router.post('/submit', flagLimiter, async (req, res) => {
   // client tak jaata hi nahi (hang, 500 bhi nahi). Type bhi check karo.
   if (typeof flag !== 'string' || !flag.trim()) return res.status(400).json({ error: 'No flag provided' });
 
-  const correct = flag.trim() === FLAG || flag.trim() === FLAG_ALT;
+  const correct = flag.trim() === FLAG;
   logAttempt('HIDDEN', ip, flag.trim(), correct ? 'correct' : 'wrong');
 
   try {

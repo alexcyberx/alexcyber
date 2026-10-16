@@ -1,9 +1,10 @@
 const express  = require('express');
+const { flagFor } = require('../flags');
 const router   = express.Router();
 const { flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt }  = require('../../middleware/logger');
 
-const FLAG = process.env.FLAG_METADATA || 'ACX{m3t4_d4t4_1s_3v3rywh3r3}';
+const FLAG = flagFor('for-02'); // server/labs/flags.js
 
 const INSTANCE_DURATION_SEC = 30 * 60;
 const instances = {};

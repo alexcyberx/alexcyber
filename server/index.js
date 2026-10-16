@@ -84,7 +84,7 @@ app.use((req, res, next) => {
 // SECURITY FIX: pehle yahan express.static(path.join(__dirname, '..')) tha,
 // jo poora project root serve karta tha, matlab /server/**, /data/hidden.db,
 // /package.json, /windows-app/** sab publicly download ho sakte the (labs ke
-// routes.js mein default flags bhi hain). Ab sirf frontend ke public folders
+// routes.js mein tab default flags bhi the). Ab sirf frontend ke public folders
 // aur chand root files whitelist hain. Naya public folder add karna ho to
 // PUBLIC_DIRS mein naam jodo.
 const ROOT = path.join(__dirname, '..');
@@ -134,8 +134,6 @@ app.get('/panel-1b47c1ab561e.html', (req, res) => {
 });
 
 // Lab API routes
-app.use('/api/lab/web01', require('./labs/web01-sqli/routes'));
-app.use('/api/lab/web02', require('./labs/web02-xss/routes'));
 // Lab-flow challenges: save the solve + XP server-side when /submit is correct.
 const { recordLabSolve } = require('./labs/recordSolve');
 app.use('/api/lab/hidden', recordLabSolve('web-01'), require('./labs/hidden-sight/routes'));
@@ -224,6 +222,9 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`AlexCyberX CTF running on http://localhost:${PORT}`);
   nextProxy.warmUp();
+  // CTF page flag check (submit_ctf_flag) compares against these hashes.
+  require('./labs/flags').syncFlagHashes(require('./middleware/toolAccess').getSupabaseAdmin())
+    .catch((e) => console.error('[flags] sync failed', e.message));
 });
 
 // ── INSTANCE MEMORY CLEANUP ─────────────────────────────────────

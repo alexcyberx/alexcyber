@@ -1,11 +1,27 @@
 const express = require('express');
+const { flagFor } = require('../flags');
 const router  = express.Router();
-const path    = require('path');
 const { flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt }  = require('../../middleware/logger');
 
-const FLAG      = process.env.FLAG_BASE64 || 'ACX{base64_is_not_encryption}';
-const FILE_PATH = path.join(__dirname, '../../files/ns7_telemetry_snapshot.jpg');
+const FLAG      = flagFor('cry-02'); // server/labs/flags.js
+
+// The "jpg" is a base64 text file: telemetry message whose payload is the flag
+// in base64 again (two layers). Built from the flag at start-up.
+const MESSAGE = [
+  'NOVASAT TELEMETRY ARCHIVE',
+  'Satellite: NS-7 ORION',
+  'Timestamp: 2024-11-21T02:44:11Z',
+  'Operator: ground-ctrl-04',
+  '',
+  '=== ENCODED PAYLOAD ===',
+  Buffer.from(FLAG).toString('base64'),
+  '=== END PAYLOAD ===',
+  '',
+  'NOTE: Payload contains mission-critical data.',
+  'Decode before transmission review.',
+].join('\n');
+const FILE_BUF = Buffer.from(Buffer.from(MESSAGE).toString('base64'));
 
 // Session id, dusre labs jaisa hi resolve hota hai: header > query > ip fallback
 function sid(req) { return req.headers['x-lab-session'] || req.query.session || req.ip; }
@@ -13,19 +29,16 @@ function sid(req) { return req.headers['x-lab-session'] || req.query.session || 
 // GET /api/lab/base64/download
 router.get('/download', (req, res) => {
   logAttempt('BASE64', sid(req), 'GET /download', 'file_downloaded');
-  res.download(FILE_PATH, 'ns7_telemetry_snapshot.jpg', (err) => {
-    if (err) {
-      console.error('[BASE64] download error:', err.message);
-      if (!res.headersSent) res.status(500).json({ error: 'File not found' });
-    }
-  });
+  res.setHeader('Content-Type', 'image/jpeg');
+  res.setHeader('Content-Disposition', 'attachment; filename="ns7_telemetry_snapshot.jpg"');
+  res.send(FILE_BUF);
 });
 
 // GET /api/lab/base64/info
 router.get('/info', (req, res) => {
   res.json({
     filename:   'ns7_telemetry_snapshot.jpg',
-    size_bytes: 364
+    size_bytes: FILE_BUF.length
   });
 });
 

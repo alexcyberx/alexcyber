@@ -92,12 +92,11 @@ nav.nx .hamburger.open span:nth-child(1), nav.nx .hamburger.open span:nth-child(
 }
 
 /* Mobile: Language | Theme split row; Theme expands the preview cards. */
-.m-split { display: flex; align-items: center; }
-.m-split > a.m-nav { flex: 1; min-width: 0; }
-.m-split-line { width: 1px; height: 22px; background: var(--border-hover); flex-shrink: 0; margin: 0 4px; }
-.mobile-menu button.m-nav.m-theme-btn { width: auto; flex-shrink: 0; gap: 8px; padding: 13px 12px; }
+.nx-mobile .m-pref { padding: 4px 0 2px; }
+.nx-mobile .m-pref a, .nx-mobile .m-pref button { display: flex; align-items: center; justify-content: center; gap: 8px; }
+/* The filled Theme button: its icon's half-fill is the accent, so draw it in the button text colour. */
+.m-pref .ms .tp-icon path { fill: currentColor !important; }
 .m-theme-btn svg:last-child { transition: transform .35s cubic-bezier(.22,1,.36,1); opacity: .7; }
-.m-theme-btn.open { color: var(--white); }
 .m-theme-btn.open svg:last-child { transform: rotate(180deg); }
 .m-theme-btn .tp-icon { transition: transform .5s cubic-bezier(.22,1,.36,1); }
 .m-theme-btn.open .tp-icon { transform: rotate(180deg); }

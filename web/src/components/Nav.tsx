@@ -296,14 +296,14 @@ export default function Nav() {
         <a className="m-nav" href="/#about" data-i18n="nav.about" suppressHydrationWarning>About</a>
         <a className="m-nav" href="/#contact" data-i18n="nav.contact" suppressHydrationWarning>Contact</a>
         <div className="m-divider"></div>
-        {/* Language | Theme on one row; Theme opens the preview cards below. */}
-        <div className="m-split">
-          <a className="m-nav" href="/?lang=1" onClick={(e) => { setMenuOpen(false); openLangModal(e); }} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        {/* Language and Theme as two buttons, like My Profile / Sign Out below.
+            Theme opens the preview cards under them. */}
+        <div className="m-auth m-pref">
+          <a className="ml" href="/?lang=1" onClick={(e) => { setMenuOpen(false); openLangModal(e); }}>
             <GlobeIcon size={15} />
-            <span id="mLangLabel" data-i18n="nav.lang" suppressHydrationWarning>Select Language</span>
+            <span id="mLangLabel" suppressHydrationWarning>Language</span>
           </a>
-          <span className="m-split-line" aria-hidden="true" />
-          <button className={'m-nav m-theme-btn' + (mThemeOpen ? ' open' : '')} onClick={(e) => { e.stopPropagation(); setMThemeOpen((v) => !v); }}
+          <button className={'ms m-theme-btn' + (mThemeOpen ? ' open' : '')} onClick={(e) => { e.stopPropagation(); setMThemeOpen((v) => !v); }}
             aria-expanded={mThemeOpen} aria-controls="mThemePanel">
             <ThemeIcon /> <span>Theme</span> <Chevron />
           </button>

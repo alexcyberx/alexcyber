@@ -1,9 +1,10 @@
 const express = require('express');
+const { flagFor } = require('../flags');
 const router  = express.Router();
 const { loginLimiter, flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt }  = require('../../middleware/logger');
 
-const FLAG        = process.env.FLAG_WEB06 || 'ACX{tru5t_n0th1ng_fr0m_th3_cl13nt}';
+const FLAG        = flagFor('web-06'); // server/labs/flags.js
 const COOKIE_NAME  = 'acx_session';
 
 // Session id, dusre labs jaisa hi resolve hota hai: header > query > ip fallback

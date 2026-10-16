@@ -1,11 +1,11 @@
 const express  = require('express');
+const { flagFor } = require('../flags');
 const router   = express.Router();
-const path     = require('path');
 const { flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt }  = require('../../middleware/logger');
 
-const FLAG      = process.env.FLAG_PACKET || 'ACX{p4ck3t_d3t3ct1v3_dn5_3xf1l}';
-const PCAP_PATH = path.join(__dirname, '../../files/corpx_network.pcap');
+const FLAG      = flagFor('for-01'); // server/labs/flags.js
+const PCAP = require('./pcap').buildPcap(FLAG); // DNS exfil of the flag, see pcap.js
 
 // ── INSTANCE STATE (same pattern as metadata/robots/hidden/cookie/sqli101) ──
 const INSTANCE_DURATION_SEC = 30 * 60;
@@ -220,20 +220,17 @@ router.get('/download', (req, res) => {
   const s = sid(req);
   if (!isInstanceRunning(s)) return res.status(403).send('Instance not active');
   logAttempt('PACKET', req.ip, 'GET /download', 'pcap_downloaded');
-  res.download(PCAP_PATH, 'corpx_network.pcap', (err) => {
-    if (err) {
-      console.error('[PACKET] download error:', err.message);
-      if (!res.headersSent) res.status(500).json({ error: 'File not found' });
-    }
-  });
+  res.setHeader('Content-Type', 'application/vnd.tcpdump.pcap');
+  res.setHeader('Content-Disposition', 'attachment; filename="corpx_network.pcap"');
+  res.send(PCAP.buf);
 });
 
 // GET /api/lab/packet/info
 router.get('/info', (req, res) => {
   res.json({
     filename:     'corpx_network.pcap',
-    size_bytes:   2167,
-    packet_count: 21,
+    size_bytes:   PCAP.buf.length,
+    packet_count: PCAP.packets,
     duration_sec: 20,
     note: 'Recorded at the AlexNet egress point. One internal host showed unusual outbound behaviour during this window.'
   });

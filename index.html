@@ -541,7 +541,7 @@
       <line x1="1.5" y1="5" x2="13.5" y2="5" stroke="#6a6a7a" stroke-width="1.2"/>
       <line x1="1.5" y1="10" x2="13.5" y2="10" stroke="#6a6a7a" stroke-width="1.2"/>
     </svg>
-    <span id="mLangLabel" data-i18n="nav.lang">Select Language</span>
+    <span id="mLangLabel">Select Language</span>
   </button>
   <div class="m-divider"></div>
   <div class="m-auth" id="mobileAuthBtns">
@@ -2156,58 +2156,12 @@ function declineCookies(){
   if(b) b.style.display='none';
 }
 </script>
-<script>
-/* CTF Lab: Cookie Monster (web-02), isAdmin cookie lab */
-(function() {
-  // Set lab cookie if not exists, user can manipulate this in DevTools
-  if (!document.cookie.includes('isAdmin')) {
-    document.cookie = 'isAdmin=false; path=/; SameSite=Lax';
-    document.cookie = 'session=user_guest; path=/; SameSite=Lax';
-  }
-  // Check if user has manipulated isAdmin cookie
-  // FIX Bug 1: Sirf tab pe show karo jab CTF page active ho
-  // AUR Cookie Monster challenge modal open ho (ctfCurrentChallenge === 'cookie-monster')
-  function checkCTFCookie() {
-    // CTF page visible hai?
-    const ctfPage = document.getElementById('ctfPage');
-    if (!ctfPage || ctfPage.style.display === 'none' || !ctfPage.offsetParent) {
-      const el = document.getElementById('ctfCookieFlag');
-      if (el) el.style.display = 'none';
-      return;
-    }
-    // Cookie Monster challenge modal open hai?
-    const isCookieModalOpen =
-      typeof ctfCurrentChallenge !== 'undefined' &&
-      ctfCurrentChallenge === 'cookie-monster';
-    if (!isCookieModalOpen) {
-      const el = document.getElementById('ctfCookieFlag');
-      if (el) el.style.display = 'none';
-      return;
-    }
-    const cookies = Object.fromEntries(document.cookie.split('; ').map(c => c.split('=')));
-    if (cookies['isAdmin'] === 'true') {
-      const el = document.getElementById('ctfCookieFlag');
-      const val = document.getElementById('ctfCookieFlagVal');
-      if (el && val) {
-        val.textContent = 'ACX{cookies_can_be_tampered}';
-        el.style.display = 'block';
-      }
-    } else {
-      const el = document.getElementById('ctfCookieFlag');
-      if (el) el.style.display = 'none';
-    }
-  }
-  setInterval(checkCTFCookie, 1000);
-})();
-</script>
+
 
 
 <!-- ═══════════ CTF PAGE ═══════════ -->
 <div id="ctfPage" class="page">
-<!-- CTF Lab: Cookie Monster flag reveal (only shows when isAdmin=true cookie set) -->
-<div id="ctfCookieFlag" style="display:none;position:fixed;top:70px;right:20px;z-index:9999;background:#0a0a12;border:1px solid #4ade80;border-radius:10px;padding:12px 18px;font-family:monospace;font-size:13px;color:#4ade80;box-shadow:0 4px 20px rgba(74,222,128,0.15);">
-  🚩 Flag: <span id="ctfCookieFlagVal"></span>
-</div>
+
 <link rel="stylesheet" href="/css/ctf-room.css">
 
 <div class="ctf-wrap">
