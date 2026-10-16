@@ -47,6 +47,7 @@ Last verified: 2026-10-16 (commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · M
 ## 3. Authenticated endpoints (Supabase JWT, verified server-side)
 | Route | File | Limits | Notes |
 |---|---|---|---|
+| `GET /rooms/details` (Next) | `web/src/app/rooms/details/route.ts` | — | room scenario + hints; Bearer token checked with `auth.getUser`; `no-store`, `noindex`. The `/rooms` HTML ships only the card texts |
 | `POST /api/me/seen` | `server/routes/me.js:16` | 20/10 min/IP | service role writes `profiles.last_login_ip` |
 | `POST /api/tools/analyze-command` | `server/tools/mistake-analyzer/routes.js:143` | 60/10 min/IP pre-auth, 15/10 min/user, 150/10 min global | ≤500 chars → Gemini (key in URL, WEAKNESS) |
 | `/api/alexutils/*` (ssl-check, mac-lookup, cve-search, ip-lookup, dns-resolve) | `server/tools/alexutils/routes.js:35-136` | per-user limiters | SSRF checks in `target.js`; cve query length unbounded (low) |

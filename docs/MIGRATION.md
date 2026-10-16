@@ -108,7 +108,9 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 - Coming back from a lab tab works the same three ways (`window.opener.acxLabReturn`, the
   `acx_return_to_modal` storage signal, `acx_back_to_ctf` after a same-tab redirect), plus `/rooms?open=<id>`
   (kept through the login modal).
-- `/rooms/<anything>` is still the old SPA.
+- Scenario and hints are not in the `/rooms` HTML (owner: CTF is login-only). After login RoomsView fetches them
+  from `/rooms/details` (Next route, Bearer token; the Express proxy passes `authorization`).
+- `/rooms/<anything>` else is still the old SPA.
 
 ## Step 5b: tools hub, Mistake Analyzer, resources, community
 - `/tools` (ISR 1 min, `ToolsHub.tsx`): same 4 cards, now real links. The admin on/off switch (`tool_settings`)

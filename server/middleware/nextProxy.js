@@ -49,7 +49,7 @@ if (COMMUNITY_ON) NEXT_PAGES.community = '/community';
 // /search-index.json feeds the nav search on the Next pages.
 // robots.txt, sitemap.xml and llms.txt are built by Next from one site URL
 // (NEXT_PUBLIC_SITE_URL); the files in the repo root are only the fallback.
-const EXACT = new Set([...Object.values(NEXT_PAGES), '/search-index.json', '/robots.txt', '/sitemap.xml', '/llms.txt', '/opengraph-image', '/twitter-image']);
+const EXACT = new Set([...Object.values(NEXT_PAGES), '/search-index.json', '/robots.txt', '/sitemap.xml', '/llms.txt', '/opengraph-image', '/twitter-image', '/rooms/details']);
 const PREFIXES = ['/blog/', '/u/', '/_next/', '/tutorials/', ...(COMMUNITY_ON ? ['/community/'] : [])];
 
 // Old chapter deep links (SPA + the first nav search): /tutorials/<course>?ch=<slug>
@@ -68,8 +68,9 @@ function isNextPath(p) {
 // Only plain browser headers go upstream. Forwarding everything also sent
 // Render's own edge headers (render-proxy-ttl, rndr-id, cf-*, x-forwarded-*),
 // and Render answered a quick 502 instead of waking the sleeping Next service.
+// authorization: /rooms/details checks the player's Supabase token.
 const PASS_HEADERS = [
-  'accept', 'accept-encoding', 'accept-language', 'cache-control', 'cookie', 'if-modified-since',
+  'accept', 'authorization', 'accept-encoding', 'accept-language', 'cache-control', 'cookie', 'if-modified-since',
   'if-none-match', 'pragma', 'range', 'referer', 'user-agent',
   'rsc', 'next-router-state-tree', 'next-router-prefetch', 'next-router-segment-prefetch', 'next-url',
 ];
