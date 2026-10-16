@@ -105,7 +105,7 @@ function TranslateLoader({ lang, done, total }: { lang: string; done: number; to
         </svg>
         <div style={{ fontFamily: "'Inter',sans-serif", fontSize: 12, fontWeight: 600, color: 'var(--fg-1)', letterSpacing: 0.3, whiteSpace: 'nowrap' }}>Translating to {lang}</div>
         <div style={{ width: 160, height: 3, background: 'rgba(var(--fg-rgb),0.07)', borderRadius: 3, overflow: 'hidden' }}>
-          <div id="xlBar" style={{ height: '100%', width: (total ? Math.round(done / total * 100) : 0) + '%', background: 'linear-gradient(90deg,var(--accent),#6ee7b7)', borderRadius: 3, transition: 'width 0.12s' }}></div>
+          <div id="xlBar" style={{ height: '100%', width: (total ? Math.round(done / total * 100) : 0) + '%', background: 'linear-gradient(90deg,var(--accent),var(--accent-bright))', borderRadius: 3, transition: 'width 0.12s' }}></div>
         </div>
         <div id="xlStatus" style={{ fontFamily: "'Inter',sans-serif", fontSize: 11, color: 'var(--fg-4)' }}>{done ? `${done} / ${total} done` : 'Starting...'}</div>
       </div>

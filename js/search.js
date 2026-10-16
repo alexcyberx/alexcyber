@@ -203,11 +203,11 @@ function _renderResults(results, q, dropdownEl, opts) {
   }
   dropdownEl.innerHTML = head + results.map((item, i) => {
     const iconSvg = item.type === 'course'
-      ? `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2" stroke="#10b981" stroke-width="1.2"/><path d="M4 6.5h5M4 4.5h3" stroke="#10b981" stroke-width="1.2" stroke-linecap="round"/></svg>`
+      ? `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect style="stroke:var(--accent)" x="1" y="1" width="11" height="11" rx="2" stroke-width="1.2"/><path style="stroke:var(--accent)" d="M4 6.5h5M4 4.5h3" stroke-width="1.2" stroke-linecap="round"/></svg>`
       : item.type === 'ctf'
-      ? `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 1.5v10M2 1.5h7l-1.2 2.2L9 6H2" stroke="#10b981" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      ? `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path style="stroke:var(--accent)" d="M2 1.5v10M2 1.5h7l-1.2 2.2L9 6H2" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
       : item.type === 'tool'
-      ? `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M8.5 1.5a2.4 2.4 0 00-2.4 3L1.7 8.9a1.1 1.1 0 001.6 1.6l4.4-4.4a2.4 2.4 0 003-2.4l-1.7 1.7-1.3-1.3 1.7-1.7a2.4 2.4 0 00-1.7-.5z" stroke="#10b981" stroke-width="1.1" stroke-linejoin="round"/></svg>`
+      ? `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path style="stroke:var(--accent)" d="M8.5 1.5a2.4 2.4 0 00-2.4 3L1.7 8.9a1.1 1.1 0 001.6 1.6l4.4-4.4a2.4 2.4 0 003-2.4l-1.7 1.7-1.3-1.3 1.7-1.7a2.4 2.4 0 00-1.7-.5z" stroke-width="1.1" stroke-linejoin="round"/></svg>`
       : `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 10l4-8 4 8" stroke="#555" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 7h5" stroke="#555" stroke-width="1.2" stroke-linecap="round"/></svg>`;
     const badgeLabel = item.type === 'course' ? 'Course' : item.type === 'ctf' ? 'CTF' : item.type === 'tool' ? 'Tool' : 'Chapter';
     const hiTitle = escapeHtml(item.title).replace(

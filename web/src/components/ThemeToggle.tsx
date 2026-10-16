@@ -7,7 +7,7 @@
 // `inline` renders the same cards in the mobile menu.
 
 import { useEffect, useRef, useState } from 'react';
-import { applyPref, readPref, type ThemePref } from '@/lib/theme';
+import { applyPref, paintTheme, readPref, THEME_KEY, type ThemePref } from '@/lib/theme';
 
 type Opt = { value: ThemePref; name: string; sub: string; bg: string; card: string; line: string; accent: string; text: string };
 
@@ -64,9 +64,15 @@ export default function ThemeToggle({ inline = false }: { inline?: boolean }) {
 
   useEffect(() => {
     setPref(readPref());
-    const onStorage = (e: StorageEvent) => { if (e.key === 'acx_theme') { const p = readPref(); setPref(p); applyPref(p); } };
+    // Another tab changed the theme: follow it, but never write back. Writing
+    // here made tabs still running older code (which saved "dark"/"light")
+    // overwrite each other, so a Blue page flipped to Green.
+    const onStorage = (e: StorageEvent) => { if (e.key === THEME_KEY) { const p = readPref(); setPref(p); paintTheme(p); } };
+    // Back/forward cache restores an old snapshot: repaint from the saved choice.
+    const onShow = () => { const p = readPref(); setPref(p); paintTheme(p); };
     window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
+    window.addEventListener('pageshow', onShow);
+    return () => { window.removeEventListener('storage', onStorage); window.removeEventListener('pageshow', onShow); };
   }, []);
 
   useEffect(() => {

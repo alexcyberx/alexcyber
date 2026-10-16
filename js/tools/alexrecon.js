@@ -468,7 +468,7 @@ function arExportHtml(data) {
 <style>
   ${toolThemeVarsCss()}
   body { background:#0a0a0c; color:#f4f4f5; font-family:Arial,sans-serif; padding:24px; max-width:900px; margin:0 auto; }
-  h1 { color:#10b981; }
+  h1 { color:var(--accent); }
   details { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:12px 16px; margin-bottom:10px; }
   summary { cursor:pointer; font-weight:700; }
 </style>
@@ -553,8 +553,8 @@ function arExportPdf(data) {
 let _arGraph = null; // { nodes, links, canvas, ctx, transform, animId }
 
 const AR_NODE_COLORS = {
-  root: '#10b981',   // drawn in the theme accent (arGraphColorFor)
-  domain: '#10b981',
+  root: 'var(--accent)',   // drawn in the theme accent (arGraphColorFor)
+  domain: 'var(--accent)',
   subdomain: '#f472b6',
   ip: '#60a5fa',
   port: '#fbbf24',

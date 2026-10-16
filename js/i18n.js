@@ -18,7 +18,7 @@ function escapeHtml(str) {
 const LANG_KEY = 'acx_lang_v4';
 
 const LANGUAGES = [
-  {code:'hl', label:'Hinglish', sub:'Hinglish',  clr:'#10b981'},
+  {code:'hl', label:'Hinglish', sub:'Hinglish',  clr:'var(--accent)'},
   {code:'hi', label:'हिंदी',   sub:'Hindi',     clr:'#FF9933'},
   {code:'en', label:'English', sub:'English',   clr:'#012169'},
   {code:'pa', label:'ਪੰਜਾਬੀ', sub:'Punjabi',   clr:'#00843D'},
@@ -35,7 +35,7 @@ function flagSVG(clr, code) {
   const safeClr  = escapeHtml(String(clr));
   const safeCode = escapeHtml(String(code).toUpperCase().slice(0, 2));
   return `<svg width="20" height="13" viewBox="0 0 20 13" style="border-radius:2px;flex-shrink:0;">
-    <rect width="20" height="13" fill="${safeClr}" rx="2"/>
+    <rect width="20" height="13" style="fill:${safeClr}" rx="2"/>
     <text x="10" y="9.5" text-anchor="middle" font-size="6.5" font-weight="700" font-family="monospace" fill="rgba(255,255,255,0.9)">${safeCode}</text>
   </svg>`;
 }
@@ -50,10 +50,10 @@ function buildLangGrid() {
     const b = document.createElement('button');
     b.setAttribute('data-code', l.code);
     b.onclick = () => pickLang(l.code);
-    b.style.cssText = `display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:8px;width:100%;text-align:left;cursor:pointer;transition:all 0.15s;${active?'background:rgba(16,185,129,0.13);border:1px solid rgba(16,185,129,0.45);':'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);'}`;
-    b.innerHTML = `${flagSVG(l.clr, l.code)}<div><div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:${active?'#f4f4f5':'#b0b0b8'};line-height:1.2;">${escapeHtml(l.label)}</div><div style="font-family:'Inter',sans-serif;font-size:10px;color:#505060;">${escapeHtml(l.sub)}</div></div>${active?`<svg style="margin-left:auto;flex-shrink:0;" width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.8" stroke="#10b981" stroke-width="1.2"/><path d="M3 5.5l1.5 1.5 3-3" stroke="#10b981" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}`;
-    b.onmouseover = () => { if(l.code!==selectedLang) b.style.background='rgba(255,255,255,0.06)'; };
-    b.onmouseout  = () => { if(l.code!==selectedLang) b.style.background='rgba(255,255,255,0.03)'; };
+    b.style.cssText = `display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:8px;width:100%;text-align:left;cursor:pointer;transition:all 0.15s;${active?'background:rgba(var(--accent-rgb),0.13);border:1px solid rgba(var(--accent-rgb),0.45);':'background:rgba(var(--fg-rgb),0.03);border:1px solid rgba(var(--fg-rgb),0.06);'}`;
+    b.innerHTML = `${flagSVG(l.clr, l.code)}<div><div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:${active?'#f4f4f5':'#b0b0b8'};line-height:1.2;">${escapeHtml(l.label)}</div><div style="font-family:'Inter',sans-serif;font-size:10px;color:var(--fg-4);">${escapeHtml(l.sub)}</div></div>${active?`<svg style="margin-left:auto;flex-shrink:0;" width="11" height="11" viewBox="0 0 11 11" fill="none"><circle style="stroke:var(--accent)" cx="5.5" cy="5.5" r="4.8" stroke-width="1.2"/><path style="stroke:var(--accent)" d="M3 5.5l1.5 1.5 3-3" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}`;
+    b.onmouseover = () => { if(l.code!==selectedLang) b.style.background='rgba(var(--fg-rgb),0.06)'; };
+    b.onmouseout  = () => { if(l.code!==selectedLang) b.style.background='rgba(var(--fg-rgb),0.03)'; };
     g.appendChild(b);
   });
 }

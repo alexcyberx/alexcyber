@@ -12,29 +12,29 @@
 // Naya icon chahiye ho to bas yahan ek naya key add karo.
 const COURSE_ICONS = {
   radar: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-    <circle cx="10" cy="10" r="8" stroke="#10b981" stroke-width="1.2"/>
+    <circle style="stroke:var(--accent)" cx="10" cy="10" r="8" stroke-width="1.2"/>
     <circle cx="10" cy="10" r="3" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
-    <line x1="4" y1="10" x2="7" y2="10" stroke="#10b981" stroke-width="1"/>
-    <line x1="13" y1="10" x2="16" y2="10" stroke="#10b981" stroke-width="1"/>
-    <line x1="10" y1="4" x2="10" y2="7" stroke="#10b981" stroke-width="1"/>
-    <line x1="10" y1="13" x2="10" y2="16" stroke="#10b981" stroke-width="1"/>
-    <line x1="12.5" y1="12.5" x2="15" y2="15" stroke="#10b981" stroke-width="1.5" stroke-linecap="round"/>
+    <line style="stroke:var(--accent)" x1="4" y1="10" x2="7" y2="10" stroke-width="1"/>
+    <line style="stroke:var(--accent)" x1="13" y1="10" x2="16" y2="10" stroke-width="1"/>
+    <line style="stroke:var(--accent)" x1="10" y1="4" x2="10" y2="7" stroke-width="1"/>
+    <line style="stroke:var(--accent)" x1="10" y1="13" x2="10" y2="16" stroke-width="1"/>
+    <line style="stroke:var(--accent)" x1="12.5" y1="12.5" x2="15" y2="15" stroke-width="1.5" stroke-linecap="round"/>
   </svg>`,
   shield: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-    <path d="M10 2.5l6.5 3v4.3c0 4-2.7 7.4-6.5 8.7-3.8-1.3-6.5-4.7-6.5-8.7V5.5l6.5-3Z" stroke="#10b981" stroke-width="1.2" stroke-linejoin="round"/>
-    <path d="M7.2 10l1.9 1.9 3.7-3.9" stroke="#10b981" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path style="stroke:var(--accent)" d="M10 2.5l6.5 3v4.3c0 4-2.7 7.4-6.5 8.7-3.8-1.3-6.5-4.7-6.5-8.7V5.5l6.5-3Z" stroke-width="1.2" stroke-linejoin="round"/>
+    <path style="stroke:var(--accent)" d="M7.2 10l1.9 1.9 3.7-3.9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`,
   lock: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-    <rect x="5" y="9" width="10" height="8" rx="1.5" stroke="#10b981" stroke-width="1.2"/>
-    <path d="M7 9V6.5a3 3 0 0 1 6 0V9" stroke="#10b981" stroke-width="1.2"/>
-    <circle cx="10" cy="13" r="1.2" fill="#10b981"/>
+    <rect style="stroke:var(--accent)" x="5" y="9" width="10" height="8" rx="1.5" stroke-width="1.2"/>
+    <path style="stroke:var(--accent)" d="M7 9V6.5a3 3 0 0 1 6 0V9" stroke-width="1.2"/>
+    <circle style="fill:var(--accent)" cx="10" cy="13" r="1.2"/>
   </svg>`,
   bug: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-    <ellipse cx="10" cy="11" rx="4.5" ry="5.5" stroke="#10b981" stroke-width="1.2"/>
-    <path d="M10 5.5V3.5M6.5 6.5L4.5 4.5M13.5 6.5L15.5 4.5M4 11H2M18 11H16M4.5 15.5L2.5 17.5M15.5 15.5L17.5 17.5" stroke="#10b981" stroke-width="1.1" stroke-linecap="round"/>
+    <ellipse style="stroke:var(--accent)" cx="10" cy="11" rx="4.5" ry="5.5" stroke-width="1.2"/>
+    <path style="stroke:var(--accent)" d="M10 5.5V3.5M6.5 6.5L4.5 4.5M13.5 6.5L15.5 4.5M4 11H2M18 11H16M4.5 15.5L2.5 17.5M15.5 15.5L17.5 17.5" stroke-width="1.1" stroke-linecap="round"/>
   </svg>`,
   code: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-    <path d="M7 6L2.5 10L7 14M13 6L17.5 10L13 14" stroke="#10b981" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path style="stroke:var(--accent)" d="M7 6L2.5 10L7 14M13 6L17.5 10L13 14" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`
 };
 
@@ -155,7 +155,7 @@ function buildCourseCardHTML(course, chapterCount) {
         <span class="card-chapters">${chapterLabel}</span>
         <div class="card-arrow">
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2 6h8M6.5 3l3 3-3 3" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path style="stroke:var(--accent)" d="M2 6h8M6.5 3l3 3-3 3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
       </div>
