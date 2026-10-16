@@ -4738,6 +4738,93 @@ window._supabase = _supabase;
     }
   }
 
+  // ── Two-step verification (TOTP) ──
+  // First time: enroll a TOTP factor and show its QR code + key. Later logins:
+  // ask for the 6-digit code. Either way the session becomes aal2.
+  let mfaFactorId = null, mfaUser = null, mfaEmail = '';
+
+  function showMfaStep(enrolling) {
+    const pw = document.getElementById('loginPwStep');
+    const st = document.getElementById('mfaStep');
+    if (pw) pw.style.display = 'none';
+    if (st) st.style.display = 'block';
+    const en = document.getElementById('mfaEnroll');
+    if (en) en.style.display = enrolling ? 'block' : 'none';
+    const t = document.getElementById('mfaTitle');
+    const d = document.getElementById('mfaDesc');
+    if (t) t.textContent = enrolling ? 'Set up two-step verification' : 'Two-step verification';
+    if (d) d.textContent = enrolling
+      ? 'Scan this QR code with Google Authenticator (or any authenticator app), then enter the 6-digit code it shows.'
+      : 'Enter the 6-digit code from your authenticator app.';
+    const err = document.getElementById('mfaError');
+    if (err) err.style.display = 'none';
+    const c = document.getElementById('mfaCode');
+    if (c) { c.value = ''; setTimeout(() => c.focus(), 50); }
+  }
+
+  function hideMfaStep() {
+    const pw = document.getElementById('loginPwStep');
+    const st = document.getElementById('mfaStep');
+    if (pw) pw.style.display = '';
+    if (st) st.style.display = 'none';
+    const q = document.getElementById('mfaQr'); if (q) q.removeAttribute('src');
+    const k = document.getElementById('mfaSecret'); if (k) k.textContent = '';
+    mfaFactorId = null;
+  }
+
+  function mfaError(msg) {
+    const el = document.getElementById('mfaError');
+    if (el) { el.textContent = msg; el.style.display = 'block'; }
+  }
+
+  async function finishLogin(user, email) {
+    createSession(email || user.email);
+    hideMfaStep();
+    showAdminPanel();
+    await setTopbarAdminIdentity(user, _supabase);
+    refreshNotifDot();
+    logAdminEvent('admin_login', `${email || user.email} logged in (2-step)`);
+  }
+
+  async function startMfa(user, email) {
+    mfaUser = user; mfaEmail = email;
+    const { data: aal } = await _supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal && aal.currentLevel === 'aal2') return finishLogin(user, email);
+    const { data: f, error } = await _supabase.auth.mfa.listFactors();
+    if (error) { showMfaStep(false); return mfaError('Could not load 2-step settings. Try again.'); }
+    const verified = (f.totp || [])[0];
+    if (verified) { mfaFactorId = verified.id; return showMfaStep(false); }
+    // Leftover unverified factors (an earlier setup that was not finished) block a new one.
+    for (const old of (f.all || []).filter((x) => x.status !== 'verified')) {
+      await _supabase.auth.mfa.unenroll({ factorId: old.id });
+    }
+    const { data: en, error: enErr } = await _supabase.auth.mfa.enroll({
+      factorType: 'totp', friendlyName: 'AlexCyberX admin ' + new Date().toISOString().slice(0, 10), issuer: 'AlexCyberX'
+    });
+    if (enErr || !en) { showMfaStep(false); return mfaError('Could not start 2-step setup: ' + ((enErr && enErr.message) || 'unknown error')); }
+    mfaFactorId = en.id;
+    const q = document.getElementById('mfaQr'); if (q) q.src = en.totp.qr_code;
+    const k = document.getElementById('mfaSecret'); if (k) k.textContent = en.totp.secret;
+    showMfaStep(true);
+  }
+
+  window.doMfaVerify = async function() {
+    const c = document.getElementById('mfaCode');
+    const btn = document.getElementById('mfaBtn');
+    const code = (c ? c.value : '').replace(/\s+/g, '');
+    if (!/^\d{6}$/.test(code)) return mfaError('Enter the 6-digit code.');
+    if (!mfaFactorId) return mfaError('Please sign in again.');
+    if (btn) { btn.disabled = true; btn.textContent = 'Checking…'; }
+    const { error } = await _supabase.auth.mfa.challengeAndVerify({ factorId: mfaFactorId, code });
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify'; }
+    if (error) {
+      if (c) c.value = '';
+      logAdminEvent('failed_login', `${mfaEmail || 'admin'} entered a wrong 2-step code`);
+      return mfaError('Wrong or expired code. Check the time on your phone and try again.');
+    }
+    await finishLogin(mfaUser, mfaEmail);
+  };
+
   // ── Supabase Login ──
   window.doLogin = async function() {
     if (Date.now() < lockoutEnd) return;
@@ -4782,20 +4869,17 @@ window._supabase = _supabase;
         throw new Error('not_admin');
       }
 
-      // Step 3: All good, create session and show panel
+      // Step 3: second factor (authenticator app). Admin data in the DB only
+      // opens for an aal2 session (supabase/migrations/2026-10-21_admin_mfa.sql).
       failCount = 0;
-      createSession(email);
       if (emailEl) emailEl.value = '';
       if (passEl)  passEl.value  = '';
       hideError();
       const attEl = document.getElementById('loginAttemptsMsg');
       if (attEl) attEl.textContent = '';
-      showAdminPanel();
-
-      // Update topbar with real admin identity
-      await setTopbarAdminIdentity(data.user, _supabase);
-      refreshNotifDot();
-      logAdminEvent('admin_login', `${email} logged in`);
+      if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
+      await startMfa(data.user, email);
+      return;
 
     } catch(err) {
       if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
@@ -4850,6 +4934,7 @@ window._supabase = _supabase;
 
     sessionStorage.removeItem(SESSION_KEY);
     if (_supabase) await _supabase.auth.signOut();
+    hideMfaStep();
     const overlay = document.getElementById('loginOverlay');
     if (overlay) overlay.classList.remove('hidden');
     const passEl = document.getElementById('loginPass');
@@ -4873,9 +4958,17 @@ window._supabase = _supabase;
           .single();
 
         if (profile && profile.role === 'admin') {
-          showAdminPanel();
-          await setTopbarAdminIdentity(session.user, _supabase);
-          refreshNotifDot();
+          const { data: aal } = await _supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+          if (aal && aal.currentLevel === 'aal2') {
+            showAdminPanel();
+            await setTopbarAdminIdentity(session.user, _supabase);
+            refreshNotifDot();
+            return;
+          }
+          // Password step done, code still missing: ask for it.
+          const overlay = document.getElementById('loginOverlay');
+          if (overlay) overlay.classList.remove('hidden');
+          await startMfa(session.user, session.user.email);
           return;
         }
       }

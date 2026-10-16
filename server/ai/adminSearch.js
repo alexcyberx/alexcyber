@@ -132,6 +132,11 @@ async function verifyStaff(req) {
   const { data, error } = await sb.auth.getUser(token);
   if (error || !data || !data.user) return { status: 401, error: 'Your session has expired. Please log in again.' };
   const uid = data.user.id;
+  // Staff tools need the two-step login (aal2), like admin data in the DB.
+  // The token was just verified by getUser, so reading its claims is safe.
+  let aal = null;
+  try { aal = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString()).aal; } catch { /* bad token shape */ }
+  if (aal !== 'aal2') return { status: 403, error: 'Two-step verification required. Sign in to the admin panel again.' };
 
   const hit = roleCache.get(uid);
   if (hit && Date.now() - hit.ts < ROLE_TTL_MS) {
