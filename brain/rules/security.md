@@ -22,7 +22,7 @@ Labels: Implemented · Missing · Inferred · Unknown.
 - S5. `SECURITY DEFINER` functions must `SET search_path` and check `auth.uid()`/admin inside. — Implemented for most;
   Missing for `blog_publish_due_posts`, `blog_increment_views`, `blog_set_updated_at` (search_path) and
   `blog_publish_due_posts` (no admin check).
-- S6. Admin accounts use MFA. — Missing (0 MFA factors on the admin account).
+- S6. Admin accounts use MFA; admin data/writes/RPCs need an aal2 session (`acx_admin_mfa`, `acx_mfa_ok`). — Implemented 2026-10-16 (`supabase/migrations/2026-10-21_admin_mfa.sql`, `js/admin-panel-app.js`).
 
 ## 3. CTF integrity
 - S7. Flags only from `flagFor(slug)`; DB stores only `flag_hash` (sha256); `flag`/`flag_hash` never readable by
