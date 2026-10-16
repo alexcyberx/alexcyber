@@ -1459,6 +1459,7 @@ tbody tr:nth-child(n+9) { animation-delay: 0.17s; }
       </div>
     </div>
 
+    <div id="loginPwStep">
     <div class="login-title">Sign in to continue</div>
     <div class="login-desc">Restricted access. Unauthorized entry will be logged.</div>
 
@@ -1478,6 +1479,25 @@ tbody tr:nth-child(n+9) { animation-delay: 0.17s; }
 
     <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
     <div class="login-attempts" id="loginAttemptsMsg"></div>
+    </div>
+
+    <!-- Step 2: authenticator app code (MFA). Shown by js/admin-panel-app.js. -->
+    <div id="mfaStep" style="display:none">
+      <div class="login-title" id="mfaTitle">Two-step verification</div>
+      <div class="login-desc" id="mfaDesc">Enter the 6-digit code from your authenticator app.</div>
+      <div id="mfaEnroll" style="display:none;text-align:center;margin:10px 0 14px">
+        <img id="mfaQr" alt="QR code for your authenticator app" width="180" height="180" style="background:#fff;border-radius:10px;padding:8px">
+        <div class="login-desc" style="margin-top:10px">Can't scan? Enter this key in the app, and write it down somewhere safe:</div>
+        <code id="mfaSecret" style="display:block;word-break:break-all;font-size:13px;padding:8px;border:1px solid rgba(255,255,255,.12);border-radius:8px;user-select:all"></code>
+      </div>
+      <div class="login-error" id="mfaError"></div>
+      <div class="login-field">
+        <label>6-digit code</label>
+        <input type="text" id="mfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" onkeydown="if(event.key==='Enter')doMfaVerify()">
+      </div>
+      <button class="login-btn" id="mfaBtn" onclick="doMfaVerify()">Verify</button>
+      <div class="login-attempts"><a href="#" onclick="adminLogout();return false" style="color:inherit">Cancel and sign out</a></div>
+    </div>
   </div>
 </div>
 <!-- ════════════ END LOGIN OVERLAY ════════════ -->
