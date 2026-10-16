@@ -126,6 +126,10 @@ body::after {
 }
 
 /* SCROLLBAR */
+/* The page itself shows no scrollbar (owner): the bar under the nav already
+   shows how far down you are. Inner scroll boxes keep their thin bar. */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; height: 0; }
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 2px; }
