@@ -24,6 +24,11 @@ Read this first in every session. It records what the owner wants; follow it.
 - **Render is only for testing** until the project is complete. The final site goes on **paid domain + hosting**.
   Keep the setup portable (single Express service that also runs Next.js, see docs/MIGRATION.md).
 
+## Rules (read first)
+- `brain/rules/` = what the project allows: `business.md` (XP, CTF, courses, community...), `permissions.md`
+  (roles, who can do what), `security.md` (rules code must follow). Build only inside these rules; if a change adds a
+  route/table/RPC/role/page, update the matching file in the same PR. Contradictions listed there need the owner.
+
 ## Security (read first)
 - `brain/security/` is the security source of truth: `threat-model.md`, `secrets.md`, `attack-surface.md`,
   `security-checklist.md`. Read the checklist before touching auth, labs, tools, Supabase SQL, the admin panel or
