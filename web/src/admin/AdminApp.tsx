@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import Login from './Login';
+import type { SiteData } from './site-data';
 import { adminSupabase, clearOldPanelSession, logAdminEvent, markOldPanelSession } from './sb';
 import { Icon } from './icons';
 import { ToastProvider } from './ui';
@@ -16,7 +17,7 @@ import Notifications from './sections/Notifications';
 import Security from './sections/Security';
 import Users from './sections/Users';
 
-export type SectionProps = { go: (id: string) => void; setBadge: (id: string, n: number) => void };
+export type SectionProps = { go: (id: string) => void; setBadge: (id: string, n: number) => void; site: SiteData };
 
 type Section = { id: string; label: string; group: string; icon: string; view?: (p: SectionProps) => React.ReactNode; old?: string };
 
@@ -44,7 +45,7 @@ const IDLE_MS = 30 * 60 * 1000;
 
 type Gate = { state: 'loading' } | { state: 'login'; pending: User | null } | { state: 'ready'; user: User; name: string };
 
-export default function AdminApp() {
+export default function AdminApp({ site }: { site: SiteData }) {
   const sb = adminSupabase();
   const [gate, setGate] = useState<Gate>({ state: 'loading' });
   const [active, setActive] = useState('dashboard');
@@ -155,7 +156,7 @@ export default function AdminApp() {
             </div>
           </header>
           <main className="adm-content" id="admContent">
-            {current.view ? current.view({ go, setBadge }) : null}
+            {current.view ? current.view({ go, setBadge, site }) : null}
           </main>
         </div>
         {menuOpen && <div className="adm-scrim" onClick={() => setMenuOpen(false)} />}
