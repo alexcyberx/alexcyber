@@ -12,6 +12,9 @@ import { Icon } from './icons';
 import { ToastProvider } from './ui';
 import Dashboard from './sections/Dashboard';
 import Messages from './sections/Messages';
+import Notifications from './sections/Notifications';
+import Security from './sections/Security';
+import Users from './sections/Users';
 
 export type SectionProps = { go: (id: string) => void; setBadge: (id: string, n: number) => void };
 
@@ -21,9 +24,9 @@ type Section = { id: string; label: string; group: string; icon: string; view?: 
 const SECTIONS: Section[] = [
   { id: 'dashboard', label: 'Dashboard', group: 'Overview', icon: 'dashboard', view: (p) => <Dashboard {...p} /> },
   { id: 'analytics', label: 'Analytics', group: 'Overview', icon: 'analytics', old: 'analytics' },
-  { id: 'users', label: 'Users', group: 'People', icon: 'users', old: 'users' },
+  { id: 'users', label: 'Users', group: 'People', icon: 'users', view: (p) => <Users {...p} /> },
   { id: 'messages', label: 'Messages', group: 'People', icon: 'messages', view: (p) => <Messages {...p} /> },
-  { id: 'notifications', label: 'Notifications', group: 'People', icon: 'notifications', old: 'notifications' },
+  { id: 'notifications', label: 'Notifications', group: 'People', icon: 'notifications', view: (p) => <Notifications {...p} /> },
   { id: 'community', label: 'Community', group: 'People', icon: 'community', old: 'community' },
   { id: 'content', label: 'Courses', group: 'Content', icon: 'content', old: 'content' },
   { id: 'blog', label: 'Blog', group: 'Content', icon: 'blog', old: 'blog' },
@@ -31,7 +34,7 @@ const SECTIONS: Section[] = [
   { id: 'ctf', label: 'CTF', group: 'Content', icon: 'ctf', old: 'ctf' },
   { id: 'tools', label: 'Tools', group: 'Platform', icon: 'toolsmanager', old: 'toolsmanager' },
   { id: 'gamification', label: 'XP & Leaderboard', group: 'Platform', icon: 'gamification', old: 'gamification' },
-  { id: 'security', label: 'Security', group: 'Platform', icon: 'security', old: 'security' },
+  { id: 'security', label: 'Security', group: 'Platform', icon: 'security', view: (p) => <Security {...p} /> },
   { id: 'backup', label: 'Backup', group: 'Platform', icon: 'backup', old: 'backup' },
   { id: 'settings', label: 'Settings', group: 'Platform', icon: 'settings', old: 'settings' },
 ];

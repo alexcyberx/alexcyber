@@ -49,6 +49,7 @@ Last verified: 2026-10-16 (commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · M
 | Route | File | Limits | Notes |
 |---|---|---|---|
 | `GET /rooms/details` (Next) | `web/src/app/rooms/details/route.ts` | — | room scenario + hints; Bearer token checked with `auth.getUser`; `no-store`, `noindex`. The `/rooms` HTML ships only the card texts |
+| `POST /api/admin/invite`, `POST /api/admin/users/:id/delete` | `server/routes/admin.js` | 60/h per IP | admin role read fresh (no cache), not banned, token must be **aal2**; service role invites (`inviteUserByEmail`) / deletes the auth user (profile + data cascade); admins and self cannot be deleted; logged to `security_logs` |
 | `POST /api/me/seen` | `server/routes/me.js:16` | 20/10 min/IP | service role writes `profiles.last_login_ip` |
 | `POST /api/tools/analyze-command` | `server/tools/mistake-analyzer/routes.js:143` | 60/10 min/IP pre-auth, 15/10 min/user, 150/10 min global | ≤500 chars → Gemini (key in URL, WEAKNESS) |
 | `/api/alexutils/*` (ssl-check, mac-lookup, cve-search, ip-lookup, dns-resolve) | `server/tools/alexutils/routes.js:35-136` | per-user limiters | SSRF checks in `target.js`; cve query length unbounded (low) |

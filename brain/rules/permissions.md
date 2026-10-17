@@ -65,6 +65,7 @@ Server: `requireAuth` / `requireToolLogin` verify JWT (`auth.getUser`) and ban (
 | `/api/tools/*`, `/api/alexutils/*`, `/api/alextrace/*` | logged-in, not banned, tool enabled | `requireToolLogin`, `checkToolEnabled` |
 | `/api/alexrecon/*` | logged-in, not banned (enabled check on scan/schedule) | `server/tools/alexrecon/routes.js:46` |
 | `/rooms/details` (CTF scenario + hints) | logged-in (token checked) | `web/src/app/rooms/details/route.ts` |
+| `/api/admin/*` (invite user, delete account) | admin, not banned, two-step (aal2) session | `server/routes/admin.js` |
 | `/api/me/seen` | logged-in | `server/routes/me.js:16` |
 | `/api/lab/admin-search` | `admin` or `moderator` (role cached 5 min, ban not checked) | `server/ai/adminSearch.js` |
 | `/auth/email-hook` | Supabase (signed webhook) | `server/routes/authEmailHook.js` |

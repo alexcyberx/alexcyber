@@ -251,7 +251,8 @@ Not migrated yet (still SPA): admin panel only (community is on Next by default 
   Same Supabase storage key as the old panel (`alexcyberx-admin-auth`) plus its sessionStorage marker, so sections
   not ported yet open the old panel (`/panel-1b47c1ab561e.html#<section>`) without a second login.
 - Phase 1: sign-in (password → admin role → TOTP enroll/verify, aal2), sidebar + hash routing, idle sign-out
-  (30 min), Dashboard, Messages. Next phases and owner decisions: `docs/ADMIN-PORT.md`.
+  (30 min), Dashboard, Messages. Phase 2: Users, Security, Notifications; `/api/admin` (Express) for invite and
+  account delete. Next phases and owner decisions: `docs/ADMIN-PORT.md`.
 
 ## Deploy on Render
 **One service (current):** the Express service also runs Next.js.

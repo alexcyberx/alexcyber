@@ -31,6 +31,12 @@ export function clearOldPanelSession() {
   try { sessionStorage.removeItem(OLD_PANEL_SESSION); } catch { /* blocked */ }
 }
 
+/** This session's access token, for the server admin API. */
+export async function adminToken(): Promise<string | null> {
+  const { data } = (await adminSupabase()?.auth.getSession()) || { data: { session: null } };
+  return data.session?.access_token || null;
+}
+
 /** Audit entry (admin RPC). No client IP: a browser-supplied IP proves nothing. */
 export function logAdminEvent(type: string, details: string) {
   adminSupabase()?.rpc('log_admin_event', { p_event_type: type, p_details: details, p_ip: null }).then(() => {}, () => {});

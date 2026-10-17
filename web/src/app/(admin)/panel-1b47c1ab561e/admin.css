@@ -181,3 +181,52 @@ code { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12.5px
   .adm-input { width: 100%; }
   .adm-card-actions { margin-left: 0; width: 100%; }
 }
+
+/* Tables */
+.adm-table-wrap { overflow-x: auto; margin: 0 -4px; }
+.adm-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.adm-table th { text-align: left; font-weight: 600; color: var(--a-fg-3); font-size: 11.5px; text-transform: uppercase; letter-spacing: .5px; padding: 8px 10px; border-bottom: 1px solid var(--a-line); white-space: nowrap; }
+.adm-table td { padding: 9px 10px; border-bottom: 1px solid var(--a-line); vertical-align: middle; }
+.adm-table tbody tr { cursor: pointer; }
+.adm-table tbody tr.static { cursor: default; }
+.adm-table tbody tr:hover { background: var(--a-panel-2); }
+.adm-table tbody tr:focus-visible { outline: 2px solid var(--a-accent); outline-offset: -2px; }
+.adm-num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.adm-wrap { overflow-wrap: anywhere; white-space: normal; }
+.adm-user-cell { display: flex; align-items: center; gap: 10px; min-width: 180px; }
+.adm-strong { font-weight: 600; }
+.adm-pill { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--a-line-2); color: var(--a-fg-2); white-space: nowrap; }
+.adm-pill.accent { color: var(--a-accent); border-color: rgba(34, 197, 94, .4); background: var(--a-accent-soft); }
+.adm-pill.danger { color: #fca5a5; border-color: rgba(239, 68, 68, .4); background: var(--a-danger-soft); }
+.adm-select { width: auto; }
+.adm-pager { display: flex; align-items: center; gap: 10px; justify-content: flex-end; margin-top: 12px; flex-wrap: wrap; }
+
+/* Drawer */
+.adm-drawer-bg { position: fixed; inset: 0; background: rgba(0, 0, 0, .55); z-index: 50; display: flex; justify-content: flex-end; }
+.adm-drawer { width: 100%; max-width: 560px; height: 100%; overflow-y: auto; background: var(--a-panel); border-left: 1px solid var(--a-line-2); }
+.adm-profile-head { display: flex; gap: 14px; align-items: flex-start; }
+.adm-profile-head > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.adm-avatar.big { width: 48px; height: 48px; font-size: 20px; }
+.adm-stats.small { grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+.adm-stats.small .adm-stat-value { font-size: 20px; }
+.adm-h4 { margin: 0 0 8px; font-size: 13px; color: var(--a-fg-2); font-weight: 600; }
+.adm-heat { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 12px); gap: 3px; justify-content: start; }
+.adm-heat span { width: 12px; height: 12px; border-radius: 3px; background: var(--a-panel-2); border: 1px solid var(--a-line); }
+.adm-heat span.on { background: var(--a-accent); border-color: transparent; }
+.adm-progress { margin-bottom: 10px; }
+.adm-progress-top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; }
+.adm-bar { height: 6px; background: var(--a-panel-2); border-radius: 999px; overflow: hidden; }
+.adm-bar span { display: block; height: 100%; background: var(--a-accent); border-radius: 999px; }
+
+/* Forms */
+.adm-form { display: flex; flex-direction: column; gap: 12px; }
+.adm-inline-form { background: var(--a-bg); border: 1px solid var(--a-line); border-radius: var(--a-radius); padding: 14px; }
+.adm-row-form { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.adm-field textarea { resize: vertical; min-height: 90px; }
+.adm-picked { display: flex; justify-content: space-between; align-items: center; gap: 10px; background: var(--a-bg); border: 1px solid var(--a-line-2); border-radius: 8px; padding: 9px 11px; }
+.adm-pick-list { list-style: none; margin: 6px 0 0; padding: 4px; border: 1px solid var(--a-line-2); border-radius: 8px; background: var(--a-bg); }
+.adm-pick-list button { width: 100%; text-align: left; background: none; border: 0; padding: 7px 8px; border-radius: 6px; cursor: pointer; }
+.adm-pick-list button:hover { background: var(--a-panel-2); }
+.adm-grid-2.top { align-items: start; }
+.adm-list-col { flex-direction: column; align-items: stretch !important; gap: 4px !important; }
+.adm-list-row { display: flex; gap: 10px; align-items: center; }

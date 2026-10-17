@@ -47,6 +47,70 @@ export function Modal({ title, onClose, children, wide }: { title: string; onClo
   );
 }
 
+export function Drawer({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', k);
+    return () => window.removeEventListener('keydown', k);
+  }, [onClose]);
+  return (
+    <div className="adm-drawer-bg" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <aside className="adm-drawer" role="dialog" aria-modal="true" aria-label={title}>
+        <div className="adm-modal-head">
+          <h3>{title}</h3>
+          <button className="adm-icon-btn" onClick={onClose} aria-label="Close"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg></button>
+        </div>
+        <div className="adm-modal-body">{children}</div>
+      </aside>
+    </div>
+  );
+}
+
+/** Text for a PostgREST ilike filter inside .or(): wildcards escaped, the
+ * characters that would break the filter syntax removed. */
+export function likeText(q: string): string {
+  return q.replace(/[\\%_]/g, (c) => '\\' + c).replace(/[,()*"]/g, ' ').trim().slice(0, 80);
+}
+
+/** CSV download; cells starting with = + - @ are prefixed so a spreadsheet
+ * never runs them as formulas. */
+export function downloadCsv(name: string, rows: (string | number | null | undefined)[][]) {
+  const cell = (v: string | number | null | undefined) => {
+    let t = v == null ? '' : String(v);
+    if (/^[=+\-@\t\r]/.test(t)) t = "'" + t;
+    return '"' + t.replace(/"/g, '""') + '"';
+  };
+  const blob = new Blob(['\ufeff' + rows.map((r) => r.map(cell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+/** POST to the server admin API with this session's token. */
+export async function adminApi(path: string, token: string, body?: unknown): Promise<{ ok: boolean; error?: string; [k: string]: unknown }> {
+  try {
+    const res = await fetch('/api/admin' + path, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token }, body: JSON.stringify(body || {}) });
+    const data = await res.json().catch(() => ({}));
+    return res.ok ? { ok: true, ...data } : { ok: false, error: data.error || 'Request failed (' + res.status + ')' };
+  } catch {
+    return { ok: false, error: 'Network error. Try again.' };
+  }
+}
+
+export function Pager({ page, pages, total, onPage }: { page: number; pages: number; total: number; onPage: (p: number) => void }) {
+  if (pages <= 1) return <div className="adm-pager"><span className="adm-dim">{total.toLocaleString('en-IN')} total</span></div>;
+  return (
+    <div className="adm-pager">
+      <span className="adm-dim">{total.toLocaleString('en-IN')} total</span>
+      <button className="adm-btn ghost" disabled={page <= 1} onClick={() => onPage(page - 1)}>Previous</button>
+      <span className="adm-dim">Page {page} of {pages}</span>
+      <button className="adm-btn ghost" disabled={page >= pages} onClick={() => onPage(page + 1)}>Next</button>
+    </div>
+  );
+}
+
 export function Stat({ label, value, sub }: { label: string; value: React.ReactNode; sub?: React.ReactNode }) {
   return (
     <div className="adm-stat">

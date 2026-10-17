@@ -21,6 +21,13 @@ Security does not depend on the page: RLS, the admin RPC checks and the two-step
 - **Add User** becomes real: admin enters an email, the server sends a Supabase invite (service role, admin +
   aal2 checked on the server).
 
+## Status
+- Phase 1 done: shell, login, Dashboard, Messages.
+- Phase 2 done: Users (merged with Profiles: paged search, filters, sort, CSV with formula guard, detail drawer with
+  last IP, stats, 12-week heatmap, course progress, CTF solves; edit name/role, ban, award XP with reason, delete
+  account via server, invite by email), Security (24 h counts, block/unblock with IPv4/IPv6 check, log with
+  filters/search/paging/CSV), Notifications (real person search, history).
+
 ## Phases
 1. Shell + login (password → admin role → TOTP enroll/verify → aal2), sidebar, hash routing, toasts/modals,
    idle sign-out. Dashboard (real numbers, rendered after login) and Messages (detail view, unread filter).

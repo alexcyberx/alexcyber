@@ -27,7 +27,10 @@ from the project). Owner direction lives in `CLAUDE.md`; security detail in `bra
 | Admin can switch off registration (`site_settings.user_registration`) | UI-only (signup form checks it; Supabase Auth still accepts sign-ups) | `AuthModals.tsx:162-166`, `js/auth.js:259-265` |
 | Idle sign-out after 30 min; "remember me" chooses localStorage vs sessionStorage | Implemented (client) | `web/src/lib/auth-context.tsx:186-203`, `web/src/lib/supabase.ts` |
 | Banned (`profiles.is_banned`) users: signed out in the browser, blocked from tools, flag submit, votes, daily XP, solves; hidden from leaderboard | Implemented (server/DB) + UI | `acx_not_banned` uses in RPCs, `server/middleware/toolAccess.js`, `get_leaderboard` |
-| Users can delete their own account | Missing | no self-delete flow; only admins delete profiles |
+| Users can delete their own account | Missing | no self-delete flow; only admins delete accounts |
+| Admin can invite a person by email; the link signs them in and asks for a password (`/?invited=1`) | Implemented | `server/routes/admin.js`, `server/routes/authEmailHook.js` (`invite`), `web/src/lib/auth-context.tsx` |
+| Admin "Delete account" removes the auth user, so the profile, solves, progress, posts, votes, notifications cascade; admin accounts cannot be deleted there | Implemented | `server/routes/admin.js` (FKs `ON DELETE CASCADE`) |
+| Admin XP awards: XP never below 0, level = floor(xp/500)+1, reason kept in `security_logs` (`admin_user_updated`) | Implemented | `web/src/admin/sections/Users.tsx` |
 
 ## 3. XP and levels
 - Level = `floor(xp / 500) + 1`, minimum 1. Implemented consistently in `submit_ctf_flag`, `record_lab_ctf_solve`,
