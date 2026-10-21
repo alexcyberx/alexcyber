@@ -17,6 +17,10 @@ export type BlogPost = {
 const POST_COLUMNS =
   'id, title, slug, category, tags, content, image, meta_title, meta_desc, views, publish_date';
 
+// Post images go into <img src> and og:image: only https:// or a same-site path.
+const safeImage = (src: string | null) => (src && (/^https:\/\//i.test(src) || /^\/(?!\/)/.test(src)) ? src : null);
+const clean = (p: BlogPost): BlogPost => ({ ...p, image: safeImage(p.image) });
+
 export async function getPublishedPosts(): Promise<BlogPost[] | null> {
   const sb = serverSupabase();
   if (!sb) return null;
@@ -31,12 +35,14 @@ export async function getPublishedPosts(): Promise<BlogPost[] | null> {
     console.error('[blog] list error:', error.message);
     return null;
   }
-  return (data as BlogPost[]) || [];
+  return ((data as BlogPost[]) || []).map(clean);
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   const sb = serverSupabase();
   if (!sb) return null;
+  // A scheduled post that is due must open from its own link too, not only after /blog ran this.
+  await sb.rpc('blog_publish_due_posts').then(() => {}, () => {});
   const { data, error } = await sb
     .from('blog_posts')
     .select(POST_COLUMNS)
@@ -47,7 +53,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     console.error('[blog] post error:', error.message);
     return null;
   }
-  return (data as BlogPost) || null;
+  return data ? clean(data as BlogPost) : null;
 }
 
 /* ── Helpers, ported 1:1 from js/blog.js so output matches the old page ── */

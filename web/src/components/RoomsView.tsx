@@ -530,6 +530,9 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n }: 
         if (correct && data.recorded === false && data.reason === 'suspended') {
           return fail('[!] Your account is suspended, so this solve was not counted.');
         }
+        if (correct && data.recorded === false && data.reason === 'locked') {
+          return fail('[!] ' + (data.message || 'Solve the required challenge(s) first.'));
+        }
         if (correct && data.recorded === false && data.reason === 'login_required') {
           return fail('[!] Correct, but your session expired. Please log in again and resubmit.');
         }

@@ -21,7 +21,7 @@ type Sort = 'created_at' | 'last_seen' | 'xp';
 const display = (u: Row) => u.full_name || u.username || 'No name';
 const levelFor = (xp: number) => Math.floor(Math.max(0, xp) / 500) + 1; // same rule as the DB
 
-export default function Users(_: SectionProps) {
+export default function Users({ site }: SectionProps) {
   const sb = adminSupabase()!;
   const toast = useToast();
   const [rows, setRows] = useState<Row[] | null>(null);
@@ -114,7 +114,7 @@ export default function Users(_: SectionProps) {
         )}
         <Pager page={page} pages={pages} total={total} onPage={setPage} />
       </Card>
-      {openId && <UserDetail id={openId} onClose={() => setOpenId(null)} onChange={updateRow} />}
+      {openId && <UserDetail id={openId} site={site} onClose={() => setOpenId(null)} onChange={updateRow} />}
       {inviting && <InviteModal onClose={() => setInviting(false)} onSent={() => { setInviting(false); toast('Invite sent'); }} />}
     </>
   );
@@ -156,7 +156,7 @@ type Detail = {
   courses: { key: string; title: string; done: number; total: number }[];
 };
 
-function UserDetail({ id, onClose, onChange }: { id: string; onClose: () => void; onChange: (id: string, patch: Partial<Row> | null) => void }) {
+function UserDetail({ id, site, onClose, onChange }: { id: string; site: SectionProps['site']; onClose: () => void; onChange: (id: string, patch: Partial<Row> | null) => void }) {
   const sb = adminSupabase()!;
   const toast = useToast();
   const [d, setD] = useState<Detail | null>(null);
@@ -170,20 +170,24 @@ function UserDetail({ id, onClose, onChange }: { id: string; onClose: () => void
       sb.rpc('admin_get_last_ips'),
       sb.from('ctf_solves').select('solved_at, points_earned, ctf_challenges(title, category)').eq('user_id', id).eq('correct', true).order('solved_at', { ascending: false }).limit(50),
       sb.from('chapter_progress').select('course, chapter_slug, viewed_at').eq('user_id', id).limit(2000),
-      sb.from('content_chapters').select('course, slug').eq('enabled', true),
-      sb.from('courses').select('course_key, title').order('display_order'),
+      sb.from('content_chapters').select('course, slug').eq('enabled', false),
+      sb.from('courses').select('course_key, title, enabled').order('display_order'),
     ]);
     if (p.error || !p.data) { setErr(p.error?.message || 'User not found.'); return; }
     const progress = (cp.data || []) as Progress[];
     const seen = new Set(progress.map((x) => x.course + '/' + x.chapter_slug));
-    const chapters = (ch.data || []) as { course: string; slug: string }[];
-    const courses = ((cs.data || []) as { course_key: string; title: string }[]).map((c) => {
-      const list = chapters.filter((x) => x.course === c.course_key);
-      return { key: c.course_key, title: c.title, total: list.length, done: list.filter((x) => seen.has(c.course_key + '/' + x.slug)).length };
+    // The site's own chapter lists (code), minus the chapters switched off in the DB.
+    const hidden = new Set(((ch.data || []) as { course: string; slug: string }[]).map((x) => x.course + '/' + x.slug));
+    const dbCourses = (cs.data || []) as { course_key: string; title: string; enabled: boolean | null }[];
+    const order = (key: string) => { const i = dbCourses.findIndex((c) => c.course_key === key); return i < 0 ? 99 : i; };
+    const courses = [...site.courses].sort((a, b) => order(a.key) - order(b.key)).map((c) => {
+      const list = c.chapters.filter((x) => !hidden.has(c.key + '/' + x.slug));
+      const title = dbCourses.find((x) => x.course_key === c.key)?.title || c.title;
+      return { key: c.key, title, total: list.length, done: list.filter((x) => seen.has(c.key + '/' + x.slug)).length };
     }).filter((c) => c.total > 0);
     const ip = ((ips.data || []) as { id: string; last_login_ip: string | null }[]).find((x) => x.id === id)?.last_login_ip || null;
     setD({ u: p.data as Row, ip, solves: (s.data || []) as unknown as Solve[], progress, courses });
-  }, [sb, id]);
+  }, [sb, id, site]);
   useEffect(() => { load(); }, [load]);
 
   async function patch(values: Partial<Row>, what: string) {

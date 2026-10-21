@@ -12,11 +12,12 @@ type Log = { id: string; event_type: string; details: string | null; ip: string 
 type Block = { id: string; ip: string; reason: string | null; created_at: string; expires_at: string | null };
 
 const ATTACKS = ['sqli_attempt', 'xss_attempt', 'path_traversal', 'bot_scan'];
-const GROUPS: Record<string, { label: string; types?: string[] }> = {
+const GROUPS: Record<string, { label: string; types?: string[]; adminAll?: boolean }> = {
   all: { label: 'All events' },
   attacks: { label: 'Attacks', types: ATTACKS },
   logins: { label: 'Failed logins', types: ['failed_login'] },
-  admin: { label: 'Admin activity', types: ['admin_login', 'admin_logout', 'admin_user_updated', 'admin_user_invited', 'admin_user_deleted', 'export_triggered'] },
+  // Every admin_* event (each section logs its own admin_<thing>_<action>).
+  admin: { label: 'Admin activity', adminAll: true },
   blocks: { label: 'IP blocks', types: ['ip_blocked', 'ip_unblocked'] },
 };
 const PER_PAGE = 50;
@@ -57,8 +58,9 @@ export default function Security(_: SectionProps) {
 
   const build = useCallback(() => {
     let r = sb.from('security_logs').select('id, event_type, details, ip, created_at', { count: 'exact' });
-    const types = GROUPS[group]?.types;
-    if (types) r = r.in('event_type', types);
+    const g = GROUPS[group];
+    if (g?.types) r = r.in('event_type', g.types);
+    if (g?.adminAll) r = r.like('event_type', 'admin_%');
     const s = likeText(query);
     if (s) r = r.or(`details.ilike.%${s}%,ip.ilike.%${s}%,event_type.ilike.%${s}%`);
     return r.order('created_at', { ascending: false });
@@ -101,7 +103,7 @@ export default function Security(_: SectionProps) {
     if (error) return toast('Export failed: ' + error.message, 'error');
     const list = (data || []) as Log[];
     downloadCsv(`alexcyberx-security-${new Date().toISOString().slice(0, 10)}.csv`, [['Time', 'Event', 'IP', 'Details'], ...list.map((l) => [l.created_at, l.event_type, l.ip, l.details])]);
-    logAdminEvent('export_triggered', `security log CSV (${GROUPS[group]?.label || group}, ${list.length} rows)`);
+    logAdminEvent('admin_export', `security log CSV (${GROUPS[group]?.label || group}, ${list.length} rows)`);
   }
 
   return (
