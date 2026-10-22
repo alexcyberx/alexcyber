@@ -27,6 +27,13 @@ Security does not depend on the page: RLS, the admin RPC checks and the two-step
   last IP, stats, 12-week heatmap, course progress, CTF solves; edit name/role, ban, award XP with reason, delete
   account via server, invite by email), Security (24 h counts, block/unblock with IPv4/IPv6 check, log with
   filters/search/paging/CSV), Notifications (real person search, history).
+- Phase 3 done (code; DB part waits for `supabase/migrations/2026-10-22_admin_phase3.sql`): Courses (per course and per
+  chapter "Visible on site" switches that really hide them on the site, home switch max 2, edit, reorder; chapter
+  lists come from the code), Blog (editor, slug check, schedule rules, preview like the site, real categories),
+  Resources (list loads, upload with type allowlist, no orphan files, edit/hide/delete), CTF (site rooms + DB rows,
+  live switch, XP, prerequisites, real solver counts, add missing rows, scoreboard; no flags).
+  Not in the new panel (still in the old one until switch-over, owner to confirm removal then): Add course, Add
+  chapter, Create CTF challenge, Delete course/chapter, chapter drag-reorder (nothing on the site reads it).
 
 ## Phases
 1. Shell + login (password → admin role → TOTP enroll/verify → aal2), sidebar, hash routing, toasts/modals,

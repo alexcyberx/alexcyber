@@ -48,7 +48,7 @@ Server: `requireAuth` / `requireToolLogin` verify JWT (`auth.getUser`) and ban (
   (login), `vote_thread`/`vote_reply` (login, not banned), `award_daily_login_xp` (login), `track_chapter_view`
   (login, else no-op), `track_page_view`, `submit_contact_message`, `get_leaderboard`, `get_profile_stats`,
   `get_site_settings`, `get_xp_rules`, `get_about_bio`, `get_community_threads`, `get_thread_with_replies`,
-  `blog_increment_views`, `blog_publish_due_posts` (**no admin check**, Inferred unintended).
+  `blog_increment_views`, `blog_publish_due_posts` (**no admin check**, Inferred unintended), `get_hidden_chapters` (course + slug of switched-off chapters only, no text; migration 2026-10-22).
 - Admin (function checks `role='admin'`): `save_site_settings`, `save_xp_rules`, `save_about_bio`, `send_broadcast`,
   `block_ip`, `unblock_ip`, `trigger_manual_backup`, `get_page_view_stats`, `get_course_completion_stats`,
   `log_security_event`, `log_admin_event`, `admin_get_last_ips` (authenticated only).

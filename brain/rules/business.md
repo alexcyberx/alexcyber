@@ -39,7 +39,8 @@ from the project). Owner direction lives in `CLAUDE.md`; security detail in `bra
   `ctf_medium` 100, `ctf_hard` 200, `quiz_pass` 15. Admin edits them via `save_xp_rules` (admin check).
 - Daily login: +`daily_login` XP once per calendar day (UTC date of `now()`), not for banned users. Implemented.
   Inferred inconsistency: the day boundary is UTC, users are in IST (+5:30).
-- Chapter completion: +`chapter_completion` XP the first time a logged-in user opens a chapter
+- Chapter completion: only for a chapter that has a row, is on, and whose course is on; not for banned users; never
+  twice (migration 2026-10-22, closes XP farming with made-up slugs). +`chapter_completion` XP the first time a logged-in user opens a chapter
   (`track_chapter_view`, unique per user/course/chapter). Implemented. Note: "completion" = first view.
 - CTF solve: XP = `ctf_challenges.xp` (else `points`), once per user per challenge. Implemented. `xp_rules.ctf_*` are
   only defaults the admin panel pre-fills for new challenges (`js/admin-panel-app.js:2562-2573`), not used at solve time.
@@ -67,8 +68,12 @@ from the project). Owner direction lives in `CLAUDE.md`; security detail in `bra
 ## 5. Courses
 - Three courses: Network Forensics (`learn`), Cyber Attacks Fundamentals (`learn2`), Ethical Hacking (`learn3`);
   each chapter has its own URL `/tutorials/<course>/<chapter>`. Implemented (`web/src/lib/chapters.ts`).
-- Courses/chapters can be enabled/disabled by admin; public sees only enabled ones. Implemented (RLS
-  "Public can read enabled courses", "Enabled chapters are viewable by everyone").
+- Courses/chapters can be switched on/off by the admin (new panel: "Visible on site"). A course that is off gives
+  404 on its pages and leaves the /tutorials list, home, search, sitemap and llms.txt; a chapter that is off leaves
+  the sidebar, prev/next, search, sitemap and llms.txt and its URL redirects to the next chapter that is on.
+  Implemented (`web/src/lib/chapters.ts`; anon RLS shows only enabled rows, so the site asks
+  `get_hidden_chapters()`, migration 2026-10-22). Chapter lists, titles and order come from the code; every code
+  chapter needs a `content_chapters` row (the panel offers "Add missing rows").
 - **Lessons are public** (owner decision 2026-10-16: courses, CTF and tools must be found by search engines and AI
   answer engines). Logged-out readers see the full lesson plus a strip offering login to save progress/XP.
   Implemented (`web/src/components/ChapterView.tsx`, `.course-save-strip`).
