@@ -49,6 +49,13 @@ update public.content_chapters
 -- needs SELECT as well as DELETE; without it a delete or replace removed
 -- nothing and returned no error (files were left behind). The restrictive
 -- acx_admin_mfa_resources policy keeps it to two-step (aal2) sessions.
+-- The bucket is public, so what it accepts is enforced here, not only in the
+-- panel: no HTML/SVG/scripts served from our domain's storage, 50 MB max.
+-- (Same list the new panel sends; existing files are not touched.)
+update storage.buckets
+   set allowed_mime_types = array['application/pdf','text/plain','application/octet-stream','image/png','image/jpeg','image/webp'],
+       file_size_limit = 52428800
+ where id = 'resources';
 drop policy if exists "Admins can read resource files" on storage.objects;
 create policy "Admins can read resource files" on storage.objects for select to authenticated
   using (bucket_id = 'resources' and exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
@@ -307,9 +314,11 @@ begin
   if not public.acx_not_banned(auth.uid()) then
     return;
   end if;
+  -- Same rule as the site: the chapter row is on AND its course is on.
   if not exists (select 1 from public.content_chapters c
+                 join public.courses k on k.course_key = c.course and k.enabled = true
                  where c.course = p_course and c.slug = p_chapter_slug and c.enabled = true) then
-    return; -- not a chapter of the site, or switched off
+    return; -- not a chapter of the site, or it (or its course) is switched off
   end if;
 
   insert into public.chapter_progress (user_id, course, chapter_slug)

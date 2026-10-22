@@ -210,6 +210,26 @@ export default function Courses({ site }: SectionProps) {
     });
   }
 
+  // Chapter progress and XP need a row (track_chapter_view only counts real,
+  // switched-on chapters), so a chapter added to the code later gets one here.
+  async function addMissing(sc: SiteCourse, list: SiteChapter[]) {
+    await run('missing-' + sc.key, async () => {
+      if (!confirm(`Add database rows for ${list.length} chapter${list.length === 1 ? '' : 's'} of ${sc.title}?\n\nThey stay visible. Readers then get progress and chapter XP for them.`)) return;
+      const made: ChapterRow[] = [];
+      const failed: string[] = [];
+      for (const ch of list) {
+        const { data, error } = await sb.from('content_chapters')
+          .insert({ slug: ch.slug, title: ch.title, course: sc.key, chapter_order: ch.index + 1, enabled: true, has_content: true })
+          .select(CHAPTER_COLS).single();
+        if (error || !data) failed.push(ch.slug + (error?.code === '23505' ? ' (slug already used by another course until the database update runs)' : error ? ` (${error.message})` : ''));
+        else made.push(data as ChapterRow);
+      }
+      if (made.length) setChapters((l) => [...l, ...made]);
+      if (made.length) logAdminEvent('admin_chapter_updated', `${sc.key}: added rows for ${made.map((r) => r.slug).join(', ')}`);
+      toast(failed.length ? `Added ${made.length}, failed ${failed.length}: ${failed.join(', ')}` : `Added ${made.length} row${made.length === 1 ? '' : 's'}`, failed.length ? 'error' : 'ok');
+    });
+  }
+
   async function setDbOnly(r: ChapterRow, v: boolean) {
     await run('row-' + r.id, async () => {
       const bad = await updateRow(sb, 'content_chapters', r.id, { enabled: v, updated_at: new Date().toISOString() });
@@ -302,7 +322,7 @@ export default function Courses({ site }: SectionProps) {
         {courses == null ? <Empty>Loading...</Empty> : err ? <Empty>Could not load chapters: {err}</Empty> : !sc ? <Empty>No course.</Empty> : (
           <ChapterList
             sc={sc} course={tabRow} rows={rowsOf(sc.key)} busy={busy} rpcErr={rpcErr}
-            onToggle={setChapter} onToggleRow={setDbOnly} onEdit={setEditChapter}
+            onToggle={setChapter} onToggleRow={setDbOnly} onEdit={setEditChapter} onAddMissing={addMissing}
           />
         )}
       </Card>
@@ -315,8 +335,9 @@ export default function Courses({ site }: SectionProps) {
   );
 }
 
-function ChapterList({ sc, course, rows, busy, rpcErr, onToggle, onToggleRow, onEdit }: {
+function ChapterList({ sc, course, rows, busy, rpcErr, onToggle, onToggleRow, onEdit, onAddMissing }: {
   sc: SiteCourse; course: CourseRow | null; rows: ChapterRow[]; busy: Record<string, boolean>; rpcErr: string;
+  onAddMissing: (sc: SiteCourse, list: SiteChapter[]) => void;
   onToggle: (sc: SiteCourse, ch: SiteChapter, row: ChapterRow | null, v: boolean) => void;
   onToggleRow: (r: ChapterRow, v: boolean) => void;
   onEdit: (r: ChapterRow) => void;
@@ -325,14 +346,21 @@ function ChapterList({ sc, course, rows, busy, rpcErr, onToggle, onToggleRow, on
   const siteSlugs = useMemo(() => new Set(sc.chapters.map((c) => c.slug)), [sc]);
   // Rows no code chapter uses (other slug, or an old slug next to a row with the new one).
   const dbOnly = rows.filter((r) => !siteSlugs.has(siteSlugOf(r)) || bySlug.get(siteSlugOf(r)) !== r);
+  const missing = sc.chapters.filter((ch) => !bySlug.has(ch.slug));
   return (
     <div className="adm-stack">
       <p className="adm-help">
         The chapter list, titles and order come from the course files in the code. Here you switch a chapter on or off.
-        A chapter without a database row is visible; switching it off adds a row for it.
+        A chapter without a database row is visible but gives readers no progress or XP; switching it off adds a row for it.
         Edit changes the database title and description, which only add words to the site search.
       </p>
       {course && !on(course.enabled) && <p className="adm-error" id="admCourseChHiddenNote">This whole course is hidden, so none of its chapters show on the site right now.</p>}
+      {!!missing.length && (
+        <div className="adm-row-form" id="admCourseMissing">
+          <p className="adm-error">{missing.length} chapter{missing.length === 1 ? ' has' : 's have'} no database row. {missing.length === 1 ? 'It shows' : 'They show'} on the site, but readers get no progress or chapter XP until the row exists.</p>
+          <button className="adm-btn" onClick={() => onAddMissing(sc, missing)} disabled={!!busy['missing-' + sc.key]} id="admCourseAddMissing">{busy['missing-' + sc.key] ? 'Adding...' : 'Add missing rows'}</button>
+        </div>
+      )}
       {rpcErr && (
         <p className="adm-error" id="admCourseRpcWarn">
           Chapter switches do not reach the site yet: the database function get_hidden_chapters is {rpcErr}, so the site still shows chapters that are switched off here. Course switches already work.

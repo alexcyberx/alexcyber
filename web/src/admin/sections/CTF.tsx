@@ -300,9 +300,13 @@ export default function CTF({ site }: SectionProps) {
   async function fixCount(room: Room) {
     const row = room.db;
     if (!row || !complete) return; // a part-loaded list would write too low a number
-    const n = tally.get(row.id)?.n || 0;
     const was = row.solvers ?? 0;
     await run(room.slug, async () => {
+      // Count again right before writing: solves made since the page loaded count too.
+      const { count, error } = await sb.from('ctf_solves').select('id', { count: 'exact', head: true }).eq('challenge_id', row.id).eq('correct', true);
+      if (error || count == null) { toast('Could not count the solves: ' + (error?.message || 'no count'), 'error'); return false; }
+      const n = count;
+      if (n === was) { toast('The site count is already right'); return false; }
       if (!confirm(`Set the solver count the rooms page shows for "${label(room)}" from ${was} to ${n}, the real number of correct solves?`)) return false;
       return patch(room, { solvers: n }, `solver count ${was} to ${n}`, 'Solver count fixed');
     });

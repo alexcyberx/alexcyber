@@ -160,15 +160,22 @@ export default function Resources({ site }: SectionProps) {
     return n;
   });
 
-  // All rows at once: the library is small and the stats need every row.
+  // Every row (the stats and the shared-file check need all of them), in
+  // pages of 1000: PostgREST returns at most 1000 rows per request.
   useEffect(() => {
     let cancelled = false;
-    sb.from('resources').select(COLS).order('uploaded_at', { ascending: false }).range(0, 4999).then(({ data, error }) => {
-      if (cancelled) return;
-      if (error) { setErr(error.message); setRows([]); return; }
+    (async () => {
+      const all: Row[] = [];
+      for (let from = 0; ; from += 1000) {
+        const { data, error } = await sb.from('resources').select(COLS).order('uploaded_at', { ascending: false }).order('id').range(from, from + 999);
+        if (cancelled) return;
+        if (error) { setErr(error.message); setRows([]); return; }
+        all.push(...((data || []) as Row[]));
+        if (!data || data.length < 1000) break;
+      }
       setErr('');
-      setRows((data || []) as Row[]);
-    }, () => { if (!cancelled) { setErr('Network error.'); setRows([]); } });
+      setRows(all);
+    })().catch(() => { if (!cancelled) { setErr('Network error.'); setRows([]); } });
     return () => { cancelled = true; };
   }, [sb]);
 

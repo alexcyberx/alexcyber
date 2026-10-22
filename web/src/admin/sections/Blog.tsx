@@ -176,9 +176,15 @@ export default function Blog(_: SectionProps) {
     if (busyId != null) return;
     if (live && !confirm(`Publish "${r.title}" now? It shows on the blog. ${NOTIFY}`)) return;
     if (!live && !confirm(`Unpublish "${r.title}"? It leaves the blog and its link stops working until you publish it again.`)) return;
-    // Publishing keeps a past date (a post that was live before keeps its
-    // date); an empty or future date becomes now.
-    const keep = r.publish_date && new Date(r.publish_date).getTime() <= Date.now();
+    // A post that was live before keeps its past date. "Was live" = its
+    // site-wide announcement exists (acx_announce sends one per /blog/<slug>
+    // the first time it goes live); otherwise (a draft, or a scheduled post
+    // moved back to draft) it goes live dated now.
+    const past = !!r.publish_date && new Date(r.publish_date).getTime() <= Date.now();
+    const { count: wasLive } = live && past
+      ? await sb.from('notifications').select('id', { count: 'exact', head: true }).is('user_id', null).eq('link', '/blog/' + r.slug)
+      : { count: 0 };
+    const keep = past && !!wasLive;
     const values = live ? { status: 'published', publish_date: keep ? r.publish_date : new Date().toISOString() } : { status: 'draft' };
     setBusyId(r.id);
     const { data, error } = await sb.from('blog_posts').update(values).eq('id', r.id).select(COLS);
