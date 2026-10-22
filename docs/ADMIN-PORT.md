@@ -3,7 +3,8 @@
 The old panel lives in `panel-1b47c1ab561e.html` (inline CSS + markup) and `js/admin-panel-app.js` (all logic,
 ~5,100 lines). The new one is a client app in `web/src/app/(admin)/panel-1b47c1ab561e/` with its own root layout,
 so the site nav, cookie banner and page-view tracking do not load. Code is in `web/src/admin/`.
-The old panel stays live at `/panel-1b47c1ab561e.html` until every section is ported, then it redirects.
+The old panel stays reachable at `/panel-1b47c1ab561e.html?old=1` until every section is ported; the plain `.html`
+URL (old bookmarks) redirects to the new panel since 2026-10-22.
 
 Security does not depend on the page: RLS, the admin RPC checks and the two-step login (aal2,
 `supabase/migrations/2026-10-21_admin_mfa.sql`) protect the data. The page only decides what to show.

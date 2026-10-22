@@ -44,7 +44,8 @@ const SECTIONS: Section[] = [
   { id: 'settings', label: 'Settings', group: 'Platform', icon: 'settings', old: 'settings' },
 ];
 
-export const OLD_PANEL = '/panel-1b47c1ab561e.html';
+// ?old=1: without it the server sends the old URL to this panel (old bookmarks).
+export const OLD_PANEL = '/panel-1b47c1ab561e.html?old=1';
 const IDLE_MS = 30 * 60 * 1000;
 
 type Gate = { state: 'loading' } | { state: 'login'; pending: User | null } | { state: 'ready'; user: User; name: string };

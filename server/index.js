@@ -128,9 +128,13 @@ PUBLIC_DIRS.forEach((dir) => {
   app.get('/' + f, (req, res) => res.set('Cache-Control', 'public, max-age=86400').sendFile(path.join(ROOT, 'brand', f)));
 });
 
-// Admin panel secret URL pe hai (pehle static se serve hota tha)
+// Admin panel secret URL pe hai (pehle static se serve hota tha).
+// The new panel (Next) is /panel-1b47c1ab561e. Old bookmarks of the .html go
+// there; the new panel opens sections it does not have yet with ?old=1.
 app.get('/panel-1b47c1ab561e.html', (req, res) => {
   res.set('X-Robots-Tag', 'noindex, nofollow'); // never in search results
+  if (req.query.old !== '1') return res.redirect(302, '/panel-1b47c1ab561e');
+  res.set('Cache-Control', 'no-store');
   res.sendFile(path.join(ROOT, 'panel-1b47c1ab561e.html'));
 });
 
