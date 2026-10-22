@@ -13,7 +13,8 @@
 //
 // Pages/learnN.html gives the course banner + sidebar header (also one source).
 // The DB (content_chapters) decides which chapters are shown (admin switch),
-// and holds the text of chapters that have no local file (Forensics ch. 12).
+// and holds the text of chapters that have no local file (Forensics ch. 12);
+// courses.enabled switches a whole course off.
 
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
@@ -201,6 +202,30 @@ const dbRows = cache(async (key: string): Promise<DbRow[] | null> => {
   return (data as DbRow[]) || [];
 });
 
+// RLS lets the anon key read only enabled rows, so a switched-off chapter is
+// simply missing from dbRows (like a chapter without a row, which is shown).
+// get_hidden_chapters() (security definer, course + slug only) names the
+// switched-off ones. Missing or failing: nothing extra is hidden (fail-safe).
+const hiddenChapters = cache(async (): Promise<Set<string>> => {
+  const sb = serverSupabase();
+  if (!sb) return new Set();
+  const { data, error } = await sb.rpc('get_hidden_chapters');
+  // PGRST202 = not created yet (migration 2026-10-22 step 1), anything else is worth a log line.
+  if (error && error.code !== 'PGRST202') console.error('[chapters] get_hidden_chapters:', error.message);
+  if (error || !Array.isArray(data)) return new Set();
+  return new Set((data as { course: string; slug: string }[]).map((r) => `${r.course}/${r.slug}`));
+});
+
+// Course switch (courses.enabled). Anon reads only enabled courses, so a course
+// missing from this list is switched off. DB unreachable: null (all shown).
+const enabledCourses = cache(async (): Promise<Set<string> | null> => {
+  const sb = serverSupabase();
+  if (!sb) return null;
+  const { data, error } = await sb.from('courses').select('course_key').eq('enabled', true);
+  if (error || !Array.isArray(data)) { if (error) console.error('[chapters] courses:', error.message); return null; }
+  return new Set((data as { course_key: string }[]).map((r) => r.course_key));
+});
+
 // DB text, only for chapters that have no local file (the SPA's acxLoadChapterFromDb).
 const dbContent = cache(async (key: string, slugs: string): Promise<Record<string, string>> => {
   const sb = serverSupabase();
@@ -213,6 +238,8 @@ const dbContent = cache(async (key: string, slugs: string): Promise<Record<strin
   return out;
 });
 
+/** The course with its chapters, or null for an unknown slug and for a course
+ * the admin switched off (no page, list entry, search, sitemap or llms.txt line). */
 export const getCourse = cache(async (slug: string): Promise<CourseData | null> => {
   const def = courseDef(slug);
   if (!def) return null;
@@ -220,18 +247,21 @@ export const getCourse = cache(async (slug: string): Promise<CourseData | null> 
   // Fail-safe like the SPA: DB unreachable -> every chapter shown; a chapter
   // without a DB row counts as enabled.
   const missing = raw.filter((c) => !c.html).map((c) => toSlug(c.title)).join(',');
-  const [rows, extra] = await Promise.all([dbRows(def.key), dbContent(def.key, missing)]);
+  const [on, rows, hidden, extra] = await Promise.all([enabledCourses(), dbRows(def.key), hiddenChapters(), dbContent(def.key, missing)]);
+  if (on && !on.has(def.key)) return null;
   const bySlug = new Map((rows || []).map((r) => [r.slug, r]));
   const chapters = raw.map((c, i) => {
     const s = toSlug(c.title);
     return {
       index: i, num: String(i + 1).padStart(2, '0'), title: c.title, slug: s,
-      enabled: bySlug.get(s)?.enabled !== false,
+      enabled: bySlug.get(s)?.enabled !== false && !hidden.has(`${def.key}/${s}`),
       hasContent: Boolean(c.html || extra[s]),
     };
   });
+  // First enabled chapter with text; else the first enabled one ("coming soon").
   const firstIdx = chapters.findIndex((c) => c.enabled && c.hasContent);
-  return { def, banner, chapters, first: firstIdx >= 0 ? firstIdx : 0, extra };
+  const first = firstIdx >= 0 ? firstIdx : Math.max(0, chapters.findIndex((c) => c.enabled));
+  return { def, banner, chapters, first, extra };
 });
 
 /** HTML of one chapter: the SPA's own string, or the DB text if there is no file. */

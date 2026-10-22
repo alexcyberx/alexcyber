@@ -27,7 +27,7 @@ The list of migrated paths lives in one place: `NEXT_PAGES` in `server/middlewar
 | 5b | `/tools`, `/tools/mistake-analyzer`, `/resources` (+ `/community`, `/community/<id>` ported, switched off) | Done |
 | 5c | `/tools/alexrecon`, `/tools/alexutils`, `/tools/alextrace` | Done |
 | 5e | Course pages `/tutorials/<course>` + every chapter `/tutorials/<course>/<chapter>` | Done |
-| 5d | Admin panel | |
+| 5d | Admin panel (`/panel-1b47c1ab561e`, plan in `docs/ADMIN-PORT.md`) | Phase 1 (shell, login, dashboard, messages) |
 
 All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 
@@ -241,6 +241,18 @@ Not migrated yet (still SPA): admin panel only (community is on Next by default 
   quick links. No results: suggestion chips. Loading: sweep line + skeleton rows. `?q=` still opens it with that text.
 - Same ids as before (`#desktopSearchInput`, `#navSearchDesktopResults`, `.search-result-item`), so the old tests run.
   Test: `search.js` (15 checks). Reduced motion turns the animation off.
+
+## Step 5d: admin panel on Next (in phases)
+- `src/app` is split into route groups: `(site)` (every public page, unchanged URLs and layout) and `(admin)`
+  (own root layout: no site nav, cookie banner, page-view tracking or site CSS).
+  The site document lives in `src/components/SiteDocument.tsx`; `app/global-not-found.tsx` (experimental
+  `globalNotFound`) uses it so unknown URLs still get the site's server-rendered 404 page.
+- `/panel-1b47c1ab561e` (proxied by Express, `X-Robots-Tag: noindex`) is the new panel; code in `src/admin/`.
+  Same Supabase storage key as the old panel (`alexcyberx-admin-auth`) plus its sessionStorage marker, so sections
+  not ported yet open the old panel (`/panel-1b47c1ab561e.html#<section>`) without a second login.
+- Phase 1: sign-in (password → admin role → TOTP enroll/verify, aal2), sidebar + hash routing, idle sign-out
+  (30 min), Dashboard, Messages. Phase 2: Users, Security, Notifications; `/api/admin` (Express) for invite and
+  account delete. Next phases and owner decisions: `docs/ADMIN-PORT.md`.
 
 ## Deploy on Render
 **One service (current):** the Express service also runs Next.js.

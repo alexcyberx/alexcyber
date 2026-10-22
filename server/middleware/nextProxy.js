@@ -49,7 +49,9 @@ if (COMMUNITY_ON) NEXT_PAGES.community = '/community';
 // /search-index.json feeds the nav search on the Next pages.
 // robots.txt, sitemap.xml and llms.txt are built by Next from one site URL
 // (NEXT_PUBLIC_SITE_URL); the files in the repo root are only the fallback.
-const EXACT = new Set([...Object.values(NEXT_PAGES), '/search-index.json', '/robots.txt', '/sitemap.xml', '/llms.txt', '/opengraph-image', '/twitter-image', '/rooms/details']);
+const EXACT = new Set([...Object.values(NEXT_PAGES), '/search-index.json', '/robots.txt', '/sitemap.xml', '/llms.txt', '/opengraph-image', '/twitter-image', '/rooms/details',
+  // New admin panel (docs/ADMIN-PORT.md); the old one stays at /panel-1b47c1ab561e.html.
+  '/panel-1b47c1ab561e']);
 const PREFIXES = ['/blog/', '/u/', '/_next/', '/tutorials/', ...(COMMUNITY_ON ? ['/community/'] : [])];
 
 // Old chapter deep links (SPA + the first nav search): /tutorials/<course>?ch=<slug>

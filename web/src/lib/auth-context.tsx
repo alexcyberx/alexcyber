@@ -169,9 +169,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => { cancelled = true; sub.subscription.unsubscribe(); };
   }, []);
 
-  // Links from the old SPA / emails: /?auth=login&next=/rooms, /?reset=1
+  // Links from the old SPA / emails: /?auth=login&next=/rooms, /?reset=1,
+  // /?invited=1 (admin invite: the link signed them in, now pick a password)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    if (params.get('invited') === '1') setModal('newpw');
     const auth = params.get('auth');
     if (auth === 'login' || auth === 'signup' || auth === 'forgot') openAuth(auth, params.get('next'));
     else if (params.has('next')) setNextPath(safeNextPath(params.get('next')));

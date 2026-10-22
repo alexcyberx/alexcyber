@@ -22,6 +22,8 @@ async function recordForRequest(req, slug) {
   if (authErr || !u || !u.user) return { recorded: false, reason: 'login_required' };
   const { data, error } = await db.rpc('record_lab_ctf_solve', { p_user_id: u.user.id, p_slug: slug });
   if (data && data.error === 'suspended') return { recorded: false, reason: 'suspended' };
+  // Prerequisites (ctf_challenges.requires) not solved yet: the flag was right, but it does not count.
+  if (data && data.error === 'locked') return { recorded: false, reason: 'locked', message: data.message || 'Solve the required challenge(s) first.' };
   if (error || !data || data.success === false) {
     console.error('[recordSolve]', slug, error ? error.message : data && data.error);
     return { recorded: false, reason: 'server_error' };

@@ -1,3 +1,5 @@
+import { COURSE_DEFS, chapterPath, getCourse } from './chapters';
+import { siteRooms } from './ctf';
 import { serverSupabase } from './supabase';
 import { pathForPage } from './routes';
 import { TOOLS, plainDesc } from './tools';
@@ -9,9 +11,6 @@ export type SearchEntry = {
   href: string;
   tags: string[];
 };
-
-// Course key (content_chapters.course) -> SPA page id
-const COURSE_PAGE: Record<string, string> = { forensics: 'learn', attacks: 'learn2', 'ethical-hacking': 'learn3' };
 
 const words = (...parts: (string | null | undefined)[]) =>
   Array.from(new Set(parts.filter(Boolean).join(' ').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)));
@@ -29,31 +28,38 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
   const out: SearchEntry[] = [];
   const sb = serverSupabase();
   if (sb) {
-    const [courses, chapters, ctf, posts] = await Promise.all([
+    const [courses, chapters, ctf, posts, lists] = await Promise.all([
       sb.from('courses').select('course_key, page_key, tag, title, description').eq('enabled', true).order('display_order'),
-      sb.from('content_chapters').select('course, slug, title, chapter_order').eq('enabled', true).order('chapter_order'),
-      sb.from('ctf_challenges').select('slug, title, category, difficulty').eq('status', 'active'),
+      sb.from('content_chapters').select('course, slug, title, description').eq('enabled', true),
+      sb.from('ctf_challenges').select('slug, title, category, difficulty').or('status.eq.active,status.is.null'),
       sb.from('blog_posts').select('slug, title, category, tags').eq('status', 'published'),
+      Promise.all(COURSE_DEFS.map((d) => getCourse(d.slug).catch(() => null))),
     ]);
-    const courseTitle: Record<string, string> = {};
-    const counts: Record<string, number> = {};
-    (chapters.data || []).forEach((c) => { counts[c.course] = (counts[c.course] || 0) + 1; });
+    // Chapters = the course pages' own lists (code files, admin switches applied;
+    // a switched-off course is null). A chapter's DB row only adds search words.
+    const dbChapter = new Map((chapters.data || []).map((c) => [`${c.course}/${c.slug}`, c]));
+    const shown = (key: string) => lists.find((l) => l?.def.key === key);
     (courses.data || []).forEach((c) => {
-      courseTitle[c.course_key] = c.title;
-      out.push({ type: 'course', title: c.title, sub: `Course • ${counts[c.course_key] || 0} ${counts[c.course_key] === 1 ? "Chapter" : "Chapters"}`, href: pathForPage(c.page_key, '/tutorials'), tags: words(c.tag, c.title, c.description) });
+      const n = shown(c.course_key)?.chapters.filter((x) => x.enabled).length || 0;
+      out.push({ type: 'course', title: c.title, sub: `Course • ${n} ${n === 1 ? "Chapter" : "Chapters"}`, href: pathForPage(c.page_key, '/tutorials'), tags: words(c.tag, c.title, c.description) });
     });
-    const seen: Record<string, number> = {};
-    (chapters.data || []).forEach((c) => {
-      const n = (seen[c.course] = (seen[c.course] || 0) + 1);
-      const page = COURSE_PAGE[c.course];
-      if (!page) return;
-      out.push({
-        type: 'chapter', title: c.title, sub: `${courseTitle[c.course] || c.course} • Ch ${n}`,
-        href: `${pathForPage(page)}/${encodeURIComponent(c.slug)}`, tags: words(c.title),
+    (courses.data || []).forEach((c) => {
+      const data = shown(c.course_key);
+      if (!data) return;
+      data.chapters.filter((x) => x.enabled && x.hasContent).forEach((ch) => {
+        const db = dbChapter.get(`${c.course_key}/${ch.slug}`);
+        out.push({
+          type: 'chapter', title: ch.title, sub: `${c.title} • Ch ${Number(ch.num)}`,
+          href: chapterPath(data.def, ch.slug), tags: words(ch.title, db?.title, db?.description),
+        });
       });
     });
+    // Only rooms the site really has (a DB-only row opens nothing), with the site's own card text.
+    const rooms = new Map(siteRooms().map((r) => [r.slug, r]));
     (ctf.data || []).forEach((c) => {
-      out.push({ type: 'ctf', title: c.title, sub: `CTF • ${cap(c.category)}${c.difficulty ? ' • ' + cap(c.difficulty) : ''}`, href: `/rooms?open=${encodeURIComponent(c.slug)}`, tags: words(c.category, c.difficulty, c.title) });
+      const r = rooms.get(c.slug);
+      if (!r) return;
+      out.push({ type: 'ctf', title: r.title, sub: `CTF • ${r.cat} • ${r.diff}`, href: `/rooms?open=${encodeURIComponent(c.slug)}`, tags: words(r.cat, r.diff, r.title, c.title) });
     });
     (posts.data || []).forEach((p) => {
       out.push({ type: 'blog', title: p.title, sub: `Blog${p.category ? ' • ' + cap(p.category) : ''}`, href: `/blog/${encodeURIComponent(p.slug)}`, tags: words(p.title, p.category, ...(p.tags || [])) });

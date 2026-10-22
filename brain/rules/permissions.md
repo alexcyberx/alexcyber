@@ -48,7 +48,7 @@ Server: `requireAuth` / `requireToolLogin` verify JWT (`auth.getUser`) and ban (
   (login), `vote_thread`/`vote_reply` (login, not banned), `award_daily_login_xp` (login), `track_chapter_view`
   (login, else no-op), `track_page_view`, `submit_contact_message`, `get_leaderboard`, `get_profile_stats`,
   `get_site_settings`, `get_xp_rules`, `get_about_bio`, `get_community_threads`, `get_thread_with_replies`,
-  `blog_increment_views`, `blog_publish_due_posts` (**no admin check**, Inferred unintended).
+  `blog_increment_views`, `blog_publish_due_posts` (**no admin check**, Inferred unintended), `get_hidden_chapters` (course + slug of switched-off chapters only, no text; migration 2026-10-22).
 - Admin (function checks `role='admin'`): `save_site_settings`, `save_xp_rules`, `save_about_bio`, `send_broadcast`,
   `block_ip`, `unblock_ip`, `trigger_manual_backup`, `get_page_view_stats`, `get_course_completion_stats`,
   `log_security_event`, `log_admin_event`, `admin_get_last_ips` (authenticated only).
@@ -65,10 +65,11 @@ Server: `requireAuth` / `requireToolLogin` verify JWT (`auth.getUser`) and ban (
 | `/api/tools/*`, `/api/alexutils/*`, `/api/alextrace/*` | logged-in, not banned, tool enabled | `requireToolLogin`, `checkToolEnabled` |
 | `/api/alexrecon/*` | logged-in, not banned (enabled check on scan/schedule) | `server/tools/alexrecon/routes.js:46` |
 | `/rooms/details` (CTF scenario + hints) | logged-in (token checked) | `web/src/app/rooms/details/route.ts` |
+| `/api/admin/*` (invite user, delete account) | admin, not banned, two-step (aal2) session | `server/routes/admin.js` |
 | `/api/me/seen` | logged-in | `server/routes/me.js:16` |
 | `/api/lab/admin-search` | `admin` or `moderator` (role cached 5 min, ban not checked) | `server/ai/adminSearch.js` |
 | `/auth/email-hook` | Supabase (signed webhook) | `server/routes/authEmailHook.js` |
-| Admin panel page | anyone can load the HTML; actions need admin RLS | `server/index.js:132` (UI-only gate) |
+| Admin panel page (old `.html` + new Next `/panel-1b47c1ab561e`) | anyone can load the HTML; actions need admin RLS + aal2 | `server/index.js:132`, `web/src/admin/AdminApp.tsx` (UI-only gate) |
 
 ## 5. Client-only (UI) permission checks — never rely on these
 Admin panel gate (`js/admin-panel-app.js:4869-4876`), registration toggle,

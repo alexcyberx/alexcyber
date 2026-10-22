@@ -10,6 +10,12 @@ const EXPRESS_ORIGIN = process.env.EXPRESS_ORIGIN || 'http://localhost:3000';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  // app/global-not-found.tsx: unknown URLs get the site's 404 page (two root layouts).
+  experimental: { globalNotFound: true },
+  async headers() {
+    // Admin panel: never in search results.
+    return [{ source: '/panel-1b47c1ab561e', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] }];
+  },
   async rewrites() {
     return {
       fallback: [

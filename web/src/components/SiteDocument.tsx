@@ -1,4 +1,3 @@
-import type { Metadata, Viewport } from 'next';
 import AuthModals from '@/components/AuthModals';
 import CookieBanner from '@/components/CookieBanner';
 import LegacyI18n from '@/components/LegacyI18n';
@@ -6,44 +5,20 @@ import Nav from '@/components/Nav';
 import SiteRuntime from '@/components/SiteRuntime';
 import ThemeSync from '@/components/ThemeSync';
 import { AuthProvider } from '@/lib/auth-context';
-import { SITE_URL } from '@/lib/blog';
 import { THEME_BOOT } from '@/lib/theme';
-import './compat.css';
-import './nav-upgrade.css';
-import './search.css';
-import { OG_IMAGE } from '@/lib/seo';
-
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: 'AlexCyberX',
-  description: 'AlexCyberX: free cybersecurity education in Hindi with hands-on CTF labs.',
-  openGraph: { images: [OG_IMAGE], siteName: 'AlexCyberX', locale: 'en_IN', type: 'website' },
-  twitter: { card: 'summary_large_image', site: '@alexcyberx', creator: '@alexcyberx' },
-  // brand/ (served by Express at the root): Glitch X mark.
-  icons: {
-    icon: [{ url: '/favicon.ico', sizes: 'any' }, { url: '/favicon.svg', type: 'image/svg+xml' }],
-    apple: '/apple-touch-icon.png',
-  },
-  manifest: '/site.webmanifest',
-  // Search Console / Bing Webmaster ownership tags, set on Render when the
-  // final domain is live (empty -> no tag).
-  verification: {
-    google: process.env.NEXT_PUBLIC_GSC_VERIFICATION || undefined,
-    other: process.env.NEXT_PUBLIC_BING_VERIFICATION ? { 'msvalidate.01': process.env.NEXT_PUBLIC_BING_VERIFICATION } : undefined,
-  },
-};
-
-export const viewport: Viewport = {
-  themeColor: '#0b0d0d',
-  colorScheme: 'dark',
-};
+import '../app/(site)/compat.css';
+import '../app/(site)/nav-upgrade.css';
+import '../app/(site)/search.css';
 
 // The stylesheets are the old site's own files (served by Express from /css),
 // in the same order as index.html (later files override earlier ones),
 // so the migrated pages look exactly like the rest of the site and stay in sync.
 const SHARED_CSS = ['variables', 'nav', 'home', 'learn', 'auth', 'profile', 'modal', 'animations', 'ctf-room'];
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/** The site's whole document (head, nav, auth, cookie banner, language, runtime).
+ * Used by (site)/layout.tsx and by app/global-not-found.tsx, so unknown URLs get
+ * the same server-rendered page as every other site page. */
+export default function SiteDocument({ children }: { children: React.ReactNode }) {
   return (
     // No data-theme here: THEME_BOOT / ThemeSync own it. A value in JSX was
     // written back as "dark" (green) whenever React rendered <html> itself.

@@ -74,6 +74,7 @@ try {
     resetPassword:      loadTemplate('reset-password.html'),
     confirmNewEmail:    loadTemplate('confirm-new-email.html'),
     emailChangeNotice:  loadTemplate('email-change-notice.html'),
+    invite:             loadTemplate('invite.html'),
   };
 } catch (e) {
   console.error('[authEmailHook] Failed to load email template files:', e.message);
@@ -157,6 +158,18 @@ router.post('/email-hook', async (req, res) => {
         from: FROM_ADDRESS,
         to: [user.email],
         subject: 'Reset your AlexCyberX password',
+        html
+      });
+      if (error) throw error;
+
+    } else if (actionType === 'invite') {
+      // Admin panel "Invite user" (server/routes/admin.js).
+      const url = buildConfirmationUrl(siteUrl, email_data.token_hash, actionType, redirectTo);
+      const html = fillTemplate(templates.invite, { CONFIRMATION_URL: url });
+      const { error } = await resend.emails.send({
+        from: FROM_ADDRESS,
+        to: [user.email],
+        subject: 'You are invited to AlexCyberX',
         html
       });
       if (error) throw error;
