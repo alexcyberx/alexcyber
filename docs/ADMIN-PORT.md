@@ -28,7 +28,7 @@ Security does not depend on the page: RLS, the admin RPC checks and the two-step
   last IP, stats, 12-week heatmap, course progress, CTF solves; edit name/role, ban, award XP with reason, delete
   account via server, invite by email), Security (24 h counts, block/unblock with IPv4/IPv6 check, log with
   filters/search/paging/CSV), Notifications (real person search, history).
-- Phase 3 done (code; DB part waits for `supabase/migrations/2026-10-22_admin_phase3.sql`): Courses (per course and per
+- Phase 3 done (code + `supabase/migrations/2026-10-22_admin_phase3.sql`, applied and verified 2026-10-22): Courses (per course and per
   chapter "Visible on site" switches that really hide them on the site, home switch max 2, edit, reorder; chapter
   lists come from the code), Blog (editor, slug check, schedule rules, preview like the site, real categories),
   Resources (list loads, upload with type allowlist, no orphan files, edit/hide/delete), CTF (site rooms + DB rows,

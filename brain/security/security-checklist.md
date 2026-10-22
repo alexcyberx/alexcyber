@@ -33,7 +33,7 @@ Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · M
 11. **Low · WEAKNESS — anon-callable `blog_publish_due_posts`; mutable `search_path` on 3 blog functions; `pg_net`
     in `public`** (advisor). Fix: revoke EXECUTE from anon/authenticated (run it from cron), `SET search_path`.
 12. **Low · WEAKNESS — public `resources` bucket** while the table is login-only. Size/MIME limit: FIXED by
-    migration 2026-10-22 once applied (pdf, text/plain, octet-stream, png, jpeg, webp; 50 MB). Still open: private
+    migration 2026-10-22, verified live 2026-10-22 (pdf, text/plain, octet-stream, png, jpeg, webp; 50 MB). Still open: private
     bucket + signed URLs from a server/RPC check.
 13. **Low · MISSING — SRI on jsDelivr scripts** `index.html:2107-2108`, panel page. Fix: add `integrity` + `crossorigin`.
 14. **Low · WEAKNESS — webhook replay window** `server/routes/authEmailHook.js` (no webhook-id cache). Fix: remember
@@ -90,8 +90,8 @@ Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · M
 
 ## File uploads
 - [x] AlexTrace: multer memory, 15 MB, image MIME only, not stored.
-- [ ] Storage bucket `resources`: public (#12). Size/MIME limits in migration 2026-10-22 (verify after it runs).
-- [ ] `track_chapter_view` XP farming with made-up slugs / hidden chapters: fixed in migration 2026-10-22 (verify after it runs).
+- [ ] Storage bucket `resources`: public (#12). Size/MIME limits set (verified live 2026-10-22: 6 types, 50 MB).
+- [x] `track_chapter_view` XP farming with made-up slugs / hidden chapters / hidden courses / banned users / races: fixed (migration 2026-10-22, verified live).
 
 ## Database security
 - [x] RLS everywhere, flags stored as sha256 only, `flag`/`flag_hash` not readable by anon/authenticated, backups exclude them.
