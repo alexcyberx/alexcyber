@@ -10,7 +10,7 @@ export const revalidate = 300;
 export default async function CourseLayout({ children, params }: { children: React.ReactNode; params: Promise<{ course: string }> }) {
   const { course } = await params;
   const data = await getCourse(course);
-  if (!data) return <>{children}</>; // the page redirects unknown courses
+  if (!data) return <>{children}</>; // the page redirects unknown courses, 404s switched-off ones
   const { def, banner, chapters, first } = data;
   return (
     <>

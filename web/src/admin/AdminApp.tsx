@@ -11,9 +11,13 @@ import type { SiteData } from './site-data';
 import { adminSupabase, clearOldPanelSession, logAdminEvent, markOldPanelSession } from './sb';
 import { Icon } from './icons';
 import { ToastProvider } from './ui';
+import Blog from './sections/Blog';
+import CTF from './sections/CTF';
+import Courses from './sections/Courses';
 import Dashboard from './sections/Dashboard';
 import Messages from './sections/Messages';
 import Notifications from './sections/Notifications';
+import Resources from './sections/Resources';
 import Security from './sections/Security';
 import Users from './sections/Users';
 
@@ -29,10 +33,10 @@ const SECTIONS: Section[] = [
   { id: 'messages', label: 'Messages', group: 'People', icon: 'messages', view: (p) => <Messages {...p} /> },
   { id: 'notifications', label: 'Notifications', group: 'People', icon: 'notifications', view: (p) => <Notifications {...p} /> },
   { id: 'community', label: 'Community', group: 'People', icon: 'community', old: 'community' },
-  { id: 'content', label: 'Courses', group: 'Content', icon: 'content', old: 'content' },
-  { id: 'blog', label: 'Blog', group: 'Content', icon: 'blog', old: 'blog' },
-  { id: 'resources', label: 'Resources', group: 'Content', icon: 'resources', old: 'resources' },
-  { id: 'ctf', label: 'CTF', group: 'Content', icon: 'ctf', old: 'ctf' },
+  { id: 'content', label: 'Courses', group: 'Content', icon: 'content', view: (p) => <Courses {...p} /> },
+  { id: 'blog', label: 'Blog', group: 'Content', icon: 'blog', view: (p) => <Blog {...p} /> },
+  { id: 'resources', label: 'Resources', group: 'Content', icon: 'resources', view: (p) => <Resources {...p} /> },
+  { id: 'ctf', label: 'CTF', group: 'Content', icon: 'ctf', view: (p) => <CTF {...p} /> },
   { id: 'tools', label: 'Tools', group: 'Platform', icon: 'toolsmanager', old: 'toolsmanager' },
   { id: 'gamification', label: 'XP & Leaderboard', group: 'Platform', icon: 'gamification', old: 'gamification' },
   { id: 'security', label: 'Security', group: 'Platform', icon: 'security', view: (p) => <Security {...p} /> },

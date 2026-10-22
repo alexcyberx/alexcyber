@@ -169,6 +169,6 @@ export function roomDetails(): RoomDetails {
 }
 
 /** Card data of every room in js/ctf-challenges-data.js (the site's room list), for the admin panel. */
-export function siteRooms(): { slug: string; title: string; cat: string; diff: Difficulty; xp: number; hasLab: boolean }[] {
-  return SEED.challenges.map((c) => ({ slug: c.id, title: c.title, cat: c.cat, diff: c.diff, xp: c.xp, hasLab: !!(c.labUrl || c.hasLabFlow) }));
+export function siteRooms(): { slug: string; title: string; cat: string; diff: Difficulty; xp: number; hasLab: boolean; hasLabFlow: boolean }[] {
+  return SEED.challenges.map((c) => ({ slug: c.id, title: c.title, cat: c.cat, diff: c.diff, xp: c.xp, hasLab: !!(c.labUrl || c.hasLabFlow), hasLabFlow: !!c.hasLabFlow }));
 }

@@ -22,6 +22,20 @@ grant execute on function public.get_hidden_chapters() to anon, authenticated;
 -- none matched the site, chapter_progress or the switches). All 23 Ethical
 -- Hacking chapters have their text in the code, so no page content changes.
 alter table public.content_chapters drop constraint if exists content_chapters_slug_key;
+-- If a plain-slug Ethical Hacking row was already made for a chapter that also
+-- has an 'eh-' row, keep one row (hidden if either was hidden) so the rename
+-- below cannot collide.
+update public.content_chapters e set enabled = false
+  from public.content_chapters p
+ where e.course = 'ethical-hacking' and p.course = 'ethical-hacking' and e.slug like 'eh-%'
+   and p.slug = case e.slug when 'eh-evading-ids-firewalls-honeypots' then 'evading-ids-firewalls-and-honeypots'
+                            when 'eh-advanced-iot-ot-security' then 'advanced-iot-and-ot-security' else substr(e.slug, 4) end
+   and p.enabled = false;
+delete from public.content_chapters p
+ using public.content_chapters e
+ where e.course = 'ethical-hacking' and p.course = 'ethical-hacking' and e.slug like 'eh-%'
+   and p.slug = case e.slug when 'eh-evading-ids-firewalls-honeypots' then 'evading-ids-firewalls-and-honeypots'
+                            when 'eh-advanced-iot-ot-security' then 'advanced-iot-and-ot-security' else substr(e.slug, 4) end;
 alter table public.content_chapters add constraint content_chapters_course_slug_key unique (course, slug);
 update public.content_chapters
    set slug = case slug
@@ -273,5 +287,63 @@ update public.ctf_challenges c
 -- 6. Blog category names unique without case ('Tools' and 'tools' would be two
 -- filter buttons with the same label on the blog).
 create unique index if not exists blog_categories_name_lower_key on public.blog_categories (lower(name));
+
+-- 7. Chapter XP only for real chapters that are switched on, never twice.
+-- Before, any made-up (course, slug) pair gave chapter XP (XP farming), a
+-- hidden chapter still gave XP, banned users got XP, and two calls at the same
+-- time could both award it. Every chapter of the site has a content_chapters
+-- row (checked 2026-10-21: 25 + 11 + 23 after step 2).
+create or replace function public.track_chapter_view(p_course text, p_chapter_slug text)
+returns void
+language plpgsql security definer set search_path to 'public'
+as $function$
+declare
+  v_inserted   integer;
+  v_chapter_xp integer;
+begin
+  if auth.uid() is null then
+    return; -- visitors are not tracked
+  end if;
+  if not public.acx_not_banned(auth.uid()) then
+    return;
+  end if;
+  if not exists (select 1 from public.content_chapters c
+                 where c.course = p_course and c.slug = p_chapter_slug and c.enabled = true) then
+    return; -- not a chapter of the site, or switched off
+  end if;
+
+  insert into public.chapter_progress (user_id, course, chapter_slug)
+  values (auth.uid(), p_course, p_chapter_slug)
+  on conflict (user_id, course, chapter_slug) do nothing;
+  get diagnostics v_inserted = row_count;
+  if v_inserted = 0 then
+    return; -- already seen: no XP again (also when two calls race)
+  end if;
+
+  select coalesce((value->>'chapter_completion')::integer, 25) into v_chapter_xp
+    from public.platform_settings where key = 'xp_rules';
+
+  update public.profiles
+     set xp    = coalesce(profiles.xp, 0) + coalesce(v_chapter_xp, 25),
+         level = greatest(1, floor((coalesce(profiles.xp, 0) + coalesce(v_chapter_xp, 25)) / 500) + 1)
+   where id = auth.uid();
+end;
+$function$;
+
+-- 8. Blog "last edited" is not bumped by page views (blog_increment_views
+-- updates the row on every view).
+create or replace function public.blog_set_updated_at()
+returns trigger
+language plpgsql set search_path = public
+as $function$
+begin
+  if (to_jsonb(new) - 'views' - 'updated_at') = (to_jsonb(old) - 'views' - 'updated_at') then
+    new.updated_at = old.updated_at;
+  else
+    new.updated_at = now();
+  end if;
+  return new;
+end;
+$function$;
 
 commit;

@@ -2,21 +2,28 @@
 // /tutorials/<course>/<chapter>.
 
 import type { Metadata } from 'next';
-import { permanentRedirect, redirect } from 'next/navigation';
+import { notFound, permanentRedirect, redirect } from 'next/navigation';
 import ChapterView from '@/components/ChapterView';
 import { CTF_I18N } from '@/lib/ctf';
-import { adjacent, chapterHtml, chapterPath, COURSE_ALIASES, getCourse, summary, type CourseData } from '@/lib/chapters';
+import { adjacent, chapterHtml, chapterPath, COURSE_ALIASES, courseDef, getCourse, summary, type CourseData } from '@/lib/chapters';
 import { abs, breadcrumb, ld, OG_IMAGE, ORG, ORG_ID, PERSON, PERSON_ID, plain } from '@/lib/seo';
 
 type Resolved = { data: CourseData; index: number };
 
-/** Course + chapter for a URL, or a redirect (unknown course/chapter, disabled chapter). */
+/** Course + chapter for a URL, or a redirect (unknown course/chapter, disabled
+ * chapter), or not found (course switched off, or every chapter switched off). */
 export async function resolve(course: string, chapter?: string): Promise<Resolved> {
   const alias = COURSE_ALIASES[course];
   if (alias) permanentRedirect(`/tutorials/${alias}${chapter ? '/' + chapter : ''}`);
   const data = await getCourse(course);
-  if (!data) redirect('/tutorials');
-  if (!chapter) return { data, index: data.first };
+  if (!data) {
+    if (courseDef(course)) notFound(); // a real course the admin switched off
+    redirect('/tutorials');
+  }
+  if (!chapter) {
+    if (!data.chapters[data.first]?.enabled) notFound();
+    return { data, index: data.first };
+  }
   const index = data.chapters.findIndex((c) => c.slug === chapter);
   if (index < 0) redirect(chapterPath(data.def));
   // Switched off by the admin: go to the next chapter that is on (as the SPA did).

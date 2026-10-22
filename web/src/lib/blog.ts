@@ -18,7 +18,7 @@ const POST_COLUMNS =
   'id, title, slug, category, tags, content, image, meta_title, meta_desc, views, publish_date';
 
 // Post images go into <img src> and og:image: only https:// or a same-site path.
-const safeImage = (src: string | null) => (src && (/^https:\/\//i.test(src) || /^\/(?!\/)/.test(src)) ? src : null);
+const safeImage = (src: string | null) => (src && (/^https:\/\//i.test(src) || /^\/(?![\/\\])/.test(src)) ? src : null);
 const clean = (p: BlogPost): BlogPost => ({ ...p, image: safeImage(p.image) });
 
 export async function getPublishedPosts(): Promise<BlogPost[] | null> {

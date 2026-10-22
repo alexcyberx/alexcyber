@@ -4,5 +4,6 @@
 
 export type SiteChapter = { slug: string; title: string; index: number };
 export type SiteCourse = { key: string; slug: string; title: string; chapters: SiteChapter[] };
-export type SiteRoom = { slug: string; title: string; cat: string; diff: 'Easy' | 'Medium' | 'Hard'; xp: number; hasLab: boolean };
+/** hasLabFlow: the room's lab server checks the flag and records the solve (no flag box on the rooms page). */
+export type SiteRoom = { slug: string; title: string; cat: string; diff: 'Easy' | 'Medium' | 'Hard'; xp: number; hasLab: boolean; hasLabFlow: boolean };
 export type SiteData = { courses: SiteCourse[]; rooms: SiteRoom[] };
