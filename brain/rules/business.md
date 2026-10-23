@@ -26,7 +26,7 @@ from the project). Owner direction lives in `CLAUDE.md`; security detail in `bra
 | Usernames unique | Implemented | `supabase/migrations/2026-10-11_unique_username.sql` |
 | Admin can switch off registration (`site_settings.user_registration`) | UI-only (signup form checks it; Supabase Auth still accepts sign-ups) | `AuthModals.tsx:162-166`, `js/auth.js:259-265` |
 | Idle sign-out after 30 min; "remember me" chooses localStorage vs sessionStorage | Implemented (client) | `web/src/lib/auth-context.tsx:186-203`, `web/src/lib/supabase.ts` |
-| Banned (`profiles.is_banned`) users: signed out in the browser, blocked from tools, flag submit, votes, daily XP, solves; hidden from leaderboard | Implemented (server/DB) + UI | `acx_not_banned` uses in RPCs, `server/middleware/toolAccess.js`, `get_leaderboard` |
+| Banned (`profiles.is_banned`) users: signed out in the browser, blocked from tools, flag submit, votes, daily XP, solves; hidden from leaderboard. Admin accounts are also left off the public leaderboard and the `/u/<id>` rank (owner decision 2026-10-23, `get_leaderboard`, `web/src/lib/players.ts`) | Implemented (server/DB) + UI | `acx_not_banned` uses in RPCs, `server/middleware/toolAccess.js`, `get_leaderboard` |
 | Users can delete their own account | Missing | no self-delete flow; only admins delete accounts |
 | Admin can invite a person by email; the link signs them in and asks for a password (`/?invited=1`) | Implemented | `server/routes/admin.js`, `server/routes/authEmailHook.js` (`invite`), `web/src/lib/auth-context.tsx` |
 | Admin "Delete account" removes the auth user, so the profile, solves, progress, posts, votes, notifications cascade; admin accounts cannot be deleted there | Implemented | `server/routes/admin.js` (FKs `ON DELETE CASCADE`) |
@@ -43,7 +43,7 @@ from the project). Owner direction lives in `CLAUDE.md`; security detail in `bra
   twice (migration 2026-10-22, closes XP farming with made-up slugs). +`chapter_completion` XP the first time a logged-in user opens a chapter
   (`track_chapter_view`, unique per user/course/chapter). Implemented. Note: "completion" = first view.
 - CTF solve: XP = `ctf_challenges.xp` (else `points`), once per user per challenge. Implemented. `xp_rules.ctf_*` are
-  only defaults the admin panel pre-fills for new challenges (`js/admin-panel-app.js:2562-2573`), not used at solve time.
+  only defaults the old admin panel pre-filled for new challenges (panel deleted 2026-10-23), not used at solve time.
 - `quiz_pass`: Missing (no quiz feature exists).
 - Hint unlock costs `hints[i].cost` XP, XP never below 0, paid once per hint. Implemented (`unlock_ctf_hint`); all
   current hints cost 0.
@@ -95,7 +95,8 @@ from the project). Owner direction lives in `CLAUDE.md`; security detail in `bra
 - Per-user / per-IP rate limits per tool (see `brain/security/attack-surface.md` §3). Implemented (in memory).
 - AlexRecon: only public domains, max 2 running scans + 10 queued site-wide, max 3 active schedules per user.
   Implemented (`server/tools/alexrecon/routes.js:86,94-95,356`).
-- Tool usage is logged per user (`tool_usage_logs`). Implemented.
+- Tool usage is logged per user (`tool_usage_logs`), by the server only (service role; the client INSERT policy was dropped 2026-10-23). Implemented.
+- AlexTrace keeps a lookup's username, email domain, score and the report with the checked email masked (`j***@domain`); admins see counts only (`admin_alextrace_counts`). Implemented 2026-10-23.
 
 ## 7. Community
 | Rule | Status | Evidence |
@@ -124,8 +125,15 @@ from the project). Owner direction lives in `CLAUDE.md`; security detail in `bra
 ## 9. Admin operations (what the admin can do)
 Users (ban/unban, role, XP edits, delete), courses/chapters, CTF challenges (create/edit/flag/hints/status), blog,
 resources (upload), community moderation (status, delete, reports), contact messages, broadcasts/notifications,
-XP rules, site settings, tool on/off, IP block/unblock, backups, analytics. Evidence: `js/admin-panel-app.js`, admin
-RLS policies and admin RPCs (DB).
+XP rules, site settings, tool on/off, IP block/unblock, backups, analytics. Evidence: `web/src/admin/sections/*`
+(the old `js/admin-panel-app.js` was deleted 2026-10-23), admin RLS policies and admin RPCs (DB).
+Since 2026-10-23 courses, chapters and CTF rooms are not created or deleted in the panel (they come from the code);
+the panel switches them on/off and edits their rows (owner decision).
+- New content is announced to everyone once (`acx_notify_new_content`): a CTF room when it goes active, a blog post
+  when published, a course only the first time it goes live (`courses.announced_at`, owner decision 2026-10-23).
+- Backups: a daily (or weekly) scheduled snapshot plus "Backup now"; after each good scheduled snapshot, scheduled
+  and failed snapshots older than 30 days are deleted, the newest 7 good scheduled and every manual snapshot stay
+  (owner decision 2026-10-23). The newest good snapshot cannot be deleted from the panel. No restore from the browser.
 
 ## 10. Contradictions / gaps found
 1. ~~Courses "need login" but HTML public~~ — resolved 2026-10-16: lessons are public on purpose (SEO/AEO).

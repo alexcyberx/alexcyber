@@ -44,7 +44,7 @@ const EDITABLE = [
 type Rule = (typeof EDITABLE)[number];
 
 // Stored in the same settings row, but nothing gives XP with them.
-const CTF_WHY = 'Not used: each room has its own XP, set in the CTF section. Only the old panel read it, to pre-fill a new challenge.';
+const CTF_WHY = 'Not used: each room has its own XP, set in the CTF section. Only the old panel (now removed) read it, to pre-fill a new challenge.';
 const UNUSED: Record<string, { label: string; why: string }> = {
   ctf_easy: { label: 'CTF solve, Easy', why: CTF_WHY },
   ctf_medium: { label: 'CTF solve, Medium', why: CTF_WHY },

@@ -1,6 +1,6 @@
 # Attack surface: AlexCyberX
 
-Last verified: 2026-10-16 (commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · MISSING · VERIFY · REC (see
+Last verified: 2026-10-23 (admin panel phase 4 + old panel deleted; earlier full audit 2026-10-16, commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · MISSING · VERIFY · REC (see
 `threat-model.md`). "IP" limits use `req.ip` (correct: `app.set('trust proxy', 1)`, `server/index.js:13`).
 
 ## 1. Network / deployment exposure
@@ -26,8 +26,8 @@ Last verified: 2026-10-16 (commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · M
 | `/.well-known/security.txt` | `server/index.js:105` | builds URL from `Host` when site URL env unset (low) |
 | `/api/ctf/disabled` (GET) | `server/index.js:183` | in-memory list |
 | Next pages: `/`, `/blog*`, `/tutorials*`, `/rooms`, `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/opengraph-image`, `/tools*`, `/resources`, `/community*`, `/leaderboard`, `/profile`, `/u/*`, legal pages, `/search-index.json` | `server/middleware/nextProxy.js:16-51` | GET/HEAD only; ISR caches public data only |
-| **Admin panel HTML** `/panel-1b47c1ab561e.html` + `/js/admin-panel-app.js` | `server/index.js:132` | WEAKNESS: no server auth; path is public in the repo |
-| **New admin panel** `/panel-1b47c1ab561e` (Next, being ported: `docs/ADMIN-PORT.md`) | `web/src/app/(admin)/`, `web/src/admin/` | client-only page, `noindex`; same gate as the old one (role + aal2 in the browser, RLS/aal2 in the DB); all DB text rendered by React (no innerHTML); no browser IP in admin logs |
+| `/panel-1b47c1ab561e.html` (old panel URL) | `server/index.js` | 302 to the new panel; the old HTML and `js/admin-panel-app.js` were deleted 2026-10-23 |
+| **Admin panel** `/panel-1b47c1ab561e` (Next, `docs/ADMIN-PORT.md`) | `web/src/app/(admin)/`, `web/src/admin/` | client-only page, `noindex`; path is public in the repo; gate = role + aal2 in the browser, RLS/aal2 in the DB; all DB text rendered by React (no innerHTML); no browser IP in admin logs; backup data only through the logged `admin_get_backup`; AlexTrace counts only |
 | `/auth/email-hook` (POST) | `server/routes/authEmailHook.js:118` | signed (standardwebhooks, ±5 min); WEAKNESS: no replay cache by webhook id |
 | **All CTF labs** `/api/lab/{hidden,cookie,sqli101,robots,packet,metadata,caesar,base64,deserialize,deserialize-medium,aichat-easy}` | `server/index.js:139-149`, `server/labs/*/routes.js` | no login; session = `X-Lab-Session` header → `?session=` → IP; state in memory, no cap |
 | `/api/lab/hint` (AI hints) | `server/ai/hints.js:142` | 4/min, 40/h per IP |
@@ -64,7 +64,7 @@ Last verified: 2026-10-16 (commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · M
   (`server/middleware/toolAccess.js`).
 - Redirect after login: `safeNextPath` (`web/src/lib/auth-context.tsx:37-40`), SPA `router.js:789` — no open redirect found.
 - Client-only checks (not security boundaries): admin panel gate, maintenance mode, registration toggle, ban sign-out
-  (`js/admin-panel-app.js:4869`, `js/config.js:46-77`, `web/src/components/SiteRuntime.tsx:40-55`,
+  (`web/src/admin/AdminApp.tsx`, `js/config.js:46-77`, `web/src/components/SiteRuntime.tsx:40-55`,
   `AuthModals.tsx:162-166`). WEAKNESS: registration "off" is enforced only in the UI (VERIFY: Supabase Auth
   "allow new users" setting).
 - Supabase leaked-password protection: **disabled** (Supabase advisor, MISSING).
@@ -79,7 +79,9 @@ Last verified: 2026-10-16 (commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · M
 - RPC surface (anon/authenticated EXECUTE): `submit_ctf_flag`, `unlock_ctf_hint`, `vote_thread/reply`,
   `submit_contact_message`, `track_page_view` (×2), `track_chapter_view`, `get_*` read RPCs, `award_daily_login_xp`,
   admin RPCs that check `acx_is_admin` (`save_site_settings`, `send_broadcast`, `block_ip`, `unblock_ip`,
-  `trigger_manual_backup`, ...). Service-role only: `record_lab_ctf_solve`, `run_backup_snapshot`, schedulers.
+  `trigger_manual_backup`, ...). Admin + aal2, no anon (2026-10-23): `admin_xp_summary`, `admin_alextrace_counts`,
+  `admin_get_backup`, `admin_delete_backup`. Service-role only: `record_lab_ctf_solve`, `run_backup_snapshot`, schedulers.
+- `tool_usage_logs`: no client INSERT policy since 2026-10-23 (only the server logs uses).
 - WEAKNESS: `blog_publish_due_posts()` is anon-executable without an admin check (only publishes posts already due,
   low impact) and, with `blog_increment_views`, `blog_set_updated_at`, has a mutable `search_path` (advisor).
 - WEAKNESS: anon/authenticated hold broad table grants (incl. TRUNCATE) on most tables; PostgREST cannot TRUNCATE

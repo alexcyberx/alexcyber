@@ -1,6 +1,6 @@
 # Security checklist: AlexCyberX
 
-Last verified: 2026-10-16 (commit `fffd15f`). **Read this before changing auth, labs, tools, Supabase SQL, the admin
+Last verified: 2026-10-23 (admin panel phase 4 + old panel deleted; earlier full audit 2026-10-16, commit `fffd15f`). **Read this before changing auth, labs, tools, Supabase SQL, the admin
 panel, or anything that renders HTML.** `[x]` = in place (verified), `[ ]` = gap. Each gap: Severity → Evidence →
 Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · MISSING · VERIFY · REC.
 
@@ -119,7 +119,10 @@ Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · M
 - [ ] Plaintext flags/inputs in `attempts.log` (#7); full URLs in morgan; no alerting on security events (MISSING).
 
 ## Admin security
-- [ ] MFA, server-side panel gate (#2); [x] admin actions logged via `log_admin_event` (IP value is client-supplied — treat as untrusted).
+- [x] MFA (aal2) for admin data, writes and RPCs (#2). [ ] Server-side panel gate (the page is public; data is not).
+- [x] Admin actions logged via `log_admin_event`, with `actor_id` = the admin (2026-10-23); the new panel sends no IP (a browser IP proves nothing).
+- [x] Old panel deleted 2026-10-23 (no second admin UI to keep patched). `/api/lab/admin-search` has no caller now: remove it or wire it in.
+- [x] Admin-only reads with no per-user exposure where a count is enough: AlexTrace (`admin_alextrace_counts`), XP totals (`admin_xp_summary`).
 
 ## Deployment / infrastructure
 - [x] Single Express entry, Next bound to localhost, `trust proxy 1`.
@@ -135,6 +138,7 @@ Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · M
 
 ## Backup / recovery
 - [x] `run_backup_snapshot` (service role) excludes `flag`, `flag_hash`, `last_login_ip`; 2 pg_cron jobs.
+- [x] Panel reads the snapshot list without the data column; a download goes through `admin_get_backup` (admin + aal2, logged); delete keeps the newest good snapshot; old scheduled snapshots are cleaned up after 30 days (newest 7 kept) (2026-10-23).
 - [ ] Snapshots are stored in the same database (`admin_backup_snapshots`) — not a real off-site backup (VERIFY Supabase
   plan backups / PITR). [ ] No documented restore test.
 
