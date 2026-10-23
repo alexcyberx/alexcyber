@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { SectionProps } from '../AdminApp';
-import { adminSupabase } from '../sb';
+import { adminSupabase, logAdminEvent } from '../sb';
 import { Card, Empty, Stat, TrendChart, num, timeAgo, useToast } from '../ui';
 
 type Stats = { users: number | null; new7: number | null; active: number | null; solves: number | null; unread: number | null };
@@ -53,6 +53,7 @@ export default function Dashboard({ go, setBadge }: SectionProps) {
     setBusy(false);
     if (error) return toast('Could not save: ' + error.message, 'error');
     setMaint(on);
+    logAdminEvent('admin_maintenance_updated', `maintenance mode turned ${on ? 'ON' : 'OFF'} from the dashboard`);
     toast(on ? 'Maintenance mode is ON' : 'Maintenance mode is OFF');
   }
 

@@ -58,7 +58,7 @@ export default async function PublicProfilePage({ params }: Props) {
             <div style={{ marginTop: 24 }}>
               <div className="pf-section-label">Rank</div>
               <div id="ppRankRow" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 11, padding: '14px 16px', fontSize: 13, color: 'var(--text-dim)', marginTop: 10 }}>
-                {u.rank ? `#${u.rank} on the leaderboard` : 'Rank unavailable'}
+                {u.staff ? 'AlexCyberX team account, not on the leaderboard' : u.rank ? `#${u.rank} on the leaderboard` : 'Rank unavailable'}
               </div>
             </div>
             <div style={{ marginTop: 24 }}>
