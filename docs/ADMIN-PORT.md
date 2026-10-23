@@ -37,7 +37,7 @@ Security does not depend on the page: RLS, the admin RPC checks and the two-step
   Not in the new panel (removed with the old panel, owner decision 2026-10-23): Add course, Add chapter, Create
   CTF challenge, Delete course/chapter, chapter drag-reorder (nothing on the site reads it). Courses, chapters and
   CTF rooms come from the code; the panel switches them on/off and edits their DB rows.
-- Phase 4 done (code + `supabase/migrations/2026-10-23_admin_phase4.sql`): Community (threads with pin/lock/delete
+- Phase 4 done (code + `supabase/migrations/2026-10-23_admin_phase4.sql`, applied and verified 2026-10-23): Community (threads with pin/lock/delete
   and a drawer with every reply, reports with resolve/dismiss/escalate/reopen, replies hide/delete, Feedback,
   Activity log of admin actions with who did it), Tools (switch on/off with confirm, off-message, real usage
   numbers and a 30-day chart, AlexRecon/AlexTrace counts; AlexTrace through a counts-only function, the lookups

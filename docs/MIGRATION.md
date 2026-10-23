@@ -253,7 +253,7 @@ Not migrated yet (still SPA): course chapter pages' old copy, the CTF room page 
 - Phase 1: sign-in (password → admin role → TOTP enroll/verify, aal2), sidebar + hash routing, idle sign-out
   (30 min), Dashboard, Messages. Phase 2: Users, Security, Notifications; `/api/admin` (Express) for invite and
   account delete. Phase 3: Courses, Blog, Resources, CTF. Phase 4: Community, Tools, Settings, XP & Leaderboard,
-  Analytics, Backup (DB: `supabase/migrations/2026-10-23_admin_phase4.sql`). Owner decisions: `docs/ADMIN-PORT.md`.
+  Analytics, Backup (DB: `supabase/migrations/2026-10-23_admin_phase4.sql`, applied and verified 2026-10-23). Owner decisions: `docs/ADMIN-PORT.md`.
 
 ## Deploy on Render
 **One service (current):** the Express service also runs Next.js.
