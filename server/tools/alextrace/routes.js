@@ -129,7 +129,9 @@ router.post('/lookup', traceLimiter, async (req, res) => {
           email_domain: cleanEmail ? cleanEmail.split('@')[1] : null, // domain only, never the full email, for privacy
           overall_score: report.overallScore,
           overall_level: report.overallLevel,
-          result: responsePayload
+          // The stored copy never keeps the full email either (it may be
+          // someone else's): every occurrence becomes a***@domain.
+          result: maskEmail(responsePayload, cleanEmail)
         })
         .select('id')
         .single();
@@ -206,6 +208,22 @@ router.get('/breach-search', async (req, res) => {
     res.json({ query: req.query.q || '', results: [], note: 'The breach directory is temporarily unavailable. Please try again shortly.' });
   }
 });
+
+// Deep copy of a lookup result with the checked email masked everywhere
+// (a***@example.com), so stored history never holds a full address.
+function maskEmail(value, email) {
+  if (!email) return value;
+  const at = email.indexOf('@');
+  const masked = (at > 0 ? email[0] + '***' : '***') + email.slice(at);
+  const re = new RegExp(email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+  const walk = (v) => {
+    if (typeof v === 'string') return v.replace(re, masked);
+    if (Array.isArray(v)) return v.map(walk);
+    if (v && typeof v === 'object') { const o = {}; for (const k of Object.keys(v)) o[k] = walk(v[k]); return o; }
+    return v;
+  };
+  return walk(value);
+}
 
 // ── GET /api/alextrace/history ───────────────────────────────
 router.get('/history', async (req, res) => {

@@ -1,14 +1,16 @@
--- Admin panel phase 3 (docs/ADMIN-PORT.md): what the new Courses, Resources and
--- CTF sections need from the DB, plus the bugs found while building them.
--- Run once in the Supabase SQL Editor. Everything runs in one transaction:
--- if any step fails, nothing is changed.
+/* Admin panel phase 3 (docs/ADMIN-PORT.md): what the new Courses, Resources and */
+/* CTF sections need from the DB, plus the bugs found while building them. */
+/* Run once in the Supabase SQL Editor. Everything runs in one transaction: */
+/* if any step fails, nothing is changed. */
+/* Only block comments on purpose: pasting on a phone can put the whole file on */
+/* one line, and a line comment would then hide everything after it. */
 
 begin;
 
--- 1. Chapter switches really hide chapters on the site.
--- The site reads with the anon key, and RLS lets anon see only enabled = true
--- rows, so a switched-off chapter looked like "no row = visible" and stayed on
--- the site. This returns only (course, slug) of switched-off chapters, no text.
+/* 1. Chapter switches really hide chapters on the site. */
+/* The site reads with the anon key, and RLS lets anon see only enabled = true */
+/* rows, so a switched-off chapter looked like "no row = visible" and stayed on */
+/* the site. This returns only (course, slug) of switched-off chapters, no text. */
 create or replace function public.get_hidden_chapters()
 returns table (course text, slug text)
 language sql stable security definer set search_path = public
@@ -16,15 +18,15 @@ as $$ select c.course, c.slug from public.content_chapters c where c.enabled = f
 revoke all on function public.get_hidden_chapters() from public;
 grant execute on function public.get_hidden_chapters() to anon, authenticated;
 
--- 2. Chapter slugs are unique per course, not site-wide: the site's own slugs
--- repeat across courses (sql-injection is in Cyber Attacks and Ethical Hacking).
--- Then the Ethical Hacking rows get the site's slugs (they were 'eh-<slug>', so
--- none matched the site, chapter_progress or the switches). All 23 Ethical
--- Hacking chapters have their text in the code, so no page content changes.
+/* 2. Chapter slugs are unique per course, not site-wide: the site's own slugs */
+/* repeat across courses (sql-injection is in Cyber Attacks and Ethical Hacking). */
+/* Then the Ethical Hacking rows get the site's slugs (they were 'eh-<slug>', so */
+/* none matched the site, chapter_progress or the switches). All 23 Ethical */
+/* Hacking chapters have their text in the code, so no page content changes. */
 alter table public.content_chapters drop constraint if exists content_chapters_slug_key;
--- If a plain-slug Ethical Hacking row was already made for a chapter that also
--- has an 'eh-' row, keep one row (hidden if either was hidden) so the rename
--- below cannot collide.
+/* If a plain-slug Ethical Hacking row was already made for a chapter that also */
+/* has an 'eh-' row, keep one row (hidden if either was hidden) so the rename */
+/* below cannot collide. */
 update public.content_chapters e set enabled = false
   from public.content_chapters p
  where e.course = 'ethical-hacking' and p.course = 'ethical-hacking' and e.slug like 'eh-%'
@@ -45,13 +47,13 @@ update public.content_chapters
    end
  where course = 'ethical-hacking' and slug like 'eh-%';
 
--- 3. Admins can read resource files in Storage. Supabase Storage remove()
--- needs SELECT as well as DELETE; without it a delete or replace removed
--- nothing and returned no error (files were left behind). The restrictive
--- acx_admin_mfa_resources policy keeps it to two-step (aal2) sessions.
--- The bucket is public, so what it accepts is enforced here, not only in the
--- panel: no HTML/SVG/scripts served from our domain's storage, 50 MB max.
--- (Same list the new panel sends; existing files are not touched.)
+/* 3. Admins can read resource files in Storage. Supabase Storage remove() */
+/* needs SELECT as well as DELETE; without it a delete or replace removed */
+/* nothing and returned no error (files were left behind). The restrictive */
+/* acx_admin_mfa_resources policy keeps it to two-step (aal2) sessions. */
+/* The bucket is public, so what it accepts is enforced here, not only in the */
+/* panel: no HTML/SVG/scripts served from our domain's storage, 50 MB max. */
+/* (Same list the new panel sends; existing files are not touched.) */
 update storage.buckets
    set allowed_mime_types = array['application/pdf','text/plain','application/octet-stream','image/png','image/jpeg','image/webp'],
        file_size_limit = 52428800
@@ -60,9 +62,9 @@ drop policy if exists "Admins can read resource files" on storage.objects;
 create policy "Admins can read resource files" on storage.objects for select to authenticated
   using (bucket_id = 'resources' and exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
 
--- 4. CTF: lab rooms check prerequisites too, and ctf_solves.points_earned
--- stores the XP actually given (coalesce(xp, points)), so profiles show the
--- right number. Bodies are the live ones with only those two changes.
+/* 4. CTF: lab rooms check prerequisites too, and ctf_solves.points_earned */
+/* stores the XP actually given (coalesce(xp, points)), so profiles show the */
+/* right number. Bodies are the live ones with only those two changes. */
 create or replace function public.record_lab_ctf_solve(p_user_id uuid, p_slug text)
 returns jsonb
 language plpgsql security definer set search_path to 'public'
@@ -89,7 +91,7 @@ begin
     return jsonb_build_object('success', false, 'error', 'inactive');
   end if;
 
-  -- Same prerequisite rule as submit_ctf_flag.
+  /* Same prerequisite rule as submit_ctf_flag. */
   if v_challenge.requires is not null and jsonb_array_length(v_challenge.requires) > 0 then
     for v_req_slug in select jsonb_array_elements_text(v_challenge.requires) loop
       select exists(
@@ -121,7 +123,7 @@ begin
 
   v_award := coalesce(v_challenge.xp, v_challenge.points, 0);
 
-  -- on_ctf_solve_insert trigger increments ctf_challenges.solvers; no manual +1.
+  /* on_ctf_solve_insert trigger increments ctf_challenges.solvers; no manual +1. */
   insert into ctf_solves (user_id, challenge_id, points_earned, correct)
   values (p_user_id, v_challenge.id, v_award, true);
 
@@ -189,7 +191,7 @@ begin
       'error', 'inactive', 'message', 'This challenge is not currently active.');
   end if;
 
-  -- requires holds slugs; ctf_solves tracks challenge_id (uuid), so join to get the solved slugs.
+  /* requires holds slugs; ctf_solves tracks challenge_id (uuid), so join to get the solved slugs. */
   if v_challenge.requires is not null and jsonb_array_length(v_challenge.requires) > 0 then
     for v_req_slug in select jsonb_array_elements_text(v_challenge.requires) loop
       select exists(
@@ -210,8 +212,8 @@ begin
     end if;
   end if;
 
-  -- Lock first, so two parallel submissions from the same user cannot both
-  -- count as a first solve (and so the rate limit below cannot be raced).
+  /* Lock first, so two parallel submissions from the same user cannot both */
+  /* count as a first solve (and so the rate limit below cannot be raced). */
   perform pg_advisory_xact_lock(hashtextextended(v_uid::text || ':' || v_challenge.id::text, 0));
 
   select exists(
@@ -219,7 +221,7 @@ begin
     where user_id = v_uid and challenge_id = v_challenge.id
   ) into v_already;
 
-  -- Rate limit: 5 wrong attempts per user per challenge in 60 seconds.
+  /* Rate limit: 5 wrong attempts per user per challenge in 60 seconds. */
   select attempted_at into v_fifth
   from ctf_flag_attempts
   where user_id = v_uid
@@ -236,7 +238,7 @@ begin
       'retry_after', v_retry);
   end if;
 
-  -- The flag is checked for everyone, including players who already solved it.
+  /* The flag is checked for everyone, including players who already solved it. */
   if v_challenge.flag_hash is null or encode(extensions.digest(btrim(p_flag), 'sha256'), 'hex') <> v_challenge.flag_hash then
     insert into ctf_flag_attempts (user_id, challenge_id) values (v_uid, v_challenge.id);
     delete from ctf_flag_attempts
@@ -253,7 +255,7 @@ begin
 
   v_award := coalesce(v_challenge.xp, v_challenge.points, 0);
 
-  -- Correct + first solve. The on_ctf_solve_insert trigger adds 1 to solvers.
+  /* Correct + first solve. The on_ctf_solve_insert trigger adds 1 to solvers. */
   insert into ctf_solves (user_id, challenge_id, points_earned, correct)
   values (v_uid, v_challenge.id, v_award, true);
 
@@ -278,28 +280,28 @@ begin
 end;
 $function$;
 
--- Past solves stored points instead of the XP given; fix the ones that differ
--- (only rows that still hold the points value, so this is safe to re-run).
+/* Past solves stored points instead of the XP given; fix the ones that differ */
+/* (only rows that still hold the points value, so this is safe to re-run). */
 update public.ctf_solves s
    set points_earned = coalesce(c.xp, c.points, 0)
   from public.ctf_challenges c
  where c.id = s.challenge_id and s.correct is true
    and c.xp is not null and s.points_earned = c.points and c.xp <> c.points;
 
--- 5. The solver counter players see was reset to 0 by the old panel; set it
--- to the real number of correct solves (the trigger keeps it from here).
+/* 5. The solver counter players see was reset to 0 by the old panel; set it */
+/* to the real number of correct solves (the trigger keeps it from here). */
 update public.ctf_challenges c
    set solvers = (select count(*) from public.ctf_solves s where s.challenge_id = c.id and s.correct is true);
 
--- 6. Blog category names unique without case ('Tools' and 'tools' would be two
--- filter buttons with the same label on the blog).
+/* 6. Blog category names unique without case ('Tools' and 'tools' would be two */
+/* filter buttons with the same label on the blog). */
 create unique index if not exists blog_categories_name_lower_key on public.blog_categories (lower(name));
 
--- 7. Chapter XP only for real chapters that are switched on, never twice.
--- Before, any made-up (course, slug) pair gave chapter XP (XP farming), a
--- hidden chapter still gave XP, banned users got XP, and two calls at the same
--- time could both award it. Every chapter of the site has a content_chapters
--- row (checked 2026-10-21: 25 + 11 + 23 after step 2).
+/* 7. Chapter XP only for real chapters that are switched on, never twice. */
+/* Before, any made-up (course, slug) pair gave chapter XP (XP farming), a */
+/* hidden chapter still gave XP, banned users got XP, and two calls at the same */
+/* time could both award it. Every chapter of the site has a content_chapters */
+/* row (checked 2026-10-21: 25 + 11 + 23 after step 2). */
 create or replace function public.track_chapter_view(p_course text, p_chapter_slug text)
 returns void
 language plpgsql security definer set search_path to 'public'
@@ -309,16 +311,16 @@ declare
   v_chapter_xp integer;
 begin
   if auth.uid() is null then
-    return; -- visitors are not tracked
+    return; /* visitors are not tracked */
   end if;
   if not public.acx_not_banned(auth.uid()) then
     return;
   end if;
-  -- Same rule as the site: the chapter row is on AND its course is on.
+  /* Same rule as the site: the chapter row is on AND its course is on. */
   if not exists (select 1 from public.content_chapters c
                  join public.courses k on k.course_key = c.course and k.enabled = true
                  where c.course = p_course and c.slug = p_chapter_slug and c.enabled = true) then
-    return; -- not a chapter of the site, or it (or its course) is switched off
+    return; /* not a chapter of the site, or it (or its course) is switched off */
   end if;
 
   insert into public.chapter_progress (user_id, course, chapter_slug)
@@ -326,7 +328,7 @@ begin
   on conflict (user_id, course, chapter_slug) do nothing;
   get diagnostics v_inserted = row_count;
   if v_inserted = 0 then
-    return; -- already seen: no XP again (also when two calls race)
+    return; /* already seen: no XP again (also when two calls race) */
   end if;
 
   select coalesce((value->>'chapter_completion')::integer, 25) into v_chapter_xp
@@ -339,8 +341,8 @@ begin
 end;
 $function$;
 
--- 8. Blog "last edited" is not bumped by page views (blog_increment_views
--- updates the row on every view).
+/* 8. Blog "last edited" is not bumped by page views (blog_increment_views */
+/* updates the row on every view). */
 create or replace function public.blog_set_updated_at()
 returns trigger
 language plpgsql set search_path = public

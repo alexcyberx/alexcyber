@@ -80,11 +80,17 @@ function _showMaintenanceScreen(siteName) {
   document.documentElement.innerHTML = '';
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;background:#0a0a0d;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:system-ui,-apple-system,sans-serif;z-index:999999;';
-  overlay.innerHTML = `
-    <div style="font-size:40px;margin-bottom:16px;">🛠️</div>
-    <h1 style="font-size:22px;margin:0 0 10px;">${siteName} is under maintenance</h1>
-    <p style="color:#9a9aa5;font-size:14px;max-width:420px;line-height:1.6;">We're making some improvements and will be back shortly. Please check back soon.</p>
-  `;
+  const icon = document.createElement('div');
+  icon.style.cssText = 'font-size:40px;margin-bottom:16px;';
+  icon.textContent = '\u{1F6E0}\u{FE0F}';
+  // site_name comes from the admin settings: text only, never HTML.
+  const h1 = document.createElement('h1');
+  h1.style.cssText = 'font-size:22px;margin:0 0 10px;';
+  h1.textContent = siteName + ' is under maintenance';
+  const p = document.createElement('p');
+  p.style.cssText = 'color:#9a9aa5;font-size:14px;max-width:420px;line-height:1.6;';
+  p.textContent = "We're making some improvements and will be back shortly. Please check back soon.";
+  overlay.append(icon, h1, p);
   document.body?.appendChild(overlay) ?? document.documentElement.appendChild(overlay);
 }
 

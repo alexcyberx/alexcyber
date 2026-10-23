@@ -1,6 +1,6 @@
 # Secrets: AlexCyberX
 
-Last verified: 2026-10-16 (commit `fffd15f`). This file lists **where** secrets live and the risks. It must never
+Last verified: 2026-10-23 (admin panel phase 4 + old panel deleted; earlier full audit 2026-10-16, commit `fffd15f`). This file lists **where** secrets live and the risks. It must never
 contain a secret value. The GitHub repo is **public**: anything committed is public forever (git history).
 
 ## 1. Where secrets are expected
@@ -33,7 +33,7 @@ The old per-lab `FLAG_*` variables are no longer read (removed 2026-10-16).
 ## 3. Hard-coded secret risk — current findings
 | Finding | Evidence | Label |
 |---|---|---|
-| Supabase **anon** JWT in client code | `js/config.js:7`, `js/admin-panel-app.js:4364` (decoded `role=anon`) | OK (public by design; protection is RLS) |
+| Supabase **anon** JWT in client code | `js/config.js:7`, `web/src/lib/supabase*` via `NEXT_PUBLIC_SUPABASE_ANON_KEY` (decoded `role=anon`) | OK (public by design; protection is RLS) |
 | Lab demo credentials / passcodes / decoy tokens | `server/labs/web02-cookie/routes.js:204`, `web03-sqli101/routes.js:35,231`, `web04-robots/routes.js:8`, `hidden-sight/routes.js` decoys | OK (part of the challenges, not real accounts) |
 | CTF flags | none in the repo since 2026-10-16; derived in `server/labs/flags.js` | FIXED (old flags are in git history but no longer accepted) |
 | Service-role, Resend, Groq, Gemini, webhook secrets | not found in tracked files | OK |

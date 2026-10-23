@@ -1,10 +1,11 @@
 # Admin panel → Next.js (plan + inventory)
 
-The old panel lives in `panel-1b47c1ab561e.html` (inline CSS + markup) and `js/admin-panel-app.js` (all logic,
-~5,100 lines). The new one is a client app in `web/src/app/(admin)/panel-1b47c1ab561e/` with its own root layout,
-so the site nav, cookie banner and page-view tracking do not load. Code is in `web/src/admin/`.
-The old panel stays reachable at `/panel-1b47c1ab561e.html?old=1` until every section is ported; the plain `.html`
-URL (old bookmarks) redirects to the new panel since 2026-10-22.
+Done (2026-10-23). The panel is a client app in `web/src/app/(admin)/panel-1b47c1ab561e/` with its own root
+layout, so the site nav, cookie banner and page-view tracking do not load. Code is in `web/src/admin/`.
+The old panel (`panel-1b47c1ab561e.html`, `js/admin-panel-app.js`, `js/admin-ai-search.js`, the dead
+`css/admin.css`) was deleted at the switch-over; `/panel-1b47c1ab561e.html` (with or without `?old=1`) redirects to
+the new panel. The old panel's AI search endpoint (`/api/lab/admin-search`, admin-only) is still on the server but
+nothing calls it now (open item: wire it into a panel search box or remove it).
 
 Security does not depend on the page: RLS, the admin RPC checks and the two-step login (aal2,
 `supabase/migrations/2026-10-21_admin_mfa.sql`) protect the data. The page only decides what to show.
@@ -28,13 +29,26 @@ Security does not depend on the page: RLS, the admin RPC checks and the two-step
   last IP, stats, 12-week heatmap, course progress, CTF solves; edit name/role, ban, award XP with reason, delete
   account via server, invite by email), Security (24 h counts, block/unblock with IPv4/IPv6 check, log with
   filters/search/paging/CSV), Notifications (real person search, history).
-- Phase 3 done (code; DB part waits for `supabase/migrations/2026-10-22_admin_phase3.sql`): Courses (per course and per
+- Phase 3 done (code + `supabase/migrations/2026-10-22_admin_phase3.sql`, applied and verified 2026-10-22): Courses (per course and per
   chapter "Visible on site" switches that really hide them on the site, home switch max 2, edit, reorder; chapter
   lists come from the code), Blog (editor, slug check, schedule rules, preview like the site, real categories),
   Resources (list loads, upload with type allowlist, no orphan files, edit/hide/delete), CTF (site rooms + DB rows,
   live switch, XP, prerequisites, real solver counts, add missing rows, scoreboard; no flags).
-  Not in the new panel (still in the old one until switch-over, owner to confirm removal then): Add course, Add
-  chapter, Create CTF challenge, Delete course/chapter, chapter drag-reorder (nothing on the site reads it).
+  Not in the new panel (removed with the old panel, owner decision 2026-10-23): Add course, Add chapter, Create
+  CTF challenge, Delete course/chapter, chapter drag-reorder (nothing on the site reads it). Courses, chapters and
+  CTF rooms come from the code; the panel switches them on/off and edits their DB rows.
+- Phase 4 done (code + `supabase/migrations/2026-10-23_admin_phase4.sql`, applied and verified 2026-10-23): Community (threads with pin/lock/delete
+  and a drawer with every reply, reports with resolve/dismiss/escalate/reopen, replies hide/delete, Feedback,
+  Activity log of admin actions with who did it), Tools (switch on/off with confirm, off-message, real usage
+  numbers and a 30-day chart, AlexRecon/AlexTrace counts; AlexTrace through a counts-only function, the lookups
+  stay private), Settings (maintenance, sign-ups, site details, About bio in 8 languages with a translate helper,
+  admin password change that signs out other sessions), XP & Leaderboard (rules with range checks, totals,
+  the public top 50), Analytics (views, visitors, visit length, top pages, devices, sign-ups, course reading),
+  Backup (list, Backup now, download as JSON, delete, schedule; the newest good snapshot cannot be deleted).
+  Owner decisions with it: admins are left off the public leaderboard; a course is announced ("New course")
+  only the first time it goes live; scheduled snapshots older than 30 days are cleaned up (newest 7 good
+  scheduled kept, manual ones never deleted automatically).
+- Switch-over done (2026-10-23): old panel files deleted, every section on the new panel.
 
 ## Phases
 1. Shell + login (password → admin role → TOTP enroll/verify → aal2), sidebar, hash routing, toasts/modals,
@@ -43,8 +57,6 @@ Security does not depend on the page: RLS, the admin RPC checks and the two-step
 3. Courses + chapters, Blog, Resources, CTF manager.
 4. Community (+ Feedback, Activity log), Tools manager, Settings (+ XP rules, About bio), Analytics, Backup.
    Then switch: old `.html` redirects to the new URL; delete the old files and the dead `css/admin.css`.
-
-Sections not yet ported link to the old panel.
 
 ## Bugs found in the old panel (fixed by the port, not patched in the old file)
 - Dashboard rendered before login (anon numbers until a hash was set).
@@ -63,7 +75,7 @@ Sections not yet ported link to the old panel.
 - Admin log IP came from the browser (ipify), so it can be faked.
 - Progress, Moderation and Backup rendered data with no escaping (mock today, XSS if wired as written).
 
-## Data used per section (old panel, for reference)
+## Data used per section (old panel, kept for reference)
 | Section | Reads | Writes |
 |---|---|---|
 | Dashboard | `profiles` counts (all, 7d, `last_seen` 24h), `ctf_solves` count `correct`, `contact_messages` unread, `get_page_view_stats`, last 5 profiles | `save_site_settings` (maintenance) |

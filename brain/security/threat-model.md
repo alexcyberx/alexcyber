@@ -1,6 +1,6 @@
 # Threat model: AlexCyberX
 
-Last verified against the code: 2026-10-16 (commit `fffd15f`), Supabase project `rwjwjltlfkxadywfqxbs`.
+Last verified against the code: 2026-10-23 (admin panel section; full pass 2026-10-16, commit `fffd15f`), Supabase project `rwjwjltlfkxadywfqxbs`.
 Re-verify when a section below names a file you change. Labels used everywhere in this folder:
 **CONFIRMED** (reproduced or proven from code/DB) · **WEAKNESS** (works, but weaker than it should be) ·
 **MISSING** (control does not exist) · **VERIFY** (possible risk, not proven) · **REC** (recommendation).
@@ -69,13 +69,13 @@ Severity = impact × likelihood (Critical / High / Medium / Low).
 - Impact: account takeover, admin takeover → full content/user control. Likelihood: medium (needs a click).
 
 ### T2. Admin takeover in general — **High impact · mitigated by RLS**
-- The admin panel (`/panel-1b47c1ab561e.html`, `server/index.js:132`) is served without auth and its path is public
-  (repo is public). The role check runs in the browser (`js/admin-panel-app.js:4869-4876`), all admin writes go to
-  Supabase tables with the user's JWT.
+- The admin panel (`/panel-1b47c1ab561e`, Next; the old `.html` was deleted 2026-10-23 and redirects) is served
+  without auth and its path is public (repo is public). The role + aal2 check runs in the browser
+  (`web/src/admin/AdminApp.tsx`), all admin writes go to Supabase with the admin's JWT (RLS + aal2 policies).
 - Existing mitigations (verified in DB): RLS admin policies on every admin-written table; `profiles` trigger
   `protect_profile_privileged_columns` blocks non-admins from changing `role/xp/level/ctf_solves/is_banned`; insert
   policy forces `role='user'`; admin RPCs check `acx_is_admin`.
-- **MISSING**: MFA for admin accounts; server-side gate for the panel page; admin session isolation from lab XSS (T1).
+- Since 2026-10-16 admin data, writes and RPCs need the two-step login (aal2). **MISSING**: server-side gate for the panel page; admin session isolation from lab XSS (T1).
 - Impact critical, likelihood low today (requires stealing an admin session or password).
 
 ### T3. Stored XSS through DB content — **Medium · CONFIRMED sink, admin-only writers**

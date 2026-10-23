@@ -40,8 +40,8 @@ Server: `requireAuth` / `requireToolLogin` verify JWT (`auth.getUser`) and ban (
 | `contact_messages` | — (insert via RPC) | — | R/U/D | |
 | `platform_settings` | R | R | C/U | `site_settings`, `xp_rules`, `about_bio` |
 | `tool_settings` | R | R | U | |
-| `alexrecon_*`, `alextrace_lookups`, `tool_usage_logs` | — | own rows (alextrace: R own) | R (scans, usage) | server uses service role with `user_id` filter |
-| `security_logs`, `blocked_ips`, `page_views`, `admin_*`, `app_config`, `broadcasts` | — | — (`admin_feedback`: C) | R (+ limited writes) | |
+| `alexrecon_*`, `alextrace_lookups`, `tool_usage_logs` | — | own rows (alextrace: R own) | R (scans, usage); alextrace: counts only via `admin_alextrace_counts` | server uses service role with `user_id` filter; only the server inserts `tool_usage_logs` |
+| `security_logs`, `blocked_ips`, `page_views`, `admin_*`, `app_config`, `broadcasts` | — | — (`admin_feedback`: C) | R (+ limited writes) | `security_logs.actor_id` = admin who acted (set by `log_admin_event`); `admin_backup_snapshots`: list columns only, the data column only through `admin_get_backup`; `admin_backup_schedule`: U `frequency`; `admin_feedback`: U `status` (all aal2) |
 
 ## 3. RPC permissions
 - Anyone (anon EXECUTE; function itself checks login where needed): `submit_ctf_flag` (login), `unlock_ctf_hint`
@@ -52,6 +52,10 @@ Server: `requireAuth` / `requireToolLogin` verify JWT (`auth.getUser`) and ban (
 - Admin (function checks `role='admin'`): `save_site_settings`, `save_xp_rules`, `save_about_bio`, `send_broadcast`,
   `block_ip`, `unblock_ip`, `trigger_manual_backup`, `get_page_view_stats`, `get_course_completion_stats`,
   `log_security_event`, `log_admin_event`, `admin_get_last_ips` (authenticated only).
+- Admin with two-step (aal2, `acx_admin_mfa`), no anon EXECUTE (migration 2026-10-23): `admin_xp_summary()`
+  (totals only), `admin_alextrace_counts(p_since)` (counts only), `admin_get_backup(p_id)` (logs the download),
+  `admin_delete_backup(p_id)` (keeps the newest good snapshot, logs). `trigger_manual_backup`: PUBLIC/anon grant removed.
+- `get_leaderboard` leaves out banned users and admin accounts (2026-10-23).
 - Logged-in only (no anon EXECUTE): `get_notifications(p_user_id)` and `mark_notifications_read(p_user_id)` (both
   require `p_user_id = auth.uid()`), `get_notifications_feed`, `increment_resource_downloads`.
 - Service role only: `record_lab_ctf_solve`, `run_backup_snapshot`, `run_scheduled_backup`,
@@ -69,10 +73,10 @@ Server: `requireAuth` / `requireToolLogin` verify JWT (`auth.getUser`) and ban (
 | `/api/me/seen` | logged-in | `server/routes/me.js:16` |
 | `/api/lab/admin-search` | `admin` or `moderator` (role cached 5 min, ban not checked) | `server/ai/adminSearch.js` |
 | `/auth/email-hook` | Supabase (signed webhook) | `server/routes/authEmailHook.js` |
-| Admin panel page (old `.html` + new Next `/panel-1b47c1ab561e`) | anyone can load the HTML; actions need admin RLS + aal2 | `server/index.js:132`, `web/src/admin/AdminApp.tsx` (UI-only gate) |
+| Admin panel page (Next `/panel-1b47c1ab561e`; the old `.html` redirects there) | anyone can load the page; actions need admin RLS + aal2 | `server/index.js`, `web/src/admin/AdminApp.tsx` (UI-only gate) |
 
 ## 5. Client-only (UI) permission checks — never rely on these
-Admin panel gate (`js/admin-panel-app.js:4869-4876`), registration toggle,
+Admin panel gate (`web/src/admin/AdminApp.tsx`: role + aal2 before showing sections), registration toggle,
 maintenance mode, ban sign-out, hidden/disabled challenges list (`acx_ctf_disabled`), solved state in localStorage.
 
 ## 6. Contradictions / gaps

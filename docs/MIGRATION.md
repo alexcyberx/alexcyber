@@ -27,7 +27,7 @@ The list of migrated paths lives in one place: `NEXT_PAGES` in `server/middlewar
 | 5b | `/tools`, `/tools/mistake-analyzer`, `/resources` (+ `/community`, `/community/<id>` ported, switched off) | Done |
 | 5c | `/tools/alexrecon`, `/tools/alexutils`, `/tools/alextrace` | Done |
 | 5e | Course pages `/tutorials/<course>` + every chapter `/tutorials/<course>/<chapter>` | Done |
-| 5d | Admin panel (`/panel-1b47c1ab561e`, plan in `docs/ADMIN-PORT.md`) | Phase 1 (shell, login, dashboard, messages) |
+| 5d | Admin panel (`/panel-1b47c1ab561e`, plan in `docs/ADMIN-PORT.md`) | Done: all 15 sections, old panel deleted (2026-10-23) |
 
 All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 
@@ -178,7 +178,7 @@ All of it is behind `NEXT_APP_URL` (old name `NEXT_BLOG_URL` still works).
 - Removing the SPA copy later: `#learnPage`/`#learn2Page`/`#learn3Page` + `#learnSubNav` in `index.html`,
   `pages/learn*.html` stay (banner source), the loader code in `js/chapters*.js` stays (it is the content source).
 
-Not migrated yet (still SPA): admin panel only (community is on Next by default since 2026-10-15).
+Not migrated yet (still SPA): course chapter pages' old copy, the CTF room page and the AlexRecon/Utils/Trace tool pages. The admin panel is on Next since 2026-10-23 (old panel deleted).
 
 ## Theme: green / blue / red, mouse glow (2026-10-15)
 
@@ -248,11 +248,12 @@ Not migrated yet (still SPA): admin panel only (community is on Next by default 
   The site document lives in `src/components/SiteDocument.tsx`; `app/global-not-found.tsx` (experimental
   `globalNotFound`) uses it so unknown URLs still get the site's server-rendered 404 page.
 - `/panel-1b47c1ab561e` (proxied by Express, `X-Robots-Tag: noindex`) is the new panel; code in `src/admin/`.
-  Same Supabase storage key as the old panel (`alexcyberx-admin-auth`) plus its sessionStorage marker, so sections
-  not ported yet open the old panel (`/panel-1b47c1ab561e.html#<section>`) without a second login.
+  Same Supabase storage key the old panel used (`alexcyberx-admin-auth`), so a signed-in admin stays signed in.
+  The old panel was deleted at the switch-over (2026-10-23); `/panel-1b47c1ab561e.html` redirects here.
 - Phase 1: sign-in (password → admin role → TOTP enroll/verify, aal2), sidebar + hash routing, idle sign-out
   (30 min), Dashboard, Messages. Phase 2: Users, Security, Notifications; `/api/admin` (Express) for invite and
-  account delete. Next phases and owner decisions: `docs/ADMIN-PORT.md`.
+  account delete. Phase 3: Courses, Blog, Resources, CTF. Phase 4: Community, Tools, Settings, XP & Leaderboard,
+  Analytics, Backup (DB: `supabase/migrations/2026-10-23_admin_phase4.sql`, applied and verified 2026-10-23). Owner decisions: `docs/ADMIN-PORT.md`.
 
 ## Deploy on Render
 **One service (current):** the Express service also runs Next.js.
@@ -268,7 +269,8 @@ Not migrated yet (still SPA): admin panel only (community is on Next by default 
 - After a change to `web/` or `pages/*.html`: deploy the Express service only.
 
 **Rollback**: remove `NEXT_EMBEDDED` (and `NEXT_APP_URL`) from the Express service. All migrated pages come
-back from the old SPA immediately.
+back from the old SPA immediately, except the admin panel: it exists only on Next since the old panel was deleted
+(2026-10-23), so without Next there is no admin panel until Next is back.
 
 The old separate service `alexcyber-web` is not needed any more. It can be suspended or deleted from the
 Render dashboard (setting `NEXT_EMBEDDED` off and `NEXT_APP_URL` to its URL would use it again).
