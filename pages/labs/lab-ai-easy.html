@@ -248,23 +248,11 @@ function getChallengeId() {
 }
 
 function goBack() {
-  const challengeId = getChallengeId();
-  try {
-    if (window.opener && !window.opener.closed && typeof window.opener.acxLabReturn === 'function') {
-      window.opener.acxLabReturn(challengeId);
-      window.close();
-      return;
-    }
-  } catch (e) {}
-  try {
-    localStorage.setItem('acx_return_to_modal', challengeId);
-    localStorage.setItem('acx_return_ts', String(Date.now()));
-  } catch (e) {}
-  try {
-    sessionStorage.setItem('acx_back_to_ctf', challengeId);
-    sessionStorage.setItem('acx_back_ts', String(Date.now()));
-  } catch (e) {}
-  window.location.href = '/rooms';
+  // The CTF page stays open in the tab that opened this lab: close this one.
+  // A tab the browser will not let a script close goes to the room instead
+  // (on the labs server /rooms redirects to the main site).
+  try { window.close(); } catch (e) {}
+  setTimeout(function () { window.location.href = '/rooms?open=' + encodeURIComponent(getChallengeId()); }, 200);
 }
 
 window.addEventListener('message', function(e) {

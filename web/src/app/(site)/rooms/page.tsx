@@ -10,8 +10,15 @@ export const metadata: Metadata = {
   alternates: { canonical: '/rooms' },
 };
 
+// The labs server (docs/LABS.md, env LAB_ORIGIN on the main service); '' = labs on this site.
+function labOrigin(): string {
+  const v = (process.env.LAB_ORIGIN || '').trim();
+  if (!v) return '';
+  try { const u = new URL(v); return u.protocol === 'https:' || u.protocol === 'http:' ? u.origin : ''; } catch { return ''; }
+}
+
 export default async function RoomsPage() {
   // Scenario + hints load after login (/rooms/details), not in this HTML.
   const challenges = publicRooms(await getRooms());
-  return <RoomsView challenges={challenges} icons={CTF_ICONS} i18n={publicI18n(CTF_I18N)} />;
+  return <RoomsView challenges={challenges} icons={CTF_ICONS} i18n={publicI18n(CTF_I18N)} labOrigin={labOrigin()} />;
 }

@@ -114,7 +114,9 @@ function TranslateLoader({ lang, done, total }: { lang: string; done: number; to
   );
 }
 
-export default function RoomsView({ challenges: cards, icons, i18n: cardI18n }: { challenges: Challenge[]; icons: Record<string, string>; i18n: CtfI18n }) {
+// labOrigin: the labs server (docs/LABS.md), e.g. https://alexcyber-labs.onrender.com;
+// '' = the labs run on this site (local dev, tests).
+export default function RoomsView({ challenges: cards, icons, i18n: cardI18n, labOrigin = '' }: { challenges: Challenge[]; icons: Record<string, string>; i18n: CtfI18n; labOrigin?: string }) {
   const { user, ready, openAuth } = useAuth();
 
   // ── scenario + hints: login only, from /rooms/details (not in the page HTML) ──
@@ -199,7 +201,7 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n }: 
   const [flagMsg, setFlagMsg] = useState<FlagMsg>(null);
   const [submitting, setSubmitting] = useState(false);
   const labUrl = useRef<string | null>(null);
-  const labTab = useRef<Window | null>(null);
+  const labNext = useRef<string | null>(null); // page to open after the start page (see newLabUrl)
   const flagInput = useRef<HTMLInputElement>(null);
   const pendingOpen = useRef<string | null>(null);
   const [pendingTick, setPendingTick] = useState(0);
@@ -284,13 +286,11 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n }: 
     if (since) {
       if (c.hasLabFlow && c.labApiPath) {
         const sid = store.get('s', 'acx_lab_direct_session_' + c.id);
-        if (sid) labUrl.current = c.labApiPath + '/page?session=' + encodeURIComponent(sid);
+        if (sid) labUrl.current = labOrigin + c.labApiPath + '/page?session=' + encodeURIComponent(sid);
       } else if (c.labUrl) {
         const sid = store.get('s', 'acx_lab_session_' + c.id);
-        labUrl.current = c.labUrl + (sid ? (c.labUrl.includes('?') ? '&' : '?') + 'session=' + encodeURIComponent(sid) : '');
+        labUrl.current = labOrigin + c.labUrl + (sid ? (c.labUrl.includes('?') ? '&' : '?') + 'session=' + encodeURIComponent(sid) : '');
       }
-    } else {
-      labTab.current = null;
     }
     setOpenId(id);
     setShownId(id);
@@ -396,6 +396,9 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n }: 
 
   // ── labs ──
   const stopOtherInstances = (exceptId: string) => {
+    // On their own origin the labs are only opened in a tab (no requests from
+    // this page); an instance left running there ends with its timer.
+    if (labOrigin) return;
     challenges.forEach((c) => {
       if (c.id === exceptId || !c.hasLabFlow || !c.labApiPath) return;
       const sess = store.get('s', 'acx_lab_direct_session_' + c.id);
@@ -404,16 +407,19 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n }: 
     });
   };
 
-  const newLabUrl = (c: Challenge): string => {
-    if (c.hasLabFlow && c.labApiPath) {
-      const sid = randomId('sess_');
-      store.set('s', 'acx_lab_direct_session_' + c.id, sid);
-      fetch(c.labApiPath + '/instance/restart', { method: 'POST', headers: { 'X-Lab-Session': sid } }).catch(() => {});
-      return c.labApiPath + '/page?session=' + encodeURIComponent(sid);
-    }
+  // A new lab session. Lab-flow labs open through their start page (on the
+  // lab's origin), which restarts the instance and then shows the lab page;
+  // `page` is the address for opening it again without a restart.
+  const newLabUrl = (c: Challenge): { open: string; page: string } => {
     const sid = randomId('sess_');
+    if (c.hasLabFlow && c.labApiPath) {
+      store.set('s', 'acx_lab_direct_session_' + c.id, sid);
+      const q = '?session=' + encodeURIComponent(sid);
+      return { open: labOrigin + c.labApiPath + '/start' + q, page: labOrigin + c.labApiPath + '/page' + q };
+    }
     store.set('s', 'acx_lab_session_' + c.id, sid);
-    return c.labUrl + (c.labUrl!.includes('?') ? '&' : '?') + 'session=' + encodeURIComponent(sid);
+    const url = labOrigin + c.labUrl + (c.labUrl!.includes('?') ? '&' : '?') + 'session=' + encodeURIComponent(sid);
+    return { open: url, page: url };
   };
 
   const startLab = (restart: boolean) => {
@@ -421,13 +427,9 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n }: 
     if (!c || !c.labUrl) return;
     clearOtherLabs(c.id);
     stopOtherInstances(c.id);
-    if (!restart && labTab.current && !labTab.current.closed) { try { labTab.current.close(); } catch { /* ignore */ } labTab.current = null; }
     const url = newLabUrl(c);
-    if (restart && labTab.current && !labTab.current.closed) {
-      labTab.current.location.href = url;
-      labTab.current.focus();
-    }
-    labUrl.current = url;
+    labUrl.current = url.open;
+    labNext.current = url.page;
     const now = Date.now();
     store.set('l', 'acx_lab_active_' + c.id, JSON.stringify({ startedAt: now, secsLeft: LAB_SECS }));
     setStartedAt(now);
@@ -443,15 +445,17 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n }: 
     if (!url) {
       if (c.hasLabFlow && c.labApiPath) {
         const sid = store.get('s', 'acx_lab_direct_session_' + c.id);
-        url = c.labApiPath + '/page' + (sid ? '?session=' + encodeURIComponent(sid) : '');
-      } else url = c.labUrl || '#';
+        url = labOrigin + c.labApiPath + '/page' + (sid ? '?session=' + encodeURIComponent(sid) : '');
+      } else url = c.labUrl ? labOrigin + c.labUrl : '#';
     }
-    labTab.current = window.open(url, '_blank');
+    // noopener: the lab tab gets no handle to this page (a lab is vulnerable
+    // on purpose and runs on its own origin). Its "Back to CTF" closes it.
+    window.open(url, '_blank', 'noopener');
+    // The start page restarts the instance: open it once, then the page itself.
+    if (labNext.current) { labUrl.current = labNext.current; labNext.current = null; }
   };
 
   const endLab = (c: Challenge) => {
-    if (labTab.current && !labTab.current.closed) { try { labTab.current.close(); } catch { /* ignore */ } }
-    labTab.current = null;
     store.del('s', 'acx_lab_token_' + c.id);
   };
 
@@ -515,14 +519,13 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n }: 
     let already = false;
     let earned = c.xp;
     if (c.hasLabFlow && c.labApiPath) {
-      // The lab server checks the flag; on success it also records the solve + XP.
-      let sid = store.get('s', 'acx_lab_direct_session_' + c.id) || store.get('s', 'acx_lab_session_' + c.id);
-      if (!sid) { sid = randomId('sess_'); store.set('s', 'acx_lab_session_' + c.id, sid); }
+      // This site checks the flag (shared flag secret) and records the solve +
+      // XP; the lab itself never gets the login token (docs/LABS.md).
       try {
-        const res = await fetch(c.labApiPath + '/submit', {
+        const res = await fetch('/api/lab/flag', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Lab-Session': sid, ...(await authHeaders()) },
-          body: JSON.stringify({ flag: f }),
+          headers: { 'Content-Type': 'application/json', ...(await authHeaders()) },
+          body: JSON.stringify({ slug: c.id, flag: f }),
         });
         const data = await res.json().catch(() => ({}));
         correct = !!(res.ok && data.success);

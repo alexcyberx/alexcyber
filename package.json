@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node server/index.js",
+    "start:labs": "node server/labs-server.js",
     "dev": "nodemon server/index.js",
     "postinstall": "node scripts/build-web.js",
     "build:web": "BUILD_WEB=1 node scripts/build-web.js"

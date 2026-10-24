@@ -11,6 +11,8 @@ const fs = require('fs');
 const path = require('path');
 
 if (process.env.RENDER !== 'true' && process.env.BUILD_WEB !== '1') process.exit(0);
+// The labs server (server/labs-server.js) does not use Next.
+if (process.env.SKIP_WEB_BUILD === '1') process.exit(0);
 
 const root = path.join(__dirname, '..');
 const web = path.join(root, 'web');
