@@ -58,6 +58,9 @@ Rollback: remove `LAB_ORIGIN` from the main service and redeploy; the labs run o
 - A random subdomain per instance (`k3f9a2.alexcyberx-labs.com`, wildcard DNS + certificate) instead of `?session=`.
 - Per-student containers for rooms that need a real database or shell.
 
+## Rooms so far
+web-01 hidden-sight, web-02 cookie, web-03 sqli101, web-04 robots, web-06/07 deserialize, web-08 orders (IDOR, 2026-10-24), for-01 packet, for-02 metadata, cry-01 caesar, cry-02 base64, ai-01 helpdesk. Each lab-flow room (`flow:true` in `server/labs/mount.js`) runs its own instance; the flag is checked and the solve recorded on the main server (`/api/lab/flag`).
+
 ## Rules for new labs
 - Add the lab to `LABS` in `server/labs/mount.js` and its flag theme to `server/labs/flags.js`; never write a flag.
 - A lab must not need a database key or a login token. Anything that awards XP happens on the main server.

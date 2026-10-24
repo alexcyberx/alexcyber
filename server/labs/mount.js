@@ -20,6 +20,7 @@ const LABS = [
   { name: 'robots', slug: 'web-04', path: './web04-robots/routes', flow: true, ttlSec: 20 * 60 },
   { name: 'packet', slug: 'for-01', path: './for01-packet/routes', flow: true, ttlSec: 35 * 60 },
   { name: 'metadata', slug: 'for-02', path: './for02-metadata/routes', flow: true, ttlSec: 20 * 60 },
+  { name: 'orders', slug: 'web-08', path: './web08-orders/routes', flow: true, ttlSec: 20 * 60 },
   { name: 'caesar', slug: 'cry-01', path: './cry01-caesar/routes' },
   { name: 'base64', slug: 'cry-02', path: './cry02-base64/routes' },
   { name: 'deserialize', slug: 'web-06', path: './web06-deserialize/routes' },

@@ -52,7 +52,7 @@ from the project). Owner direction lives in `CLAUDE.md`; security detail in `bra
 ## 4. CTF
 | Rule | Status | Evidence |
 |---|---|---|
-| Rooms list = active `ctf_challenges` (11 active today; categories shown only if they have rooms) | Implemented | `web/src/app/rooms`, `RoomsView.tsx` |
+| Rooms list = active `ctf_challenges` (12 active today incl. web-08 IDOR; categories shown only if they have rooms) | Implemented | `web/src/app/rooms`, `RoomsView.tsx` |
 | `/rooms` page is public (cards: title, short description, difficulty, XP) so search engines and AI know the CTF exists; scenario, hints and the room itself need login | Implemented | `web/src/app/rooms/page.tsx` (`publicRooms`), `/rooms/details` (login), `RoomsView.tsx` login modal |
 | Must be logged in to submit a flag and get XP | Implemented | `submit_ctf_flag` (`auth_required`), `server/labs/recordSolve.js` |
 | Flags are `ACX{...}`, derived per challenge from a server secret; same flag for every player | Implemented | `server/labs/flags.js` |
