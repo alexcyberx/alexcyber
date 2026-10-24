@@ -105,6 +105,24 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     hasLabFlow: false,
     solvers: 0
   },
+  {
+    id: 'web-08', addedAt: '2026-10-24', cat: 'Web', icon: '\ud83c\udf10', iconClass: 'ctf-cat-web',
+    title: "Other People's Orders",
+    desc: 'Gharkart is a small online grocery store in Indore. You have a normal customer account. The owner placed an order last week, and its delivery note was meant for the delivery boy only. Read that note.',
+    scenario: 'You are signed in to Gharkart as a regular customer, Rahul. Open one of your own orders and look closely at the web address while you do it.<br><br>The store owner has an order too, and its delivery note holds a code you were never meant to see. Find that order.',
+    author: 'AlexCyberX',
+    tags: ['Web Exploitation', 'Broken Access Control', 'IDOR'],
+    diff: 'Easy', pts: 60, xp: 100,
+    hints: ['When you open one of your own orders, watch the web address. What is the last part of it?', 'The order number in the address is just a number. Try changing it to a nearby one and load the page again.', 'The site shows any order you ask for by number, even one that is not yours. Walk the numbers near your own until you find the store owner\'s order, and read its delivery note.'],
+    objectives: [
+      'Sign in with the practice account and open one of your own orders',
+      'Work out how the site decides which order to show you',
+      "Find the owner's order and submit the code from its delivery note"
+    ],
+    labApiPath: '/api/lab/orders',
+    hasLabFlow: true,
+    solvers: 0
+  },
 
   // ── FORENSICS ──
   {

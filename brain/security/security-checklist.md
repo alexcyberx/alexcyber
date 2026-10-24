@@ -54,7 +54,7 @@ Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · M
 ## Authorization / RBAC
 - [x] RLS on all public tables; admin writes need `profiles.role='admin'` policies; privileged profile columns guarded by trigger.
 - [x] Lab solves recorded only by service role (`record_lab_ctf_solve`); flag check server-side (`submit_ctf_flag`, `/api/lab/flag`).
-- [ ] Labs on their own origin: code done 2026-10-24 (`server/labs-server.js`, no DB key, `noopener` tabs); needs the Render labs service + `LAB_ORIGIN` + shared `FLAG_SECRET` (`docs/LABS.md`).
+- [x] Labs on their own origin: live 2026-10-24 (`alexcyber-labs.onrender.com`, `server/labs-server.js`, no DB key, `noopener` tabs, shared `FLAG_SECRET` checked on start; `docs/LABS.md`).
 - [x] Admin RPCs check `acx_is_admin`; `admin-search` checks staff role server-side.
 - [ ] Admin panel page gated server-side (#2). [ ] `admin-search` ban check / role cache 5 min (low).
 - Rule: any new table → RLS on + policies in a migration in `supabase/migrations/`; any new RPC → `SECURITY DEFINER`

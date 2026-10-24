@@ -65,8 +65,8 @@ Severity = impact × likelihood (Critical / High / Medium / Low).
   `localStorage['alexcyberx-auth']` / `alexcyberx-admin-auth` and sends the tokens out.
 - Existing mitigations: CSP exists but allows `'unsafe-inline'` scripts (`server/index.js:22,26`); `/api/lab/` is
   excluded from attack detection (`server/middleware/attackDetection.js:55-58`).
-- Missing: output encoding for script context; CSP without `'unsafe-inline'`. Labs on a separate origin: code done
-  2026-10-24 (`server/labs-server.js`, `docs/LABS.md`), live once the labs service and `LAB_ORIGIN` are set. Residual:
+- Missing: output encoding for script context; CSP without `'unsafe-inline'`. Labs on a separate origin: live
+  2026-10-24 (`alexcyber-labs.onrender.com`, `server/labs-server.js`, `docs/LABS.md`). Residual:
   the labs server holds `FLAG_SECRET`, so a code-execution bug in a lab would expose every flag (not logins or data).
 - Impact: account takeover, admin takeover → full content/user control. Likelihood: medium (needs a click).
 

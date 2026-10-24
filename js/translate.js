@@ -618,7 +618,81 @@ const CTF_OVERRIDES = {
       desc: 'कोणीतरी PixelDrop वर एक इमेज शेअर केली आहे. इमेज सामान्य दिसते पण metadata review मध्ये ती flag झाली होती. ती डाउनलोड करा आणि EXIF डेटा काढून लपलेला flag शोधा.',
       hints: ['Image फाइल्समध्ये pixels शिवाय EXIF metadata नावाचा लपलेला डेटा साठवला जातो.', 'सर्व fields वाचण्यासाठी exiftool किंवा exifinfo.net सारखा online viewer वापरा.', 'Flag 4 fields मध्ये विभागलेला आहे. सर्व शोधा आणि योग्य क्रम शोधा.']
     }
-  }
+  },
+  'web-08': {
+    hl: {
+      desc: "Gharkart Indore ki ek chhoti online grocery store hai. Aapke paas ek normal customer account hai. Owner ne pichhle hafte ek order kiya tha, aur uski delivery note sirf delivery boy ke liye thi. Wahi note padho.",
+      scenario: "Aap Gharkart par ek normal customer, Rahul, ke roop mein signed in ho. Apna koi ek order kholo aur kholte waqt web address ko dhyan se dekho.<br><br>Store owner ka bhi ek order hai, aur uski delivery note mein ek code hai jo aapko kabhi nahi dikhna chahiye tha. Wo order dhundho.",
+      hints: [
+        "Jab aap apna koi order kholte ho, to web address dekho. Uska aakhri hissa kya hai?",
+        "Address mein order number bas ek number hai. Use thoda aage-peeche badal kar page dobara load karo.",
+        "Site number dekh kar koi bhi order dikha deti hai, chahe wo aapka na ho. Apne order ke aas-paas ke number ek-ek karke dekho jab tak store owner ka order na mil jaye, phir uski delivery note padho."
+      ]
+    },
+    en: {
+      desc: "Gharkart is a small online grocery store in Indore. You have a normal customer account. The owner placed an order last week, and its delivery note was meant for the delivery boy only. Read that note.",
+      scenario: "You are signed in to Gharkart as a regular customer, Rahul. Open one of your own orders and look closely at the web address while you do it.<br><br>The store owner has an order too, and its delivery note holds a code you were never meant to see. Find that order.",
+      hints: [
+        "When you open one of your own orders, watch the web address. What is the last part of it?",
+        "The order number in the address is just a number. Try changing it to a nearby one and load the page again.",
+        "The site shows any order you ask for by number, even one that is not yours. Walk the numbers near your own until you find the store owner's order, and read its delivery note."
+      ]
+    },
+    hi: {
+      desc: "Gharkart Indore की एक छोटी online grocery store है। आपके पास एक normal customer account है। Owner ने पिछले हफ्ते एक order किया था, और उसकी delivery note सिर्फ delivery boy के लिए थी। वही note पढ़ो।",
+      scenario: "आप Gharkart पर एक normal customer, Rahul, के रूप में signed in हो। अपना कोई एक order खोलो और खोलते वक्त web address को ध्यान से देखो।<br><br>Store owner का भी एक order है, और उसकी delivery note में एक code है जो आपको कभी नहीं दिखना चाहिए था। वो order ढूंढो।",
+      hints: [
+        "जब आप अपना कोई order खोलते हो, तो web address देखो। उसका आखिरी हिस्सा क्या है?",
+        "Address में order number बस एक number है। उसे थोड़ा आगे-पीछे बदल कर page दोबारा load करो।",
+        "Site number देखकर कोई भी order दिखा देती है, चाहे वो आपका न हो। अपने order के आस-पास के number एक-एक करके देखो जब तक store owner का order न मिल जाए, फिर उसकी delivery note पढ़ो।"
+      ]
+    },
+    pa: {
+      desc: "Gharkart Indore ਦੀ ਇੱਕ ਛੋਟੀ online grocery store ਹੈ। ਤੁਹਾਡੇ ਕੋਲ ਇੱਕ normal customer account ਹੈ। Owner ਨੇ ਪਿਛਲੇ ਹਫ਼ਤੇ ਇੱਕ order ਕੀਤਾ ਸੀ, ਅਤੇ ਉਸਦੀ delivery note ਸਿਰਫ਼ delivery boy ਲਈ ਸੀ। ਉਹੀ note ਪੜ੍ਹੋ।",
+      scenario: "ਤੁਸੀਂ Gharkart ਤੇ ਇੱਕ normal customer, Rahul, ਵਜੋਂ signed in ਹੋ। ਆਪਣਾ ਕੋਈ ਇੱਕ order ਖੋਲ੍ਹੋ ਅਤੇ ਖੋਲ੍ਹਦੇ ਵੇਲੇ web address ਨੂੰ ਧਿਆਨ ਨਾਲ ਦੇਖੋ।<br><br>Store owner ਦਾ ਵੀ ਇੱਕ order ਹੈ, ਅਤੇ ਉਸਦੀ delivery note ਵਿੱਚ ਇੱਕ code ਹੈ ਜੋ ਤੁਹਾਨੂੰ ਕਦੇ ਨਹੀਂ ਦਿਖਣਾ ਚਾਹੀਦਾ ਸੀ। ਉਹ order ਲੱਭੋ।",
+      hints: [
+        "ਜਦੋਂ ਤੁਸੀਂ ਆਪਣਾ ਕੋਈ order ਖੋਲ੍ਹਦੇ ਹੋ, ਤਾਂ web address ਦੇਖੋ। ਉਸਦਾ ਆਖਰੀ ਹਿੱਸਾ ਕੀ ਹੈ?",
+        "Address ਵਿੱਚ order number ਬੱਸ ਇੱਕ number ਹੈ। ਉਸਨੂੰ ਥੋੜ੍ਹਾ ਅੱਗੇ-ਪਿੱਛੇ ਬਦਲ ਕੇ page ਦੁਬਾਰਾ load ਕਰੋ।",
+        "Site number ਦੇਖ ਕੇ ਕੋਈ ਵੀ order ਦਿਖਾ ਦਿੰਦੀ ਹੈ, ਭਾਵੇਂ ਉਹ ਤੁਹਾਡਾ ਨਾ ਹੋਵੇ। ਆਪਣੇ order ਦੇ ਆਲੇ-ਦੁਆਲੇ ਦੇ number ਇੱਕ-ਇੱਕ ਕਰਕੇ ਦੇਖੋ ਜਦੋਂ ਤੱਕ store owner ਦਾ order ਨਾ ਮਿਲੇ, ਫਿਰ ਉਸਦੀ delivery note ਪੜ੍ਹੋ।"
+      ]
+    },
+    ta: {
+      desc: "Gharkart என்பது இந்தூரில் உள்ள ஒரு சிறிய online grocery store. உங்களிடம் ஒரு normal customer account உள்ளது. Owner கடந்த வாரம் ஒரு order செய்தார், அதன் delivery note delivery boy-க்கு மட்டுமே. அந்த note-ஐ படியுங்கள்.",
+      scenario: "நீங்கள் Gharkart-இல் ஒரு சாதாரண customer, Rahul, ஆக signed in ஆகியுள்ளீர்கள். உங்கள் order ஒன்றைத் திறந்து, திறக்கும்போது web address-ஐ கவனமாகப் பாருங்கள்.<br><br>Store owner-க்கும் ஒரு order உள்ளது, அதன் delivery note-இல் நீங்கள் பார்க்கக் கூடாத ஒரு code உள்ளது. அந்த order-ஐக் கண்டறியுங்கள்.",
+      hints: [
+        "உங்கள் order ஒன்றைத் திறக்கும்போது, web address-ஐப் பாருங்கள். அதன் கடைசிப் பகுதி என்ன?",
+        "Address-இல் உள்ள order number வெறும் ஒரு number. அதை அருகிலுள்ள ஒன்றாக மாற்றி page-ஐ மீண்டும் load செய்யுங்கள்.",
+        "Site, number கொடுத்தால் எந்த order-ஐயும் காட்டும், அது உங்களுடையதாக இல்லாவிட்டாலும். உங்கள் order-க்கு அருகிலுள்ள number-களை ஒவ்வொன்றாகப் பாருங்கள், store owner-இன் order கிடைக்கும் வரை, பிறகு அதன் delivery note-ஐப் படியுங்கள்."
+      ]
+    },
+    te: {
+      desc: "Gharkart అనేది ఇండోర్‌లోని ఒక చిన్న online grocery store. మీకు ఒక normal customer account ఉంది. Owner గత వారం ఒక order చేశారు, దాని delivery note delivery boy కోసం మాత్రమే. ఆ note చదవండి.",
+      scenario: "మీరు Gharkart‌లో ఒక సాధారణ customer, Rahul‌గా signed in అయ్యారు. మీ order ఒకదాన్ని తెరిచి, తెరుస్తున్నప్పుడు web address‌ను జాగ్రత్తగా చూడండి.<br><br>Store owner‌కు కూడా ఒక order ఉంది, దాని delivery note‌లో మీరు ఎప్పటికీ చూడకూడని ఒక code ఉంది. ఆ order‌ను కనుగొనండి.",
+      hints: [
+        "మీ order ఒకదాన్ని తెరిచినప్పుడు, web address చూడండి. దాని చివరి భాగం ఏమిటి?",
+        "Address‌లోని order number కేవలం ఒక number. దాన్ని దగ్గరలోని దానికి మార్చి page‌ను మళ్ళీ load చేయండి.",
+        "Site, number ఇస్తే ఏ order‌నైనా చూపిస్తుంది, అది మీది కాకపోయినా. మీ order దగ్గరలోని number‌లను ఒక్కొక్కటిగా చూడండి, store owner‌ order దొరికే వరకు, తర్వాత దాని delivery note చదవండి."
+      ]
+    },
+    bn: {
+      desc: "Gharkart হল ইন্দোরের একটি ছোট online grocery store। আপনার একটি normal customer account আছে। Owner গত সপ্তাহে একটি order করেছিলেন, এবং তার delivery note শুধু delivery boy-এর জন্য ছিল। সেই note পড়ুন।",
+      scenario: "আপনি Gharkart-এ একজন সাধারণ customer, Rahul হিসেবে signed in আছেন। আপনার নিজের একটি order খুলুন এবং খোলার সময় web address মনোযোগ দিয়ে দেখুন।<br><br>Store owner-এরও একটি order আছে, এবং তার delivery note-এ একটি code আছে যা আপনার কখনও দেখার কথা ছিল না। সেই order খুঁজুন।",
+      hints: [
+        "আপনি যখন নিজের একটি order খোলেন, তখন web address দেখুন। তার শেষ অংশটি কী?",
+        "Address-এ order number শুধু একটি number। এটি কাছাকাছি একটিতে পরিবর্তন করে page আবার load করুন।",
+        "Site number দিয়ে যেকোনো order দেখায়, এমনকি যেটি আপনার নয়। আপনার order-এর কাছাকাছি number একটি একটি করে দেখুন যতক্ষণ না store owner-এর order পান, তারপর তার delivery note পড়ুন।"
+      ]
+    },
+    mr: {
+      desc: "Gharkart हे इंदूरमधील एक छोटे online grocery store आहे. तुमच्याकडे एक normal customer account आहे. Owner ने गेल्या आठवड्यात एक order केली होती, आणि तिची delivery note फक्त delivery boy साठी होती. तीच note वाचा.",
+      scenario: "तुम्ही Gharkart वर एक normal customer, Rahul म्हणून signed in आहात. तुमची एखादी order उघडा आणि उघडताना web address काळजीपूर्वक बघा.<br><br>Store owner ची पण एक order आहे, आणि तिच्या delivery note मध्ये एक code आहे जो तुम्हाला कधीच दिसायला नको होता. ती order शोधा.",
+      hints: [
+        "जेव्हा तुम्ही तुमची एखादी order उघडता, तेव्हा web address बघा. त्याचा शेवटचा भाग काय आहे?",
+        "Address मधील order number फक्त एक number आहे. तो जवळच्या एका number मध्ये बदलून page पुन्हा load करा.",
+        "Site number बघून कोणतीही order दाखवते, जरी ती तुमची नसली तरी. तुमच्या order च्या जवळचे number एक-एक करून बघा जोपर्यंत store owner ची order मिळत नाही, मग तिची delivery note वाचा."
+      ]
+    }
+  },
 };
 
 function applyCTFStaticOverride(lang) {

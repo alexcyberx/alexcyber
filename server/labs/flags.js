@@ -25,6 +25,7 @@ const THEMES = {
   'cry-01': 'veni_vidi_vici_shift3',
   'cry-02': 'base64_is_not_encryption',
   'ai-01':  'h3lpd3sk_b0t_sp1ll3d_th3_b34ns',
+  'web-08': 'n0_0wn3r_ch3ck_0n_0rd3rs',
 };
 
 const SECRET = process.env.FLAG_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || crypto.randomBytes(32).toString('hex');

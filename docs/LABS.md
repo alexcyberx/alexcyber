@@ -1,5 +1,10 @@
 # CTF labs on their own origin
 
+Live since 2026-10-24: main `alexcyber` (`LAB_ORIGIN=https://alexcyber-labs.onrender.com`), labs service
+`alexcyber-labs` (`srv-dbe5odvb9u1s73c938q0`, Singapore, free, autoDeploy off), env group `acx-flags`
+(`FLAG_SECRET`) linked to both. The main server logged "uses the same flag secret" after the switch.
+A change to the labs (`server/labs/`, `pages/labs/`, `server/labs-server.js`) needs a deploy of **both** services.
+
 Owner decision 2026-10-24: the labs move off the main site, the way picoCTF (`play.picoctf.org` / `*.picoctf.net`)
 and PortSwigger (`*.web-security-academy.net`) do it. The labs are vulnerable on purpose; on their own origin a bug
 in one cannot read the student's login (the Supabase session lives in the main site's `localStorage`), and the labs
@@ -52,6 +57,9 @@ Rollback: remove `LAB_ORIGIN` from the main service and redeploy; the labs run o
 - Labs on a separate registrable domain (e.g. `alexcyberx-labs.com`), not a subdomain of the main one, with HTTPS.
 - A random subdomain per instance (`k3f9a2.alexcyberx-labs.com`, wildcard DNS + certificate) instead of `?session=`.
 - Per-student containers for rooms that need a real database or shell.
+
+## Rooms so far
+web-01 hidden-sight, web-02 cookie, web-03 sqli101, web-04 robots, web-06/07 deserialize, web-08 orders (IDOR, 2026-10-24), for-01 packet, for-02 metadata, cry-01 caesar, cry-02 base64, ai-01 helpdesk. Each lab-flow room (`flow:true` in `server/labs/mount.js`) runs its own instance; the flag is checked and the solve recorded on the main server (`/api/lab/flag`).
 
 ## Rules for new labs
 - Add the lab to `LABS` in `server/labs/mount.js` and its flag theme to `server/labs/flags.js`; never write a flag.
