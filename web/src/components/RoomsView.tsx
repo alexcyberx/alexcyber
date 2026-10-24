@@ -18,6 +18,12 @@ import { LANG_KEY, machineTranslate, needsMt, readMtCache, roomText } from '@/li
 
 const LAB_SECS = 30 * 60;
 
+// A room has a lab (so it shows Start / View Lab and a timer) when it has a
+// static lab page OR runs its own instance (lab-flow, e.g. web-08 orders,
+// which has no static page). Without this a lab-flow room with no labUrl
+// showed the flag box with no way to start the lab.
+const labOf = (c: Challenge | null | undefined): boolean => !!(c && (c.labUrl || (c.hasLabFlow && c.labApiPath)));
+
 // ── storage helpers (never throw) ──
 const store = {
   get(s: 'l' | 's', k: string): string | null {
@@ -281,7 +287,7 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n, la
     const c = challenges.find((x) => x.id === id);
     if (!c) return;
     clearOtherLabs(id);
-    const since = c.labUrl ? labStartedAt(id) : null;
+    const since = labOf(c) ? labStartedAt(id) : null;
     labUrl.current = null;
     if (since) {
       if (c.hasLabFlow && c.labApiPath) {
@@ -301,7 +307,7 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n, la
     setAiNote(null);
     setStartedAt(since);
     setSecsLeft(since ? Math.max(0, LAB_SECS - Math.floor((Date.now() - since) / 1000)) : LAB_SECS);
-    setFlagVisible(!c.labUrl || !!since);
+    setFlagVisible(!labOf(c) || !!since);
     setFlag('');
     setFlagCls('');
     setFlagMsg(null);
@@ -424,7 +430,7 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n, la
 
   const startLab = (restart: boolean) => {
     const c = current;
-    if (!c || !c.labUrl) return;
+    if (!c || !labOf(c)) return;
     clearOtherLabs(c.id);
     stopOtherInstances(c.id);
     const url = newLabUrl(c);
@@ -814,7 +820,7 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n, la
                   </div>
                 </div>
 
-                <div id="ctfLaunchWrap" style={{ display: shown.labUrl ? 'block' : 'none' }}>
+                <div id="ctfLaunchWrap" style={{ display: labOf(shown) ? 'block' : 'none' }}>
                   <div id="ctfStartWrap" style={{ marginBottom: 14, display: running ? 'none' : 'block' }}>
                     <a className="ctf-launch-btn" id="ctfLaunchBtn" href="#" onClick={(e) => { e.preventDefault(); startLab(false); }}>
                       <span id="ctfLaunchLabel">START</span>
