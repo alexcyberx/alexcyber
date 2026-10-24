@@ -39,6 +39,8 @@ Read this first in every session. It records what the owner wants; follow it.
 ## How we work
 - Branch `claude/fervent-pascal-cmg7k6` → PR to `main` → merge → deploy the `alexcyber` Render service
   (`srv-d8oil4beo5us73eatqig`, workspace `tea-d8grqaernols73f0l7k0`; autoDeploy is off, trigger it manually).
+  A change to `server/labs/`, `pages/labs/` or `server/labs-server.js` also needs a deploy of the labs service
+  `alexcyber-labs` (`srv-dbe5odvb9u1s73c938q0`, same repo and branch, autoDeploy off).
 - Test before every push (mock-Supabase Playwright suites, real server checks). Never put secrets or CTF flags in
   client code. DB changes: write a file in `supabase/migrations/` and apply it (Supabase project `rwjwjltlfkxadywfqxbs`).
 - The GitHub repo is public: anything committed is public.

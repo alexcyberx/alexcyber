@@ -1,5 +1,10 @@
 # CTF labs on their own origin
 
+Live since 2026-10-24: main `alexcyber` (`LAB_ORIGIN=https://alexcyber-labs.onrender.com`), labs service
+`alexcyber-labs` (`srv-dbe5odvb9u1s73c938q0`, Singapore, free, autoDeploy off), env group `acx-flags`
+(`FLAG_SECRET`) linked to both. The main server logged "uses the same flag secret" after the switch.
+A change to the labs (`server/labs/`, `pages/labs/`, `server/labs-server.js`) needs a deploy of **both** services.
+
 Owner decision 2026-10-24: the labs move off the main site, the way picoCTF (`play.picoctf.org` / `*.picoctf.net`)
 and PortSwigger (`*.web-security-academy.net`) do it. The labs are vulnerable on purpose; on their own origin a bug
 in one cannot read the student's login (the Supabase session lives in the main site's `localStorage`), and the labs
