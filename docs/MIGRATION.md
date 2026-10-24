@@ -272,6 +272,10 @@ Not migrated yet (still SPA): course chapter pages' old copy, the CTF room page 
 back from the old SPA immediately, except the admin panel: it exists only on Next since the old panel was deleted
 (2026-10-23), so without Next there is no admin panel until Next is back.
 
+**Labs service (2026-10-24):** the CTF labs run as a second service (`alexcyber-labs`, `node server/labs-server.js`,
+`SKIP_WEB_BUILD=1`) on their own origin; the main service points at it with `LAB_ORIGIN`. Setup, env and rollback:
+`docs/LABS.md`.
+
 The old separate service `alexcyber-web` is not needed any more. It can be suspended or deleted from the
 Render dashboard (setting `NEXT_EMBEDDED` off and `NEXT_APP_URL` to its URL would use it again).
 

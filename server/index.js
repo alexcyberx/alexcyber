@@ -107,6 +107,20 @@ app.get('/.well-known/security.txt', (req, res) => {
   res.type('text/plain').send(
     `Contact: ${site}/report-a-bug\nExpires: ${expires}\nPolicy: ${site}/report-a-bug\nPreferred-Languages: en, hi\nCanonical: ${site}/.well-known/security.txt\n`);
 });
+// CTF labs on their own origin (docs/LABS.md): with LAB_ORIGIN set, this
+// server runs no lab code; old links to a lab here go to the labs server.
+const { LABS, mountLabs, startLabCleanup } = require('./labs/mount');
+const LAB_ORIGIN = require('./labs/origin').labOrigin();
+if (LAB_ORIGIN) {
+  const names = LABS.map((l) => l.name.replace(/[^a-z0-9-]/g, '')).join('|');
+  const LAB_PATH = new RegExp('^/(api/lab/(' + names + ')(/|$)|pages/labs(/|$))');
+  app.use((req, res, next) => {
+    if (!LAB_PATH.test(req.path)) return next();
+    if (req.method !== 'GET' && req.method !== 'HEAD') return res.status(410).json({ error: 'The labs moved to their own address.', labOrigin: LAB_ORIGIN });
+    res.redirect(302, LAB_ORIGIN + req.originalUrl);
+  });
+}
+
 const nextProxy = require('./middleware/nextProxy');
 app.get('/js/flags.js', (req, res) => {
   res.type('application/javascript').set('Cache-Control', 'no-cache');
@@ -135,22 +149,18 @@ app.get('/panel-1b47c1ab561e.html', (req, res) => {
   res.redirect(302, '/panel-1b47c1ab561e');
 });
 
-// Lab API routes
-// Session id format + instance rate limit for every lab (server/middleware/labSession.js).
+// Lab API routes. Session id format + instance rate limit for every /api/lab
+// route (server/middleware/labSession.js). The labs themselves: here only
+// without LAB_ORIGIN (local dev, tests, rollback), else on the labs server.
 app.use('/api/lab', require('./middleware/labSession').labSessionGuard);
-// Lab-flow challenges: save the solve + XP server-side when /submit is correct.
-const { recordLabSolve } = require('./labs/recordSolve');
-app.use('/api/lab/hidden', recordLabSolve('web-01'), require('./labs/hidden-sight/routes'));
-app.use('/api/lab/cookie', recordLabSolve('web-02'), require('./labs/web02-cookie/routes'));
-app.use('/api/lab/sqli101', recordLabSolve('web-03'), require('./labs/web03-sqli101/routes'));
-app.use('/api/lab/robots', recordLabSolve('web-04'), require('./labs/web04-robots/routes'));
-app.use('/api/lab/packet', recordLabSolve('for-01'), require('./labs/for01-packet/routes'));
-app.use('/api/lab/metadata', recordLabSolve('for-02'), require('./labs/for02-metadata/routes'));
-app.use('/api/lab/caesar', require('./labs/cry01-caesar/routes'));
-app.use('/api/lab/base64', require('./labs/cry02-base64/routes'));
-app.use('/api/lab/deserialize', require('./labs/web06-deserialize/routes'));
-app.use('/api/lab/deserialize-medium', require('./labs/web07-deserialize-medium/routes'));
-app.use('/api/lab/aichat-easy', require('./labs/ai01-helpdesk-easy/routes'));
+if (!LAB_ORIGIN) {
+  // Lab-flow challenges: the old in-lab /submit also records the solve + XP.
+  const { recordLabSolve } = require('./labs/recordSolve');
+  mountLabs(app, { wrap: (l) => (l.flow ? recordLabSolve(l.slug) : null) });
+  startLabCleanup();
+}
+// Flag submit of the lab-flow rooms (CTF page): checked and recorded here, in both setups.
+app.use('/api/lab/flag', require('./routes/labFlag'));
 app.use('/api/lab/hint', require('./ai/hints'));
 app.use('/api/lab/search', require('./ai/search'));
 app.use('/api/lab/admin-search', require('./ai/adminSearch'));
@@ -231,64 +241,8 @@ app.listen(PORT, () => {
   // CTF page flag check (submit_ctf_flag) compares against these hashes.
   require('./labs/flags').syncFlagHashes(require('./middleware/toolAccess').getSupabaseAdmin())
     .catch((e) => console.error('[flags] sync failed', e.message));
+  if (LAB_ORIGIN) require('./labs/origin').checkLabServer(LAB_ORIGIN);
 });
-
-// ── INSTANCE MEMORY CLEANUP ─────────────────────────────────────
-// FIX: Sab instance-based labs mein instances{} object kabhi clean
-// nahi hota tha, expired sessions memory mein accumulate karte rahe.
-// web03-sqli101 mein sql.js Database objects bhi hain jo aur bhi
-// expensive hain. Har 10 minute mein expired instances clean karo
-// sab labs se.
-//
-// Har lab ka apna TTL hai (5 min buffer after that lab's own
-// INSTANCE_DURATION_SEC, jo difficulty ke hisaab se alag hai -
-// Easy 15min, Medium 30min, Hard 45min) - ek single global TTL nahi,
-// warna Easy labs ka instance expire hone ke baad bhi der tak memory
-// mein reh jaata (waste, though not a bug).
-const CLEANUP_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
-
-function cleanExpiredInstances(labName, instancesObj, ttlSec, hasSqlDb = false) {
-  const now = Date.now();
-  let cleaned = 0;
-  for (const [key, inst] of Object.entries(instancesObj)) {
-    const ageSec = Math.floor((now - (inst.startedAt || 0)) / 1000);
-    if (ageSec > ttlSec) {
-      if (hasSqlDb && inst.db) {
-        try { inst.db.close(); } catch(e) {}
-      }
-      delete instancesObj[key];
-      cleaned++;
-    }
-  }
-  if (cleaned > 0) console.log(`[Cleanup] ${labName}: removed ${cleaned} expired instances`);
-}
-
-setInterval(() => {
-  try {
-    // Each lab router exports _instances so we can clean expired ones.
-    // require() returns cached module, same object as used in routes.
-    // ttlSec = that lab's own INSTANCE_DURATION_SEC + 5 min buffer.
-    const labConfigs = [
-      { name: 'hidden',    path: './labs/hidden-sight/routes',    sql: false, ttlSec: 20 * 60 }, // Easy 15min + 5min buffer
-      { name: 'cookie',    path: './labs/web02-cookie/routes',    sql: false, ttlSec: 35 * 60 }, // Medium 30min + 5min buffer
-      { name: 'sqli101',   path: './labs/web03-sqli101/routes',   sql: true,  ttlSec: 35 * 60 }, // Medium 30min + 5min buffer
-      { name: 'robots',    path: './labs/web04-robots/routes',    sql: false, ttlSec: 20 * 60 }, // Easy 15min + 5min buffer
-      { name: 'packet',    path: './labs/for01-packet/routes',    sql: false, ttlSec: 35 * 60 }, // Medium 30min + 5min buffer
-      { name: 'metadata',  path: './labs/for02-metadata/routes',  sql: false, ttlSec: 20 * 60 }, // Easy 15min + 5min buffer
-    ];
-    labConfigs.forEach(({ name, path: p, sql, ttlSec }) => {
-      try {
-        const mod = require(p);
-        const instances = mod._instances;
-        if (instances && typeof instances === 'object') {
-          cleanExpiredInstances(name, instances, ttlSec, sql);
-        }
-      } catch(e) {}
-    });
-  } catch(e) {
-    console.error('[Cleanup] Error:', e.message);
-  }
-}, CLEANUP_INTERVAL_MS);
 
 // ── PROCESS STABILITY ───────────────────────────────────────────
 // FIX: Unhandled promise rejections crash the server silently in older Node versions

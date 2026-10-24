@@ -64,8 +64,8 @@ Server: `requireAuth` / `requireToolLogin` verify JWT (`auth.getUser`) and ban (
 ## 4. Server (Express) permissions
 | Surface | Who | Evidence |
 |---|---|---|
-| Static pages, Next pages, `/api/lab/*` (all labs, hints, search) | anyone | `server/index.js:139-152` |
-| Lab solve recording (XP) | logged-in, not banned (JWT on `/submit`) | `server/labs/recordSolve.js` |
+| Static pages, Next pages, `/api/lab/*` (all labs, hints, search) | anyone | `server/index.js`; labs: `server/labs/mount.js` (on the labs server when `LAB_ORIGIN` is set, `docs/LABS.md`) |
+| Lab flag check `POST /api/lab/flag` (lab-flow rooms) | anyone can check; the solve + XP is recorded only for a logged-in, not banned user (JWT) | `server/routes/labFlag.js`, `server/labs/recordSolve.js` (main server only) |
 | `/api/tools/*`, `/api/alexutils/*`, `/api/alextrace/*` | logged-in, not banned, tool enabled | `requireToolLogin`, `checkToolEnabled` |
 | `/api/alexrecon/*` | logged-in, not banned (enabled check on scan/schedule) | `server/tools/alexrecon/routes.js:46` |
 | `/rooms/details` (CTF scenario + hints) | logged-in (token checked) | `web/src/app/rooms/details/route.ts` |

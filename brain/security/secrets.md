@@ -1,6 +1,6 @@
 # Secrets: AlexCyberX
 
-Last verified: 2026-10-23 (admin panel phase 4 + old panel deleted; earlier full audit 2026-10-16, commit `fffd15f`). This file lists **where** secrets live and the risks. It must never
+Last verified: 2026-10-24 (labs on their own origin; 2026-10-23 admin panel phase 4; full audit 2026-10-16, commit `fffd15f`). This file lists **where** secrets live and the risks. It must never
 contain a secret value. The GitHub repo is **public**: anything committed is public forever (git history).
 
 ## 1. Where secrets are expected
@@ -11,7 +11,7 @@ in the Render dashboard by the owner. Never in chat, never in the repo. Template
 |---|---|---|---|
 | `SUPABASE_URL` | `server/middleware/toolAccess.js:21`, `attackDetection.js:45`, `tools/alexrecon/routes.js:51`, `tools/alextrace/routes.js:69`, `routes/authEmailHook.js:100` | not secret (public URL) | yes |
 | `SUPABASE_SERVICE_ROLE_KEY` | same files (`:24/48/54/72`), `server/labs/flags.js:30` | **full DB + auth admin, bypasses RLS** | yes |
-| `FLAG_SECRET` | `server/labs/flags.js:30` | derives every CTF flag | optional (falls back to service-role key) |
+| `FLAG_SECRET` | `server/labs/flags.js:30` | derives every CTF flag | main + labs server, same value (Render env group); required once the labs server runs (`docs/LABS.md`); the main server falls back to the service-role key, which must never go to the labs server |
 | `RESEND_API_KEY` | `server/routes/authEmailHook.js:50` | sends email as the site | yes for email |
 | `SEND_EMAIL_HOOK_SECRET` | `server/routes/authEmailHook.js:56` | verifies Supabase → server webhook | yes for email |
 | `EMAIL_FROM_ADDRESS` | `authEmailHook.js:110` | not secret | optional |

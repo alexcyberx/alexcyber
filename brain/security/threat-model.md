@@ -1,6 +1,6 @@
 # Threat model: AlexCyberX
 
-Last verified against the code: 2026-10-23 (admin panel section; full pass 2026-10-16, commit `fffd15f`), Supabase project `rwjwjltlfkxadywfqxbs`.
+Last verified against the code: 2026-10-24 (labs origin, admin panel; full pass 2026-10-16, commit `fffd15f`), Supabase project `rwjwjltlfkxadywfqxbs`.
 Re-verify when a section below names a file you change. Labels used everywhere in this folder:
 **CONFIRMED** (reproduced or proven from code/DB) · **WEAKNESS** (works, but weaker than it should be) ·
 **MISSING** (control does not exist) · **VERIFY** (possible risk, not proven) · **REC** (recommendation).
@@ -65,7 +65,9 @@ Severity = impact × likelihood (Critical / High / Medium / Low).
   `localStorage['alexcyberx-auth']` / `alexcyberx-admin-auth` and sends the tokens out.
 - Existing mitigations: CSP exists but allows `'unsafe-inline'` scripts (`server/index.js:22,26`); `/api/lab/` is
   excluded from attack detection (`server/middleware/attackDetection.js:55-58`).
-- Missing: output encoding for script context; labs on a separate origin; CSP without `'unsafe-inline'`.
+- Missing: output encoding for script context; CSP without `'unsafe-inline'`. Labs on a separate origin: code done
+  2026-10-24 (`server/labs-server.js`, `docs/LABS.md`), live once the labs service and `LAB_ORIGIN` are set. Residual:
+  the labs server holds `FLAG_SECRET`, so a code-execution bug in a lab would expose every flag (not logins or data).
 - Impact: account takeover, admin takeover → full content/user control. Likelihood: medium (needs a click).
 
 ### T2. Admin takeover in general — **High impact · mitigated by RLS**

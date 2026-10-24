@@ -28,6 +28,9 @@ const THEMES = {
 };
 
 const SECRET = process.env.FLAG_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || crypto.randomBytes(32).toString('hex');
+// Where the secret came from. The labs server (its own origin, no database
+// keys) must get FLAG_SECRET, the same value as the main server.
+const SECRET_SOURCE = process.env.FLAG_SECRET ? 'FLAG_SECRET' : process.env.SUPABASE_SERVICE_ROLE_KEY ? 'service-role' : 'random';
 if (!process.env.FLAG_SECRET && !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   console.warn('[flags] no FLAG_SECRET / SUPABASE_SERVICE_ROLE_KEY: lab flags change on every restart');
 }
@@ -67,4 +70,11 @@ async function syncFlagHashes(db) {
   console.log('[flags] flag hashes synced');
 }
 
-module.exports = { flagFor, isFlag, syncFlagHashes, THEMES };
+// Non-secret fingerprint of the secret (its own HMAC input, so it says
+// nothing about any flag): the main server compares it with the labs
+// server's to catch two different secrets.
+function secretFingerprint() {
+  return crypto.createHmac('sha256', SECRET).update('acx-flag-fingerprint').digest('hex').slice(0, 16);
+}
+
+module.exports = { flagFor, isFlag, syncFlagHashes, secretFingerprint, SECRET_SOURCE, THEMES };

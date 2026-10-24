@@ -29,10 +29,14 @@ Labels: Implemented · Missing · Inferred · Unknown.
   anon/authenticated; backups exclude them. — Implemented (`server/labs/flags.js`,
   `supabase/migrations/2026-10-20_ctf_flag_hashes.sql`).
 - S8. Solves/XP only through `submit_ctf_flag` or `server/labs/recordSolve.js` → `record_lab_ctf_solve`
-  (service role). — Implemented.
+  (service role), on the main server (`POST /api/lab/flag`). — Implemented.
 - S9. Labs are intentionally vulnerable only inside their sandbox (in-memory data, fake accounts). A lab must never
   reflect input into an executable context on the main origin or touch real tables. — Implemented 2026-10-16 for the known
-  case (session ids validated in `server/middleware/labSession.js`; pages escape `<`). Labs still share the main origin.
+  case (session ids validated in `server/middleware/labSession.js`; pages escape `<`). Since 2026-10-24 the labs can run
+  on their own origin (`server/labs-server.js`, `LAB_ORIGIN`, `docs/LABS.md`); live once the labs service is set up.
+- S9a. The labs server gets no database key and never a login token; it needs only `FLAG_SECRET` (same as the main
+  server) and the AI key for the AI room. Lab tabs open with `noopener`; labs link back with `/rooms?open=<slug>`,
+  never through `window.opener`. — Implemented 2026-10-24 (code); see `docs/LABS.md`.
 
 ## 4. Output and input handling
 - S10. Escape all DB/user/URL data before it reaches HTML; inside `<script>` use JSON with `<` escaped; React text

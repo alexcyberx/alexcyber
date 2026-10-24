@@ -1,6 +1,6 @@
 # Security checklist: AlexCyberX
 
-Last verified: 2026-10-23 (admin panel phase 4 + old panel deleted; earlier full audit 2026-10-16, commit `fffd15f`). **Read this before changing auth, labs, tools, Supabase SQL, the admin
+Last verified: 2026-10-24 (labs on their own origin; 2026-10-23 admin panel phase 4; full audit 2026-10-16, commit `fffd15f`). **Read this before changing auth, labs, tools, Supabase SQL, the admin
 panel, or anything that renders HTML.** `[x]` = in place (verified), `[ ]` = gap. Each gap: Severity → Evidence →
 Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · MISSING · VERIFY · REC.
 
@@ -53,7 +53,8 @@ Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · M
 
 ## Authorization / RBAC
 - [x] RLS on all public tables; admin writes need `profiles.role='admin'` policies; privileged profile columns guarded by trigger.
-- [x] Lab solves recorded only by service role (`record_lab_ctf_solve`); flag check server-side (`submit_ctf_flag`).
+- [x] Lab solves recorded only by service role (`record_lab_ctf_solve`); flag check server-side (`submit_ctf_flag`, `/api/lab/flag`).
+- [ ] Labs on their own origin: code done 2026-10-24 (`server/labs-server.js`, no DB key, `noopener` tabs); needs the Render labs service + `LAB_ORIGIN` + shared `FLAG_SECRET` (`docs/LABS.md`).
 - [x] Admin RPCs check `acx_is_admin`; `admin-search` checks staff role server-side.
 - [ ] Admin panel page gated server-side (#2). [ ] `admin-search` ban check / role cache 5 min (low).
 - Rule: any new table → RLS on + policies in a migration in `supabase/migrations/`; any new RPC → `SECURITY DEFINER`
@@ -150,5 +151,6 @@ Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · M
 4. Never trust the browser for roles, XP, solves, bans or flags; the server/DB decides.
 5. Any SQL change = migration file + RLS/grants review + Supabase security advisor run.
 6. Labs may be vulnerable only inside the lab's own sandbox (in-memory data, fake accounts); no lab may reflect input
-   into the main site's pages or touch real tables except through `recordSolve.js`.
+   into the main site's pages or touch real tables except through `recordSolve.js`. New labs go in `server/labs/mount.js`,
+   run on the labs server (`docs/LABS.md`), and must work without a database key or login token.
 7. Update this folder when a finding is fixed or a new surface is added (bump "Last verified").

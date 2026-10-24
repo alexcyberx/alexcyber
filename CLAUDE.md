@@ -22,7 +22,8 @@ Read this first in every session. It records what the owner wants; follow it.
 
 ## Hosting
 - **Render is only for testing** until the project is complete. The final site goes on **paid domain + hosting**.
-  Keep the setup portable (single Express service that also runs Next.js, see docs/MIGRATION.md).
+  Keep the setup portable (single Express service that also runs Next.js, see docs/MIGRATION.md). The CTF labs
+  run as a second service on their own origin (`alexcyber-labs`, no database keys, see docs/LABS.md).
 
 ## Rules (read first)
 - `brain/rules/` = what the project allows: `business.md` (XP, CTF, courses, community...), `permissions.md`

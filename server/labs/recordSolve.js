@@ -52,4 +52,4 @@ function recordLabSolve(slug) {
   };
 }
 
-module.exports = { recordLabSolve };
+module.exports = { recordLabSolve, recordForRequest };
