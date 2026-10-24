@@ -303,7 +303,7 @@ export default function Nav() {
             <GlobeIcon size={15} />
             <span id="mLangLabel" suppressHydrationWarning>Language</span>
           </a>
-          <button className={'ms m-theme-btn' + (mThemeOpen ? ' open' : '')} onClick={(e) => { e.stopPropagation(); setMThemeOpen((v) => !v); }}
+          <button className={'ml m-theme-btn' + (mThemeOpen ? ' open' : '')} onClick={(e) => { e.stopPropagation(); setMThemeOpen((v) => !v); }}
             aria-expanded={mThemeOpen} aria-controls="mThemePanel">
             <ThemeIcon /> <span>Theme</span> <Chevron />
           </button>

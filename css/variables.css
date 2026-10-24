@@ -95,7 +95,10 @@
   --overlay: rgba(6,6,8,0.96);
 }
 [data-theme="red"] .glow-orb { width: 1000px; height: 650px; background: radial-gradient(ellipse, rgba(220,20,20,0.16) 0%, transparent 70%); }
-[data-theme="red"] .cursor-glow { background: radial-gradient(circle, rgba(220,20,20,0.10) 0%, transparent 65%); }
+/* Crimson (red) theme: no mouse glow (owner's choice). Normal cursor, no card
+   spotlight, no cursor-following blob. Green and blue keep their glow. */
+[data-theme="red"] .cursor-glow { display: none !important; }
+[data-theme="red"] .spot-on { background-image: none !important; border-color: var(--border) !important; }
 [data-theme="red"] .btn-primary, [data-theme="red"] .nav-btn.fill { box-shadow: 0 8px 26px rgba(220,20,20,0.35); }
 [data-theme="red"] .pf-banner { background: linear-gradient(135deg, #1a0505 0%, #0d0d12 55%, #080814 100%); }
 [data-theme="blue"] .glow-orb { width: 1100px; height: 700px; background: radial-gradient(ellipse, rgba(10,102,194,0.30) 0%, transparent 70%); }
