@@ -743,7 +743,17 @@ window.addEventListener('resize', () => {
 ═══════════════════════════ */
 window.addEventListener('message', function(e){
   var data = e.data;
-  if (!data || data.type !== 'acx-diagram-height') return;
+  if (!data) return;
+  // Diagrams follow the site theme: on "ready" tell the sender the current one.
+  if (data.type === 'acx-diagram-ready') {
+    var t = document.documentElement.getAttribute('data-theme');
+    t = (t === 'blue') ? 'blue' : (t === 'red') ? 'red' : 'green';
+    document.querySelectorAll('iframe.acx-diagram-frame').forEach(function(f){
+      try { if (f.contentWindow === e.source) f.contentWindow.postMessage({type:'acx-theme', theme:t}, '*'); } catch(err) {}
+    });
+    return;
+  }
+  if (data.type !== 'acx-diagram-height') return;
   var frames = document.querySelectorAll('iframe.acx-diagram-frame');
   frames.forEach(function(f){
     try {
