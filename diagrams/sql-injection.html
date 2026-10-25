@@ -7,8 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
 <style>
 /* Theme-aware (green / blue / red): the accent follows the site theme, set from
-   ?theme= and a postMessage from the page. No danger-red: the attack path is
-   shown dim and dashed, told apart by lightness and style, not by hue. */
+   ?theme= and a postMessage from the page. No danger colour: the attacker path
+   is grey and dashed, told apart by lightness and style, not by hue. */
 :root{
   --acc:#10b981; --acc2:#34d399; --acc-rgb:16,185,129;
   --text:#d7dcda; --dim:#8b938f; --faint:#5c6460;
@@ -21,7 +21,6 @@
 html,body{background:transparent;}
 body{font-family:'Inter',system-ui,sans-serif;color:var(--text);display:flex;flex-direction:column;align-items:center;padding:6px 14px 10px;overflow:hidden;}
 .wrap{width:100%;max-width:540px;}
-@keyframes fadeUp{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
 @keyframes flow{to{stroke-dashoffset:-16;}}
 
 .head{display:flex;flex-direction:column;gap:3px;margin-bottom:14px;}
@@ -36,33 +35,21 @@ body{font-family:'Inter',system-ui,sans-serif;color:var(--text);display:flex;fle
 .tab.active{border-color:rgba(var(--acc-rgb),0.5);background:rgba(var(--acc-rgb),0.08);color:#f2f5f4;}
 .tab.active .n{border-color:var(--acc);color:var(--acc);}
 
-.stage{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 12px 12px;}
+.stage{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 12px 14px;}
 svg{width:100%;overflow:visible;display:block;}
 
-/* SQL query box: the heart of the lesson — what the app actually runs. */
+/* SQL query box: the heart of the lesson, what the app actually runs. */
 .qbox{margin-top:14px;background:rgba(0,0,0,0.28);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;color:var(--text);overflow-x:auto;}
 .qbox .kw{color:var(--dim);}
 .qbox .val{color:var(--acc2);}
 .qbox .inj{color:#f2f5f4;background:rgba(var(--bad-rgb),0.16);border-bottom:1.5px dashed var(--bad);border-radius:2px;padding:0 2px;}
-.qnote{margin-top:8px;font:500 11.5px/1.55 'Inter',sans-serif;color:var(--dim);min-height:15px;}
-.qnote b{color:#f2f5f4;font-weight:600;}
-.qnote .mono{font-family:'JetBrains Mono',monospace;}
 
-.card{width:100%;margin-top:12px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:12px;padding:14px 16px;animation:fadeUp .35s ease both;}
-.card.bad{border-left-color:var(--bad);}
-.card-h{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
-.card-h .ic{width:22px;height:22px;flex-shrink:0;}
-.card-h span{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:.6px;color:#f2f5f4;}
-.card p{font-size:13px;line-height:1.65;color:var(--text);}
-.card p b{color:#f2f5f4;font-weight:600;}
-.card code{font-family:'JetBrains Mono',monospace;font-size:12px;background:rgba(var(--acc-rgb),0.1);color:var(--acc2);padding:1px 6px;border-radius:4px;}
-.card.bad code{background:rgba(var(--bad-rgb),0.16);color:var(--text);}
-
-.fix{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:none;}
-.fix.show{display:block;animation:fadeUp .35s ease both;}
-.fix-h{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.8px;color:var(--acc);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-.tags{display:flex;flex-wrap:wrap;gap:7px;}
-.tag{font-size:12px;padding:5px 11px;border-radius:7px;background:rgba(var(--acc-rgb),0.09);border:1px solid rgba(var(--acc-rgb),0.25);color:var(--acc2);font-weight:500;}
+.explain{margin-top:12px;font-size:13px;line-height:1.65;color:var(--text);}
+.explain .mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--acc2);}
+.explain.bad .mono{color:#f2f5f4;background:rgba(var(--bad-rgb),0.16);border-radius:3px;padding:0 4px;}
+.prevent{margin-top:10px;font-size:12.5px;line-height:1.6;color:var(--dim);display:none;}
+.prevent.show{display:block;}
+.prevent b{color:var(--text);font-weight:600;}
 
 .legend{display:flex;gap:20px;margin-top:16px;flex-wrap:wrap;justify-content:center;}
 .leg{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);}
@@ -119,24 +106,10 @@ svg{width:100%;overflow:visible;display:block;}
     </svg>
 
     <div class="qbox" id="qbox"></div>
-    <div class="qnote" id="qnote"></div>
   </div>
 
-  <div id="card"></div>
-
-  <div class="fix" id="fix">
-    <div class="fix-h">
-      <svg class="ic" width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 2 L17 5 V10 Q17 16 10 18 Q3 16 3 10 V5 Z" fill="none" stroke="var(--acc)" stroke-width="1.4"/><path d="M6.8 10 L9 12.2 L13.2 7.8" stroke="var(--acc)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      How to stop it
-    </div>
-    <div class="tags">
-      <span class="tag">Prepared statements</span>
-      <span class="tag">Parameterized queries</span>
-      <span class="tag">Input validation</span>
-      <span class="tag">Least-privilege DB user</span>
-      <span class="tag">ORM / query builder</span>
-    </div>
-  </div>
+  <div class="explain" id="explain"></div>
+  <div class="prevent" id="prevent"><b>Prevent it:</b> use prepared statements, parameterized queries, input validation, and a least-privilege database user.</div>
 
   <div class="legend">
     <div class="leg"><span class="sw"></span>Safe / normal flow</div>
@@ -169,23 +142,17 @@ var PHASES=[
   { flows:[ arrow(104,212,false,'login form','top'), arrow(308,416,false,'safe query','top'),
             arrow(416,308,false,'1 row','bot'), arrow(212,104,false,'welcome','bot') ],
     query:'<span class="kw">SELECT</span> * <span class="kw">FROM</span> users <span class="kw">WHERE</span> name = <span class="val">\'rahul\'</span> <span class="kw">AND</span> pass = <span class="val">\'&bull;&bull;&bull;&bull;\'</span>',
-    note:'The typed values go in as <b>data</b>, never as part of the query.',
-    card:{bad:false,title:'Normal login',icon:'ok',
-      body:'You enter a <b>valid username and password</b>. The app sends them to the database as <b>values</b>, not as query text. The database finds <b>one matching row</b> and login succeeds.'} },
+    explain:'The username and password go in as data, through <span class="mono">?</span> placeholders, so what you type can never become part of the query. The database finds one matching row and login succeeds.',
+    bad:false },
   { flows:[ arrow(104,212,true,"' OR '1'='1",'top'), arrow(308,416,true,'now code','top') ],
     query:'<span class="kw">SELECT</span> * <span class="kw">FROM</span> users <span class="kw">WHERE</span> name = <span class="val">\'rahul\'</span> <span class="kw">AND</span> pass = <span class="inj">\'\' OR \'1\'=\'1\'</span>',
-    note:'The app <b>glued the input into the query</b>, so <span class="mono">\'1\'=\'1\'</span> is now code &mdash; and it is <b>always true</b>.',
-    card:{bad:true,title:'Injected input',icon:'bad',
-      body:"Instead of a password the attacker types <code>' OR '1'='1</code>. The app builds the query by <b>joining text</b>, so the input becomes part of it. The <b>OR</b> turns the check into a condition that is true for every row."} },
+    explain:'Instead of a password the attacker types <span class="mono">\' OR \'1\'=\'1</span>. The app glues the input into the query as text, so it becomes code, and <span class="mono">\'1\'=\'1\'</span> is true for every row.',
+    bad:true },
   { flows:[ arrow(308,416,true,'always true','top'), arrow(416,308,true,'a row','bot'), arrow(212,104,true,'logged in','bot') ],
     query:'<span class="kw">SELECT</span> * <span class="kw">FROM</span> users <span class="kw">WHERE</span> name = <span class="val">\'rahul\'</span> <span class="kw">AND</span> pass = <span class="inj">\'\' OR \'1\'=\'1\'</span>  <span style="color:var(--dim)">&rarr; matches everyone</span>',
-    note:'A row comes back with <b>no real password</b>, so the attacker is logged in &mdash; often as the first user, an admin.',
-    card:{bad:true,title:'Auth bypassed',icon:'bad',
-      body:'The always-true query returns a matching row, so the app <b>logs the attacker in without a real password</b>. The same trick can read other tables, so data can be <b>read, changed or deleted</b>.'} },
+    explain:'A row comes back with no real password, so the app logs the attacker in, often as the first user (an admin). The same trick can read, change or delete other data.',
+    bad:true },
 ];
-
-var OK_IC='<svg class="ic" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" fill="rgba(var(--acc-rgb),0.12)" stroke="var(--acc)" stroke-width="1.4"/><path d="M7 11 L10 14 L15 8" stroke="var(--acc)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-var BAD_IC='<svg class="ic" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" fill="rgba(var(--bad-rgb),0.16)" stroke="var(--bad)" stroke-width="1.4"/><path d="M11 6.5 V12" stroke="var(--bad)" stroke-width="1.7" stroke-linecap="round"/><circle cx="11" cy="15" r="1.1" fill="var(--bad)"/></svg>';
 
 var timer=null;
 function setPhase(i){
@@ -193,10 +160,8 @@ function setPhase(i){
   for(var j=0;j<3;j++){ document.getElementById('tab'+j).classList.toggle('active', j===i); }
   document.getElementById('flows').innerHTML=defs+p.flows.join('');
   document.getElementById('qbox').innerHTML=p.query;
-  document.getElementById('qnote').innerHTML=p.note;
-  var c=p.card;
-  document.getElementById('card').innerHTML='<div class="card'+(c.bad?' bad':'')+'"><div class="card-h">'+(c.icon==='ok'?OK_IC:BAD_IC)+'<span>'+c.title+'</span></div><p>'+c.body+'</p></div>';
-  document.getElementById('fix').classList.toggle('show', i===2);
+  var ex=document.getElementById('explain'); ex.innerHTML=p.explain; ex.className='explain'+(p.bad?' bad':'');
+  document.getElementById('prevent').classList.toggle('show', i===2);
   if(timer) clearTimeout(timer);
   timer=setTimeout(function(){ setPhase((i+1)%3); }, i===2?7000:5500);
   sendHeight();
