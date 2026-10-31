@@ -10,7 +10,7 @@
 const chapterCache = {};
 
 // Cache version - bump to clear old wrong translations
-const CACHE_VERSION = 'v9';
+const CACHE_VERSION = 'v10';
 const CACHE_VER_KEY = 'acx_cache_ver';
 
 
@@ -690,6 +690,80 @@ const CTF_OVERRIDES = {
         "जेव्हा तुम्ही तुमची एखादी order उघडता, तेव्हा web address बघा. त्याचा शेवटचा भाग काय आहे?",
         "Address मधील order number फक्त एक number आहे. तो जवळच्या एका number मध्ये बदलून page पुन्हा load करा.",
         "Site number बघून कोणतीही order दाखवते, जरी ती तुमची नसली तरी. तुमच्या order च्या जवळचे number एक-एक करून बघा जोपर्यंत store owner ची order मिळत नाही, मग तिची delivery note वाचा."
+      ]
+    }
+  },
+  'for-04': {
+    hl: {
+      desc: "Kal raat Paynova ke IDS ne ek VPN server par bahut saare failed SSH logins dekhe, aur phir ek login jo theek nahi lagta. Aapke paas server ki auth.log hai. Pata karo ki andar kaun ghusa.",
+      scenario: "Aap Paynova SOC mein night shift ke analyst ho. Server vpn-gw01 ka ek case khula hai, aur uski auth.log hi saboot hai. Ise ek analyst ki tarah padho: kaun se IP fail hue, aur kya unme se koi andar aa gaya?<br><br>Incident report mein teen cheezein bharo: attacker ka IP, jo account toda gaya, aur us login ka exact time. Teeno sahi hone par case close hoga aur flag milega.",
+      hints: [
+        "Shuru \"Failed password\" wali lines se karo. Kaun se IP baar baar aa rahe hain?",
+        "Sabse zyada fail hone wala IP hamesha andar nahi aaya hota. \"Accepted\" wali lines bhi dekho.",
+        "Attacker wo bahar ka IP hai jiski failed lines ke baad ek \"Accepted password\" line aati hai. Usi line mein account aur time dono mil jayenge."
+      ]
+    },
+    en: {
+      desc: "Last night Paynova's IDS saw a big burst of failed SSH logins on a VPN server, and then one login that looks wrong. You have the server's auth.log. Find out who got in.",
+      scenario: "You are the analyst on the night shift in the Paynova SOC. A case is open for the server vpn-gw01, and its auth.log is the evidence. Read it like an analyst: which IPs failed, and did any of them get in?<br><br>File the incident report with three things: the attacker's IP, the account they broke into, and the exact time of that login. When all three are right, the case closes and you get the flag.",
+      hints: [
+        "Start with the \"Failed password\" lines. Which IPs show up again and again?",
+        "The IP with the most failures did not always get in. Check the \"Accepted\" lines too.",
+        "The attacker is the outside IP whose run of failures ends in an \"Accepted password\" line. That one line gives you the account and the time."
+      ]
+    },
+    hi: {
+      desc: "कल रात Paynova के IDS ने एक VPN server पर बहुत सारे failed SSH logins देखे, और फिर एक login जो ठीक नहीं लगता। आपके पास server की auth.log है। पता करो कि अंदर कौन घुसा।",
+      scenario: "आप Paynova SOC में night shift के analyst हो। Server vpn-gw01 का एक case खुला है, और उसकी auth.log ही सबूत है। इसे एक analyst की तरह पढ़ो: कौन से IP fail हुए, और क्या उनमें से कोई अंदर आ गया?<br><br>Incident report में तीन चीज़ें भरो: attacker का IP, जो account तोड़ा गया, और उस login का exact time। तीनों सही होने पर case close होगा और flag मिलेगा।",
+      hints: [
+        "शुरुआत \"Failed password\" वाली lines से करो। कौन से IP बार बार आ रहे हैं?",
+        "सबसे ज़्यादा fail होने वाला IP हमेशा अंदर नहीं आया होता। \"Accepted\" वाली lines भी देखो।",
+        "Attacker वो बाहर का IP है जिसकी failed lines के बाद एक \"Accepted password\" line आती है। उसी line में account और time दोनों मिल जाएंगे।"
+      ]
+    },
+    pa: {
+      desc: "ਕੱਲ੍ਹ ਰਾਤ Paynova ਦੇ IDS ਨੇ ਇੱਕ VPN server ਤੇ ਬਹੁਤ ਸਾਰੇ failed SSH logins ਦੇਖੇ, ਅਤੇ ਫਿਰ ਇੱਕ login ਜੋ ਠੀਕ ਨਹੀਂ ਲੱਗਦਾ। ਤੁਹਾਡੇ ਕੋਲ server ਦੀ auth.log ਹੈ। ਪਤਾ ਕਰੋ ਕਿ ਅੰਦਰ ਕੌਣ ਵੜਿਆ।",
+      scenario: "ਤੁਸੀਂ Paynova SOC ਵਿੱਚ night shift ਦੇ analyst ਹੋ। Server vpn-gw01 ਦਾ ਇੱਕ case ਖੁੱਲ੍ਹਾ ਹੈ, ਅਤੇ ਉਸਦੀ auth.log ਹੀ ਸਬੂਤ ਹੈ। ਇਸਨੂੰ ਇੱਕ analyst ਵਾਂਗ ਪੜ੍ਹੋ: ਕਿਹੜੇ IP fail ਹੋਏ, ਅਤੇ ਕੀ ਉਹਨਾਂ ਵਿੱਚੋਂ ਕੋਈ ਅੰਦਰ ਆ ਗਿਆ?<br><br>Incident report ਵਿੱਚ ਤਿੰਨ ਚੀਜ਼ਾਂ ਭਰੋ: attacker ਦਾ IP, ਜੋ account ਤੋੜਿਆ ਗਿਆ, ਅਤੇ ਉਸ login ਦਾ exact time। ਤਿੰਨੇ ਸਹੀ ਹੋਣ ਤੇ case close ਹੋਵੇਗਾ ਅਤੇ flag ਮਿਲੇਗਾ।",
+      hints: [
+        "ਸ਼ੁਰੂਆਤ \"Failed password\" ਵਾਲੀਆਂ lines ਤੋਂ ਕਰੋ। ਕਿਹੜੇ IP ਵਾਰ ਵਾਰ ਆ ਰਹੇ ਹਨ?",
+        "ਸਭ ਤੋਂ ਵੱਧ fail ਹੋਣ ਵਾਲਾ IP ਹਮੇਸ਼ਾ ਅੰਦਰ ਨਹੀਂ ਆਇਆ ਹੁੰਦਾ। \"Accepted\" ਵਾਲੀਆਂ lines ਵੀ ਦੇਖੋ।",
+        "Attacker ਉਹ ਬਾਹਰ ਦਾ IP ਹੈ ਜਿਸਦੀਆਂ failed lines ਤੋਂ ਬਾਅਦ ਇੱਕ \"Accepted password\" line ਆਉਂਦੀ ਹੈ। ਉਸੇ line ਵਿੱਚ account ਅਤੇ time ਦੋਵੇਂ ਮਿਲ ਜਾਣਗੇ।"
+      ]
+    },
+    ta: {
+      desc: "நேற்று இரவு Paynova-வின் IDS ஒரு VPN server-இல் நிறைய failed SSH logins-ஐயும், பிறகு சரியாகத் தெரியாத ஒரு login-ஐயும் கண்டது. உங்களிடம் server-இன் auth.log உள்ளது. உள்ளே யார் நுழைந்தார்கள் என்று கண்டறியுங்கள்.",
+      scenario: "நீங்கள் Paynova SOC-இல் night shift analyst. Server vpn-gw01-க்கு ஒரு case திறந்துள்ளது, அதன் auth.log தான் ஆதாரம். அதை ஒரு analyst போல படியுங்கள்: எந்த IP-கள் fail ஆயின, அவற்றில் ஏதாவது உள்ளே வந்ததா?<br><br>Incident report-இல் மூன்று விஷயங்களை நிரப்புங்கள்: attacker-இன் IP, உடைக்கப்பட்ட account, அந்த login-இன் சரியான time. மூன்றும் சரியானால் case close ஆகும், flag கிடைக்கும்.",
+      hints: [
+        "\"Failed password\" lines-இலிருந்து தொடங்குங்கள். எந்த IP-கள் மீண்டும் மீண்டும் வருகின்றன?",
+        "அதிகமாக fail ஆன IP எப்போதும் உள்ளே வந்திருக்காது. \"Accepted\" lines-ஐயும் பாருங்கள்.",
+        "Attacker என்பது failed lines-க்குப் பிறகு ஒரு \"Accepted password\" line வரும் வெளி IP. அந்த ஒரே line-இல் account-உம் time-உம் கிடைக்கும்."
+      ]
+    },
+    te: {
+      desc: "నిన్న రాత్రి Paynova IDS ఒక VPN server‌పై చాలా failed SSH logins‌ను, తర్వాత సరిగ్గా అనిపించని ఒక login‌ను చూసింది. మీ దగ్గర server యొక్క auth.log ఉంది. లోపలికి ఎవరు వచ్చారో కనుగొనండి.",
+      scenario: "మీరు Paynova SOC‌లో night shift analyst. Server vpn-gw01 కోసం ఒక case తెరిచి ఉంది, దాని auth.log నే సాక్ష్యం. దాన్ని ఒక analyst లాగా చదవండి: ఏ IP‌లు fail అయ్యాయి, వాటిలో ఏదైనా లోపలికి వచ్చిందా?<br><br>Incident report‌లో మూడు విషయాలు నింపండి: attacker IP, విరగ్గొట్టిన account, ఆ login యొక్క exact time. మూడూ సరైతే case close అవుతుంది, flag వస్తుంది.",
+      hints: [
+        "\"Failed password\" lines‌తో మొదలుపెట్టండి. ఏ IP‌లు మళ్ళీ మళ్ళీ వస్తున్నాయి?",
+        "ఎక్కువగా fail అయిన IP ఎప్పుడూ లోపలికి వచ్చి ఉండదు. \"Accepted\" lines కూడా చూడండి.",
+        "Attacker అంటే failed lines తర్వాత ఒక \"Accepted password\" line వచ్చే బయటి IP. ఆ ఒక్క line‌లోనే account, time రెండూ దొరుకుతాయి."
+      ]
+    },
+    bn: {
+      desc: "গত রাতে Paynova-র IDS একটি VPN server-এ অনেক failed SSH logins দেখেছে, তারপর একটি login যা ঠিক মনে হচ্ছে না। আপনার কাছে server-এর auth.log আছে। ভেতরে কে ঢুকেছে খুঁজে বের করুন।",
+      scenario: "আপনি Paynova SOC-এ night shift-এর analyst। Server vpn-gw01-এর জন্য একটি case খোলা আছে, আর তার auth.log-ই প্রমাণ। এটি একজন analyst-এর মতো পড়ুন: কোন IP-গুলো fail করেছে, আর তাদের মধ্যে কেউ কি ভেতরে ঢুকেছে?<br><br>Incident report-এ তিনটি জিনিস লিখুন: attacker-এর IP, যে account ভাঙা হয়েছে, আর সেই login-এর exact time। তিনটিই সঠিক হলে case close হবে আর flag পাবেন।",
+      hints: [
+        "\"Failed password\" lines দিয়ে শুরু করুন। কোন IP-গুলো বারবার আসছে?",
+        "সবচেয়ে বেশি fail করা IP সবসময় ভেতরে ঢোকেনি। \"Accepted\" lines-ও দেখুন।",
+        "Attacker হল সেই বাইরের IP যার failed lines-এর পরে একটি \"Accepted password\" line আসে। সেই line-এই account আর time দুটোই পাবেন।"
+      ]
+    },
+    mr: {
+      desc: "काल रात्री Paynova च्या IDS ने एका VPN server वर खूप failed SSH logins पाहिले, आणि मग एक login जो बरोबर वाटत नाही. तुमच्याकडे server ची auth.log आहे. आत कोण घुसले ते शोधा.",
+      scenario: "तुम्ही Paynova SOC मध्ये night shift चे analyst आहात. Server vpn-gw01 साठी एक case उघडलेली आहे, आणि तिची auth.log हाच पुरावा आहे. ती एका analyst सारखी वाचा: कोणते IP fail झाले, आणि त्यापैकी कोणी आत आले का?<br><br>Incident report मध्ये तीन गोष्टी भरा: attacker चा IP, तोडलेले account, आणि त्या login चा exact time. तिन्ही बरोबर असल्यास case close होईल आणि flag मिळेल.",
+      hints: [
+        "\"Failed password\" lines पासून सुरुवात करा. कोणते IP पुन्हा पुन्हा येत आहेत?",
+        "सर्वात जास्त fail झालेला IP नेहमी आत आलेला नसतो. \"Accepted\" lines पण बघा.",
+        "Attacker म्हणजे तो बाहेरचा IP ज्याच्या failed lines नंतर एक \"Accepted password\" line येते. त्याच line मध्ये account आणि time दोन्ही मिळतील."
       ]
     }
   },
