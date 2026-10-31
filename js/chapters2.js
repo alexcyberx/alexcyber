@@ -19,7 +19,11 @@ const cyberAttackChapters = [
   { title: "Reconnaissance & Footprinting",        prev: "Attack Defense & Prevention", next: "OWASP Top 10 Overview" },
   { title: "OWASP Top 10 Overview",                prev: "Reconnaissance & Footprinting", next: "Cross-Site Request Forgery (CSRF)" },
   { title: "Cross-Site Request Forgery (CSRF)",    prev: "OWASP Top 10 Overview", next: "Command Injection" },
-  { title: "Command Injection",                    prev: "Cross-Site Request Forgery (CSRF)", next: null },
+  { title: "Command Injection",                    prev: "Cross-Site Request Forgery (CSRF)", next: "Broken Access Control & IDOR" },
+  { title: "Broken Access Control & IDOR",         prev: "Command Injection", next: "Wi-Fi & Wireless Attacks" },
+  { title: "Wi-Fi & Wireless Attacks",             prev: "Broken Access Control & IDOR", next: "SSRF & File Upload" },
+  { title: "SSRF & File Upload",                   prev: "Wi-Fi & Wireless Attacks", next: "Privilege Escalation" },
+  { title: "Privilege Escalation",                 prev: "SSRF & File Upload", next: null },
 ];
 
 // currentCyberChapter is declared in router.js - use that global
@@ -1298,6 +1302,174 @@ Result: attacker server ki password file dekh leta hai.</code></pre>
 <h2>6. Quick Quiz</h2>
 <p style="margin-bottom:14px;">4 chhote sawaal:</p>
 <iframe class="acx-diagram-frame" data-diagram="quiz-cmdi" src="/quiz/quiz.html?set=cmdi" scrolling="no" style="width:100%;height:420px;border:none;display:block;overflow:hidden;" loading="lazy" title="Command Injection Quiz"></iframe>
+    `;
+  }
+
+  else if (index === 15) {
+    document.getElementById('cyberChapterContent').innerHTML = `
+<h2>1. Broken Access Control Kya Hai?</h2>
+<p>Broken Access Control tab hoti hai jab ek user wo cheez access kar leta hai jiski use <strong>permission nahi honi chahiye</strong>: doosre user ka data, ya admin wale functions. OWASP 2021 list mein ye <strong>#1</strong> problem hai, sabse common.</p>
+<div class="info-box"><p><strong>Simple Idea:</strong> App sirf UI mein button chhupa deti hai, lekin server par check nahi karti ki "kya is user ko ye karne ka haq hai?". Attacker seedhe request bhej ke rok ko bypass kar deta hai.</p></div>
+
+<h2>2. IDOR: Sabse Common Type</h2>
+<p>IDOR (Insecure Direct Object Reference) mein object ka ID (order number, user id) URL ya request mein dikhta hai. Attacker us ID ko badal ke doosre ka data dekh leta hai, kyunki server ownership check nahi karta.</p>
+<pre><code>Aapka order:     GET /order/10234   (aapka hai, theek)
+Badal ke dekho:  GET /order/10179   (kisi aur ka order!)
+
+Server sirf order number dekh ke data de deta hai,
+ye check kiye bina ki ye order aapka hai ya nahi.</code></pre>
+
+<h2>3. Broken Access Control ke Types</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Horizontal</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Same level ka user doosre user ka data access kar leta hai (IDOR isi mein).</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Vertical</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Normal user admin wale functions chala leta hai (jaise /admin/delete-user).</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Forced Browsing</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">URL seedhe type karke un pages par jaana jinka link chhupa hua tha.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Missing Function-Level Check</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">API endpoint par koi permission check hi nahi, seedha call karo to chal jaata hai.</span></div>
+</div>
+
+<h2>4. Real Example</h2>
+<p>Ek online store (Gharkart) par Rahul apna order dekhta hai: <span style="font-family:'JetBrains Mono',monospace;color:var(--accent);">/order/10234</span>. Wo ID ko <span style="font-family:'JetBrains Mono',monospace;color:var(--accent);">10179</span> kar deta hai, aur ab usko kisi aur customer ka order, naam, address aur phone dikh jaata hai. Attacker loop chala ke saare orders nikal sakta hai. Yahi IDOR hai.</p>
+<div class="info-box"><p><strong>Key Point:</strong> ID guess karna mushkil banana (random IDs) kaafi nahi hai. Server ko <strong>har request par</strong> check karna hoga ki ye object maangne wale user ka hai ya nahi.</p></div>
+
+<h2>5. Prevention</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Server-Side Authorization</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Har request par server check kare ki user ko ye karne ka haq hai. UI chhupana kaafi nahi.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Ownership Check</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">"Ye order is user ka hai?" ye har baar verify karo, sirf ID match nahi.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Deny By Default</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Default mein sab mana, sirf allowed cases ko haan. Naya endpoint apne-aap open na ho.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Role-Based Access Control</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Clear roles (user/admin) aur har role ki permissions define karo.</span></div></div>
+</div>
+
+<h2>6. Try It Yourself</h2>
+<div style="display:flex;align-items:center;gap:14px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:12px;padding:16px 18px;margin:0 0 28px;flex-wrap:wrap;">
+  <div style="flex:1;min-width:200px;">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px;">Lab: Other People's Orders (IDOR)</div>
+    <div style="font-size:12.5px;color:var(--text-dim);line-height:1.55;">Ek real store app mein order ID badal ke doosre customer ka order dhoondo, aur flag capture karo.</div>
+  </div>
+  <a href="/rooms?open=web-08" style="background:rgba(var(--accent-rgb),0.12);border:1px solid rgba(var(--accent-rgb),0.4);color:var(--accent);font-family:'Inter',sans-serif;font-weight:700;font-size:13px;text-decoration:none;border-radius:9px;padding:10px 18px;white-space:nowrap;">Open Lab &rarr;</a>
+</div>
+
+<h2>7. Quick Quiz</h2>
+<p style="margin-bottom:14px;">4 chhote sawaal:</p>
+<iframe class="acx-diagram-frame" data-diagram="quiz-bac" src="/quiz/quiz.html?set=bac" scrolling="no" style="width:100%;height:420px;border:none;display:block;overflow:hidden;" loading="lazy" title="Broken Access Control Quiz"></iframe>
+    `;
+  }
+
+  else if (index === 16) {
+    document.getElementById('cyberChapterContent').innerHTML = `
+<h2>1. Wi-Fi Attacks Kya Hain?</h2>
+<p>Wireless networks (Wi-Fi) cables ke bina data hawa mein bhejti hain, isliye aas-paas koi bhi use "sun" sakta hai agar theek se secure na ho. Public aur open Wi-Fi sabse zyada risky hoti hai.</p>
+<div class="info-box"><p><strong>Real-World:</strong> Cafe ya airport ki free Wi-Fi par aksar koi attacker baitha hota hai jo ya to traffic sniff kar raha hota hai ya ek fake network chala raha hota hai.</p></div>
+
+<h2>2. Common Wireless Attacks</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Evil Twin</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Asli jaisa naam (SSID) wala fake hotspot banana, taaki log galti se usse connect ho jayein.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Rogue Access Point</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Company ke network mein bina permission ek extra AP lagana, ek pichhla darwaza.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Handshake Capture + Crack</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">WPA/WPA2 ka handshake capture karke offline password crack karna. Kamzor password jaldi tut jaata hai.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Deauth Attack</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Victim ko network se baar-baar disconnect karna (taaki wo Evil Twin se connect ho ya handshake capture ho).</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Open Wi-Fi Sniffing</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Bina password wali Wi-Fi par traffic padhna (jo HTTPS nahi hai wo saaf dikhta hai).</span></div>
+</div>
+
+<h2>3. Evil Twin Kaise Kaam Karta Hai?</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 20px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">1.</strong> Attacker ek fake hotspot banata hai: "Free Airport WiFi" (asli jaisa naam).</div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">2.</strong> Victim ka phone usse connect ho jaata hai (kabhi apne-aap).</div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">3.</strong> Ab saara traffic attacker ke beech se guzarta hai (MITM).</div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">4.</strong> Attacker ek fake login page bhi dikha sakta hai password churane ke liye.</div>
+</div>
+<div class="info-box"><p><strong>Connection:</strong> Ye Man-in-the-Middle attack ka ek network-level tareeka hai. Isliye HTTPS yahan bhi aapko bachata hai, kyunki attacker encrypted traffic nahi padh sakta.</p></div>
+
+<h2>4. Prevention</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">WPA3 + Strong Passphrase</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Naya WPA3 use karo aur lamba-random Wi-Fi password rakho.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Public Wi-Fi + VPN</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Public Wi-Fi par kaam karna ho to VPN on karo, taaki poora traffic encrypted rahe.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Auto-Connect Off, WPS Off</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Phone ko apne-aap open networks se connect mat hone do. Router par WPS band rakho.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Network Name Verify Karo</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Cafe/airport staff se sahi Wi-Fi ka naam poochho, aur HTTPS hamesha check karo.</span></div></div>
+</div>
+
+<h2>5. Quick Quiz</h2>
+<p style="margin-bottom:14px;">4 chhote sawaal:</p>
+<iframe class="acx-diagram-frame" data-diagram="quiz-wifi" src="/quiz/quiz.html?set=wifi" scrolling="no" style="width:100%;height:420px;border:none;display:block;overflow:hidden;" loading="lazy" title="Wi-Fi Attacks Quiz"></iframe>
+    `;
+  }
+
+  else if (index === 17) {
+    document.getElementById('cyberChapterContent').innerHTML = `
+<h2>1. SSRF Kya Hai?</h2>
+<p>SSRF (Server-Side Request Forgery) mein attacker server ko <strong>dhoka de ke uski taraf se requests karwata hai</strong>. App user se ek URL leti hai (jaise "URL se image fetch karo"), aur attacker us jagah ek internal address daal deta hai jahan wo khud nahi pahunch sakta. OWASP 2021 mein ye <strong>A10</strong> hai.</p>
+<div class="info-box"><p><strong>Why Dangerous:</strong> Server aksar internal network ke andar hota hai. Attacker server ko use karke un internal systems tak pahunch jaata hai jo bahar se blocked hote hain.</p></div>
+
+<h2>2. SSRF Kaise Kaam Karta Hai?</h2>
+<pre><code>App feature: "URL se profile picture import karo"
+Normal input: https://site.com/photo.jpg
+
+Attacker input:
+  http://localhost/admin        (internal admin panel)
+  http://169.254.169.254/...    (cloud metadata, keys yahan milti hain)
+
+Server wo URL fetch kar deta hai aur response attacker ko de deta hai.</code></pre>
+
+<h2>3. SSRF Impact</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;">Cloud Credentials Theft</div><div style="font-size:12px;color:var(--text-dim);">Cloud metadata endpoint se access keys churana. Bahut common aur khatarnak.</div></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;">Internal Network Scan</div><div style="font-size:12px;color:var(--text-dim);">Server ko use karke internal IPs aur ports scan karna.</div></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;">Internal Admin Access</div><div style="font-size:12px;color:var(--text-dim);">Un admin panels tak pahunchna jo sirf internal network se khulte the.</div></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;">Data Exfiltration</div><div style="font-size:12px;color:var(--text-dim);">Internal services se sensitive data nikaal ke bahar bhejna.</div></div>
+</div>
+
+<h2>4. File Upload Vulnerabilities</h2>
+<p>Agar app user ko file upload karne deti hai bina theek check kiye, to attacker ek <strong>malicious file</strong> (jaise ek web shell) upload kar sakta hai aur phir use chala ke server par control le sakta hai.</p>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Web Shell Upload</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Ek script file (jaise .php) upload karke server par commands chalana (RCE).</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Wrong Type Bypass</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">File ka naam/extension ya content-type badal ke check ko dhoka dena (shell.php.jpg).</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Overwrite / Path Traversal</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Filename mein ../ daal ke doosri jagah file save karwana ya zaroori file overwrite karna.</span></div>
+</div>
+
+<h2>5. Prevention</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">SSRF: URL Allowlist</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Sirf fixed allowed domains ki hi request hone do. Internal IP ranges block karo.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">File: Type &amp; Content Check</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Sirf allowed types, content bhi verify karo (sirf extension par bharosa mat karo).</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Store Outside Webroot</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Uploaded files ko aise folder mein rakho jahan se wo execute na ho. Random naam do.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Least Privilege</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Server aur upload folder ko minimum permissions, taaki damage sima mein rahe.</span></div></div>
+</div>
+
+<h2>6. Quick Quiz</h2>
+<p style="margin-bottom:14px;">4 chhote sawaal:</p>
+<iframe class="acx-diagram-frame" data-diagram="quiz-ssrf" src="/quiz/quiz.html?set=ssrf" scrolling="no" style="width:100%;height:420px;border:none;display:block;overflow:hidden;" loading="lazy" title="SSRF and File Upload Quiz"></iframe>
+    `;
+  }
+
+  else if (index === 18) {
+    document.getElementById('cyberChapterContent').innerHTML = `
+<h2>1. Privilege Escalation Kya Hai?</h2>
+<p>Privilege Escalation tab hoti hai jab attacker ne ek kam-level access paa liya ho (jaise ek normal user), aur ab wo <strong>higher privileges</strong> (admin ya root) tak pahunchne ki koshish karta hai. Isse wo poore system par control le leta hai.</p>
+<div class="info-box"><p><strong>Kahan Fit Hota Hai:</strong> Ye "post-exploitation" step hai, attack ka ye flow hota hai: Recon &rarr; Initial Access &rarr; <strong>Privilege Escalation</strong> &rarr; Persistence &rarr; Data Exfiltration.</p></div>
+
+<h2>2. Do Types</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:15px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;">Horizontal</div><div style="font-size:12.5px;color:var(--text-dim);line-height:1.6;">Same level ke doosre user ka access lena (jaise ek user se doosre user ka account).</div></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:15px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;">Vertical</div><div style="font-size:12.5px;color:var(--text-dim);line-height:1.6;">Kam privilege se zyada privilege par jaana (normal user se admin/root). Zyada khatarnak.</div></div>
+</div>
+
+<h2>3. Common Techniques</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Misconfigured Permissions</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Galat file/folder permissions ya SUID binaries (Linux), jin se normal user admin kaam kar le.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Weak Sudo / Service Config</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Galat sudo rules ya services jo zyada privilege se chal rahi hain.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Stored Credentials</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Config files, scripts ya history mein pade hue passwords/keys dhoondna.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Unpatched Kernel / Software</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Purane OS/software ke known bugs ka faayda uthana admin banne ke liye.</span></div>
+</div>
+<div class="info-box"><p><strong>Note:</strong> Ye techniques <strong>apne hi systems</strong> ya authorized labs par seekhne ke liye hain. Kisi doosre system par try karna illegal hai.</p></div>
+
+<h2>4. Prevention</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Least Privilege</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Har user/service ko sirf utni hi power do jitni zaroori hai, isse bada bachaav.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Regular Patching</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">OS aur software time par update karo, known kernel bugs band ho jate hain.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Clean Configs</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Unused SUID/admin rights hatao, sudo rules tight rakho, config mein secrets mat rakho.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Monitor Privilege Changes</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Admin/root access aur permission changes ko log aur alert karo.</span></div></div>
+</div>
+
+<h2>5. Quick Quiz</h2>
+<p style="margin-bottom:14px;">4 chhote sawaal:</p>
+<iframe class="acx-diagram-frame" data-diagram="quiz-privesc" src="/quiz/quiz.html?set=privesc" scrolling="no" style="width:100%;height:420px;border:none;display:block;overflow:hidden;" loading="lazy" title="Privilege Escalation Quiz"></iframe>
     `;
   }
 
