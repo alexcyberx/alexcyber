@@ -10,6 +10,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import CtfStats from './CtfStats';
 import { authHeaders } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { browserSupabase } from '@/lib/supabase';
@@ -184,7 +185,6 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n, la
   const [cat, setCat] = useState('all');
   const [diff, setDiff] = useState<Difficulty | null>(null);
   const [query, setQuery] = useState('');
-  const [statsOpen, setStatsOpen] = useState(false);
   const [toast, setToast] = useState<{ show: boolean; sub: string }>({ show: false, sub: 'Challenge solved.' });
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -248,9 +248,6 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n, la
   const showMain = !!user && !!username;
 
   // ── stats / daily ──
-  const solvedList = challenges.filter((c) => solved[c.id]);
-  const totalXP = solvedList.reduce((sum, c) => sum + c.xp, 0);
-  const categories = new Set(challenges.map((c) => c.cat)).size;
   const catCount = useMemo(() => {
     const m: Record<string, number> = {};
     challenges.forEach((c) => { m[c.cat] = (m[c.cat] || 0) + 1; });
@@ -660,48 +657,7 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n, la
                 </div>
               </div>
 
-              <div className="ctf-mystats">
-                <button type="button" className={'ctf-mystats-toggle' + (statsOpen ? ' open' : '')} id="ctfMyStatsToggle" onClick={() => setStatsOpen((v) => !v)}>
-                  <span className="ctf-mystats-toggle-left">My Stats</span>
-                  <svg id="ctfMyStatsChevron" className="ctf-mystats-chevron" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="#8a8a9a" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                </button>
-                <div className="ctf-mystats-panel" id="ctfMyStatsPanel" style={{ display: statsOpen ? 'block' : 'none' }}>
-                  <div className="ctf-stats">
-                    {[['ctfTotalCount', challenges.length, 'Total Challenges'], ['ctfSolvedCount', solvedList.length, 'Solved'], ['ctfTotalXP', totalXP, 'XP Earned'], ['ctfCategoryCount', categories, 'Categories']].map(([id, v, l]) => (
-                      <div className="ctf-stat-card" key={id as string}>
-                        <div>
-                          <div className="ctf-stat-val" id={id as string}>{v}</div>
-                          <div className="ctf-stat-lbl">{l}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="ctf-daily-row" id="ctfDailyRow" style={{ display: 'grid' }}>
-                    <div className="ctf-daily-card">
-                      <div className="ctf-daily-title">
-                        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#60a5fa" strokeWidth="1.3" /><path d="M7 4v3.5l2 1.5" stroke="#60a5fa" strokeWidth="1.3" strokeLinecap="round" /></svg>
-                        Daily Challenge
-                      </div>
-                      <div id="ctfDailyChallengeInner">
-                        {daily === null ? (
-                          <div style={{ color: 'var(--fg-4)', fontSize: 12 }}>No challenges available.</div>
-                        ) : daily === 'done' ? (
-                          <div className="ctf-daily-done">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5L13 5" stroke="#4ade80" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                            All challenges solved, great work!
-                          </div>
-                        ) : (
-                          <>
-                            <div className="ctf-daily-name">{daily.title}</div>
-                            <div className="ctf-daily-meta">{daily.cat} · {daily.xp} XP</div>
-                            <button className="ctf-daily-btn" onClick={() => openModal(daily.id)}>Go to challenge →</button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <CtfStats challenges={challenges} solved={solved} daily={daily} onOpen={openModal} catIcons={CAT_FILTERS} />
             </div>
 
             <div className="ctf-filters">
