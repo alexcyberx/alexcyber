@@ -6,6 +6,10 @@ Read this first in every session. It records what the owner wants; follow it.
 - Talk in **Hinglish** (simple words; the owner is not a developer and relies on your judgement).
 - After every deploy, tell the owner it is done (what changed, what to test).
 - Before **removing** any feature/page/section, ask once and get a yes. Improving or fixing does not need a question.
+- **Never use en or em dashes (– —) anywhere** (owner's rule): not in UI/site text, diagrams, docs, code comments,
+  commit messages, or chat. They read as AI. Use a comma, a period, "to", or brackets instead.
+- Avoid an "AI look": no decorative explainer cards (accent-bar + icon + bold-sprinkled paragraph), no rainbow/
+  off-brand colours, nothing decorative without a purpose. Study how real platforms present things and copy that.
 
 ## What we are building (product direction, from the owner)
 - AlexCyberX is **not only a CTF site**. It will have many **powerful, genuinely useful security tools**, **courses**,

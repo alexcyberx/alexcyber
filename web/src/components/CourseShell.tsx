@@ -66,11 +66,27 @@ export default function CourseShell({ course, page, ids, itemClass, header, bann
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  // Diagram iframes (/diagrams/*.html) report their height (router.js did this).
+  // Diagram iframes (/diagrams/*.html) report their height (router.js did this)
+  // and follow the site theme: on "ready", and whenever <html data-theme>
+  // changes, we send them the current theme (green / blue / red).
   useEffect(() => {
+    const themeNow = () => {
+      const t = document.documentElement.getAttribute('data-theme');
+      return t === 'blue' ? 'blue' : t === 'red' ? 'red' : 'green';
+    };
+    const postTheme = (win: Window | null) => {
+      try { win?.postMessage({ type: 'acx-theme', theme: themeNow() }, '*'); } catch { /* cross-origin */ }
+    };
     const onMsg = (e: MessageEvent) => {
       const d = e.data as { type?: string; height?: unknown } | null;
-      if (!d || d.type !== 'acx-diagram-height') return;
+      if (!d) return;
+      if (d.type === 'acx-diagram-ready') {
+        document.querySelectorAll<HTMLIFrameElement>('iframe.acx-diagram-frame').forEach((f) => {
+          if (f.contentWindow === e.source) postTheme(f.contentWindow);
+        });
+        return;
+      }
+      if (d.type !== 'acx-diagram-height') return;
       document.querySelectorAll<HTMLIFrameElement>('iframe.acx-diagram-frame').forEach((f) => {
         if (f.contentWindow === e.source) {
           const h = Math.max(parseInt(String(d.height), 10) || 0, 100);
@@ -81,7 +97,11 @@ export default function CourseShell({ course, page, ids, itemClass, header, bann
       });
     };
     window.addEventListener('message', onMsg);
-    return () => window.removeEventListener('message', onMsg);
+    const mo = new MutationObserver(() => {
+      document.querySelectorAll<HTMLIFrameElement>('iframe.acx-diagram-frame').forEach((f) => postTheme(f.contentWindow));
+    });
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => { window.removeEventListener('message', onMsg); mo.disconnect(); };
   }, []);
 
   const toggle = () => {
