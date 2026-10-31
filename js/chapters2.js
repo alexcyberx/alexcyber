@@ -972,6 +972,23 @@ User connects to fake bank, credentials stolen</code></pre>
         </div>`).join('')}
       </div>
 
+      <h2>7. Logs Mein Brute Force Kaise Pakdein</h2>
+      <p>Linux server par har SSH login ki ek line <code>/var/log/auth.log</code> mein likhi jaati hai. Brute force wahan aisa dikhta hai: ek hi IP se bahut saari "Failed password" lines, aur kabhi kabhi aakhir mein ek "Accepted password".</p>
+      <pre><code>Oct 31 02:19:58 vpn-gw01 sshd[10956]: Failed password for deploy from 203.0.113.50 port 42211 ssh2
+Oct 31 02:20:03 vpn-gw01 sshd[10974]: Failed password for deploy from 203.0.113.50 port 43687 ssh2
+Oct 31 02:20:07 vpn-gw01 sshd[10974]: Accepted password for deploy from 203.0.113.50 port 43687 ssh2</code></pre>
+      <p>Pehli do lines galat password hain. Teesri line batati hai ki password sahi laga aur attacker andar aa gaya. Analyst yahan teen cheezein note karta hai: IP (203.0.113.50), account (deploy) aur time (02:20:07).</p>
+      <p>Dhyan rakho: jis IP ne sabse zyada try kiya, wo hamesha andar nahi aaya hota. Asli khatra wo IP hai jiski failed lines ke baad "Accepted" aata hai. Shuruaat ke liye <code>grep "Failed password" auth.log</code> aur <code>grep "Accepted" auth.log</code> chalao.</p>
+
+      <h2>8. Try It Yourself</h2>
+      <div style="display:flex;align-items:center;gap:14px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:12px;padding:16px 18px;margin:0 0 28px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px;">Lab: Midnight Login (Log Analysis)</div>
+          <div style="font-size:12.5px;color:var(--text-dim);line-height:1.55;">Ek company ke server ki auth.log padho, brute force karke andar ghusne wale attacker ko pakdo, aur flag capture karo.</div>
+        </div>
+        <a href="/rooms?open=for-04" style="background:rgba(var(--accent-rgb),0.12);border:1px solid rgba(var(--accent-rgb),0.4);color:var(--accent);font-family:'Inter',sans-serif;font-weight:700;font-size:13px;text-decoration:none;border-radius:9px;padding:10px 18px;white-space:nowrap;">Open Lab &rarr;</a>
+      </div>
+
     `;
   }
 

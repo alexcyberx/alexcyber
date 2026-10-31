@@ -153,6 +153,25 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     hasLabFlow: true,
     solvers: 178
   },
+  {
+    id: 'for-04', addedAt: '2026-10-31', cat: 'Forensics', icon: '\ud83d\udd0d', iconClass: 'ctf-cat-forensics',
+    title: 'Midnight Login',
+    desc: "Last night Paynova's IDS saw a big burst of failed SSH logins on a VPN server, and then one login that looks wrong. You have the server's auth.log. Find out who got in.",
+    scenario: 'You are the analyst on the night shift in the Paynova SOC. A case is open for the server vpn-gw01, and its auth.log is the evidence. Read it like an analyst: which IPs failed, and did any of them get in?<br><br>File the incident report with three things: the attacker\'s IP, the account they broke into, and the exact time of that login. When all three are right, the case closes and you get the flag.',
+    author: 'AlexCyberX',
+    tags: ['Forensics', 'Log Analysis', 'Brute Force', 'Blue Team'],
+    diff: 'Easy', pts: 75, xp: 120,
+    hints: ['Start with the "Failed password" lines. Which IPs show up again and again?', 'The IP with the most failures did not always get in. Check the "Accepted" lines too.', 'The attacker is the outside IP whose run of failures ends in an "Accepted password" line. That one line gives you the account and the time.'],
+    objectives: [
+      'Open the case and read the alert',
+      'Filter auth.log to find the IPs behind the failed logins',
+      'Find the one IP whose failures ended in a successful login',
+      'File the incident report and submit the flag'
+    ],
+    labApiPath: '/api/lab/midnight',
+    hasLabFlow: true,
+    solvers: 0
+  },
 
   // ── CRYPTO ──
   {
