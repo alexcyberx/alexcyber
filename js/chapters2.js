@@ -15,7 +15,8 @@ const cyberAttackChapters = [
   { title: "Ransomware & Malware",                  prev: "DNS Spoofing & Poisoning",       next: "TLS & Encryption Attacks"         },
   { title: "TLS & Encryption Attacks",              prev: "Ransomware & Malware",           next: "Brute Force & Password Attacks"   },
   { title: "Brute Force & Password Attacks",        prev: "TLS & Encryption Attacks",       next: "Attack Defense & Prevention"     },
-  { title: "Attack Defense & Prevention",           prev: "Brute Force & Password Attacks", next: null                               },
+  { title: "Attack Defense & Prevention",           prev: "Brute Force & Password Attacks", next: "Reconnaissance & Footprinting"                               },
+  { title: "Reconnaissance & Footprinting",        prev: "Attack Defense & Prevention", next: null },
 ];
 
 // currentCyberChapter is declared in router.js - use that global
@@ -91,14 +92,14 @@ function loadCyberChapter(index) {
         ${[
           ['Script Kiddie','Tools use karta hai, khud nahi banata. Low skill.','rgba(255,255,255,0.06)'],
           ['Hacktivist','Political/social cause ke liye attack karta hai.','rgba(255,255,255,0.06)'],
-          ['Cybercriminal','Paise ke liye attack karta hai. Ransomware, fraud.','rgba(220,20,20,0.12)'],
-          ['Nation-State','Government sponsored. Highly sophisticated attacks.','rgba(220,20,20,0.18)'],
-          ['Insider Threat','Company ka apna employee jo harm karta hai.','rgba(220,20,20,0.12)'],
-          ['APT Group','Advanced Persistent Threat. Long-term infiltration.','rgba(220,20,20,0.18)'],
+          ['Cybercriminal','Paise ke liye attack karta hai. Ransomware, fraud.','rgba(var(--accent-rgb),0.12)'],
+          ['Nation-State','Government sponsored. Highly sophisticated attacks.','rgba(var(--accent-rgb),0.18)'],
+          ['Insider Threat','Company ka apna employee jo harm karta hai.','rgba(var(--accent-rgb),0.12)'],
+          ['APT Group','Advanced Persistent Threat. Long-term infiltration.','rgba(var(--accent-rgb),0.18)'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid ${r[2]};padding:14px 16px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#f4f4f5;margin-bottom:4px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid ${r[2]};padding:14px 16px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--white);margin-bottom:4px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -112,23 +113,23 @@ function loadCyberChapter(index) {
           ['Ideological','Political beliefs ya hacktivism'],
           ['Challenge','Thrill of hacking, skills prove karna'],
         ].map(r=>`
-        <div style="display:grid;grid-template-columns:160px 1fr;gap:8px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;align-items:center;">
-          <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#dc1414;">${r[0]}</span>
-          <span style="font-family:'Inter',sans-serif;font-size:12px;color:#aaa;">${r[1]}</span>
+        <div style="display:grid;grid-template-columns:160px 1fr;gap:8px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;align-items:center;">
+          <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--accent);">${r[0]}</span>
+          <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text);">${r[1]}</span>
         </div>`).join('')}
       </div>
 
       <h2>4. Attack Categories</h2>
       <div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
         ${[
-          ['PASSIVE','Sirf observe karte hain, eavesdropping, traffic capture. Target ko pata nahi chalta.','rgba(255,200,0,0.15)','rgba(255,200,0,0.3)','#ffc800'],
-          ['ACTIVE','System ko modify ya disrupt karte hain, DoS, MITM, injection. Traceable hote hain.','rgba(220,20,20,0.15)','rgba(220,20,20,0.3)','#dc1414'],
+          ['PASSIVE','Sirf observe karte hain, eavesdropping, traffic capture. Target ko pata nahi chalta.','rgba(var(--accent-rgb),0.15)','rgba(var(--accent-rgb),0.3)','var(--accent)'],
+          ['ACTIVE','System ko modify ya disrupt karte hain, DoS, MITM, injection. Traceable hote hain.','rgba(var(--accent-rgb),0.15)','rgba(var(--accent-rgb),0.3)','var(--accent)'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid ${r[2]};padding:14px 18px;">
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid ${r[2]};padding:14px 18px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
             <span style="background:${r[1]};border:1px solid ${r[2]};border-radius:6px;padding:2px 10px;font-size:10px;font-weight:700;color:${r[4]};letter-spacing:2px;font-family:'Rajdhani',sans-serif;">${r[0]}</span>
           </div>
-          <div style="font-family:'Inter',sans-serif;font-size:13px;color:#aaa;">${r[3]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:13px;color:var(--text);">${r[3]}</div>
         </div>`).join('')}
       </div>
 
@@ -144,8 +145,8 @@ function loadCyberChapter(index) {
           ['6. C2','Command & Control channel establish karna'],
           ['7. Actions','Data theft, disruption, ransom'],
         ].map((r,i,a)=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border:1px solid rgba(${i===0||i===6?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:12px 24px;text-align:center;width:280px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:${i===0||i===6?'#dc1414':'#f4f4f5'};">${r[0]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border:1px solid rgba(${i===0||i===6?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:12px 24px;text-align:center;width:280px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:${i===0||i===6?'var(--accent)':'var(--white)'};">${r[0]}</div>
           <div style="font-family:'Inter',sans-serif;font-size:11px;color:#666;margin-top:3px;">${r[1]}</div>
         </div>${i<a.length-1?'<svg width="16" height="18" viewBox="0 0 16 18" fill="none" style="margin:2px 0;"><path d="M8 2v12M3 10l5 5 5-5" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}`).join('')}
       </div>
@@ -162,9 +163,9 @@ function loadCyberChapter(index) {
           ['Ransomware','Files encrypt karke ransom maangna'],
           ['Brute Force','Password guess karna, millions of attempts'],
         ].map((r,i)=>`
-        <div style="display:flex;align-items:center;gap:14px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
-          <span style="background:rgba(220,20,20,0.12);border:1px solid rgba(220,20,20,0.25);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#dc1414;font-family:'Rajdhani',sans-serif;flex-shrink:0;">${i+1}</span>
-          <div><div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;">${r[0]}</div><div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:2px;">${r[1]}</div></div>
+        <div style="display:flex;align-items:center;gap:14px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
+          <span style="background:rgba(var(--accent-rgb),0.12);border:1px solid rgba(var(--accent-rgb),0.25);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--accent);font-family:'Rajdhani',sans-serif;flex-shrink:0;">${i+1}</span>
+          <div><div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);">${r[0]}</div><div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);margin-top:2px;">${r[1]}</div></div>
         </div>`).join('')}
       </div>
 
@@ -175,9 +176,9 @@ function loadCyberChapter(index) {
           ['I','Integrity','Data modify nahi hona chahiye unauthorized tarike se'],
           ['A','Availability','Authorized users ko data available rehna chahiye'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:14px;border:1px solid rgba(220,20,20,0.2);padding:18px 14px;text-align:center;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:#dc1414;line-height:1;">${r[0]}</div>
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin:8px 0 6px;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:14px;border:1px solid rgba(var(--accent-rgb),0.2);padding:18px 14px;text-align:center;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:36px;font-weight:700;color:var(--accent);line-height:1;">${r[0]}</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin:8px 0 6px;">${r[1]}</div>
           <div style="font-family:'Inter',sans-serif;font-size:11px;color:#666;">${r[2]}</div>
         </div>`).join('')}
       </div>
@@ -208,9 +209,9 @@ function loadCyberChapter(index) {
           ['Tailgating','Authorized person ke saath restricted area mein ghusna'],
           ['Quid Pro Quo','Kuch dene ka promise karke information lena'],
         ].map((r,i)=>`
-        <div style="display:grid;grid-template-columns:160px 1fr;gap:8px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;align-items:center;">
-          <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#dc1414;">${r[0]}</span>
-          <span style="font-family:'Inter',sans-serif;font-size:12px;color:#aaa;">${r[1]}</span>
+        <div style="display:grid;grid-template-columns:160px 1fr;gap:8px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;align-items:center;">
+          <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--accent);">${r[0]}</span>
+          <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text);">${r[1]}</span>
         </div>`).join('')}
       </div>
 
@@ -224,8 +225,8 @@ function loadCyberChapter(index) {
           ['Credentials Enter Hoti Hain','User ko pata nahi, fake site real lagti hai'],
           ['Attacker Ko Data Milta Hai','Real-time ya stored credentials, access milta hai'],
         ].map((r,i,a)=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border:1px solid rgba(${i===4?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:12px 24px;text-align:center;width:300px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:${i===4?'#dc1414':'#f4f4f5'};">${r[0]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border:1px solid rgba(${i===4?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:12px 24px;text-align:center;width:300px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:${i===4?'var(--accent)':'var(--white)'};">${r[0]}</div>
           <div style="font-family:'Inter',sans-serif;font-size:11px;color:#666;margin-top:3px;">${r[1]}</div>
         </div>${i<a.length-1?'<svg width="16" height="18" viewBox="0 0 16 18" fill="none" style="margin:2px 0;"><path d="M8 2v12M3 10l5 5 5-5" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}`).join('')}
       </div>
@@ -242,15 +243,15 @@ function loadCyberChapter(index) {
           'Unexpected attachment, invoice.pdf.exe',
           'Too good to be true offers',
         ].map(q=>`
-        <div style="display:flex;align-items:center;gap:12px;background:rgba(220,20,20,0.07);border:1px solid rgba(220,20,20,0.2);border-radius:8px;padding:10px 16px;">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><path d="M8 2L14 13H2L8 2z" stroke="#dc1414" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 7v3M8 11.5h.01" stroke="#dc1414" stroke-width="1.3" stroke-linecap="round"/></svg>
-          <span style="font-family:'Inter',sans-serif;font-size:12px;color:#aaa;">${q}</span>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(var(--accent-rgb),0.07);border:1px solid rgba(var(--accent-rgb),0.2);border-radius:8px;padding:10px 16px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><path d="M8 2L14 13H2L8 2z" stroke="var(--accent)" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 7v3M8 11.5h.01" stroke="var(--accent)" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text);">${q}</span>
         </div>`).join('')}
       </div>
 
       <h2>5. Spear Phishing vs Generic Phishing</h2>
       <div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:8px 16px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:8px 16px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);">
           <span style="font-size:10px;font-weight:700;color:#555;font-family:'Rajdhani',monospace;letter-spacing:2px;">ASPECT</span>
           <span style="font-size:10px;font-weight:700;color:#555;font-family:'Rajdhani',monospace;letter-spacing:2px;">PHISHING</span>
           <span style="font-size:10px;font-weight:700;color:#555;font-family:'Rajdhani',monospace;letter-spacing:2px;">SPEAR PHISHING</span>
@@ -262,10 +263,10 @@ function loadCyberChapter(index) {
           ['Effort','Low','High, personalized'],
           ['Examples','Fake bank emails','CEO ko target karna'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:10px;border:1px solid rgba(255,255,255,0.06);padding:10px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:center;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#dc1414;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#f4f4f5;">${r[2]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:10px;border:1px solid rgba(255,255,255,0.06);padding:10px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:center;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--accent);">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--white);">${r[2]}</div>
         </div>`).join('')}
       </div>
 
@@ -278,9 +279,9 @@ function loadCyberChapter(index) {
           ['Link Hover Verify','Click karne se pehle URL check karo'],
           ['Official Channel Use Karo','Sensitive actions ke liye hamesha direct site visit karo'],
         ].map(r=>`
-        <div style="display:flex;align-items:center;gap:12px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(220,20,20,0.1)" stroke="rgba(220,20,20,0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#f4f4f5;">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
         </div>`).join('')}
       </div>
 
@@ -295,7 +296,7 @@ function loadCyberChapter(index) {
       <div class="info-box"><p><strong>Real-World Example:</strong> Tum coffee shop ke public WiFi se bank login karte ho. Attacker usi network par hai aur tumhara poora traffic, including password, read kar sakta hai.</p></div>
 
       <h2>2. MITM Attack Interactive Diagram</h2>
-      <div style="border:1px solid rgba(220,20,20,0.2);border-radius:14px;overflow:hidden;margin:0 0 28px;background:#0f0f13;">
+      <div style="border:1px solid rgba(var(--accent-rgb),0.2);border-radius:14px;overflow:hidden;margin:0 0 28px;background:#0f0f13;">
         <iframe class="acx-diagram-frame" data-diagram="mitm-attack" src="/diagrams/mitm-attack.html" scrolling="no" style="width:100%;height:800px;border:none;display:block;overflow:hidden;" loading="lazy" title="MITM Attack Interactive Diagram"></iframe>
       </div>
 
@@ -309,9 +310,9 @@ function loadCyberChapter(index) {
           ['Evil Twin Attack','Fake WiFi hotspot create karna with same SSID. Victim connect ho jaata hai fake network se.'],
           ['BGP Hijacking','Routing protocols manipulate karna. ISP level attack, internet traffic reroute karna.'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 18px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#dc1414;margin-bottom:5px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;line-height:1.6;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 18px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:5px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);line-height:1.6;">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -338,8 +339,8 @@ But attacker reads everything in between</code></pre>
           ['Victim Gets HTTP','Victim ↔ Attacker is HTTP (unencrypted)'],
           ['Credentials Exposed','Victim types password, attacker reads plaintext'],
         ].map((r,i,a)=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border:1px solid rgba(${i===4?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:12px 24px;text-align:center;width:300px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:${i===4?'#dc1414':'#f4f4f5'};">${r[0]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border:1px solid rgba(${i===4?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:12px 24px;text-align:center;width:300px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:${i===4?'var(--accent)':'var(--white)'};">${r[0]}</div>
           <div style="font-family:'Inter',sans-serif;font-size:11px;color:#666;margin-top:3px;">${r[1]}</div>
         </div>${i<a.length-1?'<svg width="16" height="18" viewBox="0 0 16 18" fill="none" style="margin:2px 0;"><path d="M8 2v12M3 10l5 5 5-5" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}`).join('')}
       </div>
@@ -354,9 +355,9 @@ But attacker reads everything in between</code></pre>
           ['API Keys','Developer credentials, full system access'],
           ['Personal Data','PII, identity theft ke liye'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(220,20,20,0.15);padding:14px 16px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#f4f4f5;margin-bottom:4px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(var(--accent-rgb),0.15);padding:14px 16px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -370,9 +371,9 @@ But attacker reads everything in between</code></pre>
           ['ARP Monitoring','Network tools ARP poisoning detect kar sakte hain'],
           ['MFA Enable Karo','Credentials steal ho bhi toh account safe rehta hai'],
         ].map(r=>`
-        <div style="display:flex;align-items:center;gap:12px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(220,20,20,0.1)" stroke="rgba(220,20,20,0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#f4f4f5;">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
         </div>`).join('')}
       </div>
 
@@ -388,7 +389,7 @@ But attacker reads everything in between</code></pre>
 
       <h2>2. DoS vs DDoS</h2>
       <div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:8px 16px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:8px 16px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);">
           <span style="font-size:10px;font-weight:700;color:#555;font-family:'Rajdhani',monospace;letter-spacing:2px;">ASPECT</span>
           <span style="font-size:10px;font-weight:700;color:#555;font-family:'Rajdhani',monospace;letter-spacing:2px;">DoS</span>
           <span style="font-size:10px;font-weight:700;color:#555;font-family:'Rajdhani',monospace;letter-spacing:2px;">DDoS</span>
@@ -400,15 +401,15 @@ But attacker reads everything in between</code></pre>
           ['Detection','Easier','Harder, distributed traffic'],
           ['Purpose','Disruption','Major disruption, ransom'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:10px;border:1px solid rgba(255,255,255,0.06);padding:10px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:center;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#dc1414;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#f4f4f5;">${r[2]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:10px;border:1px solid rgba(255,255,255,0.06);padding:10px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:center;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--accent);">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--white);">${r[2]}</div>
         </div>`).join('')}
       </div>
 
       <h2>3. DoS / DDoS Interactive Diagram</h2>
-      <div style="border:1px solid rgba(220,20,20,0.2);border-radius:14px;overflow:hidden;margin:0 0 28px;background:#080810;">
+      <div style="border:1px solid rgba(var(--accent-rgb),0.2);border-radius:14px;overflow:hidden;margin:0 0 28px;background:var(--dark);">
         <iframe class="acx-diagram-frame" data-diagram="dos-attack" src="/diagrams/dos-attack.html" scrolling="no" style="width:100%;height:900px;border:none;display:block;overflow:hidden;" loading="lazy" title="DoS Attack Interactive Diagram"></iframe>
       </div>
 
@@ -420,9 +421,9 @@ But attacker reads everything in between</code></pre>
           ['Application Layer','Specific service crash karna, HTTP Flood, Slowloris'],
           ['Amplification','Small request se bada response generate karna, DNS, NTP amplification'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 18px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#dc1414;margin-bottom:5px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;line-height:1.6;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 18px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:5px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);line-height:1.6;">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -450,23 +451,23 @@ Attacker  ←    SYN-ACK      ←  Server
           ['Attack Command','Attacker C2 se "attack target.example" command deta hai'],
           ['Coordinated Attack','Lakhs machines simultaneously flood karte hain target ko'],
         ].map((r,i,a)=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border:1px solid rgba(${i===4?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:10px 20px;display:grid;grid-template-columns:180px 1fr;gap:8px;align-items:center;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:${i===4?'#dc1414':'#f4f4f5'};">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border:1px solid rgba(${i===4?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:10px 20px;display:grid;grid-template-columns:180px 1fr;gap:8px;align-items:center;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:${i===4?'var(--accent)':'var(--white)'};">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
         </div>`).join('')}
       </div>
 
       <h2>7. Real-World DDoS Scale</h2>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 28px;">
         ${[
-          ['GitHub 2018','1.35 Tbps, largest at that time. Memcached amplification.','rgba(220,20,20,0.15)'],
-          ['Cloudflare 2022','26 million RPS, 5,067 bot IPs across 158 countries.','rgba(220,20,20,0.2)'],
-          ['Mirai Botnet 2016','IoT devices use kiya. Dyn DNS down kiya, Netflix, Twitter offline.','rgba(220,20,20,0.12)'],
-          ['Google 2023','398 million RPS, HTTP/2 vulnerability use ki.','rgba(220,20,20,0.2)'],
+          ['GitHub 2018','1.35 Tbps, largest at that time. Memcached amplification.','rgba(var(--accent-rgb),0.15)'],
+          ['Cloudflare 2022','26 million RPS, 5,067 bot IPs across 158 countries.','rgba(var(--accent-rgb),0.2)'],
+          ['Mirai Botnet 2016','IoT devices use kiya. Dyn DNS down kiya, Netflix, Twitter offline.','rgba(var(--accent-rgb),0.12)'],
+          ['Google 2023','398 million RPS, HTTP/2 vulnerability use ki.','rgba(var(--accent-rgb),0.2)'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid ${r[2]};padding:14px 16px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#dc1414;margin-bottom:5px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;line-height:1.6;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid ${r[2]};padding:14px 16px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:5px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);line-height:1.6;">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -480,9 +481,9 @@ Attacker  ←    SYN-ACK      ←  Server
           ['Anti-Spoofing Filters','ISP level par fake IPs block karo, SYN flood reduce'],
           ['Anycast Network','Traffic multiple locations par distribute karo'],
         ].map(r=>`
-        <div style="display:flex;align-items:center;gap:12px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(220,20,20,0.1)" stroke="rgba(220,20,20,0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#f4f4f5;">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
         </div>`).join('')}
       </div>
 
@@ -519,9 +520,9 @@ Result: Admin account bina password ke access ho jaata hai</code></pre>
           ['Time-Based Blind','Response delay se information nikalna, SLEEP() functions use karna.'],
           ['Out-of-Band','DNS ya HTTP requests se data exfiltrate karna, advanced technique.'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 18px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#dc1414;margin-bottom:5px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;line-height:1.6;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 18px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:5px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);line-height:1.6;">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -535,9 +536,9 @@ Result: Admin account bina password ke access ho jaata hai</code></pre>
           ['Command Execution','Advanced: OS commands execute karna via xp_cmdshell'],
           ['Privilege Escalation','Database admin privileges gain karna'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(220,20,20,0.15);padding:14px 16px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin-bottom:4px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(var(--accent-rgb),0.15);padding:14px 16px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -549,9 +550,9 @@ Result: Admin account bina password ke access ho jaata hai</code></pre>
           ['Yahoo 2012','450,000 user credentials plain text mein dump kiye, SQLi via Yahoo Voices.'],
           ['Heartland Payment Systems','100 million credit cards. SQL injection via web application.'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(220,20,20,0.2);padding:14px 18px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#dc1414;margin-bottom:5px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;line-height:1.6;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(var(--accent-rgb),0.2);padding:14px 18px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);margin-bottom:5px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);line-height:1.6;">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -565,9 +566,9 @@ Result: Admin account bina password ke access ho jaata hai</code></pre>
           ['Least Privilege','DB user ko sirf zaroori permissions do, full admin nahi'],
           ['Error Messages Hide Karo','Database errors users ko mat dikhao, attacker ko info milti hai'],
         ].map(r=>`
-        <div style="display:flex;align-items:center;gap:12px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(220,20,20,0.1)" stroke="rgba(220,20,20,0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#f4f4f5;">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
         </div>`).join('')}
       </div>
 
@@ -588,13 +589,13 @@ Result: Admin account bina password ke access ho jaata hai</code></pre>
       <h2>2. XSS Types</h2>
       <div style="display:flex;flex-direction:column;gap:10px;margin:0 0 28px;">
         ${[
-          ['Stored XSS','Sabse dangerous. Script database mein store hoti hai. Har user jo page visit kare, attack suffer kare. Example: comment section mein script likhna.','rgba(220,20,20,0.2)'],
-          ['Reflected XSS','Script URL mein hoti hai. Victim ko malicious link click karwana padta hai. Script server se reflect hoke response mein aati hai.','rgba(220,20,20,0.12)'],
-          ['DOM-Based XSS','Script DOM manipulation se hoti hai, server involve nahi hota. Browser-side JavaScript vulnerability.','rgba(220,20,20,0.12)'],
+          ['Stored XSS','Sabse dangerous. Script database mein store hoti hai. Har user jo page visit kare, attack suffer kare. Example: comment section mein script likhna.','rgba(var(--accent-rgb),0.2)'],
+          ['Reflected XSS','Script URL mein hoti hai. Victim ko malicious link click karwana padta hai. Script server se reflect hoke response mein aati hai.','rgba(var(--accent-rgb),0.12)'],
+          ['DOM-Based XSS','Script DOM manipulation se hoti hai, server involve nahi hota. Browser-side JavaScript vulnerability.','rgba(var(--accent-rgb),0.12)'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid ${r[2]};padding:16px 18px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#dc1414;margin-bottom:6px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;line-height:1.7;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid ${r[2]};padding:16px 18px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--accent);margin-bottom:6px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);line-height:1.7;">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -621,9 +622,9 @@ Attacker uses cookie to log in as victim</code></pre>
           ['Defacement','Website content change karna'],
           ['Crypto Mining','Victim ke CPU se cryptocurrency mine karna'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(220,20,20,0.15);padding:14px 16px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin-bottom:4px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(var(--accent-rgb),0.15);padding:14px 16px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -636,9 +637,9 @@ Attacker uses cookie to log in as victim</code></pre>
           ['Input Validation','User input validate karo, HTML tags sanitize karo'],
           ['X-XSS-Protection Header','Browser-level XSS filter enable karo'],
         ].map(r=>`
-        <div style="display:flex;align-items:center;gap:12px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(220,20,20,0.1)" stroke="rgba(220,20,20,0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#f4f4f5;">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
         </div>`).join('')}
       </div>
 
@@ -667,7 +668,7 @@ Reply: 45.33.32.156 (attacker's IP)
 User connects to fake bank, credentials stolen</code></pre>
 
       <h2>3. DNS Spoofing Interactive Diagram</h2>
-      <div style="border:1px solid rgba(220,20,20,0.2);border-radius:14px;overflow:hidden;margin:0 0 28px;background:#080810;">
+      <div style="border:1px solid rgba(var(--accent-rgb),0.2);border-radius:14px;overflow:hidden;margin:0 0 28px;background:var(--dark);">
         <iframe class="acx-diagram-frame" data-diagram="dns-spoofing" src="/diagrams/dns-spoofing.html" scrolling="no" style="width:100%;height:750px;border:none;display:block;overflow:hidden;" loading="lazy" title="DNS Spoofing Interactive Diagram"></iframe>
       </div>
 
@@ -680,9 +681,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Birthday Attack','Probability exploit karke collision dhundhna'],
           ['On-Path Attack','Network par baith ke legitimate response replace karo'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(220,20,20,0.15);padding:14px 18px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#dc1414;margin-bottom:5px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(var(--accent-rgb),0.15);padding:14px 18px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:5px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -696,9 +697,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Ad Injection','Revenue steal karna ad replacement se'],
           ['Session Hijacking','Traffic intercept karke sessions steal karna'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 16px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin-bottom:4px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 16px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -711,9 +712,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Short TTL Avoid Karo','Lamba cache time = longer exposure if poisoned'],
           ['HTTPS Verify Karo','Even if redirected, HTTPS certificate mismatch warning dega'],
         ].map(r=>`
-        <div style="display:flex;align-items:center;gap:12px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(220,20,20,0.1)" stroke="rgba(220,20,20,0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#f4f4f5;">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
         </div>`).join('')}
       </div>
 
@@ -738,9 +739,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['2021','Colonial Pipeline, $4.4M paid, US fuel supply disrupted'],
           ['2023+','Double/Triple Extortion, data steal + encrypt + DDoS threat'],
         ].map((r,i)=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:10px;border:1px solid rgba(${i>=4?'220,20,20,0.25':'255,255,255,0.06'});padding:10px 16px;display:grid;grid-template-columns:60px 1fr;gap:10px;align-items:center;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#dc1414;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#aaa;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:10px;border:1px solid rgba(${i>=4?'220,20,20,0.25':'255,255,255,0.06'});padding:10px 16px;display:grid;grid-template-columns:60px 1fr;gap:10px;align-items:center;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text);">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -754,8 +755,8 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Encryption','Files encrypt karna, .LOCKED extension add karna'],
           ['Ransom Note','README.txt, payment instructions, deadline, Bitcoin address'],
         ].map((r,i,a)=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border:1px solid rgba(${i===5?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:12px 24px;text-align:center;width:300px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:${i===5?'#dc1414':'#f4f4f5'};">${r[0]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border:1px solid rgba(${i===5?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:12px 24px;text-align:center;width:300px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:${i===5?'var(--accent)':'var(--white)'};">${r[0]}</div>
           <div style="font-family:'Inter',sans-serif;font-size:11px;color:#666;margin-top:3px;">${r[1]}</div>
         </div>${i<a.length-1?'<svg width="16" height="18" viewBox="0 0 16 18" fill="none" style="margin:2px 0;"><path d="M8 2v12M3 10l5 5 5-5" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}`).join('')}
       </div>
@@ -769,9 +770,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Support','24/7 victim "support" for payment process'],
           ['Leak Sites','Data publicly post karna if not paid'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(220,20,20,0.15);padding:14px 16px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#dc1414;margin-bottom:5px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(var(--accent-rgb),0.15);padding:14px 16px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);margin-bottom:5px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -786,9 +787,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Network Segmentation','Ek infected machine poore network ko encrypt na kar sake.'],
           ['Incident Response Plan','Pehle se plan banao, crisis mein sochoge nahi.'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:12px 16px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin-bottom:5px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:12px 16px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:5px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -803,7 +804,7 @@ User connects to fake bank, credentials stolen</code></pre>
       <div class="info-box"><p><strong>SSL vs TLS:</strong> SSL (Secure Sockets Layer) TLS ka purana naam hai. SSL ab deprecated hai, TLS 1.2 minimum, TLS 1.3 recommended. "SSL certificate" ab bhi common term hai lekin technically ye TLS certificate hota hai.</p></div>
 
       <h2>2. TLS Handshake Interactive Diagram</h2>
-      <div style="border:1px solid rgba(220,20,20,0.2);border-radius:14px;overflow:hidden;margin:0 0 28px;background:#080810;">
+      <div style="border:1px solid rgba(var(--accent-rgb),0.2);border-radius:14px;overflow:hidden;margin:0 0 28px;background:var(--dark);">
         <iframe class="acx-diagram-frame" data-diagram="tls-handshake" src="/diagrams/tls-handshake.html" style="width:100%;height:980px;border:none;display:block;" loading="lazy" title="TLS Handshake Interactive Diagram"></iframe>
       </div>
 
@@ -817,8 +818,8 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Session Keys','Dono sides symmetric session keys generate karte hain'],
           ['Secure Channel','Symmetric keys se encrypted communication shuru'],
         ].map((r,i,a)=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border:1px solid rgba(${i===5?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:12px 24px;text-align:center;width:300px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:${i===5?'#dc1414':'#f4f4f5'};">${r[0]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border:1px solid rgba(${i===5?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:12px 24px;text-align:center;width:300px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:${i===5?'var(--accent)':'var(--white)'};">${r[0]}</div>
           <div style="font-family:'Inter',sans-serif;font-size:11px;color:#666;margin-top:3px;">${r[1]}</div>
         </div>${i<a.length-1?'<svg width="16" height="18" viewBox="0 0 16 18" fill="none" style="margin:2px 0;"><path d="M8 2v12M3 10l5 5 5-5" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}`).join('')}
       </div>
@@ -831,9 +832,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Replay Attacks','Session keys fresh hoti hain, old packets replay nahi'],
           ['Data Tampering','MAC verification, modified data reject hota hai'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(220,20,20,0.1);padding:14px 16px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin-bottom:4px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(var(--accent-rgb),0.1);padding:14px 16px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -847,9 +848,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['FREAK Attack','Export-grade crypto force karke weak encryption use'],
           ['Certificate Forgery','Fake certificates, CA compromise ya misconfiguration'],
         ].map(r=>`
-        <div style="display:grid;grid-template-columns:180px 1fr;gap:8px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;align-items:center;">
-          <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#dc1414;">${r[0]}</span>
-          <span style="font-family:'Inter',sans-serif;font-size:12px;color:#aaa;">${r[1]}</span>
+        <div style="display:grid;grid-template-columns:180px 1fr;gap:8px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;align-items:center;">
+          <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--accent);">${r[0]}</span>
+          <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text);">${r[1]}</span>
         </div>`).join('')}
       </div>
 
@@ -862,9 +863,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Certificate Monitoring','Expiry aur unauthorized certs monitor karo'],
           ['Certificate Transparency','Public logs mein certificates verify karo'],
         ].map(r=>`
-        <div style="display:flex;align-items:center;gap:12px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(220,20,20,0.1)" stroke="rgba(220,20,20,0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#f4f4f5;">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
         </div>`).join('')}
       </div>
 
@@ -888,15 +889,15 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Hybrid Attack','Dictionary + variations, password1, Password!, p@ssword, common human patterns.'],
           ['Rainbow Table Attack','Pre-computed hash tables, hashes ko instantly reverse karna bina computing.'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 18px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:#dc1414;margin-bottom:5px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;line-height:1.6;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 18px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:5px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);line-height:1.6;">${r[1]}</div>
         </div>`).join('')}
       </div>
 
       <h2>3. Password Cracking Speed: GPU Power</h2>
       <div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:8px 16px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:8px 16px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);">
           <span style="font-size:10px;font-weight:700;color:#555;font-family:'Rajdhani',monospace;letter-spacing:2px;">PASSWORD TYPE</span>
           <span style="font-size:10px;font-weight:700;color:#555;font-family:'Rajdhani',monospace;letter-spacing:2px;">LENGTH</span>
           <span style="font-size:10px;font-weight:700;color:#555;font-family:'Rajdhani',monospace;letter-spacing:2px;">CRACK TIME</span>
@@ -908,10 +909,10 @@ User connects to fake bank, credentials stolen</code></pre>
           ['All characters','12 chars','Centuries'],
           ['Passphrase','20+ chars','Impossible'],
         ].map((r,i)=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:10px;border:1px solid rgba(${i>=3?'220,20,20,0.2':'255,255,255,0.06'});padding:10px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:center;">
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#f4f4f5;">${r[0]}</div>
-          <div style="font-family:'Rajdhani',monospace;font-size:13px;color:#888;">${r[1]}</div>
-          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:${i>=3?'#dc1414':'#f4f4f5'};">${r[2]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:10px;border:1px solid rgba(${i>=3?'220,20,20,0.2':'255,255,255,0.06'});padding:10px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:center;">
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--white);">${r[0]}</div>
+          <div style="font-family:'Rajdhani',monospace;font-size:13px;color:var(--text-dim);">${r[1]}</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:${i>=3?'var(--accent)':'var(--white)'};">${r[2]}</div>
         </div>`).join('')}
       </div>
 
@@ -925,9 +926,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['WiFi WPA2','Handshake capture karo, offline crack karo'],
           ['Hash Files','Leaked password dumps, offline cracking'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 16px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin-bottom:4px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 16px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -942,9 +943,9 @@ User connects to fake bank, credentials stolen</code></pre>
           'Avoid dictionary words, names, birthdates',
           'Never reuse passwords, especially for important accounts',
         ].map(q=>`
-        <div style="display:flex;align-items:center;gap:12px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(220,20,20,0.1)" stroke="rgba(220,20,20,0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span style="font-family:'Inter',sans-serif;font-size:12px;color:#aaa;">${q}</span>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text);">${q}</span>
         </div>`).join('')}
       </div>
 
@@ -958,9 +959,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Strong Hashing','bcrypt ya Argon2, slow by design, cracking expensive'],
           ['Monitoring','Failed login spikes = brute force alert'],
         ].map(r=>`
-        <div style="display:flex;align-items:center;gap:12px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(220,20,20,0.1)" stroke="rgba(220,20,20,0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#f4f4f5;">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">${r[0]}</span><span style="font-family:'Inter',sans-serif;font-size:12px;color:#666;display:block;margin-top:2px;">${r[1]}</span></div>
         </div>`).join('')}
       </div>
 
@@ -984,9 +985,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Identity','MFA, PAM, least privilege, zero trust'],
           ['Human','Security training, phishing simulations, policies'],
         ].map((r,i)=>`
-        <div style="display:grid;grid-template-columns:120px 1fr;gap:8px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;align-items:center;">
-          <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#dc1414;">${r[0]}</span>
-          <span style="font-family:'Inter',sans-serif;font-size:12px;color:#aaa;">${r[1]}</span>
+        <div style="display:grid;grid-template-columns:120px 1fr;gap:8px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;align-items:center;">
+          <span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--accent);">${r[0]}</span>
+          <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text);">${r[1]}</span>
         </div>`).join('')}
       </div>
 
@@ -1000,9 +1001,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['WAF','Web Application Firewall. SQLi, XSS, CSRF block karta hai. L7 inspection.'],
           ['PAM','Privileged Access Management. Admin accounts ke liye. Session recording. Just-in-time access.'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 18px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:#dc1414;margin-bottom:5px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;line-height:1.7;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(255,255,255,0.06);padding:14px 18px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--accent);margin-bottom:5px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);line-height:1.7;">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -1015,9 +1016,9 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Microsegmentation','Network ko small zones mein divide karo. Lateral movement difficult.'],
           ['Least Privilege','Sirf zaroori access do. Admin rights minimize karo.'],
         ].map(r=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border-radius:12px;border:1px solid rgba(220,20,20,0.12);padding:14px 16px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:#f4f4f5;margin-bottom:5px;">${r[0]}</div>
-          <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;">${r[1]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border-radius:12px;border:1px solid rgba(var(--accent-rgb),0.12);padding:14px 16px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:5px;">${r[0]}</div>
+          <div style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text-dim);">${r[1]}</div>
         </div>`).join('')}
       </div>
 
@@ -1031,8 +1032,8 @@ User connects to fake bank, credentials stolen</code></pre>
           ['Recovery','Systems restore karna, backup se, verify karo'],
           ['Lessons Learned','Kya hua, kaise improve karein, documentation'],
         ].map((r,i,a)=>`
-        <div style="background:linear-gradient(135deg,#13131a 0%,#0e0e14 100%);border:1px solid rgba(${i===5?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:12px 24px;text-align:center;width:300px;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:${i===5?'#dc1414':'#f4f4f5'};">${r[0]}</div>
+        <div style="background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border:1px solid rgba(${i===5?'220,20,20,0.3':'255,255,255,0.06'});border-radius:10px;padding:12px 24px;text-align:center;width:300px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:${i===5?'var(--accent)':'var(--white)'};">${r[0]}</div>
           <div style="font-family:'Inter',sans-serif;font-size:11px;color:#666;margin-top:3px;">${r[1]}</div>
         </div>${i<a.length-1?'<svg width="16" height="18" viewBox="0 0 16 18" fill="none" style="margin:2px 0;"><path d="M8 2v12M3 10l5 5 5-5" stroke="#333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}`).join('')}
       </div>
@@ -1049,26 +1050,105 @@ User connects to fake bank, credentials stolen</code></pre>
           'Public WiFi par VPN use karo',
           'Antivirus / EDR install karo, real-time protection',
         ].map(q=>`
-        <div style="display:flex;align-items:center;gap:12px;background:#0e0e12;border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(220,20,20,0.1)" stroke="rgba(220,20,20,0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="#dc1414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span style="font-family:'Inter',sans-serif;font-size:12px;color:#aaa;">${q}</span>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid rgba(255,255,255,0.04);padding:10px 16px;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.3)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--text);">${q}</span>
         </div>`).join('')}
       </div>
 
       <!-- COURSE COMPLETE BANNER -->
-      <div style="background:linear-gradient(135deg,#0f0f16 0%,#0a0a10 100%);border:1px solid rgba(220,20,20,0.35);border-radius:16px;padding:32px 28px;margin:28px 0 0;position:relative;overflow:hidden;text-align:center;">
-        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 0%,rgba(220,20,20,0.06) 0%,transparent 60%);pointer-events:none;"></div>
+      <div style="background:linear-gradient(135deg,#0f0f16 0%,#0a0a10 100%);border:1px solid rgba(var(--accent-rgb),0.35);border-radius:16px;padding:32px 28px;margin:28px 0 0;position:relative;overflow:hidden;text-align:center;">
+        <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 0%,rgba(var(--accent-rgb),0.06) 0%,transparent 60%);pointer-events:none;"></div>
         <div style="position:relative;">
-          <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:#dc1414;letter-spacing:4px;text-transform:uppercase;margin-bottom:12px;">Complete Cyber Attacks Fundamentals</div>
-          <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:#f4f4f5;line-height:1.2;margin-bottom:16px;">Attacks 1 se 10 Tak. Complete.</div>
-          <p style="font-family:'Inter',sans-serif;font-size:13px;color:#888;line-height:1.9;max-width:560px;margin:0 auto 20px;">Social Engineering se lekar Ransomware, MITM, SQLi, XSS, DNS Spoofing, TLS attacks, aur complete defense strategies tak. Ab tum samjhte ho ki attackers kaise sochte hain.</p>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:4px;text-transform:uppercase;margin-bottom:12px;">Complete Cyber Attacks Fundamentals</div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:26px;font-weight:700;color:var(--white);line-height:1.2;margin-bottom:16px;">Attacks 1 se 10 Tak. Complete.</div>
+          <p style="font-family:'Inter',sans-serif;font-size:13px;color:var(--text-dim);line-height:1.9;max-width:560px;margin:0 auto 20px;">Social Engineering se lekar Ransomware, MITM, SQLi, XSS, DNS Spoofing, TLS attacks, aur complete defense strategies tak. Ab tum samjhte ho ki attackers kaise sochte hain.</p>
           <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
             ${['10 Attacks','Real Examples','Defense Strategies','Diagrams'].map(t=>`
-            <div style="background:rgba(220,20,20,0.08);border:1px solid rgba(220,20,20,0.2);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:#dc1414;">${t}</div>`).join('')}
+            <div style="background:rgba(var(--accent-rgb),0.08);border:1px solid rgba(var(--accent-rgb),0.2);border-radius:8px;padding:8px 16px;font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--accent);">${t}</div>`).join('')}
           </div>
         </div>
       </div>
 
+    `;
+  }
+
+  else if (index === 11) {
+    document.getElementById('cyberChapterContent').innerHTML = `
+<h2>1. Reconnaissance Kya Hai?</h2>
+<p>Reconnaissance (short mein <strong>recon</strong>) matlab target ke baare mein jitni ho sake utni information gather karna, attack shuru karne se <strong>pehle</strong>. Har serious attack ka ye sabse pehla step hai. Attacker jitna zyada jaanta hai, utna aasaan aur chup-chaap wo attack kar sakta hai.</p>
+<div class="info-box"><p><strong>Simple Analogy:</strong> Jaise chori se pehle chor ghar ki "reki" karta hai, kaunsa gate khula rehta hai, camera kahan hai, log kab bahar hote hain. Waise hi cyber attacker target ki digital reki karta hai, taaki kamzor jagah mil jaye.</p></div>
+
+<h2>2. Passive vs Active Recon</h2>
+<p>Recon do tarah ka hota hai. Farak itna hai ki aap target ko <strong>chhu rahe ho ya nahi</strong>.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:15px 16px;">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;">Passive Recon</div>
+    <div style="font-size:12.5px;color:var(--text-dim);line-height:1.6;">Target ko chhuye bina, sirf public information se. Target ko pata hi nahi chalta. Example: WHOIS, Google, LinkedIn, Shodan.</div>
+  </div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:15px 16px;">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;">Active Recon</div>
+    <div style="font-size:12.5px;color:var(--text-dim);line-height:1.6;">Target ke system se seedha interact. Zyada detail milti hai, par ye logs mein dikh sakta hai aur detect ho sakta hai. Example: port scan, banner grab.</div>
+  </div>
+</div>
+
+<h2>3. OSINT: Public Information ki Taqat</h2>
+<p>OSINT (Open Source Intelligence) matlab openly available information se ek poori picture banana. Aapko hairani hogi internet par kitna kuch pehle se public pada hota hai.</p>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);">WHOIS Lookup</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Domain kisne register kiya, registrar, email, kabhi-kabhi phone aur address.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);">DNS Records</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Subdomains, mail servers (MX), IP addresses. dev. aur staging. subdomains aksar kamzor hote hain.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);">Google Dorking</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">site:, filetype:, inurl: jaise operators se hidden pages, PDFs aur login panels dhoondna.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);">LinkedIn & Job Posts</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Employees ke naam, email format, aur "experience with AWS, React" jaise job posts se poora tech stack reveal ho jaata hai.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);">GitHub & Code Leaks</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Public repos aur purane commits mein hardcoded API keys, passwords aur config files mil jaate hain.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);">Shodan & Breach Dumps</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Shodan internet se jude servers/devices dhoondta hai. Purane data breaches se leaked emails aur passwords milte hain.</span></div>
+</div>
+
+<h2>4. Footprinting & Scanning Techniques</h2>
+<p>Jab passive info kaafi ho jaye, attacker <strong>active</strong> scanning par aata hai, target ke network ka naksha banane ke liye.</p>
+<pre><code># Google dorks (passive, sirf public info)
+site:paynova.com filetype:pdf
+site:paynova.com inurl:admin
+
+# Nmap: kaunse ports aur services khule hain (active, detectable)
+nmap -sV -p- paynova.com
+
+# Subdomain aur directory discovery (active)
+dev.paynova.com, staging.paynova.com
+/admin, /backup, /.git</code></pre>
+<div class="info-box"><p><strong>Note:</strong> Ye tools (Nmap, dorks) ethical hacking aur apne hi systems test karne ke liye hain. Kisi doosre ke system par bina likhit permission ke scan karna <strong>illegal</strong> hai.</p></div>
+
+<h2>5. Real Example: Ek Target ki Recon</h2>
+<p>Maan lo ek attacker <strong>Paynova</strong> (ek fictional payments company) ko target karna chahta hai. Wo ek bhi "attack" packet bheje bina ye sab pata laga leta hai:</p>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 20px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">WHOIS</strong> se email format mila: <span style="font-family:'JetBrains Mono',monospace;color:var(--accent);">naam.surname@paynova.com</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">DNS</strong> se ek subdomain mila: <span style="font-family:'JetBrains Mono',monospace;color:var(--accent);">dev.paynova.com</span> (test server, shayad kam secure)</div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">Job post</strong> se tech stack: "Node.js, React, AWS S3". Ab attacker jaanta hai kis cheez ki vulnerability dhoondni hai</div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">GitHub</strong> ke ek purane commit mein ek leaked AWS key mil gayi</div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">LinkedIn</strong> se IT admin ka naam mila, jo phishing ke liye perfect target hai</div>
+</div>
+<div class="info-box"><p><strong>Key Insight:</strong> Recon ka lagbhag 80% kaam target ko chhue bina ho jaata hai. Isliye apni public information control karna defence ka pehla step hai.</p></div>
+
+<h2>6. Defence: Apna Attack Surface Chhota Karo</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">WHOIS Privacy On Karo</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Domain registrar ki privacy protection se email/address public na ho</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">GitHub Mein Secrets Mat Daalo</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Secret scanning on karo, keys environment variables mein rakho</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Unused Ports/Services Band Karo</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Jo service chahiye hi nahi, use band rakho. Internal cheezein VPN/firewall ke peeche</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Version Banners Hide Karo</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Server/software version chhupao, taaki attacker exact exploit na dhoond paye</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Scanning Monitor & Rate-Limit Karo</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">IDS/WAF se port scans detect karo. Khud ko bhi attacker ki tarah regular scan karo</span></div></div>
+</div>
+
+<h2>7. Try It Yourself</h2>
+<div style="display:flex;align-items:center;gap:14px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:12px;padding:16px 18px;margin:0 0 28px;flex-wrap:wrap;">
+  <div style="flex:1;min-width:200px;">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px;">Lab: Hidden Info Dhoondo</div>
+    <div style="font-size:12.5px;color:var(--text-dim);line-height:1.55;">Ek real lab mein recon ki practice karo, files aur pages mein chhupi hui information nikaalo.</div>
+  </div>
+  <a href="/rooms?open=for-02" style="background:rgba(var(--accent-rgb),0.12);border:1px solid rgba(var(--accent-rgb),0.4);color:var(--accent);font-family:'Inter',sans-serif;font-weight:700;font-size:13px;text-decoration:none;border-radius:9px;padding:10px 18px;white-space:nowrap;">Open Lab &rarr;</a>
+</div>
+
+<h2>8. Quick Quiz</h2>
+<p style="margin-bottom:14px;">Chalo check karte hain kitna samajh aaya. 4 chhote sawaal:</p>
+<iframe class="acx-diagram-frame" data-diagram="quiz-recon" src="/quiz/quiz.html?set=recon" scrolling="no" style="width:100%;height:420px;border:none;display:block;overflow:hidden;" loading="lazy" title="Reconnaissance Quiz"></iframe>
     `;
   }
 
