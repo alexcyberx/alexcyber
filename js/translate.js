@@ -10,7 +10,7 @@
 const chapterCache = {};
 
 // Cache version - bump to clear old wrong translations
-const CACHE_VERSION = 'v8';
+const CACHE_VERSION = 'v9';
 const CACHE_VER_KEY = 'acx_cache_ver';
 
 

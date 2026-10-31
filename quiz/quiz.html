@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Quiz @alex.cyberx</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* Theme-aware chapter quiz (green / blue / red), set via ?theme= and a parent
+   postMessage, matching the course diagrams. Reads the question set from ?set=. */
+:root{
+  --acc:#10b981; --acc2:#34d399; --acc-rgb:16,185,129; --bg:#0b0d0d;
+  --text:#d7dcda; --dim:#8b938f; --faint:#5c6460;
+  --surface:rgba(255,255,255,0.03); --line:rgba(255,255,255,0.09); --line2:rgba(255,255,255,0.16);
+  --ok:#10b981; --ok-rgb:16,185,129; --no:#9aa29d; --no-rgb:154,162,157;
+}
+[data-theme="blue"]{ --acc:#2f86e6; --acc2:#5aa2f0; --acc-rgb:47,134,230; --bg:#070d1a; --text:#cdd8e8; --dim:#8695ab; --line:rgba(140,180,255,0.12); --line2:rgba(140,180,255,0.2); --ok:#2f86e6; --ok-rgb:47,134,230; }
+[data-theme="red"]{ --acc:#dc1414; --acc2:#ff5a5a; --acc-rgb:220,20,20; --bg:#060608; --text:#d4cdcd; --dim:#9a8f8f; --line:rgba(255,255,255,0.08); --line2:rgba(255,255,255,0.15); --ok:#2fae6a; --ok-rgb:47,174,106; }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);}
+body{font-family:'Inter',system-ui,sans-serif;color:var(--text);padding:4px 2px 8px;overflow:hidden;}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 16px;}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;}
+.badge{display:flex;align-items:center;gap:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;color:var(--acc);text-transform:uppercase;}
+.count{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--dim);}
+.bar{height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden;margin-bottom:16px;}
+.bar > i{display:block;height:100%;background:var(--acc);width:0;transition:width .3s ease;}
+.q{font-size:15px;font-weight:600;color:#f2f5f4;line-height:1.5;margin-bottom:14px;}
+.opts{display:flex;flex-direction:column;gap:9px;}
+.opt{display:flex;align-items:flex-start;gap:11px;width:100%;text-align:left;background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;color:var(--text);font:500 13.5px 'Inter',sans-serif;line-height:1.45;transition:all .15s;}
+.opt:hover:not(:disabled){border-color:var(--line2);background:rgba(255,255,255,0.04);}
+.opt:disabled{cursor:default;}
+.opt .mk{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font:700 11px 'JetBrains Mono',monospace;color:var(--dim);margin-top:1px;}
+.opt.correct{border-color:rgba(var(--ok-rgb),0.6);background:rgba(var(--ok-rgb),0.1);color:#f2f5f4;}
+.opt.correct .mk{border-color:var(--ok);background:var(--ok);color:#06130d;}
+.opt.wrong{border-color:rgba(var(--no-rgb),0.6);background:rgba(var(--no-rgb),0.1);color:var(--text);}
+.opt.wrong .mk{border-color:var(--no);color:var(--no);}
+.explain{margin-top:13px;font-size:12.5px;line-height:1.6;color:var(--dim);border-left:2px solid var(--line2);padding-left:11px;display:none;}
+.explain.show{display:block;}
+.explain b{color:#f2f5f4;font-weight:600;}
+.foot{margin-top:16px;display:flex;justify-content:flex-end;}
+.btn{background:rgba(var(--acc-rgb),0.12);border:1px solid rgba(var(--acc-rgb),0.4);color:var(--acc2);font:700 13px 'Inter',sans-serif;border-radius:9px;padding:9px 18px;cursor:pointer;transition:all .15s;}
+.btn:hover{background:rgba(var(--acc-rgb),0.2);}
+.btn[disabled]{opacity:.4;cursor:default;}
+.result{text-align:center;padding:10px 4px;}
+.score{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:34px;color:var(--acc);line-height:1;}
+.result p{font-size:13px;color:var(--dim);margin-top:8px;line-height:1.5;}
+.result .btn{margin-top:16px;display:inline-block;}
+</style>
+</head>
+<body>
+<div class="card" id="card"></div>
+
+<script>
+var QUIZZES = {
+  recon: {
+    title: 'Recon quiz',
+    questions: [
+      { q: 'Reconnaissance ek attack ke kis stage par hota hai?',
+        options: ['Sabse pehle, attack karne se bhi pehle', 'Attack ke beech mein', 'Sirf attack ke baad', 'Kabhi nahi, ye zaroori nahi'],
+        answer: 0,
+        explain: 'Recon <b>pehla step</b> hai. Attacker pehle target ke baare mein jitni ho sake utni information gather karta hai, tabhi wo decide karta hai ki kahan aur kaise attack karna hai.' },
+      { q: 'In mein se kaunsa <b>passive</b> reconnaissance ka example hai?',
+        options: ['Nmap se target ke ports scan karna', 'Target ki public LinkedIn, WHOIS aur website dekhna', 'Login page par passwords brute force karna', 'Server ko requests se flood karna'],
+        answer: 1,
+        explain: 'Passive recon mein attacker target ko <b>chhuye bina</b> public information collect karta hai (LinkedIn, WHOIS, Google). Target ko pata hi nahi chalta. Nmap scanning <b>active</b> recon hai.' },
+      { q: 'Active recon attacker ke liye risky kyun hai?',
+        options: ['Wo hamesha fail hota hai', 'Wo target ko directly touch karta hai, isliye logs mein dikh sakta hai aur detect ho sakta hai', 'Usme koi tool nahi lagta', 'Wo sirf raat ko kaam karta hai'],
+        answer: 1,
+        explain: 'Active recon (port scan, directory brute force) target ke system se <b>seedha interact</b> karta hai, to ye server logs aur IDS/firewall mein <b>record aur detect</b> ho sakta hai.' },
+      { q: 'Ek defender apna <b>attack surface</b> kaise chhota kare?',
+        options: ['Sirf ek strong password rakh ke', 'Public info kam karke: WHOIS privacy, GitHub mein secrets na daal ke, unused ports band karke', 'Antivirus install karke', 'Site ka colour badal ke'],
+        answer: 1,
+        explain: 'Attacker ke paas jitni kam information hogi, utna mushkil. <b>WHOIS privacy</b>, GitHub mein koi secret na, unused services/ports band, aur scanning ko monitor/rate-limit karna attack surface chhota karta hai.' },
+    ],
+  },
+  owasp: {
+    title: 'OWASP Top 10 quiz',
+    questions: [
+      { q: 'OWASP Top 10 kya hai?',
+        options: ['10 sabse common aur khatarnak web vulnerabilities ki list', 'Ek programming language', 'Ek antivirus software', 'Ek type ka password'],
+        answer: 0,
+        explain: 'OWASP Top 10 web apps ki <b>10 sabse common aur serious</b> vulnerabilities ki list hai, jo har kuch saal mein update hoti hai aur industry standard maani jaati hai.' },
+      { q: 'OWASP Top 10 (2021) mein sabse upar (#1) kaunsa hai?',
+        options: ['Broken Access Control', 'SQL Injection', 'Phishing', 'DDoS'],
+        answer: 0,
+        explain: '<b>A01 Broken Access Control</b> 2021 list mein #1 hai, jahan user wo cheez access kar leta hai jiski use permission nahi.' },
+      { q: 'SQL Injection, XSS aur Command Injection OWASP ki kaunsi category mein aate hain?',
+        options: ['Injection (A03)', 'Cryptographic Failures', 'SSRF', 'Security Misconfiguration'],
+        answer: 0,
+        explain: 'Teeno mein user input <b>code ban jaata hai</b>, isliye ye sab <b>A03 Injection</b> ke andar aate hain.' },
+      { q: 'OWASP Top 10 ka main faayda kya hai?',
+        options: ['Priorities set karna: pehle kis cheez par dhyaan dena', 'Ye ek hacking tool hai', 'Passwords save karta hai', 'Internet speed badhata hai'],
+        answer: 0,
+        explain: 'Ye list batati hai ki sabse zyada kaunsi galtiyan hoti hain, taaki developer aur learner <b>sahi cheez par pehle</b> dhyaan de sakein.' },
+    ],
+  },
+  csrf: {
+    title: 'CSRF quiz',
+    questions: [
+      { q: 'CSRF attack mein attacker kiska faayda uthata hai?',
+        options: ['Victim ke already logged-in session (cookie) ka', 'Weak password ka', 'Open port ka', 'Outdated software ka'],
+        answer: 0,
+        explain: 'CSRF victim ke <b>logged-in session</b> ka use karke uski taraf se request bhejta hai. Browser automatically cookie attach kar deta hai, to server use valid maanta hai.' },
+      { q: 'CSRF ke against sabse strong fix kaunsa hai?',
+        options: ['CSRF token (har form mein random secret)', 'Strong password', 'Sirf HTTPS', 'Antivirus'],
+        answer: 0,
+        explain: 'Ek <b>CSRF token</b> har form mein ek secret random value hoti hai jo attacker guess nahi kar sakta, isliye uski fake request reject ho jaati hai.' },
+      { q: 'CSRF aur XSS mein main farak?',
+        options: ['CSRF victim ke session se action karwata hai; XSS victim ke browser mein script chalata hai', 'Dono bilkul same hain', 'CSRF server ko crash karta hai', 'XSS sirf mobile par chalta hai'],
+        answer: 0,
+        explain: '<b>CSRF</b> victim ke session ka misuse karke action karwata hai. <b>XSS</b> victim ke browser mein attacker ka script chalata hai (jo data bhi chura sakta hai).' },
+      { q: 'SameSite cookie CSRF se kaise bachati hai?',
+        options: ['Dusri site se aayi request par cookie nahi bhejti', 'Cookie ko encrypt karti hai', 'Cookie delete kar deti hai', 'Password strong banati hai'],
+        answer: 0,
+        explain: '<b>SameSite=Lax/Strict</b> cookie sirf apni hi site ki requests ke saath jaati hai, to attacker ki site se bheji request mein cookie attach hi nahi hoti.' },
+    ],
+  },
+  cmdi: {
+    title: 'Command Injection quiz',
+    questions: [
+      { q: 'Command Injection mein attacker kya inject karta hai?',
+        options: ['OS/system commands jo server par chalte hain', 'SQL queries', 'Sirf HTML', 'Sirf CSS'],
+        answer: 0,
+        explain: 'App user input ko seedhe ek OS command mein daal deti hai, to attacker apne <b>system commands</b> inject kar deta hai jo server par chal jaate hain.' },
+      { q: 'Input 8.8.8.8; cat /etc/passwd mein semicolon (;) ka kya role hai?',
+        options: ['Pehla command khatam karke doosra command chalata hai', 'Comment banata hai', 'IP ko validate karta hai', 'Kuch nahi karta'],
+        answer: 0,
+        explain: 'Shell mein <b>;</b> ka matlab "pehla command poora, ab agla chalao". Isi se attacker apna extra command ghusa deta hai.' },
+      { q: 'Command Injection ke against sabse behtar prevention?',
+        options: ['User input ke saath OS command banana avoid karo, built-in library functions use karo', 'Strong password', 'Sirf HTTPS', 'Antivirus install karo'],
+        answer: 0,
+        explain: 'Sabse safe hai OS command call hi na karna. Zaroori ho to <b>strict allowlist</b> aur language ke safe functions use karo.' },
+      { q: 'Blind command injection mein attacker kaise confirm karta hai ki command chala?',
+        options: ['sleep/delay command se response ka time dekh ke', 'Output seedha screen par dikhta hai', 'Ek email aati hai', 'Browser crash ho jaata hai'],
+        answer: 0,
+        explain: 'Blind mein output nahi dikhta, to attacker <b>sleep 10</b> jaisi cheez chala ke dekhta hai ki response 10 second late aaya ya nahi.' },
+    ],
+  },
+  bac: {
+    title: 'Broken Access Control quiz',
+    questions: [
+      { q: 'Broken Access Control kya hai?',
+        options: ['User wo cheez access kar leta hai jiski use permission nahi', 'Weak password', 'Slow server', 'Ek virus'],
+        answer: 0,
+        explain: 'App check nahi karti ki user ko ye karne ka <b>haq hai ya nahi</b>, to user doosre ka data ya admin functions access kar leta hai. OWASP 2021 ka #1.' },
+      { q: 'IDOR mein attacker kya karta hai?',
+        options: ['URL/request mein object ID badal ke doosre ka data dekhta hai', 'Server ko flood karta hai', 'Wi-Fi password crack karta hai', 'Fake hotspot banata hai'],
+        answer: 0,
+        explain: 'IDOR mein ID dikhti hai (jaise /order/10234). Attacker use badal deta hai aur server <b>ownership check kiye bina</b> doosre ka data de deta hai.' },
+      { q: 'IDOR rokne ka sahi tareeka kaunsa hai?',
+        options: ['Server har request par ownership/authorization check kare', 'Sirf ID ko random (guess na ho) bana do', 'Button ko UI mein chhupa do', 'Sirf HTTPS laga do'],
+        answer: 0,
+        explain: 'Random ID ya UI chhupana kaafi nahi. Server ko <b>har request par</b> verify karna hoga ki ye object maangne wale user ka hai.' },
+      { q: '"Deny by default" ka matlab?',
+        options: ['Default mein sab mana, sirf allowed cases ko haan', 'Default mein sab allow', 'Admin ko sab mana', 'Kuch nahi'],
+        answer: 0,
+        explain: '<b>Deny by default</b> matlab har cheez pehle blocked, aur sirf jo allowed hai usi ko permission. Naya endpoint apne-aap open nahi hota.' },
+    ],
+  },
+  wifi: {
+    title: 'Wi-Fi Attacks quiz',
+    questions: [
+      { q: 'Evil Twin attack kya hai?',
+        options: ['Asli jaisa naam (SSID) wala fake Wi-Fi hotspot', 'Router ka naya firmware', 'Ek strong password', 'Ek VPN'],
+        answer: 0,
+        explain: 'Evil Twin ek <b>fake hotspot</b> hai jiska naam asli jaisa hota hai (jaise "Free Airport WiFi"), taaki log galti se connect ho jayein aur attacker beech mein aa jaye.' },
+      { q: 'Open (bina password) Wi-Fi par kya risk hai?',
+        options: ['Jo traffic HTTPS nahi hai wo saaf padha ja sakta hai', 'Internet slow ho jaata hai', 'Phone garam ho jaata hai', 'Koi risk nahi'],
+        answer: 0,
+        explain: 'Open Wi-Fi par data encrypt nahi hota, to aas-paas koi bhi <b>plain (HTTP) traffic</b> padh sakta hai. HTTPS phir bhi bachata hai.' },
+      { q: 'Public Wi-Fi par sabse achha bachaav?',
+        options: ['VPN on karo, poora traffic encrypted rahega', 'Screen brightness kam karo', 'Airplane mode on karo', 'Bluetooth off karo'],
+        answer: 0,
+        explain: 'VPN aapka saara traffic ek encrypted tunnel mein daal deta hai, to attacker use padh nahi sakta, chahe Wi-Fi uski hi ho.' },
+      { q: 'Handshake capture karke attacker kya karta hai?',
+        options: ['Offline Wi-Fi password crack karta hai', 'Phone format kar deta hai', 'SIM clone karta hai', 'Kuch nahi'],
+        answer: 0,
+        explain: 'WPA/WPA2 handshake capture karke attacker use <b>offline</b> crack karne ki koshish karta hai. Kamzor password jaldi tut jaata hai.' },
+    ],
+  },
+  ssrf: {
+    title: 'SSRF and File Upload quiz',
+    questions: [
+      { q: 'SSRF mein attacker kya karwata hai?',
+        options: ['Server ko dhoka de ke uski taraf se internal requests', 'Victim ke browser mein script', 'Wi-Fi password crack', 'Fake hotspot'],
+        answer: 0,
+        explain: 'SSRF mein app user ka diya URL fetch karti hai. Attacker ek <b>internal address</b> deta hai, aur server uski taraf se wahan request kar deta hai.' },
+      { q: 'SSRF se sabse khatarnak kya churaya jaata hai?',
+        options: ['Cloud metadata se access keys / credentials', 'Screen wallpaper', 'Browser history', 'Font settings'],
+        answer: 0,
+        explain: 'Cloud servers par ek metadata endpoint hota hai jahan se <b>access keys</b> milti hain. SSRF se attacker wo nikaal ke poore cloud account tak pahunch sakta hai.' },
+      { q: 'SSRF rokne ka tareeka?',
+        options: ['URL allowlist + internal IP ranges block karo', 'Strong password', 'Antivirus', 'Sirf HTTPS'],
+        answer: 0,
+        explain: 'Sirf <b>fixed allowed domains</b> ki request hone do aur internal/private IP ranges block karo, taaki server internal cheezein fetch na kare.' },
+      { q: 'File upload vulnerability mein sabse bada khatra?',
+        options: ['Web shell upload karke server par commands chalana (RCE)', 'Disk full ho jaana', 'Upload slow hona', 'Image quality kharab'],
+        answer: 0,
+        explain: 'Agar attacker ek <b>script/web shell</b> upload karke chala le, to use server par commands chalane (RCE) ka access mil jaata hai, poora server khatre mein.' },
+    ],
+  },
+  privesc: {
+    title: 'Privilege Escalation quiz',
+    questions: [
+      { q: 'Privilege Escalation kya hai?',
+        options: ['Kam access se higher (admin/root) access tak jaana', 'Password reset karna', 'Wi-Fi se connect hona', 'File download karna'],
+        answer: 0,
+        explain: 'Attacker ke paas pehle kam-level access hota hai; privilege escalation se wo <b>admin/root</b> tak pahunch ke poore system par control le leta hai.' },
+      { q: 'Vertical privilege escalation kya hai?',
+        options: ['Normal user se admin/root ban jaana', 'Ek user se doosre same-level user ka access', 'Server se client par jaana', 'Kuch nahi'],
+        answer: 0,
+        explain: '<b>Vertical</b> matlab privilege level upar jaana (user to admin). <b>Horizontal</b> matlab same level ke doosre user ka access lena.' },
+      { q: 'Attack flow mein privilege escalation kahan aata hai?',
+        options: ['Initial access ke baad (post-exploitation), persistence se pehle', 'Sabse pehle', 'Sirf recon mein', 'Attack ke baad kabhi nahi'],
+        answer: 0,
+        explain: 'Flow hota hai: Recon, Initial Access, <b>Privilege Escalation</b>, Persistence, Exfiltration. Access milne ke baad attacker upar jaane ki koshish karta hai.' },
+      { q: 'Privilege escalation se bachne ka sabse bada tareeka?',
+        options: ['Least privilege: har user/service ko minimum power', 'Strong Wi-Fi password', 'Bada login password', 'Antivirus'],
+        answer: 0,
+        explain: '<b>Least privilege</b> se agar attacker ko access mil bhi jaye, to uske paas zyada power nahi hoti aur wo aage nahi badh paata.' },
+    ],
+  },
+};
+
+var params = new URLSearchParams(location.search);
+var setName = params.get('set') || 'recon';
+var QUIZ = QUIZZES[setName] || QUIZZES.recon;
+var i = 0, score = 0, answered = false;
+
+function render(){
+  var card = document.getElementById('card');
+  if (i >= QUIZ.questions.length){
+    var pct = Math.round(score / QUIZ.questions.length * 100);
+    var msg = pct === 100 ? 'Perfect! Sab sahi.' : pct >= 50 ? 'Achha! Ek baar chapter dobara dekh lo.' : 'Koi baat nahi, chapter padho aur phir se try karo.';
+    card.innerHTML = '<div class="result"><div class="score">'+score+' / '+QUIZ.questions.length+'</div><p>'+msg+'</p><button class="btn" onclick="restart()">Phir se karo</button></div>';
+    sendHeight(); return;
+  }
+  var qn = QUIZ.questions[i]; answered = false;
+  var letters = ['A','B','C','D','E'];
+  var opts = qn.options.map(function(o,idx){
+    return '<button class="opt" data-idx="'+idx+'" onclick="pick('+idx+')"><span class="mk">'+letters[idx]+'</span><span>'+o+'</span></button>';
+  }).join('');
+  card.innerHTML =
+    '<div class="top"><div class="badge">'+quizIcon()+' Quick quiz</div><div class="count">Q'+(i+1)+' / '+QUIZ.questions.length+'</div></div>'+
+    '<div class="bar"><i style="width:'+(i/QUIZ.questions.length*100)+'%"></i></div>'+
+    '<div class="q">'+qn.q+'</div>'+
+    '<div class="opts">'+opts+'</div>'+
+    '<div class="explain" id="explain">'+qn.explain+'</div>'+
+    '<div class="foot"><button class="btn" id="nextBtn" disabled onclick="next()">'+(i===QUIZ.questions.length-1?'Result':'Next')+'</button></div>';
+  sendHeight();
+}
+function quizIcon(){ return '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="var(--acc)" stroke-width="1.4"/><path d="M6 6.2a2 2 0 1 1 2.6 1.9c-.4.15-.6.4-.6.8v.4" stroke="var(--acc)" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="8" cy="11.6" r="0.9" fill="var(--acc)"/></svg>'; }
+
+function pick(idx){
+  if (answered) return; answered = true;
+  var qn = QUIZ.questions[i];
+  if (idx === qn.answer) score++;
+  var btns = document.querySelectorAll('.opt');
+  btns.forEach(function(b){
+    var bi = parseInt(b.getAttribute('data-idx'),10);
+    b.disabled = true;
+    if (bi === qn.answer) b.classList.add('correct');
+    else if (bi === idx) b.classList.add('wrong');
+  });
+  document.getElementById('explain').classList.add('show');
+  document.getElementById('nextBtn').disabled = false;
+  sendHeight();
+}
+function next(){ i++; render(); }
+function restart(){ i = 0; score = 0; render(); }
+
+function applyTheme(t){ if(t==='blue'||t==='red'||t==='green'){ document.documentElement.setAttribute('data-theme', t==='green'?'':t); } }
+(function(){ try{ var m=location.search.match(/theme=(green|blue|red)/); if(m) applyTheme(m[1]); }catch(e){} })();
+window.addEventListener('message', function(e){ var d=e.data||{}; if(d.type==='acx-theme') applyTheme(d.theme); });
+
+function sendHeight(){ try{ var h=Math.ceil(document.body.scrollHeight)+8; window.parent.postMessage({type:'acx-diagram-height', height:h}, '*'); }catch(e){} }
+window.addEventListener('load', function(){ sendHeight(); try{ window.parent.postMessage({type:'acx-diagram-ready'}, '*'); }catch(e){} });
+window.addEventListener('resize', sendHeight);
+if(window.ResizeObserver){ new ResizeObserver(sendHeight).observe(document.body); }
+render();
+setTimeout(sendHeight,300); setTimeout(sendHeight,1000);
+</script>
+</body>
+</html>
