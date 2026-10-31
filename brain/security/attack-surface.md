@@ -1,6 +1,6 @@
 # Attack surface: AlexCyberX
 
-Last verified: 2026-10-24 (labs on their own origin; 2026-10-23 admin panel phase 4; full audit 2026-10-16, commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · MISSING · VERIFY · REC (see
+Last verified: 2026-10-31 (static `/quiz` folder for the course quiz iframe; 2026-10-24 labs on their own origin; 2026-10-23 admin panel phase 4; full audit 2026-10-16, commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · MISSING · VERIFY · REC (see
 `threat-model.md`). "IP" limits use `req.ip` (correct: `app.set('trust proxy', 1)`, `server/index.js:13`).
 
 ## 1. Network / deployment exposure
@@ -11,7 +11,7 @@ Last verified: 2026-10-24 (labs on their own origin; 2026-10-23 admin panel phas
 - Global middleware order (`server/index.js`): trust proxy → helmet/CSP (18-34) → Permissions-Policy → CORS (41-45:
   origin `ALLOWED_ORIGIN || '*'`, GET/POST, no credentials) → `express.json` (100 kb default, keeps `rawBody`) →
   urlencoded → cookieParser → morgan → `blockGate` → `attackDetector` (skips `/api/lab/`, `/pages/labs/`) → old admin
-  paths 404 → Next embed/proxy → static (`css js pages components diagrams brand`, `dotfiles:'deny'`) → routes →
+  paths 404 → Next embed/proxy → static (`css js pages components diagrams quiz brand`, `dotfiles:'deny'`) → routes →
   Next 404 page / JSON 404 → error handler (generic message).
 - CSP: `script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://*.googleapis.com`, `script-src-attr
   'unsafe-inline'`, `connect-src` Supabase + Google + MyMemory, `img-src https:`, `frame-ancestors 'self'`.
