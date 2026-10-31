@@ -10,15 +10,15 @@
    and a parent postMessage. No danger colour: the attacker path is grey and
    dashed, told apart by lightness and style, not hue. */
 :root{
-  --acc:#10b981; --acc2:#34d399; --acc-rgb:16,185,129;
+  --acc:#10b981; --acc2:#34d399; --acc-rgb:16,185,129; --bg:#0b0d0d;
   --text:#d7dcda; --dim:#8b938f; --faint:#5c6460;
   --surface:rgba(255,255,255,0.03); --line:rgba(255,255,255,0.09); --line2:rgba(255,255,255,0.16);
   --bad:#9aa29d; --bad-rgb:154,162,157;
 }
-[data-theme="blue"]{ --acc:#2f86e6; --acc2:#5aa2f0; --acc-rgb:47,134,230; --text:#cdd8e8; --dim:#8695ab; --faint:#5f6f88; --line:rgba(140,180,255,0.12); --line2:rgba(140,180,255,0.2); }
-[data-theme="red"]{ --acc:#dc1414; --acc2:#ff5a5a; --acc-rgb:220,20,20; --text:#d4cdcd; --dim:#9a8f8f; --faint:#6a5f5f; --line:rgba(255,255,255,0.08); --line2:rgba(255,255,255,0.15); }
+[data-theme="blue"]{ --acc:#2f86e6; --acc2:#5aa2f0; --acc-rgb:47,134,230; --text:#cdd8e8; --dim:#8695ab; --faint:#5f6f88; --line:rgba(140,180,255,0.12); --line2:rgba(140,180,255,0.2); --bg:#070d1a; }
+[data-theme="red"]{ --acc:#dc1414; --acc2:#ff5a5a; --acc-rgb:220,20,20; --text:#d4cdcd; --dim:#9a8f8f; --faint:#6a5f5f; --line:rgba(255,255,255,0.08); --line2:rgba(255,255,255,0.15); --bg:#060608; }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{background:transparent;}
+html,body{background:var(--bg);}
 body{font-family:'Inter',system-ui,sans-serif;color:var(--text);display:flex;flex-direction:column;align-items:center;padding:6px 14px 10px;overflow:hidden;}
 .wrap{width:100%;max-width:540px;}
 .head{display:flex;flex-direction:column;gap:3px;margin-bottom:14px;}
