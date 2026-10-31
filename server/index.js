@@ -128,7 +128,7 @@ app.get('/js/flags.js', (req, res) => {
 });
 app.use(nextProxy);
 
-const PUBLIC_DIRS = ['css', 'js', 'pages', 'components', 'diagrams', 'brand'];
+const PUBLIC_DIRS = ['css', 'js', 'pages', 'components', 'diagrams', 'quiz', 'brand'];
 PUBLIC_DIRS.forEach((dir) => {
   app.use('/' + dir, express.static(path.join(ROOT, dir), { dotfiles: 'deny' }));
 });
