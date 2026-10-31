@@ -143,19 +143,10 @@
 .ctf-card.solved::after { content: '✓ Solved'; position: absolute; top: 12px; right: 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: #4ade80; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.2); padding: 3px 8px; border-radius: 20px; }
 
 .ctf-card-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
-.ctf-card-icon { width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; }
-.ctf-cat-web     { background: rgba(99,179,237,0.1); border: 1px solid rgba(99,179,237,0.15); }
-.ctf-cat-forensics { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.15); }
-.ctf-cat-crypto  { background: rgba(250,204,21,0.1); border: 1px solid rgba(250,204,21,0.15); }
-.ctf-cat-osint   { background: rgba(var(--accent-rgb),0.1); border: 1px solid rgba(var(--accent-rgb),0.15); }
-.ctf-cat-pwn     { background: rgba(var(--accent-rgb),0.1); border: 1px solid rgba(var(--accent-rgb),0.2); }
-.ctf-cat-misc    { background: rgba(156,163,175,0.1); border: 1px solid rgba(156,163,175,0.15); }
-.ctf-cat-reversing { background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.15); }
-.ctf-cat-ai     { background: rgba(244,114,182,0.1); border: 1px solid rgba(244,114,182,0.18); }
 
 .ctf-card-info { flex: 1; min-width: 0; }
 .ctf-card-title { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ctf-card-cat { font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-dim); }
+.ctf-card-cat { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
 
 .ctf-card-desc { font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
@@ -184,7 +175,6 @@
 .ctf-modal-desc, .ctf-modal-hint-wrap { overflow-wrap: anywhere; }
 body.ctf-modal-open { overflow: hidden; }
 .ctf-modal-cat { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-.ctf-modal-cat svg { width: 14px; height: 14px; }
 .ctf-modal-title { font-family: 'Rajdhani', sans-serif; font-size: 24px; font-weight: 700; color: var(--white); margin-bottom: 6px; }
 .ctf-modal-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
 .ctf-modal-desc { font-size: 13px; color: var(--text); line-height: 1.7; margin-bottom: 22px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
@@ -385,7 +375,6 @@ body.ctf-modal-open { overflow: hidden; }
 .ctfx-d.easy u { background: #4ade80; } .ctfx-d.medium u { background: #fb923c; } .ctfx-d.hard u { background: #f87171; }
 .ctfx-cats { grid-area: cats; padding: 16px 18px; display: grid; grid-template-columns: 1fr; gap: 12px; align-content: center; }
 .ctfx-cat { display: flex; align-items: center; gap: 11px; min-width: 0; }
-.ctfx-cat-ic { width: 32px; height: 32px; border-radius: 9px; background: rgba(var(--accent-rgb),.1); color: var(--accent); display: grid; place-items: center; flex-shrink: 0; }
 .ctfx-cat-t { flex: 1; min-width: 0; }
 .ctfx-cat-r { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; margin-bottom: 6px; }
 .ctfx-cat-r b { color: var(--fg-2); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -415,7 +404,6 @@ body.ctf-modal-open { overflow: hidden; }
   .ctfx-ring-c b { font-size: 23px; }
   .ctfx-solved b { font-size: 28px; }
   .ctfx-cats { padding: 14px 16px; column-gap: 16px; }
-  .ctfx-cat-ic { width: 28px; height: 28px; border-radius: 8px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ctfx, .ctfx *, .ctfx *::before { transition: none !important; animation: none !important; }

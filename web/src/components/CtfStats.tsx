@@ -12,7 +12,7 @@ type Props = {
   solved: Record<string, boolean>;
   daily: Challenge | 'done' | null;
   onOpen: (id: string) => void;
-  catIcons: { cat: string; icon: React.ReactNode }[];
+  cats: string[];
 };
 
 const DIFFS: Difficulty[] = ['Easy', 'Medium', 'Hard'];
@@ -60,7 +60,7 @@ function useMidnightCountdown(): string {
   return left;
 }
 
-export default function CtfStats({ challenges, solved, daily, onOpen, catIcons }: Props) {
+export default function CtfStats({ challenges, solved, daily, onOpen, cats }: Props) {
   const [ready, setReady] = useState(false);
   useEffect(() => {
     const id = requestAnimationFrame(() => setReady(true));
@@ -77,12 +77,12 @@ export default function CtfStats({ challenges, solved, daily, onOpen, catIcons }
     return { d, t: all.length, s: all.filter((c) => solved[c.id]).length };
   }), [challenges, solved]);
 
-  const byCat = useMemo(() => catIcons
-    .map(({ cat, icon }) => {
+  const byCat = useMemo(() => cats
+    .map((cat) => {
       const all = challenges.filter((c) => c.cat === cat);
-      return { cat, icon, t: all.length, s: all.filter((c) => solved[c.id]).length };
+      return { cat, t: all.length, s: all.filter((c) => solved[c.id]).length };
     })
-    .filter((x) => x.t > 0), [challenges, solved, catIcons]);
+    .filter((x) => x.t > 0), [challenges, solved, cats]);
 
   const pctN = useCountUp(pct, ready);
   const solvedN = useCountUp(done.length, ready, 900);
@@ -121,9 +121,8 @@ export default function CtfStats({ challenges, solved, daily, onOpen, catIcons }
       </div>
 
       <div className="ctfx-cats">
-        {byCat.map(({ cat, icon, s, t }, i) => (
+        {byCat.map(({ cat, s, t }, i) => (
           <div className="ctfx-cat" key={cat}>
-            <span className="ctfx-cat-ic"><svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">{icon}</svg></span>
             <div className="ctfx-cat-t">
               <div className="ctfx-cat-r"><b>{cat}</b><em>{s}/{t}</em></div>
               <i><u style={{ width: w(s, t), transitionDelay: `${0.35 + i * 0.08}s` }} /></i>

@@ -80,22 +80,8 @@ function playSolveSound() {
 
 const fmt = (secs: number) => String(Math.floor(secs / 60)).padStart(2, '0') + ':' + String(secs % 60).padStart(2, '0');
 
-const Svg = ({ html, ...p }: { html: string } & React.HTMLAttributes<HTMLSpanElement>) =>
-  <span {...p} dangerouslySetInnerHTML={{ __html: html }} />;
-const SvgBox = ({ html, ...p }: { html: string } & React.HTMLAttributes<HTMLDivElement>) =>
-  <div {...p} dangerouslySetInnerHTML={{ __html: html }} />;
-
-// Filter buttons: same icons as index.html (currentColor).
-const CAT_FILTERS: { cat: string; icon: React.ReactNode }[] = [
-  { cat: 'Web', icon: <><circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.4" /><path d="M2 10h16M10 2c2.2 2.2 3.4 5.1 3.4 8s-1.2 5.8-3.4 8c-2.2-2.2-3.4-5.1-3.4-8S7.8 4.2 10 2z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /></> },
-  { cat: 'Forensics', icon: <><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.4" /><path d="M12.5 12.5L17 17" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" /></> },
-  { cat: 'Crypto', icon: <><rect x="4" y="9" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.4" /><path d="M6.5 9V6.5a3.5 3.5 0 017 0V9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" /></> },
-  { cat: 'OSINT', icon: <><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.4" /><path d="M12.5 12.5L17 17" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" /><circle cx="8.5" cy="8.5" r="2" stroke="currentColor" strokeWidth="1.2" /></> },
-  { cat: 'Pwn', icon: <path d="M3 17L13 7M11 3l6 6-2 2-6-6 2-2zM4 16l-1 3 3-1-2-2z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" /> },
-  { cat: 'Reversing', icon: <><circle cx="10" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.4" /><path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18M4.5 4.5l1.8 1.8M13.7 13.7l1.8 1.8M15.5 4.5l-1.8 1.8M5.5 14.5l-1.8 1.8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" /></> },
-  { cat: 'AI Security', icon: <><rect x="5" y="5" width="10" height="10" rx="2" stroke="currentColor" strokeWidth="1.4" /><rect x="8" y="8" width="4" height="4" rx="0.8" stroke="currentColor" strokeWidth="1.2" /><path d="M8 2.5V5M12 2.5V5M8 15v2.5M12 15v2.5M2.5 8H5M2.5 12H5M15 8h2.5M15 12h2.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" /></> },
-  { cat: 'Misc', icon: <><circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="1.4" /><circle cx="10" cy="10" r="4" stroke="currentColor" strokeWidth="1.4" /><circle cx="10" cy="10" r="1" fill="currentColor" /></> },
-];
+// Categories in filter order. Text only, no icons (owner, 2026-10-31: the icons looked AI-made).
+const CATS = ['Web', 'Forensics', 'Crypto', 'OSINT', 'Pwn', 'Reversing', 'AI Security', 'Misc'];
 
 type AiCard = { hint: string; n: number };
 type AiState = { cards: AiCard[]; max: number; remaining: number };
@@ -123,7 +109,7 @@ function TranslateLoader({ lang, done, total }: { lang: string; done: number; to
 
 // labOrigin: the labs server (docs/LABS.md), e.g. https://alexcyber-labs.onrender.com;
 // '' = the labs run on this site (local dev, tests).
-export default function RoomsView({ challenges: cards, icons, i18n: cardI18n, labOrigin = '' }: { challenges: Challenge[]; icons: Record<string, string>; i18n: CtfI18n; labOrigin?: string }) {
+export default function RoomsView({ challenges: cards, i18n: cardI18n, labOrigin = '' }: { challenges: Challenge[]; i18n: CtfI18n; labOrigin?: string }) {
   const { user, ready, openAuth } = useAuth();
 
   // ── scenario + hints: login only, from /rooms/details (not in the page HTML) ──
@@ -657,16 +643,15 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n, la
                 </div>
               </div>
 
-              <CtfStats challenges={challenges} solved={solved} daily={daily} onOpen={openModal} catIcons={CAT_FILTERS} />
+              <CtfStats challenges={challenges} solved={solved} daily={daily} onOpen={openModal} cats={CATS} />
             </div>
 
             <div className="ctf-filters">
               <button className={'ctf-filter-btn' + (cat === 'all' ? ' active' : '')} data-cat="all" onClick={() => setCat('all')}>All<span className="ctf-filter-count">{challenges.length}</span></button>
               {/* Only categories that have rooms, with how many. */}
-              {CAT_FILTERS.filter((f) => catCount[f.cat]).map((f) => (
-                <button key={f.cat} className={'ctf-filter-btn' + (cat === f.cat ? ' active' : '')} data-cat={f.cat} onClick={() => setCat(f.cat)}>
-                  <svg width="12" height="12" viewBox="0 0 20 20" fill="none" style={{ verticalAlign: -2, marginRight: 4 }}>{f.icon}</svg>{f.cat}
-                  <span className="ctf-filter-count">{catCount[f.cat]}</span>
+              {CATS.filter((k) => catCount[k]).map((k) => (
+                <button key={k} className={'ctf-filter-btn' + (cat === k ? ' active' : '')} data-cat={k} onClick={() => setCat(k)}>
+                  {k}<span className="ctf-filter-count">{catCount[k]}</span>
                 </button>
               ))}
               <div className="ctf-filter-sep"></div>
@@ -691,7 +676,6 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n, la
               ) : filtered.map((c) => (
                 <div key={c.id} className={'ctf-card' + (solved[c.id] ? ' solved' : '')} onClick={() => openModal(c.id)}>
                   <div className="ctf-card-top">
-                    <SvgBox className={`ctf-card-icon ${c.iconClass}`} html={icons[c.cat] || ''} />
                     <div className="ctf-card-info">
                       <div className="ctf-card-title">{c.title}</div>
                       <div className="ctf-card-cat">{c.cat}</div>
@@ -720,9 +704,7 @@ export default function RoomsView({ challenges: cards, icons, i18n: cardI18n, la
                 <button className="ctf-modal-close" onClick={closeModal}>
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
                 </button>
-                <div className="ctf-modal-cat" id="modalCat">
-                  <Svg style={{ display: 'inline-flex', alignItems: 'center' }} html={icons[shown.cat] || ''} /> {shown.cat}
-                </div>
+                <div className="ctf-modal-cat" id="modalCat">{shown.cat}</div>
                 <div className="ctf-modal-title" id="modalTitle">{shown.title}</div>
                 <div className="ctf-modal-meta" id="modalMeta">
                   <span className={`ctf-diff-badge ${shown.diff.toLowerCase()}`}>{shown.diff}</span>
