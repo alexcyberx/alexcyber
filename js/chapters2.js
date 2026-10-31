@@ -16,7 +16,10 @@ const cyberAttackChapters = [
   { title: "TLS & Encryption Attacks",              prev: "Ransomware & Malware",           next: "Brute Force & Password Attacks"   },
   { title: "Brute Force & Password Attacks",        prev: "TLS & Encryption Attacks",       next: "Attack Defense & Prevention"     },
   { title: "Attack Defense & Prevention",           prev: "Brute Force & Password Attacks", next: "Reconnaissance & Footprinting"                               },
-  { title: "Reconnaissance & Footprinting",        prev: "Attack Defense & Prevention", next: null },
+  { title: "Reconnaissance & Footprinting",        prev: "Attack Defense & Prevention", next: "OWASP Top 10 Overview" },
+  { title: "OWASP Top 10 Overview",                prev: "Reconnaissance & Footprinting", next: "Cross-Site Request Forgery (CSRF)" },
+  { title: "Cross-Site Request Forgery (CSRF)",    prev: "OWASP Top 10 Overview", next: "Command Injection" },
+  { title: "Command Injection",                    prev: "Cross-Site Request Forgery (CSRF)", next: null },
 ];
 
 // currentCyberChapter is declared in router.js - use that global
@@ -1149,6 +1152,152 @@ dev.paynova.com, staging.paynova.com
 <h2>8. Quick Quiz</h2>
 <p style="margin-bottom:14px;">Chalo check karte hain kitna samajh aaya. 4 chhote sawaal:</p>
 <iframe class="acx-diagram-frame" data-diagram="quiz-recon" src="/quiz/quiz.html?set=recon" scrolling="no" style="width:100%;height:420px;border:none;display:block;overflow:hidden;" loading="lazy" title="Reconnaissance Quiz"></iframe>
+    `;
+  }
+
+  else if (index === 12) {
+    document.getElementById('cyberChapterContent').innerHTML = `
+<h2>1. OWASP Top 10 Kya Hai?</h2>
+<p>OWASP (Open Worldwide Application Security Project) ek non-profit hai jo web security ko behtar banata hai. Unka sabse famous kaam hai <strong>OWASP Top 10</strong>, web applications ki 10 sabse common aur khatarnak vulnerabilities ki list. Ye har kuch saal mein update hoti hai aur poori industry isko standard maanti hai.</p>
+<div class="info-box"><p><strong>Kyun Important:</strong> Developer ho ya ethical hacker, dono yahin se shuru karte hain. Ye list batati hai ki sabse pehle kis cheez par dhyaan dena hai, kyunki yahi galtiyan sabse zyada hoti hain.</p></div>
+
+<h2>2. OWASP Top 10 (2021)</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">A01 &middot; Broken Access Control</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">User wo cheez access kar leta hai jiski permission nahi. #1 problem aaj. (IDOR isi mein aata hai.)</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">A02 &middot; Cryptographic Failures</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Kamzor ya missing encryption. Passwords plain text, purana TLS, weak hashing.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">A03 &middot; Injection</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">User input code ban jaata hai. SQL Injection, XSS aur Command Injection sab yahin.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">A04 &middot; Insecure Design</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Design hi galat hai, baad mein patch se theek nahi hota. Security shuru se sochni padti hai.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">A05 &middot; Security Misconfiguration</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Default passwords, open ports, debug mode on, extra features enabled.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">A06 &middot; Vulnerable &amp; Outdated Components</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Purani libraries/plugins jinmein known bugs hain. Update na karna bada khatra.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">A07 &middot; Identification &amp; Authentication Failures</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Kamzor login: no rate-limit, weak passwords allowed, broken session handling.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">A08 &middot; Software &amp; Data Integrity Failures</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Bina verify kiye updates/code load karna. Supply chain attacks yahin aate hain.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">A09 &middot; Security Logging &amp; Monitoring Failures</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Logs na hone se attack dikhta hi nahi. Breach mahino baad pata chalta hai.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">A10 &middot; Server-Side Request Forgery (SSRF)</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Server ko dhoka de ke internal systems tak request bhijwana.</span></div>
+</div>
+
+<h2>3. Is Course Se Mapping</h2>
+<p>Is course ke chapters OWASP Top 10 ko cover karte hain, taaki aap theory aur practice dono seekho:</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);margin-bottom:3px;">A01 Broken Access Control</div><div style="font-size:12px;color:var(--text-dim);">&rarr; Broken Access Control / IDOR chapter</div></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);margin-bottom:3px;">A03 Injection</div><div style="font-size:12px;color:var(--text-dim);">&rarr; SQL Injection, XSS, Command Injection</div></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);margin-bottom:3px;">A02 Cryptographic Failures</div><div style="font-size:12px;color:var(--text-dim);">&rarr; TLS &amp; Encryption Attacks chapter</div></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);margin-bottom:3px;">A07 Auth Failures</div><div style="font-size:12px;color:var(--text-dim);">&rarr; Brute Force &amp; Password Attacks</div></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);margin-bottom:3px;">A10 SSRF</div><div style="font-size:12px;color:var(--text-dim);">&rarr; SSRF &amp; File Upload chapter</div></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);margin-bottom:3px;">A06 Outdated Components</div><div style="font-size:12px;color:var(--text-dim);">&rarr; Ransomware &amp; Defense chapters</div></div>
+</div>
+<div class="info-box"><p><strong>Tip:</strong> OWASP Top 10 ek "map" hai, ek-ek chapter us map ka ek hissa. Har chapter ke end mein lab se practice karo, tabhi cheez pakki hoti hai.</p></div>
+
+<h2>4. Try It Yourself</h2>
+<div style="display:flex;align-items:center;gap:14px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:12px;padding:16px 18px;margin:0 0 28px;flex-wrap:wrap;">
+  <div style="flex:1;min-width:200px;">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px;">CTF Labs</div>
+    <div style="font-size:12.5px;color:var(--text-dim);line-height:1.55;">Platform ke labs mein ye vulnerabilities khud exploit karke seekho, safe environment mein.</div>
+  </div>
+  <a href="/rooms" style="background:rgba(var(--accent-rgb),0.12);border:1px solid rgba(var(--accent-rgb),0.4);color:var(--accent);font-family:'Inter',sans-serif;font-weight:700;font-size:13px;text-decoration:none;border-radius:9px;padding:10px 18px;white-space:nowrap;">Open Labs &rarr;</a>
+</div>
+
+<h2>5. Quick Quiz</h2>
+<p style="margin-bottom:14px;">4 chhote sawaal:</p>
+<iframe class="acx-diagram-frame" data-diagram="quiz-owasp" src="/quiz/quiz.html?set=owasp" scrolling="no" style="width:100%;height:420px;border:none;display:block;overflow:hidden;" loading="lazy" title="OWASP Top 10 Quiz"></iframe>
+    `;
+  }
+
+  else if (index === 13) {
+    document.getElementById('cyberChapterContent').innerHTML = `
+<h2>1. CSRF Kya Hai?</h2>
+<p>CSRF (Cross-Site Request Forgery) ek attack hai jisme attacker victim ke <strong>already logged-in session</strong> ka faayda uthata hai. Victim ko ek malicious link ya page par le jaaya jaata hai, aur victim ke browser se chup-chaap ek request bhej di jaati hai, jaise wo request victim ne khud bheji ho.</p>
+<div class="info-box"><p><strong>Simple Analogy:</strong> Aapne bank ke counter par apni ID de rakhi hai (logged in). Attacker ek form bharwa deta hai aur aapka naam use karke paisa transfer karwa leta hai, aapko pata bhi nahi chalta.</p></div>
+
+<h2>2. CSRF Kaise Kaam Karta Hai?</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 20px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">1.</strong> Victim apne bank mein logged in hai (cookie browser mein save hai).</div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">2.</strong> Attacker victim ko ek apne page/email ka link bhejta hai.</div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">3.</strong> Us page par ek hidden form hai jo apne-aap bank ko request bhejta hai (transfer / email change).</div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">4.</strong> Browser automatically victim ki cookie attach kar deta hai, to bank request ko valid maanta hai.</div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 15px;font-size:12.5px;color:var(--text-dim);line-height:1.55;"><strong style="color:var(--white);">5.</strong> Action ho jaata hai, victim ki taraf se, bina victim ki marzi ke.</div>
+</div>
+<pre><code>&lt;!-- Attacker ke page par chhupa hua form --&gt;
+&lt;form action="https://bank.example/transfer" method="POST" id="x"&gt;
+  &lt;input type="hidden" name="to" value="attacker"&gt;
+  &lt;input type="hidden" name="amount" value="50000"&gt;
+&lt;/form&gt;
+&lt;script&gt;document.getElementById('x').submit();&lt;/script&gt;
+
+Victim ne sirf page khola, form apne-aap submit ho gaya.</code></pre>
+
+<h2>3. CSRF vs XSS</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:15px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;">CSRF</div><div style="font-size:12.5px;color:var(--text-dim);line-height:1.6;">Victim ke session ka misuse karke uski taraf se action. Attacker ko response dikhta nahi.</div></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:15px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;color:var(--accent);margin-bottom:6px;">XSS</div><div style="font-size:12.5px;color:var(--text-dim);line-height:1.6;">Victim ke browser mein attacker ka script chalta hai. Data chura sakta hai, response bhi padh sakta hai.</div></div>
+</div>
+
+<h2>4. Impact</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);">Fund Transfer</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;">Victim ke account se paisa nikal jaana.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);">Email / Password Change</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;">Account recovery email badal ke poora account takeover.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);">Settings Change</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;">Privacy settings, permissions, ya admin actions victim ke naam par.</span></div>
+</div>
+
+<h2>5. Prevention</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">CSRF Token</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Har form mein ek secret random token, jo attacker guess nahi kar sakta. Sabse strong fix.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">SameSite Cookies</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Cookie ko SameSite=Lax/Strict set karo, taaki dusri site se request par cookie na jaye.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Origin / Referer Check</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Server dekhe ki request apni hi site se aayi hai ya kahin aur se.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Re-authentication</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Sensitive action (transfer, password change) par password/OTP dobara maango.</span></div></div>
+</div>
+
+<h2>6. Quick Quiz</h2>
+<p style="margin-bottom:14px;">4 chhote sawaal:</p>
+<iframe class="acx-diagram-frame" data-diagram="quiz-csrf" src="/quiz/quiz.html?set=csrf" scrolling="no" style="width:100%;height:420px;border:none;display:block;overflow:hidden;" loading="lazy" title="CSRF Quiz"></iframe>
+    `;
+  }
+
+  else if (index === 14) {
+    document.getElementById('cyberChapterContent').innerHTML = `
+<h2>1. Command Injection Kya Hai?</h2>
+<p>Command Injection tab hoti hai jab ek application user ke input ko seedhe <strong>operating system command</strong> mein daal deti hai, bina check kiye. Attacker apne OS commands inject kar deta hai, aur wo <strong>server par</strong> chal jaate hain. Ye bahut khatarnak hai, kyunki attacker ko poore server par control mil sakta hai.</p>
+<div class="info-box"><p><strong>Why It Works:</strong> App ek system command banati hai aur usmein user input jod deti hai. Agar input filter nahi hua, to attacker command ke beech apna command ghusa deta hai.</p></div>
+
+<h2>2. Kaise Kaam Karta Hai?</h2>
+<p>Maan lo ek website par ek "ping" tool hai jo aapke diye IP ko ping karta hai. Server andar ye command chalata hai:</p>
+<pre><code>Normal:
+ping -c 1  8.8.8.8
+
+Attacker input: 8.8.8.8; cat /etc/passwd
+
+Ab server chalata hai:
+ping -c 1  8.8.8.8; cat /etc/passwd
+
+Semicolon (;) ka matlab "pehla command khatam, ab agla chalao".
+Result: attacker server ki password file dekh leta hai.</code></pre>
+<div class="info-box"><p><strong>Khatarnaak Characters:</strong> <span style="font-family:'JetBrains Mono',monospace;color:var(--accent);">; | &amp; &amp;&amp; &#96; $( )</span> jaise characters ek command ke saath doosra command chalane dete hain, isiliye inhe block karna zaroori hai.</p></div>
+
+<h2>3. Types</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">In-Band</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Command ka output seedha response mein dikh jaata hai. Easiest.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Blind</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Output nahi dikhta. Attacker <span style="font-family:'JetBrains Mono',monospace;">sleep 10</span> jaisi cheez se time delay dekh ke confirm karta hai.</span></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:13px 16px;"><span style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--accent);">Out-of-Band</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:3px;line-height:1.55;">Data ko ek DNS/HTTP request ke through bahar bhejna, jab direct output na mile.</span></div>
+</div>
+
+<h2>4. Impact</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 28px;">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;">Full Server Control</div><div style="font-size:12px;color:var(--text-dim);">Attacker koi bhi command chala sakta hai, poora server uske haath mein.</div></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;">Data Theft</div><div style="font-size:12px;color:var(--text-dim);">Files, config, database credentials sab read kar sakta hai.</div></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;">Pivot / Lateral Move</div><div style="font-size:12px;color:var(--text-dim);">Us server se internal network ke doosre systems par jaana.</div></div>
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;"><div style="font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:4px;">Backdoor Install</div><div style="font-size:12px;color:var(--text-dim);">Permanent access ke liye malware ya reverse shell daalna.</div></div>
+</div>
+
+<h2>5. Prevention</h2>
+<div style="display:flex;flex-direction:column;gap:8px;margin:0 0 28px;">
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">OS Commands Avoid Karo</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">User input ke saath shell command mat banao. Language ke built-in functions/libraries use karo.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Strict Allowlist</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Agar command zaroori hai, to sirf fixed allowed values accept karo (jaise sirf valid IP).</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Least Privilege</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">App ko minimum permissions do, taaki command injection se bhi zyada damage na ho.</span></div></div>
+  <div style="display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);padding:10px 16px;"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;"><circle cx="8" cy="8" r="7" fill="rgba(var(--accent-rgb),0.1)" stroke="rgba(var(--accent-rgb),0.35)" stroke-width="1.2"/><path d="M5 8l2 2 4-4" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><div><span style="font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;color:var(--white);">Input Validation</span><span style="font-size:12px;color:var(--text-dim);display:block;margin-top:2px;">Special characters reject karo, output encode karo.</span></div></div>
+</div>
+
+<h2>6. Quick Quiz</h2>
+<p style="margin-bottom:14px;">4 chhote sawaal:</p>
+<iframe class="acx-diagram-frame" data-diagram="quiz-cmdi" src="/quiz/quiz.html?set=cmdi" scrolling="no" style="width:100%;height:420px;border:none;display:block;overflow:hidden;" loading="lazy" title="Command Injection Quiz"></iframe>
     `;
   }
 
