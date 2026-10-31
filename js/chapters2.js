@@ -5,25 +5,25 @@
 ═══════════════════════════════════════════════════ */
 
 const cyberAttackChapters = [
-  { title: "Cyber Attacks Introduction",            prev: null,                             next: "Social Engineering & Phishing"     },
-  { title: "Social Engineering & Phishing",         prev: "Cyber Attacks Introduction",     next: "MITM Attack"                      },
-  { title: "MITM Attack",                           prev: "Social Engineering & Phishing",  next: "DoS & DDoS Attacks"               },
-  { title: "DoS & DDoS Attacks",                    prev: "MITM Attack",                    next: "SQL Injection"                    },
-  { title: "SQL Injection",                         prev: "DoS & DDoS Attacks",             next: "XSS Attack"                      },
-  { title: "XSS Attack",                            prev: "SQL Injection",                  next: "DNS Spoofing & Poisoning"         },
-  { title: "DNS Spoofing & Poisoning",              prev: "XSS Attack",                     next: "Ransomware & Malware"             },
-  { title: "Ransomware & Malware",                  prev: "DNS Spoofing & Poisoning",       next: "TLS & Encryption Attacks"         },
-  { title: "TLS & Encryption Attacks",              prev: "Ransomware & Malware",           next: "Brute Force & Password Attacks"   },
-  { title: "Brute Force & Password Attacks",        prev: "TLS & Encryption Attacks",       next: "Attack Defense & Prevention"     },
-  { title: "Attack Defense & Prevention",           prev: "Brute Force & Password Attacks", next: "Reconnaissance & Footprinting"                               },
-  { title: "Reconnaissance & Footprinting",        prev: "Attack Defense & Prevention", next: "OWASP Top 10 Overview" },
-  { title: "OWASP Top 10 Overview",                prev: "Reconnaissance & Footprinting", next: "Cross-Site Request Forgery (CSRF)" },
-  { title: "Cross-Site Request Forgery (CSRF)",    prev: "OWASP Top 10 Overview", next: "Command Injection" },
-  { title: "Command Injection",                    prev: "Cross-Site Request Forgery (CSRF)", next: "Broken Access Control & IDOR" },
-  { title: "Broken Access Control & IDOR",         prev: "Command Injection", next: "Wi-Fi & Wireless Attacks" },
-  { title: "Wi-Fi & Wireless Attacks",             prev: "Broken Access Control & IDOR", next: "SSRF & File Upload" },
-  { title: "SSRF & File Upload",                   prev: "Wi-Fi & Wireless Attacks", next: "Privilege Escalation" },
-  { title: "Privilege Escalation",                 prev: "SSRF & File Upload", next: null },
+  { title: "Cyber Attacks Introduction", prev: null, next: "Reconnaissance & Footprinting" },
+  { title: "Reconnaissance & Footprinting", prev: "Cyber Attacks Introduction", next: "Social Engineering & Phishing" },
+  { title: "Social Engineering & Phishing", prev: "Reconnaissance & Footprinting", next: "MITM Attack" },
+  { title: "MITM Attack", prev: "Social Engineering & Phishing", next: "DNS Spoofing & Poisoning" },
+  { title: "DNS Spoofing & Poisoning", prev: "MITM Attack", next: "DoS & DDoS Attacks" },
+  { title: "DoS & DDoS Attacks", prev: "DNS Spoofing & Poisoning", next: "Wi-Fi & Wireless Attacks" },
+  { title: "Wi-Fi & Wireless Attacks", prev: "DoS & DDoS Attacks", next: "OWASP Top 10 Overview" },
+  { title: "OWASP Top 10 Overview", prev: "Wi-Fi & Wireless Attacks", next: "SQL Injection" },
+  { title: "SQL Injection", prev: "OWASP Top 10 Overview", next: "XSS Attack" },
+  { title: "XSS Attack", prev: "SQL Injection", next: "Cross-Site Request Forgery (CSRF)" },
+  { title: "Cross-Site Request Forgery (CSRF)", prev: "XSS Attack", next: "Command Injection" },
+  { title: "Command Injection", prev: "Cross-Site Request Forgery (CSRF)", next: "Broken Access Control & IDOR" },
+  { title: "Broken Access Control & IDOR", prev: "Command Injection", next: "SSRF & File Upload" },
+  { title: "SSRF & File Upload", prev: "Broken Access Control & IDOR", next: "Ransomware & Malware" },
+  { title: "Ransomware & Malware", prev: "SSRF & File Upload", next: "Brute Force & Password Attacks" },
+  { title: "Brute Force & Password Attacks", prev: "Ransomware & Malware", next: "Privilege Escalation" },
+  { title: "Privilege Escalation", prev: "Brute Force & Password Attacks", next: "TLS & Encryption Attacks" },
+  { title: "TLS & Encryption Attacks", prev: "Privilege Escalation", next: "Attack Defense & Prevention" },
+  { title: "Attack Defense & Prevention", prev: "TLS & Encryption Attacks", next: null },
 ];
 
 // currentCyberChapter is declared in router.js - use that global
@@ -87,7 +87,7 @@ function loadCyberChapter(index) {
   }
 
   // ── Content ──────────────────────────────────────
-  if (index === 0) {
+  if (ch && ch.title === "Cyber Attacks Introduction") {
     document.getElementById('cyberChapterContent').innerHTML = `
 
       <h2>1. Cyber Attack Kya Hota Hai?</h2>
@@ -197,7 +197,7 @@ function loadCyberChapter(index) {
     `;
   }
 
-  else if (index === 1) {
+  else if (ch && ch.title === "Social Engineering & Phishing") {
     document.getElementById('cyberChapterContent').innerHTML = `
 
       <h2>1. Social Engineering Kya Hai?</h2>
@@ -295,7 +295,7 @@ function loadCyberChapter(index) {
     `;
   }
 
-  else if (index === 2) {
+  else if (ch && ch.title === "MITM Attack") {
     document.getElementById('cyberChapterContent').innerHTML = `
 
       <h2>1. MITM Attack Kya Hai?</h2>
@@ -387,7 +387,7 @@ But attacker reads everything in between</code></pre>
     `;
   }
 
-  else if (index === 3) {
+  else if (ch && ch.title === "DoS & DDoS Attacks") {
     document.getElementById('cyberChapterContent').innerHTML = `
 
       <h2>1. DoS Attack Kya Hai?</h2>
@@ -497,7 +497,7 @@ Attacker  ←    SYN-ACK      ←  Server
     `;
   }
 
-  else if (index === 4) {
+  else if (ch && ch.title === "SQL Injection") {
     document.getElementById('cyberChapterContent').innerHTML = `
 
       <h2>1. SQL Injection Kya Hai?</h2>
@@ -586,7 +586,7 @@ Result: Admin account bina password ke access ho jaata hai</code></pre>
     `;
   }
 
-  else if (index === 5) {
+  else if (ch && ch.title === "XSS Attack") {
     document.getElementById('cyberChapterContent').innerHTML = `
 
       <h2>1. XSS Attack Kya Hai?</h2>
@@ -653,7 +653,7 @@ Attacker uses cookie to log in as victim</code></pre>
     `;
   }
 
-  else if (index === 6) {
+  else if (ch && ch.title === "DNS Spoofing & Poisoning") {
     document.getElementById('cyberChapterContent').innerHTML = `
 
       <h2>1. DNS Spoofing Kya Hai?</h2>
@@ -728,7 +728,7 @@ User connects to fake bank, credentials stolen</code></pre>
     `;
   }
 
-  else if (index === 7) {
+  else if (ch && ch.title === "Ransomware & Malware") {
     document.getElementById('cyberChapterContent').innerHTML = `
 
       <h2>1. Ransomware Kya Hai?</h2>
@@ -803,7 +803,7 @@ User connects to fake bank, credentials stolen</code></pre>
     `;
   }
 
-  else if (index === 8) {
+  else if (ch && ch.title === "TLS & Encryption Attacks") {
     document.getElementById('cyberChapterContent').innerHTML = `
 
       <h2>1. TLS Kya Hai?</h2>
@@ -879,7 +879,7 @@ User connects to fake bank, credentials stolen</code></pre>
     `;
   }
 
-  else if (index === 9) {
+  else if (ch && ch.title === "Brute Force & Password Attacks") {
     document.getElementById('cyberChapterContent').innerHTML = `
 
       <h2>1. Brute Force Attack Kya Hai?</h2>
@@ -975,7 +975,7 @@ User connects to fake bank, credentials stolen</code></pre>
     `;
   }
 
-  else if (index === 10) {
+  else if (ch && ch.title === "Attack Defense & Prevention") {
     document.getElementById('cyberChapterContent').innerHTML = `
 
       <h2>1. Defense in Depth</h2>
@@ -1080,7 +1080,7 @@ User connects to fake bank, credentials stolen</code></pre>
     `;
   }
 
-  else if (index === 11) {
+  else if (ch && ch.title === "Reconnaissance & Footprinting") {
     document.getElementById('cyberChapterContent').innerHTML = `
 <h2>1. Reconnaissance Kya Hai?</h2>
 <p>Reconnaissance (short mein <strong>recon</strong>) matlab target ke baare mein jitni ho sake utni information gather karna, attack shuru karne se <strong>pehle</strong>. Har serious attack ka ye sabse pehla step hai. Attacker jitna zyada jaanta hai, utna aasaan aur chup-chaap wo attack kar sakta hai.</p>
@@ -1159,7 +1159,7 @@ dev.paynova.com, staging.paynova.com
     `;
   }
 
-  else if (index === 12) {
+  else if (ch && ch.title === "OWASP Top 10 Overview") {
     document.getElementById('cyberChapterContent').innerHTML = `
 <h2>1. OWASP Top 10 Kya Hai?</h2>
 <p>OWASP (Open Worldwide Application Security Project) ek non-profit hai jo web security ko behtar banata hai. Unka sabse famous kaam hai <strong>OWASP Top 10</strong>, web applications ki 10 sabse common aur khatarnak vulnerabilities ki list. Ye har kuch saal mein update hoti hai aur poori industry isko standard maanti hai.</p>
@@ -1206,7 +1206,7 @@ dev.paynova.com, staging.paynova.com
     `;
   }
 
-  else if (index === 13) {
+  else if (ch && ch.title === "Cross-Site Request Forgery (CSRF)") {
     document.getElementById('cyberChapterContent').innerHTML = `
 <h2>1. CSRF Kya Hai?</h2>
 <p>CSRF (Cross-Site Request Forgery) ek attack hai jisme attacker victim ke <strong>already logged-in session</strong> ka faayda uthata hai. Victim ko ek malicious link ya page par le jaaya jaata hai, aur victim ke browser se chup-chaap ek request bhej di jaati hai, jaise wo request victim ne khud bheji ho.</p>
@@ -1256,7 +1256,7 @@ Victim ne sirf page khola, form apne-aap submit ho gaya.</code></pre>
     `;
   }
 
-  else if (index === 14) {
+  else if (ch && ch.title === "Command Injection") {
     document.getElementById('cyberChapterContent').innerHTML = `
 <h2>1. Command Injection Kya Hai?</h2>
 <p>Command Injection tab hoti hai jab ek application user ke input ko seedhe <strong>operating system command</strong> mein daal deti hai, bina check kiye. Attacker apne OS commands inject kar deta hai, aur wo <strong>server par</strong> chal jaate hain. Ye bahut khatarnak hai, kyunki attacker ko poore server par control mil sakta hai.</p>
@@ -1305,7 +1305,7 @@ Result: attacker server ki password file dekh leta hai.</code></pre>
     `;
   }
 
-  else if (index === 15) {
+  else if (ch && ch.title === "Broken Access Control & IDOR") {
     document.getElementById('cyberChapterContent').innerHTML = `
 <h2>1. Broken Access Control Kya Hai?</h2>
 <p>Broken Access Control tab hoti hai jab ek user wo cheez access kar leta hai jiski use <strong>permission nahi honi chahiye</strong>: doosre user ka data, ya admin wale functions. OWASP 2021 list mein ye <strong>#1</strong> problem hai, sabse common.</p>
@@ -1354,7 +1354,7 @@ ye check kiye bina ki ye order aapka hai ya nahi.</code></pre>
     `;
   }
 
-  else if (index === 16) {
+  else if (ch && ch.title === "Wi-Fi & Wireless Attacks") {
     document.getElementById('cyberChapterContent').innerHTML = `
 <h2>1. Wi-Fi Attacks Kya Hain?</h2>
 <p>Wireless networks (Wi-Fi) cables ke bina data hawa mein bhejti hain, isliye aas-paas koi bhi use "sun" sakta hai agar theek se secure na ho. Public aur open Wi-Fi sabse zyada risky hoti hai.</p>
@@ -1392,7 +1392,7 @@ ye check kiye bina ki ye order aapka hai ya nahi.</code></pre>
     `;
   }
 
-  else if (index === 17) {
+  else if (ch && ch.title === "SSRF & File Upload") {
     document.getElementById('cyberChapterContent').innerHTML = `
 <h2>1. SSRF Kya Hai?</h2>
 <p>SSRF (Server-Side Request Forgery) mein attacker server ko <strong>dhoka de ke uski taraf se requests karwata hai</strong>. App user se ek URL leti hai (jaise "URL se image fetch karo"), aur attacker us jagah ek internal address daal deta hai jahan wo khud nahi pahunch sakta. OWASP 2021 mein ye <strong>A10</strong> hai.</p>
@@ -1438,7 +1438,7 @@ Server wo URL fetch kar deta hai aur response attacker ko de deta hai.</code></p
     `;
   }
 
-  else if (index === 18) {
+  else if (ch && ch.title === "Privilege Escalation") {
     document.getElementById('cyberChapterContent').innerHTML = `
 <h2>1. Privilege Escalation Kya Hai?</h2>
 <p>Privilege Escalation tab hoti hai jab attacker ne ek kam-level access paa liya ho (jaise ek normal user), aur ab wo <strong>higher privileges</strong> (admin ya root) tak pahunchne ki koshish karta hai. Isse wo poore system par control le leta hai.</p>
