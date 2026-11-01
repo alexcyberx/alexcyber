@@ -96,16 +96,8 @@ function instStatus(s) {
 }
 function isRunning(s) { const inst = instances[s]; if (!inst) return false; return (INSTANCE_DURATION_SEC - Math.floor((Date.now() - inst.startedAt) / 1000)) > 0; }
 
-function fmtTime(sec) { const m = Math.floor(sec / 60), ss = sec % 60; return m + ':' + String(ss).padStart(2, '0'); }
 
-// ── Shared chrome (lab header bar + store header) ──
-function labBar(s) {
-  const st = instStatus(s);
-  return `<div class="labbar">
-    <div class="lb-left"><span class="lb-brand">AlexCyberX Labs</span><span class="lb-sep">|</span><span>Other People's Orders</span><span class="lb-pill">Not solved</span></div>
-    <div class="lb-right"><span class="lb-time">${fmtTime(st.remaining_sec)} left</span><a href="#" id="backBtn">Back to room</a></div>
-  </div>`;
-}
+// ── Shared chrome (store header) ──
 function storeHeader(s, loggedIn) {
   return `<header class="shop-head">
     <div class="topstrip"><span>Delivering to <b>Indore 452010</b></span><span class="ts-links"><a href="#">Help</a><a href="#">Track order</a></span></div>
@@ -123,10 +115,6 @@ const STYLE = `<style>
 *{box-sizing:border-box}
 body{margin:0;background:#f4f4f2;font-family:'Noto Sans',Arial,sans-serif;color:#222}
 a{color:#b4380b}
-.labbar{background:#111413;color:#c9cfcc;font:500 12.5px Arial,sans-serif;padding:9px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
-.lb-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.lb-brand{color:#f2f5f4;font-weight:600}.lb-sep{color:#5c6460}
-.lb-pill{font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(251,146,60,0.12);color:#fdba74}
-.lb-right{display:flex;align-items:center;gap:16px}.lb-time{font-family:'JetBrains Mono',monospace;color:#34d399}.lb-right a{color:#34d399;text-decoration:none}
 .shop-head{background:#fff;border-bottom:1px solid #e3e3df}
 .topstrip{max-width:1180px;margin:0 auto;padding:6px 20px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:12px;color:#555;border-bottom:1px solid #f0f0ec}
 .topstrip b{color:#222}.ts-links{display:flex;gap:14px}.topstrip a{color:#555;text-decoration:none}
@@ -161,12 +149,9 @@ const HEAD = `<meta charset="utf-8"><meta name="viewport" content="width=device-
 
 function page(title, s, bodyInner) {
   return `<!DOCTYPE html><html lang="en"><head>${HEAD}<title>${esc(title)}</title>${STYLE}</head><body>
-${labBar(s)}
 ${bodyInner}
 <script>
 var S=${JSON.stringify(String(s)).replace(/</g, '\\u003c')};
-var back=document.getElementById('backBtn');
-if(back)back.onclick=function(e){e.preventDefault();try{window.close()}catch(_){ }setTimeout(function(){location.href='/rooms?open=web-08'},200)};
 </script>
 </body></html>`;
 }

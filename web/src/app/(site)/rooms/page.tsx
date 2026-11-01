@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import RoomsView from '@/components/RoomsView';
-import { CTF_I18N, CTF_ICONS, getRooms, publicI18n, publicRooms } from '@/lib/ctf';
+import { CTF_I18N, getRooms, publicI18n, publicRooms } from '@/lib/ctf';
 
 export const revalidate = 60;
 
@@ -20,5 +20,5 @@ function labOrigin(): string {
 export default async function RoomsPage() {
   // Scenario + hints load after login (/rooms/details), not in this HTML.
   const challenges = publicRooms(await getRooms());
-  return <RoomsView challenges={challenges} icons={CTF_ICONS} i18n={publicI18n(CTF_I18N)} labOrigin={labOrigin()} />;
+  return <RoomsView challenges={challenges} i18n={publicI18n(CTF_I18N)} labOrigin={labOrigin()} />;
 }

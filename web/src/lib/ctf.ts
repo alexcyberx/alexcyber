@@ -36,9 +36,9 @@ type SeedChallenge = {
   hasLabFlow?: boolean; solvers?: number;
 };
 
-function loadSeed(): { challenges: SeedChallenge[]; icons: Record<string, string> } {
+function loadSeed(): { challenges: SeedChallenge[] } {
   const file = path.join(process.cwd(), '..', 'js', 'ctf-challenges-data.js');
-  const code = readFileSync(file, 'utf8') + '\n;globalThis.__icons = CTF_ICONS;';
+  const code = readFileSync(file, 'utf8');
   const noop = () => {};
   const store = { getItem: () => null, setItem: noop, removeItem: noop };
   const ctx: Record<string, unknown> = {
@@ -51,13 +51,10 @@ function loadSeed(): { challenges: SeedChallenge[]; icons: Record<string, string
   vm.runInNewContext(code, ctx, { filename: 'ctf-challenges-data.js', timeout: 2000 });
   const challenges = (ctx.window as { CTF_CHALLENGES?: SeedChallenge[] }).CTF_CHALLENGES;
   if (!Array.isArray(challenges) || !challenges.length) throw new Error('ctf-challenges-data.js: CTF_CHALLENGES not found');
-  return { challenges, icons: ctx.__icons as Record<string, string> };
+  return { challenges };
 }
 
 const SEED = loadSeed();
-
-/** Category -> small SVG icon (trusted markup from our own file). */
-export const CTF_ICONS: Record<string, string> = SEED.icons;
 
 type DbRow = { id: string; slug: string | null; xp: number | null; points: number | null; solvers: number | null; status: string | null };
 

@@ -3,18 +3,6 @@
    Admin panel se manage hoga future mein (Supabase ctf_challenges table)
    Abhi ke liye: local data (static seed)
 ═══════════════════════════════════════════ */
-/* ── CATEGORY ICONS (SVG) ── */
-const CTF_ICONS = {
-  Web: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#63b3ed" stroke-width="1.4"/><path d="M2 10h16M10 2c2.2 2.2 3.4 5.1 3.4 8s-1.2 5.8-3.4 8c-2.2-2.2-3.4-5.1-3.4-8S7.8 4.2 10 2z" stroke="#63b3ed" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  Forensics: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="8.5" cy="8.5" r="5.5" stroke="#a78bfa" stroke-width="1.4"/><path d="M12.5 12.5L17 17" stroke="#a78bfa" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  Crypto: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="9" width="12" height="8" rx="1.5" stroke="#facc15" stroke-width="1.4"/><path d="M6.5 9V6.5a3.5 3.5 0 017 0V9" stroke="#facc15" stroke-width="1.4" stroke-linecap="round"/><circle cx="10" cy="13" r="1.2" fill="#facc15"/></svg>',
-  OSINT: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="8.5" cy="8.5" r="5.5" stroke="#34d399" stroke-width="1.4"/><path d="M12.5 12.5L17 17" stroke="#34d399" stroke-width="1.4" stroke-linecap="round"/><circle cx="8.5" cy="8.5" r="2" stroke="#34d399" stroke-width="1.2"/></svg>',
-  Pwn: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 17L13 7M11 3l6 6-2 2-6-6 2-2zM4 16l-1 3 3-1-2-2z" stroke="#f87171" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  Reversing: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="#fb923c" stroke-width="1.4"/><path d="M10 2v2.5M10 15.5V18M2 10h2.5M15.5 10H18M4.5 4.5l1.8 1.8M13.7 13.7l1.8 1.8M15.5 4.5l-1.8 1.8M5.5 14.5l-1.8 1.8" stroke="#fb923c" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  'AI Security': '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="5" y="5" width="10" height="10" rx="2" stroke="#f472b6" stroke-width="1.4"/><rect x="8" y="8" width="4" height="4" rx="0.8" stroke="#f472b6" stroke-width="1.2"/><path d="M8 2.5V5M12 2.5V5M8 15v2.5M12 15v2.5M2.5 8H5M2.5 12H5M15 8h2.5M15 12h2.5" stroke="#f472b6" stroke-width="1.4" stroke-linecap="round"/></svg>',
-  Misc: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="#9ca3af" stroke-width="1.4"/><circle cx="10" cy="10" r="4" stroke="#9ca3af" stroke-width="1.4"/><circle cx="10" cy="10" r="1" fill="#9ca3af"/></svg>'
-};
-
 // CTF Challenges, hardcoded (working approach)
 // Flag check: server-side via submit_ctf_flag() RPC, c.flag kabhi client pe expose nahi hota
 // Supabase mein bhi same data hai (admin panel se manage ke liye)
@@ -229,6 +217,29 @@ const ctfChallenges = window.CTF_CHALLENGES = [
       'Find a way to make it ignore the rule against sharing the code',
       'Submit the recovery code as the flag'
     ]
+  },
+  {
+    id: 'ai-02', addedAt: '2026-11-01', cat: 'AI Security', iconClass: 'ctf-cat-ai',
+    title: 'Trust the Query',
+    desc: 'Kaveri Valley Institute of Technology added an AI assistant to its student portal. It turns your questions into database queries, and the portal runs whatever it writes. The end-sem papers live in the same database.',
+    scenario: 'You are Rohan Mehta, a second-year B.Tech student at KVIT. The new KVIT Assistant on the CampusDesk portal answers questions about your attendance, marks and fees by writing a SQL query, which the portal runs on the college database.<br><br>The assistant has been told to show students only their own records. Nobody checks the queries it writes. Somewhere in that database are the unlock codes for the end-sem papers. Get the one for DBMS.',
+    author: 'AlexCyberX',
+    tags: ['AI Security', 'OWASP LLM05', 'Improper Output Handling', 'SQL'],
+    diff: 'Medium', pts: 150, xp: 220,
+    hints: [
+      'The portal runs every query the assistant writes, without checking it. Open "Query used" under an answer. Is your own data the only thing in that database?',
+      'In SQLite, the list of every table is kept in a table called sqlite_master. Get the assistant to write a query on it.',
+      "The assistant's only protection is its instructions. Read the notices on the dashboard: who else uses this assistant, and what will it do for them? Then ask for the exact query you want."
+    ],
+    objectives: [
+      'Ask the assistant a normal question and look at the query it wrote',
+      'Find out which tables the database really has',
+      'Get the assistant to query the table with the exam papers',
+      'Submit the DBMS unlock code as the flag'
+    ],
+    labApiPath: '/api/lab/campusdesk',
+    hasLabFlow: true,
+    solvers: 0
   }
 
 ];
@@ -587,7 +598,6 @@ function ctfRender() {
     return `
     <div class="ctf-card ${solved ? 'solved' : ''}" onclick="openCTFModal('${c.id}')">
       <div class="ctf-card-top">
-        <div class="ctf-card-icon ${c.iconClass}">${CTF_ICONS[c.cat] || ''}</div>
         <div class="ctf-card-info">
           <div class="ctf-card-title">${c.title}</div>
           <div class="ctf-card-cat">${c.cat}</div>
@@ -689,7 +699,7 @@ function openCTFModal(id) {
   const solved = !!ctfSolved[id];
 
   // Fill basic modal fields
-  document.getElementById('modalCat').innerHTML = `<span style="display:inline-flex;align-items:center;">${CTF_ICONS[c.cat] || ''}</span> ${c.cat}`;
+  document.getElementById('modalCat').textContent = c.cat;
   document.getElementById('modalTitle').textContent = c.title;
 
   document.getElementById('modalMeta').innerHTML = `

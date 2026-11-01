@@ -27,6 +27,7 @@ const THEMES = {
   'ai-01':  'h3lpd3sk_b0t_sp1ll3d_th3_b34ns',
   'web-08': 'n0_0wn3r_ch3ck_0n_0rd3rs',
   'for-04': 'f41l3d_f41l3d_f41l3d_4cc3pt3d',
+  'ai-02':  'n3v3r_trust_ai_wr1tt3n_sql',
 };
 
 const SECRET = process.env.FLAG_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || crypto.randomBytes(32).toString('hex');
