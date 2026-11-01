@@ -417,7 +417,7 @@ router.post('/submit', flagLimiter, async (req, res) => {
   // client tak jaata hi nahi (hang, 500 bhi nahi). Type bhi check karo.
   if (typeof flag !== 'string' || !flag.trim()) return res.status(400).json({ error: 'No flag provided' });
   const correct = flag.trim() === FLAG;
-  logAttempt('SQLI101', req.ip, flag.trim(), correct ? 'correct' : 'wrong');
+  logAttempt('SQLI101', req.ip, 'submit', correct ? 'correct' : 'wrong');
   if (correct) {
     const inst = await getOrCreate(s);
     inst.solved = true;

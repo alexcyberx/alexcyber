@@ -313,7 +313,7 @@ router.post('/submit', flagLimiter, (req, res) => {
   // .trim() pe crash ho jaata. Type bhi check karo.
   if (typeof flag !== 'string' || !flag.trim()) return res.status(400).json({ error: 'No flag provided' });
   const correct = flag.trim() === FLAG;
-  logAttempt('META', req.ip, flag.trim(), correct ? 'correct' : 'wrong');
+  logAttempt('META', req.ip, 'submit', correct ? 'correct' : 'wrong');
   if (correct) {
     getOrCreate(s).solved = true;
     return res.json({ success: true, flag: FLAG, message: 'EXIF metadata sanitization is often overlooked before sharing files externally.' });

@@ -105,7 +105,7 @@ Severity = impact × likelihood (Critical / High / Medium / Low).
 - Unbounded in-memory lab instances: any `?session=` string creates state; `web03-sqli101` builds a full sql.js DB per
   session (`server/labs/web03-sqli101/routes.js:41-47,89-92`), no rate limit, cleanup every 10 min
   (`server/index.js:242,268`).
-- `hidden-sight` rewrites `data/hidden.db` synchronously on every submit (`server/db/sqlite.js:77`).
+- (Fixed 2026-11-01) The old `hidden-sight` lab rewrote `data/hidden.db` on every submit; it and `server/db/sqlite.js` are gone.
 - All rate limits are in memory (`server/middleware/rateLimit.js`), reset on restart, per instance.
 
 ### T6. SSRF through the security tools — **Low · well mitigated**
@@ -125,8 +125,8 @@ anon key). WEAKNESS: the service-role key doubles as the flag secret when `FLAG_
 
 ### T9. Privacy — **Medium**
 - `profiles` is world-readable (all columns except `last_login_ip`), including `is_banned`, `role`, `last_seen`.
-- Logs keep every submitted flag, lab inputs and admin search queries in plaintext (`server/middleware/logger.js`,
-  `data/logs/attempts.log`, no rotation); Morgan logs full URLs with query strings.
+- `attempts.log` no longer stores submitted flags (every lab `/submit` logs the label `submit` + result, 2026-11-01);
+  the file still has no rotation, and Morgan logs full URLs with query strings.
 - MISSING: data retention rules, account deletion flow for users, age/consent handling beyond the signup checkbox.
 
 ### T10. Supply chain — **Low/Medium**

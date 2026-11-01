@@ -34,7 +34,7 @@ The old per-lab `FLAG_*` variables are no longer read (removed 2026-10-16).
 | Finding | Evidence | Label |
 |---|---|---|
 | Supabase **anon** JWT in client code | `js/config.js:7`, `web/src/lib/supabase*` via `NEXT_PUBLIC_SUPABASE_ANON_KEY` (decoded `role=anon`) | OK (public by design; protection is RLS) |
-| Lab demo credentials / passcodes / decoy tokens | `server/labs/web02-cookie/routes.js:204`, `web03-sqli101/routes.js:35,231`, `web04-robots/routes.js:8`, `hidden-sight/routes.js` decoys | OK (part of the challenges, not real accounts) |
+| Lab demo credentials / passcodes / decoy tokens | `server/labs/web02-cookie/routes.js:204`, `web03-sqli101/routes.js:35,231`, `web04-robots/routes.js:8`, `web01-golive/routes.js` (per-instance staging key, a decoy by design) | OK (part of the challenges, not real accounts) |
 | CTF flags | none in the repo since 2026-10-16; derived in `server/labs/flags.js` | FIXED (old flags are in git history but no longer accepted) |
 | Service-role, Resend, Groq, Gemini, webhook secrets | not found in tracked files | OK |
 
@@ -55,8 +55,8 @@ The old per-lab `FLAG_*` variables are no longer read (removed 2026-10-16).
 ## 6. Logging / error exposure
 | What | Where | Risk | Label |
 |---|---|---|---|
-| Every submitted flag (wrong and correct) in plaintext | `server/middleware/logger.js:9-21` → `data/logs/attempts.log`; callers e.g. `server/labs/hidden-sight/routes.js:257` | correct flags readable by anyone with server/log access | WEAKNESS |
-| web-01 attempts incl. flag text | `data/hidden.db` (`server/labs/hidden-sight/routes.js:261-263`) | same | WEAKNESS |
+| Submitted flags in `attempts.log` | `server/middleware/logger.js:9-21` → `data/logs/attempts.log` | FIXED 2026-11-01: every lab `/submit` logs the label `submit` + result, never the flag text. `logAttempt` can still write whatever a caller passes, so keep passing a fixed label, not user input | FIXED |
+| web-01 attempts incl. flag text | was `data/hidden.db` (old `hidden-sight` lab) | removed 2026-11-01: `web01-golive` stores no attempts | FIXED |
 | Full URLs with query strings | `morgan('dev')`, `server/index.js:56` | `?session=`, `?q=`, `?key=` style values land in Render logs | WEAKNESS |
 | Gemini key in request URL | `server/tools/mistake-analyzer/routes.js:55` | key appears in any outbound proxy/URL log | WEAKNESS (REC: send as `x-goog-api-key` header) |
 | Provider error bodies (300 chars), Resend error objects, user email on unknown hook action | `server/ai/llm.js:144`, `server/routes/authEmailHook.js:208,217` | PII in logs | WEAKNESS |

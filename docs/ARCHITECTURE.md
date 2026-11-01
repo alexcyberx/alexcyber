@@ -50,11 +50,11 @@ components, diagrams) -> routes -> SPA catch-all (clean URLs -> `index.html`) ->
 | `server/routes/authEmailHook.js` | Supabase Auth email hook -> Resend, signature verified with `standardwebhooks`. |
 | `server/middleware/` | `attackDetection`, `rateLimit` (login 20/15min, flag 10/min, analyze 15/10min, recon 6/10min, trace 8/10min), `toolAccess` (requireAuth, checkToolEnabled, logToolUsage), `logger`. |
 | `server/db/sqlite.js` | sql.js wrapper that mimics better-sqlite3 for lab databases. |
-| `data/hidden.db` | SQLite file for the "hidden-sight" lab's attempt log, created at runtime (not in git). |
+| `data/hidden.db` | Old attempt log of the removed "hidden-sight" lab (2026-11-01: web-01 is now `web01-golive`, which keeps no log file). Safe to delete. |
 | `server/labs/flags.js` | Every lab flag: `ACX{<theme>_<12 hex>}`, the tail is HMAC-SHA256 of the slug with `FLAG_SECRET` (else the service-role key). No flag is in the repo; on start-up the server writes sha256 of each flag to `ctf_challenges.flag_hash`. |
 
 ### Lab routes (`/api/lab/...`)
-hidden (hidden-sight), cookie, sqli101, robots, packet, metadata,
+hidden (web01-golive, "Before Go-Live"), cookie, sqli101, robots, packet, metadata,
 caesar, base64, deserialize, deserialize-medium, aichat-easy, plus hint / search / admin-search.
 
 ## 6. Auth model

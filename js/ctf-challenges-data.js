@@ -9,28 +9,26 @@
 const ctfChallenges = window.CTF_CHALLENGES = [
   // ── WEB ──
   {
-    id: 'web-01', addedAt: '2026-09-16', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
-    title: 'Hidden in Plain Sight',
-    desc: 'A website has something hidden inside its source code. Take a close look at the page source. Developers sometimes leave a lot behind in comments.',
-    scenario: 'CorpX Ltd.\'s internal portal was pushed to production without a final cleanup. On the surface everything looks clean, but the developers left a few traces behind.<br><br>The flag is hidden in three separate places. Don\'t just look at what gets rendered.',
-    author: 'AlexCyberX Security Team',
-    tags: ['Web Exploitation', 'AlexCyberX Labs'],
-    diff: 'Easy', pts: 50, xp: 100,
+    id: 'web-01', addedAt: '2026-09-16', cat: 'Web', icon: '\ud83c\udf10', iconClass: 'ctf-cat-web',
+    title: 'Before Go-Live',
+    desc: 'Lumio is about to launch a new laptop. Its online store went live in a hurry and the developers forgot the cleanup before go-live. Find what they left behind and get the launch code.',
+    scenario: 'Lumio sells laptops and desktops online. The store looks finished, but it went live without the final cleanup. Somewhere in the files your browser downloads, the developers left a staging key and a pointer to an internal API.<br><br>Find the key, call the internal pre-order API for the unreleased Lumio Book Pro, and read the launch code. That code is the flag.',
+    author: 'AlexCyberX',
+    tags: ['Web', 'Information Disclosure', 'Secrets in JS', 'OWASP A02:2025'],
+    diff: 'Easy', pts: 60, xp: 120,
     hints: [
-      'View the page source (Ctrl+U) and check the HTML comments near the top, one part of the flag is hidden there.',
-      'Check robots.txt for a disallowed path, then visit it directly. The 404 response carries an extra header with the second part of the flag.',
-      'Look at the JS file the page loads. A hex-encoded string is buried in a comment near the middle, that decodes to the final part.'
+      'Websites send your browser more than they show. Open the page source (Ctrl+U, or view-source: on a phone) and read the comments at the top.',
+      'The comment points to a JavaScript file. Open js/store.js directly in the browser and look at the config.',
+      "store.js has a staging key and the path of an internal API. In the store's address, replace page?session=... with that path and put the key after ?key=."
     ],
-    labUrl: '/pages/labs/lab-hidden.html',
     labApiPath: '/api/lab/hidden',
     hasLabFlow: true,
     solvers: 142,
     objectives: [
-      'Enumerate the application: source, robots.txt, JS files',
-      'Find and decode Part 1 in the HTML source',
-      'Find Part 2 in an HTTP response header',
-      'Find and decode Part 3 in the JS file',
-      'Assemble and submit the complete flag'
+      'Read the page source of the Lumio store',
+      'Find the staging config in the JavaScript file',
+      'Call the internal pre-order API with the staging key',
+      'Submit the launch code as the flag'
     ]
   },
   {

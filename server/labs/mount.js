@@ -14,7 +14,7 @@ const { labSessionGuard, SESSION_RE } = require('../middleware/labSession');
 // name = /api/lab/<name>; slug = CTF room; flow = lab-flow (own instance + /page);
 // ttlSec = instance lifetime + 5 min buffer (memory cleanup); sql = instance holds a sql.js DB.
 const LABS = [
-  { name: 'hidden', slug: 'web-01', path: './hidden-sight/routes', flow: true, ttlSec: 20 * 60 },
+  { name: 'hidden', slug: 'web-01', path: './web01-golive/routes', flow: true, ttlSec: 35 * 60 },
   { name: 'cookie', slug: 'web-02', path: './web02-cookie/routes', flow: true, ttlSec: 35 * 60 },
   { name: 'sqli101', slug: 'web-03', path: './web03-sqli101/routes', flow: true, ttlSec: 35 * 60, sql: true },
   { name: 'robots', slug: 'web-04', path: './web04-robots/routes', flow: true, ttlSec: 20 * 60 },

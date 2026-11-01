@@ -51,7 +51,7 @@ router.post('/submit', flagLimiter, (req, res) => {
   if (typeof flag !== 'string' || !flag.trim()) return res.status(400).json({ error: 'No flag provided' });
 
   const correct = flag.trim() === FLAG;
-  logAttempt('BASE64', sid(req), flag.trim(), correct ? 'correct' : 'wrong');
+  logAttempt('BASE64', sid(req), 'submit', correct ? 'correct' : 'wrong');
 
   if (correct) {
     return res.json({ success: true, flag: FLAG, message: 'Correct.' });

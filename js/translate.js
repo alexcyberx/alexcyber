@@ -463,40 +463,77 @@ const CTF_OVERRIDES = {
     }
   },
   'web-01': {
+    hl: {
+      desc: "Lumio naya laptop launch karne wala hai. Uska online store jaldi mein live hua aur developers launch se pehle ki safai bhool gaye. Jo unhone chhod diya wo dhoondo aur launch code nikalo.",
+      scenario: "Lumio laptops aur desktops online bechta hai. Store dekhne mein poora taiyaar lagta hai, par launch se pehle ki aakhri safai nahi hui. Browser jo files download karta hai, unme kahin developers ne ek staging key aur ek internal API ka ishara chhod diya hai.<br><br>Key dhoondo, nayi Lumio Book Pro ka internal pre-order API kholo, aur launch code padho. Wahi code flag hai.",
+      hints: [
+        "Website jitna dikhati hai, browser ko usse zyada bhejti hai. Page source kholo (Ctrl+U, ya phone par view-source:) aur upar ke comments padho.",
+        "Comment ek JavaScript file ki taraf ishara karta hai. js/store.js ko browser mein seedha kholo aur config dekho.",
+        "store.js mein ek staging key aur ek internal API ka rasta hai. Store ke address mein page?session=... ki jagah wo rasta lagao, aur ?key= ke baad key daalo."
+      ]
+    },
     en: {
-      desc: 'There is a website with something hidden in its source code. Carefully look at the page source. Developers sometimes leave a lot behind in comments.',
-      hint: 'Press Ctrl+U (View Source) in the browser and look for HTML comments <!-- -->.',
-      scenario: 'CorpX Ltd. pushed their internal portal to production without a final cleanup. The surface looks clean but the developers left traces behind.<br><br>The flag is split across three locations. Look beyond what the browser renders.'
+      desc: "Lumio is about to launch a new laptop. Its online store went live in a hurry and the developers forgot the cleanup before go-live. Find what they left behind and get the launch code.",
+      scenario: "Lumio sells laptops and desktops online. The store looks finished, but it went live without the final cleanup. Somewhere in the files your browser downloads, the developers left a staging key and a pointer to an internal API.<br><br>Find the key, call the internal pre-order API for the unreleased Lumio Book Pro, and read the launch code. That code is the flag.",
+      hints: [
+        "Websites send your browser more than they show. Open the page source (Ctrl+U, or view-source: on a phone) and read the comments at the top.",
+        "The comment points to a JavaScript file. Open js/store.js directly in the browser and look at the config.",
+        "store.js has a staging key and the path of an internal API. In the store's address, replace page?session=... with that path and put the key after ?key=."
+      ]
     },
     hi: {
-      desc: 'एक वेबसाइट है जिसके सोर्स कोड में कुछ छिपा हुआ है। पेज का सोर्स ध्यान से देखो। डेवलपर्स कभी-कभी कमेंट्स में बहुत कुछ छोड़ देते हैं।',
-      hint: 'ब्राउज़र में Ctrl+U (View Source) दबाओ और HTML comments <!-- --> ढूंढो।',
-      scenario: 'CorpX Ltd. का internal portal final cleanup के बिना production में push हुआ। Surface पर सब clean दिखता है लेकिन developers ने कुछ traces छोड़ दिए।<br><br>Flag तीन अलग जगहों में छुपा है। सिर्फ जो render होता है वो मत देखो।'
+      desc: "Lumio एक नया laptop launch करने वाला है। उसका online store जल्दी में live हुआ और developers launch से पहले की सफाई भूल गए। जो उन्होंने छोड़ दिया वो ढूंढो और launch code निकालो।",
+      scenario: "Lumio laptops और desktops online बेचता है। Store देखने में पूरा तैयार लगता है, पर launch से पहले की आखिरी सफाई नहीं हुई। Browser जो files download करता है, उनमें कहीं developers ने एक staging key और एक internal API का इशारा छोड़ दिया है।<br><br>Key ढूंढो, नई Lumio Book Pro का internal pre-order API खोलो, और launch code पढ़ो। वही code flag है।",
+      hints: [
+        "Website जितना दिखाती है, browser को उससे ज़्यादा भेजती है। Page source खोलो (Ctrl+U, या phone पर view-source:) और ऊपर के comments पढ़ो।",
+        "Comment एक JavaScript file की तरफ इशारा करता है। js/store.js को browser में सीधा खोलो और config देखो।",
+        "store.js में एक staging key और एक internal API का रास्ता है। Store के address में page?session=... की जगह वो रास्ता लगाओ, और ?key= के बाद key डालो।"
+      ]
     },
     pa: {
-      desc: 'ਇੱਕ ਵੈੱਬਸਾਈਟ ਹੈ ਜਿਸਦੇ ਸੋਰਸ ਕੋਡ ਵਿੱਚ ਕੁਝ ਛੁਪਿਆ ਹੋਇਆ ਹੈ। ਪੇਜ ਦਾ ਸੋਰਸ ਧਿਆਨ ਨਾਲ ਦੇਖੋ। ਡਿਵੈਲਪਰ ਕਦੇ-ਕਦੇ ਕਮੈਂਟਸ ਵਿੱਚ ਬਹੁਤ ਕੁਝ ਛੱਡ ਦਿੰਦੇ ਹਨ।',
-      hint: 'ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ Ctrl+U (View Source) ਦਬਾਓ ਅਤੇ HTML comments <!-- --> ਲੱਭੋ।',
-      scenario: 'CorpX Ltd. ਦਾ internal portal final cleanup ਤੋਂ ਬਿਨਾਂ production ਵਿੱਚ push ਹੋਇਆ। Surface ਤੇ ਸਭ clean ਦਿਖਦਾ ਹੈ ਪਰ developers ਨੇ ਕੁਝ traces ਛੱਡੇ ਹਨ।<br><br>Flag ਤਿੰਨ ਵੱਖ ਜਗ੍ਹਾਂ ਵਿੱਚ ਛੁਪਿਆ ਹੈ। ਸਿਰਫ਼ ਜੋ render ਹੁੰਦਾ ਹੈ ਉਹ ਨਾ ਦੇਖੋ।'
+      desc: "Lumio ਇੱਕ ਨਵਾਂ laptop launch ਕਰਨ ਵਾਲਾ ਹੈ। ਉਸਦਾ online store ਜਲਦੀ ਵਿੱਚ live ਹੋਇਆ ਅਤੇ developers launch ਤੋਂ ਪਹਿਲਾਂ ਦੀ ਸਫਾਈ ਭੁੱਲ ਗਏ। ਜੋ ਉਹਨਾਂ ਨੇ ਛੱਡ ਦਿੱਤਾ ਉਹ ਲੱਭੋ ਅਤੇ launch code ਕੱਢੋ।",
+      scenario: "Lumio laptops ਅਤੇ desktops online ਵੇਚਦਾ ਹੈ। Store ਦੇਖਣ ਵਿੱਚ ਪੂਰਾ ਤਿਆਰ ਲੱਗਦਾ ਹੈ, ਪਰ launch ਤੋਂ ਪਹਿਲਾਂ ਦੀ ਆਖਰੀ ਸਫਾਈ ਨਹੀਂ ਹੋਈ। Browser ਜੋ files download ਕਰਦਾ ਹੈ, ਉਹਨਾਂ ਵਿੱਚ ਕਿਤੇ developers ਨੇ ਇੱਕ staging key ਅਤੇ ਇੱਕ internal API ਦਾ ਇਸ਼ਾਰਾ ਛੱਡ ਦਿੱਤਾ ਹੈ।<br><br>Key ਲੱਭੋ, ਨਵੀਂ Lumio Book Pro ਦਾ internal pre-order API ਖੋਲ੍ਹੋ, ਅਤੇ launch code ਪੜ੍ਹੋ। ਉਹੀ code flag ਹੈ।",
+      hints: [
+        "Website ਜਿੰਨਾ ਦਿਖਾਉਂਦੀ ਹੈ, browser ਨੂੰ ਉਸ ਤੋਂ ਵੱਧ ਭੇਜਦੀ ਹੈ। Page source ਖੋਲ੍ਹੋ (Ctrl+U, ਜਾਂ phone ਤੇ view-source:) ਅਤੇ ਉੱਪਰ ਦੇ comments ਪੜ੍ਹੋ।",
+        "Comment ਇੱਕ JavaScript file ਵੱਲ ਇਸ਼ਾਰਾ ਕਰਦਾ ਹੈ। js/store.js ਨੂੰ browser ਵਿੱਚ ਸਿੱਧਾ ਖੋਲ੍ਹੋ ਅਤੇ config ਦੇਖੋ।",
+        "store.js ਵਿੱਚ ਇੱਕ staging key ਅਤੇ ਇੱਕ internal API ਦਾ ਰਸਤਾ ਹੈ। Store ਦੇ address ਵਿੱਚ page?session=... ਦੀ ਥਾਂ ਉਹ ਰਸਤਾ ਲਗਾਓ, ਅਤੇ ?key= ਤੋਂ ਬਾਅਦ key ਪਾਓ।"
+      ]
     },
     ta: {
-      desc: 'அதன் சோர்ஸ் கோடில் ஏதோ மறைக்கப்பட்ட ஒரு வெப்சைட் உள்ளது. பக்கத்தின் சோர்ஸை கவனமாக பார்க்கவும். டெவலப்பர்கள் சில நேரங்களில் கமெண்ட்களில் நிறைய விட்டுச் செல்வார்கள்.',
-      hint: 'பிரௌசரில் Ctrl+U (View Source) அழுத்தி HTML comments <!-- --> ஐ தேடுங்கள்.',
-      scenario: 'CorpX Ltd. இன் internal portal final cleanup இல்லாமல் production-க்கு push ஆனது. Surface சுத்தமாக தெரிகிறது ஆனால் developers சில traces விட்டுச் சென்றனர்.<br><br>Flag மூன்று இடங்களில் மறைக்கப்பட்டுள்ளது. browser render ஆவதை மட்டும் பார்க்காதீர்கள்.'
+      desc: "Lumio ஒரு புதிய laptop-ஐ launch செய்யப் போகிறது. அதன் online store அவசரமாக live ஆனது, developers launch-க்கு முன் செய்ய வேண்டிய சுத்தம் செய்வதை மறந்துவிட்டனர். அவர்கள் விட்டுச் சென்றதைக் கண்டுபிடித்து launch code-ஐ எடுங்கள்.",
+      scenario: "Lumio laptops மற்றும் desktops-ஐ online-இல் விற்கிறது. Store முழுமையாக தயாராக இருப்பது போல் தெரிகிறது, ஆனால் launch-க்கு முன் கடைசி சுத்தம் செய்யப்படவில்லை. உங்கள் browser download செய்யும் files-இல் எங்கோ developers ஒரு staging key-யையும் ஒரு internal API பற்றிய குறிப்பையும் விட்டுச் சென்றுள்ளனர்.<br><br>Key-ஐ கண்டுபிடித்து, வெளிவராத Lumio Book Pro-வின் internal pre-order API-ஐ அழைத்து, launch code-ஐ படியுங்கள். அந்த code தான் flag.",
+      hints: [
+        "Website காட்டுவதை விட அதிகமாக உங்கள் browser-க்கு அனுப்புகிறது. Page source-ஐ திறந்து (Ctrl+U, அல்லது phone-இல் view-source:) மேலே உள்ள comments-ஐ படியுங்கள்.",
+        "அந்த comment ஒரு JavaScript file-ஐ சுட்டிக்காட்டுகிறது. js/store.js-ஐ browser-இல் நேரடியாக திறந்து config-ஐ பாருங்கள்.",
+        "store.js-இல் ஒரு staging key-யும் ஒரு internal API பாதையும் உள்ளன. Store address-இல் page?session=... இருக்கும் இடத்தில் அந்த பாதையை வைத்து, ?key= க்குப் பிறகு key-ஐ சேருங்கள்."
+      ]
     },
     te: {
-      desc: 'దాని సోర్స్ కోడ్‌లో ఏదో దాచబడిన ఒక వెబ్‌సైట్ ఉంది. పేజీ సోర్స్‌ను జాగ్రత్తగా చూడండి. డెవలపర్లు కొన్నిసార్లు కామెంట్‌లలో చాలా వదిలేస్తారు.',
-      hint: 'బ్రౌజర్‌లో Ctrl+U (View Source) నొక్కి HTML comments <!-- --> కోసం చూడండి.',
-      scenario: 'CorpX Ltd. యొక్క internal portal final cleanup లేకుండా production కి push అయింది. Surface clean గా కనిపిస్తుంది కానీ developers కొన్ని traces వదిలారు.<br><br>Flag మూడు చోట్ల దాచబడింది. browser render అయ్యేది మాత్రమే చూడకండి.'
+      desc: "Lumio ఒక కొత్త laptop‌ను launch చేయబోతోంది. దాని online store తొందరగా live అయింది, developers launch‌కు ముందు చేయాల్సిన శుభ్రతను మర్చిపోయారు. వారు వదిలేసినది కనుగొని launch code తీయండి.",
+      scenario: "Lumio laptops, desktops‌ను online‌లో అమ్ముతుంది. Store పూర్తిగా సిద్ధంగా ఉన్నట్టు కనిపిస్తుంది, కానీ launch‌కు ముందు చివరి శుభ్రత జరగలేదు. మీ browser download చేసే files‌లో ఎక్కడో developers ఒక staging key‌ను, ఒక internal API గురించిన సూచనను వదిలేశారు.<br><br>Key‌ను కనుగొని, ఇంకా రాని Lumio Book Pro యొక్క internal pre-order API‌ను పిలిచి, launch code చదవండి. ఆ code నే flag.",
+      hints: [
+        "Website చూపించే దానికంటే ఎక్కువ మీ browser‌కు పంపుతుంది. Page source తెరిచి (Ctrl+U, లేదా phone‌లో view-source:) పైన ఉన్న comments చదవండి.",
+        "ఆ comment ఒక JavaScript file వైపు సూచిస్తుంది. js/store.js‌ను browser‌లో నేరుగా తెరిచి config చూడండి.",
+        "store.js‌లో ఒక staging key, ఒక internal API దారి ఉన్నాయి. Store address‌లో page?session=... ఉన్న చోట ఆ దారిని పెట్టి, ?key= తర్వాత key జోడించండి."
+      ]
     },
     bn: {
-      desc: 'একটি ওয়েবসাইট আছে যার সোর্স কোডে কিছু লুকানো আছে। পেজের সোর্স মনোযোগ দিয়ে দেখুন। ডেভেলপাররা অনেক সময় কমেন্টে অনেক কিছু রেখে দেয়।',
-      hint: 'ব্রাউজারে Ctrl+U (View Source) চাপুন এবং HTML comments <!-- --> খুঁজুন।',
-      scenario: 'CorpX Ltd.-এর internal portal final cleanup ছাড়াই production-এ push হয়েছে. Surface পরিষ্কার দেখাচ্ছে কিন্তু developers কিছু traces রেখে গেছে।<br><br>Flag তিনটি জায়গায় লুকানো আছে. browser-এ যা render হয় তার বাইরেও দেখুন।'
+      desc: "Lumio একটি নতুন laptop launch করতে চলেছে। তার online store তাড়াহুড়ো করে live হয়েছে আর developers launch-এর আগের পরিষ্কার করতে ভুলে গেছে। তারা যা রেখে গেছে তা খুঁজে launch code বের করুন।",
+      scenario: "Lumio online-এ laptops আর desktops বিক্রি করে। Store দেখতে পুরো তৈরি মনে হয়, কিন্তু launch-এর আগে শেষ পরিষ্কার করা হয়নি। আপনার browser যে files download করে, তার কোথাও developers একটি staging key আর একটি internal API-এর ইঙ্গিত রেখে গেছে।<br><br>Key খুঁজুন, এখনও না আসা Lumio Book Pro-এর internal pre-order API খুলুন, আর launch code পড়ুন। সেই code-ই flag।",
+      hints: [
+        "Website যতটা দেখায়, browser-কে তার চেয়ে বেশি পাঠায়। Page source খুলুন (Ctrl+U, বা phone-এ view-source:) আর উপরের comments পড়ুন।",
+        "Comment একটি JavaScript file-এর দিকে ইঙ্গিত করে। js/store.js browser-এ সরাসরি খুলে config দেখুন।",
+        "store.js-এ একটি staging key আর একটি internal API-এর পথ আছে। Store-এর address-এ page?session=...-এর জায়গায় সেই পথ বসান, আর ?key=-এর পরে key দিন।"
+      ]
     },
     mr: {
-      desc: 'एक वेबसाइट आहे ज्याच्या सोर्स कोडमध्ये काहीतरी लपलेले आहे. पेजचा सोर्स काळजीपूर्वक पाहा. डेव्हलपर्स कधीकधी कमेंट्समध्ये बरेच काही सोडून देतात.',
-      hint: 'ब्राउझरमध्ये Ctrl+U (View Source) दाबा आणि HTML comments <!-- --> शोधा.',
-      scenario: 'CorpX Ltd. चा internal portal final cleanup शिवाय production मध्ये push झाला. Surface स्वच्छ दिसते पण developers काही traces सोडून गेले.<br><br>Flag तीन ठिकाणी लपवला आहे. फक्त browser मध्ये render होते तेच पाहू नका.'
+      desc: "Lumio एक नवीन laptop launch करणार आहे. त्याचे online store घाईत live झाले आणि developers launch आधीची साफसफाई विसरले. त्यांनी जे सोडले ते शोधा आणि launch code काढा.",
+      scenario: "Lumio laptops आणि desktops online विकतो. Store दिसायला पूर्ण तयार वाटते, पण launch आधीची शेवटची साफसफाई झाली नाही. तुमचा browser ज्या files download करतो, त्यात कुठेतरी developers नी एक staging key आणि एका internal API चा इशारा सोडला आहे.<br><br>Key शोधा, अजून न आलेल्या Lumio Book Pro चा internal pre-order API उघडा, आणि launch code वाचा. तोच code flag आहे.",
+      hints: [
+        "Website जितकी दाखवते, त्यापेक्षा जास्त browser ला पाठवते. Page source उघडा (Ctrl+U, किंवा phone वर view-source:) आणि वरचे comments वाचा.",
+        "Comment एका JavaScript file कडे इशारा करतो. js/store.js browser मध्ये थेट उघडा आणि config बघा.",
+        "store.js मध्ये एक staging key आणि एका internal API चा रस्ता आहे. Store च्या address मध्ये page?session=... च्या जागी तो रस्ता लावा, आणि ?key= नंतर key टाका."
+      ]
     }
   },
   'web-02': {

@@ -1,6 +1,6 @@
 # Attack surface: AlexCyberX
 
-Last verified: 2026-11-01 (ai-02 `campusdesk` lab; 2026-10-31 for-04 `midnight` lab; static `/quiz` folder for the course quiz iframe; 2026-10-24 labs on their own origin; 2026-10-23 admin panel phase 4; full audit 2026-10-16, commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · MISSING · VERIFY · REC (see
+Last verified: 2026-11-01 (web-01 rebuilt as `hidden` = Before Go-Live: store page, `js/store.js` with a per-instance staging key, `api/v1/preorder/book-pro` checks the key and returns the flag, images served from a fixed whitelist; ai-02 `campusdesk` lab; 2026-10-31 for-04 `midnight` lab; static `/quiz` folder for the course quiz iframe; 2026-10-24 labs on their own origin; 2026-10-23 admin panel phase 4; full audit 2026-10-16, commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · MISSING · VERIFY · REC (see
 `threat-model.md`). "IP" limits use `req.ip` (correct: `app.set('trust proxy', 1)`, `server/index.js:13`).
 
 ## 1. Network / deployment exposure

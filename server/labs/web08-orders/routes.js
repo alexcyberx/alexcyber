@@ -277,7 +277,7 @@ router.post('/submit', flagLimiter, (req, res) => {
   const s = sid(req);
   if (typeof flag !== 'string' || !flag.trim()) return res.status(400).json({ error: 'No flag provided' });
   const correct = flag.trim() === FLAG;
-  logAttempt('ORDERS', req.ip, flag.trim(), correct ? 'correct' : 'wrong');
+  logAttempt('ORDERS', req.ip, 'submit', correct ? 'correct' : 'wrong');
   if (correct) { getOrCreate(s).solved = true; return res.json({ success: true, flag: FLAG, message: 'The order page never checked who owned the order. Always check ownership on the server.' }); }
   res.status(401).json({ success: false, message: 'Incorrect flag.' });
 });

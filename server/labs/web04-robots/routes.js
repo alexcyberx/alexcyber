@@ -340,7 +340,7 @@ router.post('/submit', flagLimiter, (req, res) => {
   const s = sid(req);
   if (!flag) return res.status(400).json({ error: 'No flag provided' });
   const correct = flag.trim() === FLAG;
-  logAttempt('ROBOTS', req.ip, flag.trim(), correct ? 'correct' : 'wrong');
+  logAttempt('ROBOTS', req.ip, 'submit', correct ? 'correct' : 'wrong');
   if (correct) {
     getOrCreate(s).solved = true;
     return res.json({ success: true, flag: FLAG, message: 'robots.txt should never reveal sensitive internal paths.' });
