@@ -8,6 +8,9 @@ Read this first in every session. It records what the owner wants; follow it.
 - Before **removing** any feature/page/section, ask once and get a yes. Improving or fixing does not need a question.
 - **Never use en or em dashes (– —) anywhere** (owner's rule): not in UI/site text, diagrams, docs, code comments,
   commit messages, or chat. They read as AI. Use a comma, a period, "to", or brackets instead.
+- New CTF room/lab: before making any design, ask the owner the room name, the story/company, the look and the
+  difficulty/XP. Every lab must look different (not the same light company portal each time). Topics use real
+  industry names (e.g. OWASP LLM05 Improper Output Handling), and CTF rooms are not tied to course chapters.
 - Avoid an "AI look": no decorative explainer cards (accent-bar + icon + bold-sprinkled paragraph), no rainbow/
   off-brand colours, nothing decorative without a purpose. Study how real platforms present things and copy that.
 
