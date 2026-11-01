@@ -246,7 +246,7 @@ router.post('/submit', flagLimiter, (req, res) => {
   if (typeof flag !== 'string' || !flag.trim()) return res.status(400).json({ error: 'No flag provided' });
 
   const correct = flag.trim() === FLAG;
-  logAttempt('PACKET', req.ip, flag.trim(), correct ? 'correct' : 'wrong');
+  logAttempt('PACKET', req.ip, 'submit', correct ? 'correct' : 'wrong');
 
   if (correct) {
     getOrCreate(s).solved = true;

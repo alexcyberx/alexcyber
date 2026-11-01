@@ -125,8 +125,8 @@ anon key). WEAKNESS: the service-role key doubles as the flag secret when `FLAG_
 
 ### T9. Privacy — **Medium**
 - `profiles` is world-readable (all columns except `last_login_ip`), including `is_banned`, `role`, `last_seen`.
-- Logs keep every submitted flag, lab inputs and admin search queries in plaintext (`server/middleware/logger.js`,
-  `data/logs/attempts.log`, no rotation); Morgan logs full URLs with query strings.
+- `attempts.log` no longer stores submitted flags (every lab `/submit` logs the label `submit` + result, 2026-11-01);
+  the file still has no rotation, and Morgan logs full URLs with query strings.
 - MISSING: data retention rules, account deletion flow for users, age/consent handling beyond the signup checkbox.
 
 ### T10. Supply chain — **Low/Medium**

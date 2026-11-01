@@ -55,7 +55,7 @@ The old per-lab `FLAG_*` variables are no longer read (removed 2026-10-16).
 ## 6. Logging / error exposure
 | What | Where | Risk | Label |
 |---|---|---|---|
-| Every submitted flag (wrong and correct) in plaintext | `server/middleware/logger.js:9-21` → `data/logs/attempts.log`; callers e.g. older labs' `/submit` routes (new labs log only `submit`, never the flag) | correct flags readable by anyone with server/log access | WEAKNESS |
+| Submitted flags in `attempts.log` | `server/middleware/logger.js:9-21` → `data/logs/attempts.log` | FIXED 2026-11-01: every lab `/submit` logs the label `submit` + result, never the flag text. `logAttempt` can still write whatever a caller passes, so keep passing a fixed label, not user input | FIXED |
 | web-01 attempts incl. flag text | was `data/hidden.db` (old `hidden-sight` lab) | removed 2026-11-01: `web01-golive` stores no attempts | FIXED |
 | Full URLs with query strings | `morgan('dev')`, `server/index.js:56` | `?session=`, `?q=`, `?key=` style values land in Render logs | WEAKNESS |
 | Gemini key in request URL | `server/tools/mistake-analyzer/routes.js:55` | key appears in any outbound proxy/URL log | WEAKNESS (REC: send as `x-goog-api-key` header) |

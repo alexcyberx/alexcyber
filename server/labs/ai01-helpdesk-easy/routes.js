@@ -155,7 +155,7 @@ router.post('/submit', flagLimiter, (req, res) => {
   if (typeof flag !== 'string' || !flag.trim()) return res.status(400).json({ error: 'No flag provided' });
 
   const correct = flag.trim() === FLAG;
-  logAttempt('AI_EASY', sid(req), flag.trim().slice(0, 200), correct ? 'correct' : 'wrong');
+  logAttempt('AI_EASY', sid(req), 'submit', correct ? 'correct' : 'wrong');
 
   if (correct) return res.json({ success: true, flag: FLAG, message: 'Correct.' });
   res.status(401).json({ success: false, message: 'Incorrect flag.' });

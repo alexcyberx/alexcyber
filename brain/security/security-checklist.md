@@ -1,6 +1,7 @@
 # Security checklist: AlexCyberX
 
-Last verified: 2026-11-01 (web-01 rebuilt as Before Go-Live, the old lab's flag-attempt file `data/hidden.db` is gone; new lab ai-02 `campusdesk`: AI-written SQL runs only in a read-only worker DB with heap and time caps, the LLM never sees the flag; 2026-10-31 new lab for-04 `midnight`: text-only log, answers checked server-side under `flagLimiter`, no flag logged; 2026-10-24 labs on their own origin; 2026-10-23 admin panel phase 4; full audit 2026-10-16, commit `fffd15f`). **Read this before changing auth, labs, tools, Supabase SQL, the admin
+Last verified: 2026-11-01 (lab `/submit` no longer logs the submitted flag: all labs log the label `submit` + result,
+closing the plaintext-flag part of finding #7; web-01 rebuilt as Before Go-Live, the old lab's flag-attempt file `data/hidden.db` is gone; new lab ai-02 `campusdesk`: AI-written SQL runs only in a read-only worker DB with heap and time caps, the LLM never sees the flag; 2026-10-31 new lab for-04 `midnight`: text-only log, answers checked server-side under `flagLimiter`, no flag logged; 2026-10-24 labs on their own origin; 2026-10-23 admin panel phase 4; full audit 2026-10-16, commit `fffd15f`). **Read this before changing auth, labs, tools, Supabase SQL, the admin
 panel, or anything that renders HTML.** `[x]` = in place (verified), `[ ]` = gap. Each gap: Severity → Evidence →
 Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · MISSING · VERIFY · REC.
 
@@ -24,8 +25,9 @@ Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · M
    DOMPurify) server-side in `web/src/lib/chapters.ts`.
 6. **Medium · WEAKNESS — CSP allows `'unsafe-inline'` scripts** `server/index.js:22,26`. Fix: nonces/hashes for the
    few inline scripts (theme boot, lab pages), then drop `'unsafe-inline'`.
-7. **Medium · WEAKNESS — plaintext flags and inputs in logs** `server/middleware/logger.js`, `data/logs/attempts.log`
-   (no rotation), `data/hidden.db`. Fix: log `sha256(input).slice(0,12)` + result instead of the text; rotate/size-cap.
+7. **Low · WEAKNESS — `attempts.log` has no rotation** `server/middleware/logger.js`, `data/logs/attempts.log`.
+   FIXED 2026-11-01: every lab `/submit` now logs the fixed label `'submit'` + result, never the submitted flag
+   (`data/hidden.db` was already removed with the web-01 rebuild). Remaining: the file still has no rotation/size cap.
 8. **Medium · WEAKNESS — public profile columns** `profiles` SELECT for anon includes `role`, `is_banned`,
    `last_seen`. Fix: column-level SELECT grant for public columns only, or a public view.
 9. **Low/Medium · MISSING — Supabase leaked-password protection disabled** (advisor). Fix: enable in Auth settings.
@@ -117,7 +119,8 @@ Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · M
 
 ## Logging / monitoring
 - [x] `security_logs` with sensitive fields redacted; auto-block events logged.
-- [ ] Plaintext flags/inputs in `attempts.log` (#7); full URLs in morgan; no alerting on security events (MISSING).
+- [x] No flag written to `attempts.log` (labs log the label `'submit'` + result, 2026-11-01); still no rotation (#7).
+- [ ] Full URLs in morgan; no alerting on security events (MISSING).
 
 ## Admin security
 - [x] MFA (aal2) for admin data, writes and RPCs (#2). [ ] Server-side panel gate (the page is public; data is not).
