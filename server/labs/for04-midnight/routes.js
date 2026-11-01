@@ -236,17 +236,12 @@ function instStatus(s) {
   return { running: remaining > 0, remaining_sec: remaining, solved: inst.solved };
 }
 function isRunning(s) { const inst = instances[s]; if (!inst) return false; return (INSTANCE_DURATION_SEC - Math.floor((Date.now() - inst.startedAt) / 1000)) > 0; }
-function fmtTime(sec) { const m = Math.floor(sec / 60), ss = sec % 60; return m + ':' + String(ss).padStart(2, '0'); }
 
 // ── Page ──
 const HEAD = `<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">`;
 const STYLE = `<style>
 *{box-sizing:border-box}
 body{margin:0;background:#f1f3f7;font-family:'Noto Sans',Arial,sans-serif;color:#1c2333}
-.labbar{background:#111413;color:#c9cfcc;font:500 12.5px Arial,sans-serif;padding:9px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
-.lb-left{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.lb-brand{color:#f2f5f4;font-weight:700}.lb-sep{color:#3a3f3d}
-.lb-pill{font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(251,146,60,0.12);color:#fdba74}.lb-pill.ok{background:rgba(52,211,153,.14);color:#34d399}
-.lb-right{display:flex;align-items:center;gap:16px}.lb-time{font-family:'JetBrains Mono',monospace;color:#34d399}.lb-right a{color:#34d399;text-decoration:none}
 .top{background:#1e1b4b;color:#e0e7ff}
 .top .in{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:26px;padding:0 20px;height:52px}
 .logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;color:#fff}.logo svg{width:22px;height:22px}
@@ -329,16 +324,11 @@ function winHtml(inst) {
 }
 
 function page(s, inst) {
-  const st = instStatus(s);
   const m = inst.meta;
   const opened = clock(m.opened).slice(0, 5);
   const S = JSON.stringify(String(s)).replace(/</g, '\\u003c');
   const q = encodeURIComponent(s);
   return `<!DOCTYPE html><html lang="en"><head>${HEAD}<title>Paynova SOC: INC-2026-${m.caseNo}</title>${STYLE}</head><body>
-<div class="labbar">
-  <div class="lb-left"><span class="lb-brand">AlexCyberX Labs</span><span class="lb-sep">|</span><span>Midnight Login</span><span class="lb-pill${inst.solved ? ' ok' : ''}" id="pill">${inst.solved ? 'Report accepted' : 'Not solved'}</span></div>
-  <div class="lb-right"><span class="lb-time" id="timeLeft" data-left="${st.remaining_sec}">${fmtTime(st.remaining_sec)} left</span><a href="/rooms?open=for-04" id="backBtn">Back to room</a></div>
-</div>
 <header class="top"><div class="in"><div class="logo">${LOGO}Paynova SOC</div><nav class="nav" aria-label="Portal"><a href="#">Alerts</a><a class="on" href="#">Cases</a><a href="#">Assets</a><a href="#">Reports</a></nav><div class="who"><span>Analyst on shift</span><span class="av">YOU</span></div></div></header>
 <main class="wrap">
   <div class="case"><span class="cid">INC-2026-${m.caseNo}</span><span class="pill sev">High</span><span class="pill st${inst.solved ? ' closed' : ''}" id="status">${inst.solved ? 'Closed' : 'Investigating'}</span><span class="meta">Opened 31 Oct 2026, ${opened} IST &middot; Asset vpn-gw01</span><h1>Suspicious SSH login on vpn-gw01</h1></div>
@@ -360,10 +350,6 @@ function page(s, inst) {
 <script>
 (function(){
 var S=${S};
-var back=document.getElementById('backBtn');
-back.onclick=function(e){e.preventDefault();try{window.close()}catch(_){}setTimeout(function(){location.href='/rooms?open=for-04'},200)};
-var tl=document.getElementById('timeLeft'),left=+tl.getAttribute('data-left');
-var tick=setInterval(function(){left=Math.max(0,left-1);tl.textContent=left?Math.floor(left/60)+':'+String(left%60).padStart(2,'0')+' left':'Time up';if(!left)clearInterval(tick)},1000);
 
 var logEl=document.getElementById('log'),countEl=document.getElementById('count'),qEl=document.getElementById('q'),chips=document.querySelectorAll('.chip');
 var lines=[],lower=[];
@@ -414,7 +400,6 @@ if(form)form.addEventListener('submit',function(e){
       if(d.success){
         rep.innerHTML=d.html;
         var st=document.getElementById('status');st.textContent='Closed';st.classList.add('closed');
-        var p=document.getElementById('pill');p.textContent='Report accepted';p.classList.add('ok');
         return;
       }
       (d.right||[]).forEach(function(ok,i){inputs[i].classList.toggle('good',ok);inputs[i].classList.toggle('bad',!ok)});

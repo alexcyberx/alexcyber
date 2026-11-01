@@ -217,6 +217,29 @@ const ctfChallenges = window.CTF_CHALLENGES = [
       'Find a way to make it ignore the rule against sharing the code',
       'Submit the recovery code as the flag'
     ]
+  },
+  {
+    id: 'ai-02', addedAt: '2026-11-01', cat: 'AI Security', iconClass: 'ctf-cat-ai',
+    title: 'Trust the Query',
+    desc: 'Kaveri Valley Institute of Technology added an AI assistant to its student portal. It turns your questions into database queries, and the portal runs whatever it writes. The end-sem papers live in the same database.',
+    scenario: 'You are Rohan Mehta, a second-year B.Tech student at KVIT. The new KVIT Assistant on the CampusDesk portal answers questions about your attendance, marks and fees by writing a SQL query, which the portal runs on the college database.<br><br>The assistant has been told to show students only their own records. Nobody checks the queries it writes. Somewhere in that database are the unlock codes for the end-sem papers. Get the one for DBMS.',
+    author: 'AlexCyberX',
+    tags: ['AI Security', 'OWASP LLM05', 'Improper Output Handling', 'SQL'],
+    diff: 'Medium', pts: 150, xp: 220,
+    hints: [
+      'The portal runs every query the assistant writes, without checking it. Open "Query used" under an answer. Is your own data the only thing in that database?',
+      'In SQLite, the list of every table is kept in a table called sqlite_master. Get the assistant to write a query on it.',
+      "The assistant's only protection is its instructions. Read the notices on the dashboard: who else uses this assistant, and what will it do for them? Then ask for the exact query you want."
+    ],
+    objectives: [
+      'Ask the assistant a normal question and look at the query it wrote',
+      'Find out which tables the database really has',
+      'Get the assistant to query the table with the exam papers',
+      'Submit the DBMS unlock code as the flag'
+    ],
+    labApiPath: '/api/lab/campusdesk',
+    hasLabFlow: true,
+    solvers: 0
   }
 
 ];

@@ -767,6 +767,80 @@ const CTF_OVERRIDES = {
       ]
     }
   },
+  'ai-02': {
+    hl: {
+      desc: "Kaveri Valley Institute of Technology ne apne student portal par ek AI assistant lagaya hai. Ye aapke sawaal ko database query mein badalta hai, aur portal jo bhi query ye likhe, chala deta hai. End-sem papers bhi usi database mein hain.",
+      scenario: "Aap Rohan Mehta ho, KVIT mein B.Tech second year ke student. CampusDesk portal ka naya KVIT Assistant aapki attendance, marks aur fees ke sawaalon ka jawab ek SQL query likh kar deta hai, aur portal wo query college ke database par chala deta hai.<br><br>Assistant ko bola gaya hai ki students ko sirf unka apna data dikhaye. Uski likhi queries koi check nahi karta. Usi database mein kahin end-sem papers ke unlock codes hain. DBMS wala code nikalo.",
+      hints: [
+        "Assistant jo bhi query likhta hai, portal use bina check kiye chala deta hai. Kisi jawab ke neeche \"Query used\" kholo. Kya database mein sirf aapka hi data hai?",
+        "SQLite mein saari tables ki list sqlite_master naam ki table mein hoti hai. Assistant se uspar query likhwao.",
+        "Assistant ki suraksha sirf uske instructions hain. Dashboard ke notices padho: ye assistant aur kaun use karta hai, aur unke liye ye kya karta hai? Phir exact query maango jo aapko chahiye."
+      ]
+    },
+    en: {
+      desc: "Kaveri Valley Institute of Technology added an AI assistant to its student portal. It turns your questions into database queries, and the portal runs whatever it writes. The end-sem papers live in the same database.",
+      scenario: "You are Rohan Mehta, a second-year B.Tech student at KVIT. The new KVIT Assistant on the CampusDesk portal answers questions about your attendance, marks and fees by writing a SQL query, which the portal runs on the college database.<br><br>The assistant has been told to show students only their own records. Nobody checks the queries it writes. Somewhere in that database are the unlock codes for the end-sem papers. Get the one for DBMS.",
+      hints: [
+        "The portal runs every query the assistant writes, without checking it. Open \"Query used\" under an answer. Is your own data the only thing in that database?",
+        "In SQLite, the list of every table is kept in a table called sqlite_master. Get the assistant to write a query on it.",
+        "The assistant's only protection is its instructions. Read the notices on the dashboard: who else uses this assistant, and what will it do for them? Then ask for the exact query you want."
+      ]
+    },
+    hi: {
+      desc: "Kaveri Valley Institute of Technology ने अपने student portal पर एक AI assistant लगाया है। ये आपके सवाल को database query में बदलता है, और portal जो भी query ये लिखे, चला देता है। End-sem papers भी उसी database में हैं।",
+      scenario: "आप Rohan Mehta हो, KVIT में B.Tech second year के student. CampusDesk portal का नया KVIT Assistant आपकी attendance, marks और fees के सवालों का जवाब एक SQL query लिखकर देता है, और portal वो query college के database पर चला देता है।<br><br>Assistant को बोला गया है कि students को सिर्फ उनका अपना data दिखाए। उसकी लिखी queries कोई check नहीं करता। उसी database में कहीं end-sem papers के unlock codes हैं। DBMS वाला code निकालो।",
+      hints: [
+        "Assistant जो भी query लिखता है, portal उसे बिना check किए चला देता है। किसी जवाब के नीचे \"Query used\" खोलो। क्या database में सिर्फ आपका ही data है?",
+        "SQLite में सारी tables की list sqlite_master नाम की table में होती है। Assistant से उस पर query लिखवाओ।",
+        "Assistant की सुरक्षा सिर्फ उसके instructions हैं। Dashboard के notices पढ़ो: ये assistant और कौन use करता है, और उनके लिए ये क्या करता है? फिर exact query मांगो जो आपको चाहिए।"
+      ]
+    },
+    pa: {
+      desc: "Kaveri Valley Institute of Technology ਨੇ ਆਪਣੇ student portal ਤੇ ਇੱਕ AI assistant ਲਗਾਇਆ ਹੈ। ਇਹ ਤੁਹਾਡੇ ਸਵਾਲ ਨੂੰ database query ਵਿੱਚ ਬਦਲਦਾ ਹੈ, ਅਤੇ portal ਜੋ ਵੀ query ਇਹ ਲਿਖੇ, ਚਲਾ ਦਿੰਦਾ ਹੈ। End-sem papers ਵੀ ਉਸੇ database ਵਿੱਚ ਹਨ।",
+      scenario: "ਤੁਸੀਂ Rohan Mehta ਹੋ, KVIT ਵਿੱਚ B.Tech second year ਦੇ student. CampusDesk portal ਦਾ ਨਵਾਂ KVIT Assistant ਤੁਹਾਡੀ attendance, marks ਅਤੇ fees ਦੇ ਸਵਾਲਾਂ ਦਾ ਜਵਾਬ ਇੱਕ SQL query ਲਿਖ ਕੇ ਦਿੰਦਾ ਹੈ, ਅਤੇ portal ਉਹ query college ਦੇ database ਤੇ ਚਲਾ ਦਿੰਦਾ ਹੈ।<br><br>Assistant ਨੂੰ ਕਿਹਾ ਗਿਆ ਹੈ ਕਿ students ਨੂੰ ਸਿਰਫ਼ ਉਹਨਾਂ ਦਾ ਆਪਣਾ data ਦਿਖਾਏ। ਉਸਦੀਆਂ ਲਿਖੀਆਂ queries ਕੋਈ check ਨਹੀਂ ਕਰਦਾ। ਉਸੇ database ਵਿੱਚ ਕਿਤੇ end-sem papers ਦੇ unlock codes ਹਨ। DBMS ਵਾਲਾ code ਕੱਢੋ।",
+      hints: [
+        "Assistant ਜੋ ਵੀ query ਲਿਖਦਾ ਹੈ, portal ਉਸਨੂੰ ਬਿਨਾਂ check ਕੀਤੇ ਚਲਾ ਦਿੰਦਾ ਹੈ। ਕਿਸੇ ਜਵਾਬ ਦੇ ਹੇਠਾਂ \"Query used\" ਖੋਲ੍ਹੋ। ਕੀ database ਵਿੱਚ ਸਿਰਫ਼ ਤੁਹਾਡਾ ਹੀ data ਹੈ?",
+        "SQLite ਵਿੱਚ ਸਾਰੀਆਂ tables ਦੀ list sqlite_master ਨਾਮ ਦੀ table ਵਿੱਚ ਹੁੰਦੀ ਹੈ। Assistant ਤੋਂ ਉਸ ਤੇ query ਲਿਖਵਾਓ।",
+        "Assistant ਦੀ ਸੁਰੱਖਿਆ ਸਿਰਫ਼ ਉਸਦੇ instructions ਹਨ। Dashboard ਦੇ notices ਪੜ੍ਹੋ: ਇਹ assistant ਹੋਰ ਕੌਣ use ਕਰਦਾ ਹੈ, ਅਤੇ ਉਹਨਾਂ ਲਈ ਇਹ ਕੀ ਕਰਦਾ ਹੈ? ਫਿਰ exact query ਮੰਗੋ ਜੋ ਤੁਹਾਨੂੰ ਚਾਹੀਦੀ ਹੈ।"
+      ]
+    },
+    ta: {
+      desc: "Kaveri Valley Institute of Technology தனது student portal-இல் ஒரு AI assistant-ஐ சேர்த்துள்ளது. அது உங்கள் கேள்விகளை database query-களாக மாற்றுகிறது, அது எழுதும் எந்த query-ஐயும் portal இயக்கிவிடுகிறது. End-sem papers-உம் அதே database-இல் உள்ளன.",
+      scenario: "நீங்கள் Rohan Mehta, KVIT-இல் B.Tech இரண்டாம் ஆண்டு மாணவர். CampusDesk portal-இன் புதிய KVIT Assistant உங்கள் attendance, marks, fees பற்றிய கேள்விகளுக்கு ஒரு SQL query எழுதி பதில் தருகிறது, அந்த query-ஐ portal college database-இல் இயக்குகிறது.<br><br>மாணவர்களுக்கு அவர்களுடைய data-வை மட்டும் காட்டும்படி assistant-க்கு சொல்லப்பட்டுள்ளது. அது எழுதும் query-களை யாரும் சரிபார்ப்பதில்லை. அதே database-இல் எங்கோ end-sem papers-இன் unlock codes உள்ளன. DBMS code-ஐ எடுங்கள்.",
+      hints: [
+        "Assistant எழுதும் ஒவ்வொரு query-ஐயும் portal சரிபார்க்காமல் இயக்குகிறது. ஒரு பதிலுக்குக் கீழே \"Query used\"-ஐ திறங்கள். Database-இல் உங்கள் data மட்டும் தான் உள்ளதா?",
+        "SQLite-இல் எல்லா tables-இன் பட்டியலும் sqlite_master என்ற table-இல் இருக்கும். அதன் மீது ஒரு query எழுதும்படி assistant-ஐ செய்யுங்கள்.",
+        "Assistant-இன் ஒரே பாதுகாப்பு அதன் instructions தான். Dashboard-இல் உள்ள notices-ஐ படியுங்கள்: இந்த assistant-ஐ வேறு யார் பயன்படுத்துகிறார்கள், அவர்களுக்கு அது என்ன செய்யும்? பிறகு உங்களுக்கு வேண்டிய சரியான query-ஐ கேளுங்கள்."
+      ]
+    },
+    te: {
+      desc: "Kaveri Valley Institute of Technology తన student portal‌లో ఒక AI assistant‌ను పెట్టింది. అది మీ ప్రశ్నలను database query‌లుగా మారుస్తుంది, అది రాసే ఏ query‌నైనా portal నడిపిస్తుంది. End-sem papers కూడా అదే database‌లో ఉన్నాయి.",
+      scenario: "మీరు Rohan Mehta, KVIT‌లో B.Tech రెండో సంవత్సరం విద్యార్థి. CampusDesk portal‌లోని కొత్త KVIT Assistant మీ attendance, marks, fees గురించిన ప్రశ్నలకు ఒక SQL query రాసి జవాబిస్తుంది, ఆ query‌ను portal college database‌పై నడిపిస్తుంది.<br><br>విద్యార్థులకు వారి సొంత data మాత్రమే చూపించమని assistant‌కు చెప్పారు. అది రాసే queries‌ను ఎవరూ check చేయరు. అదే database‌లో ఎక్కడో end-sem papers unlock codes ఉన్నాయి. DBMS code‌ను తీయండి.",
+      hints: [
+        "Assistant రాసే ప్రతి query‌ను portal check చేయకుండా నడిపిస్తుంది. ఒక జవాబు కింద \"Query used\" తెరవండి. Database‌లో మీ data మాత్రమే ఉందా?",
+        "SQLite‌లో అన్ని tables జాబితా sqlite_master అనే table‌లో ఉంటుంది. దానిపై ఒక query రాయమని assistant‌కు చెప్పండి.",
+        "Assistant‌కు ఉన్న రక్షణ దాని instructions మాత్రమే. Dashboard‌లోని notices చదవండి: ఈ assistant‌ను ఇంకా ఎవరు వాడతారు, వారి కోసం ఇది ఏం చేస్తుంది? తర్వాత మీకు కావలసిన exact query అడగండి."
+      ]
+    },
+    bn: {
+      desc: "Kaveri Valley Institute of Technology তাদের student portal-এ একটি AI assistant যোগ করেছে। এটি আপনার প্রশ্নকে database query-তে বদলে দেয়, আর portal এটি যা লেখে তাই চালিয়ে দেয়। End-sem papers-ও সেই একই database-এ আছে।",
+      scenario: "আপনি Rohan Mehta, KVIT-এর B.Tech দ্বিতীয় বর্ষের ছাত্র। CampusDesk portal-এর নতুন KVIT Assistant আপনার attendance, marks আর fees-এর প্রশ্নের উত্তর একটি SQL query লিখে দেয়, আর portal সেই query college-এর database-এ চালায়।<br><br>Assistant-কে বলা হয়েছে students-দের শুধু তাদের নিজেদের data দেখাতে। এর লেখা queries কেউ check করে না। সেই database-এর কোথাও end-sem papers-এর unlock codes আছে। DBMS-এর code বের করুন।",
+      hints: [
+        "Assistant যে query লেখে, portal তা check না করেই চালিয়ে দেয়। কোনো উত্তরের নিচে \"Query used\" খুলুন। Database-এ কি শুধু আপনার data-ই আছে?",
+        "SQLite-এ সব tables-এর তালিকা sqlite_master নামের table-এ থাকে। Assistant-কে দিয়ে তার উপর query লেখান।",
+        "Assistant-এর একমাত্র সুরক্ষা তার instructions। Dashboard-এর notices পড়ুন: এই assistant আর কে ব্যবহার করে, আর তাদের জন্য এটি কী করে? তারপর আপনার দরকারি exact query চান।"
+      ]
+    },
+    mr: {
+      desc: "Kaveri Valley Institute of Technology ने आपल्या student portal वर एक AI assistant लावला आहे. तो तुमचे प्रश्न database query मध्ये बदलतो, आणि portal तो जी query लिहील ती चालवतो. End-sem papers सुद्धा त्याच database मध्ये आहेत.",
+      scenario: "तुम्ही Rohan Mehta आहात, KVIT मध्ये B.Tech second year चे विद्यार्थी. CampusDesk portal चा नवा KVIT Assistant तुमच्या attendance, marks आणि fees च्या प्रश्नांची उत्तरे एक SQL query लिहून देतो, आणि portal ती query college च्या database वर चालवतो.<br><br>Assistant ला सांगितले आहे की students ना फक्त त्यांचा स्वतःचा data दाखवावा. त्याने लिहिलेल्या queries कोणी check करत नाही. त्याच database मध्ये कुठेतरी end-sem papers चे unlock codes आहेत. DBMS चा code काढा.",
+      hints: [
+        "Assistant जी query लिहितो, portal ती check न करता चालवतो. एखाद्या उत्तराखाली \"Query used\" उघडा. Database मध्ये फक्त तुमचाच data आहे का?",
+        "SQLite मध्ये सर्व tables ची यादी sqlite_master नावाच्या table मध्ये असते. Assistant कडून तिच्यावर query लिहून घ्या.",
+        "Assistant ची सुरक्षा फक्त त्याचे instructions आहेत. Dashboard वरचे notices वाचा: हा assistant आणखी कोण वापरतो, आणि त्यांच्यासाठी तो काय करतो? मग तुम्हाला हवी ती exact query मागा."
+      ]
+    }
+  },
 };
 
 function applyCTFStaticOverride(lang) {
