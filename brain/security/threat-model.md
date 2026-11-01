@@ -105,7 +105,7 @@ Severity = impact × likelihood (Critical / High / Medium / Low).
 - Unbounded in-memory lab instances: any `?session=` string creates state; `web03-sqli101` builds a full sql.js DB per
   session (`server/labs/web03-sqli101/routes.js:41-47,89-92`), no rate limit, cleanup every 10 min
   (`server/index.js:242,268`).
-- `hidden-sight` rewrites `data/hidden.db` synchronously on every submit (`server/db/sqlite.js:77`).
+- (Fixed 2026-11-01) The old `hidden-sight` lab rewrote `data/hidden.db` on every submit; it and `server/db/sqlite.js` are gone.
 - All rate limits are in memory (`server/middleware/rateLimit.js`), reset on restart, per instance.
 
 ### T6. SSRF through the security tools — **Low · well mitigated**

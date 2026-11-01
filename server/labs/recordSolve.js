@@ -36,7 +36,7 @@ async function recordForRequest(req, slug) {
   };
 }
 
-// Mount in front of a lab router: app.use('/api/lab/hidden', recordLabSolve('web-01'), labRouter)
+// Mount in front of a lab router: app.use('/api/lab/<name>', recordLabSolve('<slug>'), labRouter)
 function recordLabSolve(slug) {
   return function (req, res, next) {
     if (req.method !== 'POST' || req.path !== '/submit') return next();
