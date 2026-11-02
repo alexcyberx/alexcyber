@@ -37,7 +37,7 @@ const FLOW_SLUGS = new Set(LABS.filter((l) => l.flow).map((l) => l.slug));
 // (no CORS, no lab origin in the main site's CSP).
 // Site languages; ?lang= is passed on to the lab page (labs without a
 // translation ignore it).
-const LAB_LANGS = ['en', 'hl', 'hi', 'pa', 'ta', 'te', 'bn', 'mr'];
+const { LANGS: LAB_LANGS } = require('./i18n');
 // Start page texts: [starting, wait, too many restarts, did not start, could not start, close and retry].
 const START_TEXT = {
   en: ['Starting your lab...', 'This takes a few seconds.', 'Too many lab restarts. Please wait a few minutes.', 'The lab did not start.', 'Could not start the lab', 'Close this tab and press Start again on the CTF page.'],

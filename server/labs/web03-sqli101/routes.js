@@ -2,6 +2,8 @@ const express = require('express');
 const { flagFor } = require('../flags');
 const router  = express.Router();
 const { flagLimiter, loginLimiter }  = require('../../middleware/rateLimit');
+const { langOf, texts, notActivePage, HTML_LANG } = require('../i18n');
+const TEXT = require('./i18n');
 const { logAttempt }   = require('../../middleware/logger');
 
 const FLAG = flagFor('web-03'); // server/labs/flags.js
@@ -65,24 +67,8 @@ function isInstanceRunning(s) {
   return (INSTANCE_DURATION_SEC - elapsed) > 0;
 }
 
-function sendInstanceNotActive(res) {
-  res.status(403).setHeader('Content-Type', 'text/html');
-  res.send(`<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>Instance Not Active</title>
-<style>
-  body{background:#0a0a12;color:#e4e4ef;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;}
-  .box{max-width:420px;padding:32px;}
-  h1{font-size:20px;margin:0 0 10px;}
-  p{font-size:14px;color:#9999a6;line-height:1.6;}
-</style></head>
-<body>
-  <div class="box">
-    <h1>Instance Not Active</h1>
-    <p>This lab instance is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p>
-  </div>
-</body>
-</html>`);
+function sendInstanceNotActive(req, res) {
+  res.status(403).type('html').send(notActivePage(req, 'background:#0a0a12;color:#e4e4ef'));
 }
 
 // ── INSTANCE ENDPOINTS ────────────────────────────────────────────
@@ -107,14 +93,15 @@ router.post('/instance/stop', async (req, res) => {
 // ── LOGIN PAGE ─────────────────────────────────────────────────────
 router.get('/page', async (req, res) => {
   const s = sid(req);
-  if (!isInstanceRunning(s)) return sendInstanceNotActive(res);
+  if (!isInstanceRunning(s)) return sendInstanceNotActive(req, res);
+  const lang = langOf(req), T = texts(TEXT, lang);
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
-<html lang="en">
+<html lang="${HTML_LANG[lang]}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VaultBank Employee Portal</title>
+<title>${T.t_login}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#0a0f1e;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;display:flex;flex-direction:column;}
@@ -154,7 +141,7 @@ input::placeholder{color:#2a3555;}
   </div>
   <div class="secure-row">
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 1L2 2.5v3c0 2.2 1.5 4 3.5 4.5C7.5 9.5 9 7.7 9 5.5v-3L5.5 1z" stroke="#4ade80" stroke-width="1"/></svg>
-    256-bit encrypted
+    ${T.secure}
   </div>
 </div>
 <div class="main">
@@ -163,51 +150,53 @@ input::placeholder{color:#2a3555;}
       <div class="bank-seal">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v4c0 5 3.6 9.7 9 11 5.4-1.3 9-6 9-11V7L12 2z" stroke="#22c55e" stroke-width="1.4"/><path d="M9 12l2 2 4-4" stroke="#22c55e" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <div class="card-title">Employee Secure Login</div>
+      <div class="card-title">${T.login_title}</div>
       <div class="card-sub">VaultBank Internal Systems v4.2.1</div>
     </div>
     <div class="card-body">
       <div class="err-box" id="errBox"></div>
       <div class="form-group">
-        <label>Employee ID</label>
-        <input type="text" id="uname" value="alex" placeholder="Enter employee ID" autocomplete="off">
+        <label>${T.emp_id}</label>
+        <input type="text" id="uname" value="alex" placeholder="${T.emp_ph}" autocomplete="off">
       </div>
       <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="pass" value="pass123" placeholder="Enter password">
+        <label>${T.pass}</label>
+        <input type="password" id="pass" value="pass123" placeholder="${T.pass_ph}">
       </div>
       <button class="login-btn" id="loginBtn" onclick="doLogin()">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="5" width="11" height="7" rx="1.5" stroke="#fff" stroke-width="1.1"/><path d="M4 5V4a2.5 2.5 0 015 0v1" stroke="#fff" stroke-width="1.1" stroke-linecap="round"/></svg>
-        Secure Login
+        ${T.login_btn}
       </button>
-      <p class="notice">Authorized personnel only. All access attempts are monitored and logged by the VaultBank Security Operations Center.</p>
+      <p class="notice">${T.notice}</p>
     </div>
   </div>
 </div>
-<div class="footer">VaultBank Employee Portal v4.2.1. Unauthorized access is strictly prohibited</div>
+<div class="footer">${T.footer}</div>
 <script>
 const LAB_SESSION = ${JSON.stringify(s).replace(/</g, '\\u003c')};
+const LANG = ${JSON.stringify(lang)};
+const T = ${JSON.stringify({ login_failed: T.login_failed, conn_err: T.conn_err }).replace(/</g, '\\u003c')};
 async function doLogin() {
   const btn = document.getElementById('loginBtn');
   const err = document.getElementById('errBox');
   btn.disabled = true;
   err.style.display = 'none';
   try {
-    const res = await fetch('/api/lab/sqli101/login?session=' + encodeURIComponent(LAB_SESSION), {
+    const res = await fetch('/api/lab/sqli101/login?session=' + encodeURIComponent(LAB_SESSION) + '&lang=' + LANG, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ username: document.getElementById('uname').value, password: document.getElementById('pass').value })
     });
     const data = await res.json();
     if (data.success) {
-      window.location.href = '/api/lab/sqli101/dashboard?session=' + encodeURIComponent(LAB_SESSION);
+      window.location.href = '/api/lab/sqli101/dashboard?session=' + encodeURIComponent(LAB_SESSION) + '&lang=' + LANG;
     } else {
-      err.innerHTML = data.error || 'Login failed.';
+      err.textContent = data.error || T.login_failed;
       err.style.display = 'block';
       btn.disabled = false;
     }
   } catch(e) {
-    err.textContent = 'Connection error. Please try again.';
+    err.textContent = T.conn_err;
     err.style.display = 'block';
     btn.disabled = false;
   }
@@ -233,21 +222,22 @@ router.post('/login', loginLimiter, async (req, res) => {
     return res.json({ success: true, labSession: s });
   }
   logAttempt('SQLI101', req.ip, `login:${username}`, 'fail');
-  res.status(401).json({ success: false, error: 'Invalid credentials. Access denied.' });
+  res.status(401).json({ success: false, error: texts(TEXT, langOf(req)).bad_creds });
 });
 
 // ── DASHBOARD ──────────────────────────────────────────────────────
 router.get('/dashboard', async (req, res) => {
   const s = sid(req);
-  if (!isInstanceRunning(s)) return sendInstanceNotActive(res);
+  if (!isInstanceRunning(s)) return sendInstanceNotActive(req, res);
   await getOrCreate(s);
+  const lang = langOf(req), T = texts(TEXT, lang);
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
-<html lang="en">
+<html lang="${HTML_LANG[lang]}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VaultBank Dashboard</title>
+<title>${T.t_dash}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#0a0f1e;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;}
@@ -303,40 +293,41 @@ body{background:#0a0f1e;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
   </div>
 </div>
 <div class="main">
-  <div class="section-title">Employee Directory Search</div>
-  <div class="info-bar">Search employee database by name. Example: <code>Alice</code> or <code>Bob</code></div>
+  <div class="section-title">${T.search_title}</div>
+  <div class="info-bar">${T.info} <code>Alice</code> or <code>Bob</code></div>
   <div class="search-card">
     <div class="search-row">
-      <input class="search-input" type="text" id="searchInput" placeholder="Enter employee name..." autocomplete="off">
+      <input class="search-input" type="text" id="searchInput" placeholder="${T.search_ph}" autocomplete="off">
       <button class="search-btn" onclick="doSearch()">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="#fff" stroke-width="1.2"/><path d="M10 10L8 8" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>
-        Search
+        ${T.search_btn}
       </button>
     </div>
   </div>
   <div class="results-card">
     <div class="results-head">
-      <span class="results-label">Results</span>
-      <span class="results-count" id="resultCount">waiting for query</span>
+      <span class="results-label">${T.results}</span>
+      <span class="results-count" id="resultCount">${T.waiting}</span>
     </div>
     <div class="results-body" id="resultsBody">
       <div class="empty-state">
         <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="14" cy="14" r="9" stroke="#1a2340" stroke-width="1.5"/><path d="M21 21l5 5" stroke="#1a2340" stroke-width="1.5" stroke-linecap="round"/></svg>
-        <div class="empty-text">Enter a name to search the directory</div>
+        <div class="empty-text">${T.empty}</div>
       </div>
     </div>
   </div>
 </div>
 <script>
 const LAB_SESSION = new URLSearchParams(window.location.search).get('session') || '';
+const T = ${JSON.stringify({ querying: T.querying, searching: T.searching, q_error: T.q_error, rows: T.rows, row1: T.row1, none: T.none, cols: T.cols, conn_short: T.conn_short, conn_err: T.conn_err }).replace(/</g, '\\u003c')};
 function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 async function doSearch() {
   const q = document.getElementById('searchInput').value;
   const body = document.getElementById('resultsBody');
   const count = document.getElementById('resultCount');
-  body.innerHTML = '<div class="loading"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="animation:spin 1s linear infinite"><circle cx="8" cy="8" r="6" stroke="#1a2340" stroke-width="1.5"/><path d="M8 2a6 6 0 016 6" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/></svg>Querying database...</div>';
-  count.textContent = 'searching...';
+  body.innerHTML = '<div class="loading"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="animation:spin 1s linear infinite"><circle cx="8" cy="8" r="6" stroke="#1a2340" stroke-width="1.5"/><path d="M8 2a6 6 0 016 6" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/></svg>' + T.querying + '</div>';
+  count.textContent = T.searching;
   try {
     const res = await fetch('/api/lab/sqli101/search', {
       method: 'POST',
@@ -345,24 +336,24 @@ async function doSearch() {
     });
     const data = await res.json();
     if (data.error) {
-      count.textContent = 'query error';
+      count.textContent = T.q_error;
       body.innerHTML = '<div class="error-card"><div class="error-label"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#ef4444" stroke-width="1"/><path d="M6 4v2.5M6 8.5v.5" stroke="#ef4444" stroke-width="1" stroke-linecap="round"/></svg>SQL Error</div><div class="error-msg">' + escHtml(data.error) + '</div><div class="error-query">Query: ' + escHtml(data.query||'') + '</div></div>';
       return;
     }
     const rows = data.rows || [];
-    count.textContent = rows.length + ' row' + (rows.length !== 1 ? 's' : '') + ' returned';
+    count.textContent = rows.length === 1 ? T.row1 : T.rows.replace('{n}', rows.length);
     if (rows.length === 0) {
-      body.innerHTML = '<div class="empty-state"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="9" stroke="#1a2340" stroke-width="1.5"/></svg><div class="empty-text">No employees found</div></div>';
+      body.innerHTML = '<div class="empty-state"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="9" stroke="#1a2340" stroke-width="1.5"/></svg><div class="empty-text">' + T.none + '</div></div>';
       return;
     }
-    let html = '<div class="result-row header"><span>ID</span><span>Name</span><span>Department</span></div>';
+    let html = '<div class="result-row header"><span>' + T.cols[0] + '</span><span>' + T.cols[1] + '</span><span>' + T.cols[2] + '</span></div>';
     rows.forEach(r => {
       html += '<div class="result-row"><span class="result-id">' + escHtml(String(r[0]??'')) + '</span><span class="result-name">' + escHtml(String(r[1]??'')) + '</span><span class="result-dept">' + escHtml(String(r[2]??'')) + '</span></div>';
     });
     body.innerHTML = html;
   } catch(e) {
-    count.textContent = 'connection error';
-    body.innerHTML = '<div class="empty-state"><div class="empty-text">Connection error. Please try again.</div></div>';
+    count.textContent = T.conn_short;
+    body.innerHTML = '<div class="empty-state"><div class="empty-text">' + T.conn_err + '</div></div>';
   }
 }
 document.getElementById('searchInput').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });

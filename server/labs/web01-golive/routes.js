@@ -18,6 +18,8 @@ const path = require('path');
 const { flagFor } = require('../flags');
 const { flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt } = require('../../middleware/logger');
+const { langOf, texts, fill, notActivePage, HTML_LANG } = require('../i18n');
+const TEXT = require('./i18n');
 
 const router = express.Router();
 const FLAG = flagFor('web-01');
@@ -46,20 +48,22 @@ function byKey(key) {
   return null;
 }
 
-function notActive(res) {
-  res.status(403).type('html').send(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Instance not active</title></head><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;font:14px/1.6 Verdana,Arial,sans-serif;background:#e9ecef;color:#333"><div style="max-width:420px;padding:24px"><h1 style="font-size:20px">Instance not active</h1><p>This lab is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p></div></body></html>`);
+function notActive(req, res) {
+  res.status(403).type('html').send(notActivePage(req, 'background:#e9ecef;color:#333'));
 }
 
 // ── The store ──
-function storePage(s) {
+function storePage(s, lang) {
   const q = encodeURIComponent(s);
+  const T = texts(TEXT, lang);
+  const from = (p) => fill(T.from, { p: '&#8377;' + p });
   return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="${HTML_LANG[lang]}">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <meta name="robots" content="noindex,nofollow" />
-<title>Lumio Store: Lumio Book Air, Lumio One and more</title>
+<title>${T.title}</title>
 <!-- Lumio Store v2.4.1, build 0812 -->
 <!-- TODO before go-live: take the staging config out of js/store.js (Karan) -->
 <link rel="stylesheet" type="text/css" href="css/store.css?session=${q}" />
@@ -69,21 +73,21 @@ function storePage(s) {
 <div id="wrap">
  <div id="top">
   <div class="logo"><i></i>Lumio</div>
-  <ul id="nav"><li><a class="on" href="#">Store</a></li><li><a href="#">Lumio Book</a></li><li><a href="#">Lumio One</a></li><li><a href="#">Lumio Mini</a></li><li><a href="#">Accessories</a></li><li><a href="#">Support</a></li></ul>
-  <div class="search"><input type="text" value="Search Store" aria-label="Search Store" /><span class="cart">Cart (<b id="cartCount">0</b>)</span></div>
+  <ul id="nav"><li><a class="on" href="#">${T.nav[0]}</a></li><li><a href="#">Lumio Book</a></li><li><a href="#">Lumio One</a></li><li><a href="#">Lumio Mini</a></li><li><a href="#">${T.nav[1]}</a></li><li><a href="#">${T.nav[2]}</a></li></ul>
+  <div class="search"><input type="text" value="${T.search}" aria-label="${T.search}" /><span class="cart">${T.cart} (<b id="cartCount">0</b>)</span></div>
  </div>
  <div id="hero">
   <img class="heroimg" src="img/hero.png" alt="Lumio Book Air" width="380" />
-  <div><h1>The new Lumio Book Air.<br />Thinner than ever.</h1><p>14-inch display. All-day battery. Starting at &#8377;89,900.</p><a class="aqua buy" data-sku="LBA-14" href="#">Buy now</a> &nbsp; <a href="#" style="color:#9cc6ff">Watch the film &rsaquo;</a></div>
+  <div><h1>${T.h1}</h1><p>${T.hero_p}</p><a class="aqua buy" data-sku="LBA-14" href="#">${T.buy}</a> &nbsp; <a href="#" style="color:#9cc6ff">${T.film} &rsaquo;</a></div>
  </div>
  <div id="grid">
-  <div class="prod"><div class="pic"><img src="img/laptop.png" alt="Lumio Book Air" /></div><h3>Lumio Book Air</h3><div class="from">From &#8377;89,900</div><a class="aqua buy" data-sku="LBA-14" href="#">Buy now</a></div>
-  <div class="prod"><div class="pic"><img src="img/one.png" alt="Lumio One" /></div><h3>Lumio One 24"</h3><div class="from">From &#8377;1,24,900</div><a class="aqua buy" data-sku="LO-24" href="#">Buy now</a></div>
-  <div class="prod"><div class="pic"><img src="img/mini.png" alt="Lumio Mini" /></div><h3>Lumio Mini</h3><div class="from">From &#8377;59,900</div><a class="aqua buy" data-sku="LM-1" href="#">Buy now</a></div>
-  <div class="prod"><div class="pic"><img src="img/keys.png" alt="Lumio Keys" /></div><h3>Lumio Keys</h3><div class="from">From &#8377;7,900</div><a class="aqua buy" data-sku="LK-1" href="#">Buy now</a></div>
+  <div class="prod"><div class="pic"><img src="img/laptop.png" alt="Lumio Book Air" /></div><h3>Lumio Book Air</h3><div class="from">${from('89,900')}</div><a class="aqua buy" data-sku="LBA-14" href="#">${T.buy}</a></div>
+  <div class="prod"><div class="pic"><img src="img/one.png" alt="Lumio One" /></div><h3>Lumio One 24"</h3><div class="from">${from('1,24,900')}</div><a class="aqua buy" data-sku="LO-24" href="#">${T.buy}</a></div>
+  <div class="prod"><div class="pic"><img src="img/mini.png" alt="Lumio Mini" /></div><h3>Lumio Mini</h3><div class="from">${from('59,900')}</div><a class="aqua buy" data-sku="LM-1" href="#">${T.buy}</a></div>
+  <div class="prod"><div class="pic"><img src="img/keys.png" alt="Lumio Keys" /></div><h3>Lumio Keys</h3><div class="from">${from('7,900')}</div><a class="aqua buy" data-sku="LK-1" href="#">${T.buy}</a></div>
  </div>
- <div id="news"><b>Hot News:</b><span>Free engraving on every Lumio Book.</span><span>Student offer: save &#8377;10,000 with a valid college ID.</span><span>Something big is coming on 20 November.</span></div>
- <div id="foot"><span>Copyright &copy; 2026 Lumio Inc. A fictional store built for AlexCyberX Labs. All rights reserved.</span><span><a href="#">Site Map</a> | <a href="#">Hot News</a> | <a href="#">Contact Us</a> | <a href="#">Privacy Policy</a></span></div>
+ <div id="news"><b>${T.news_label}</b>${T.news.map((n) => `<span>${n}</span>`).join('')}</div>
+ <div id="foot"><span>${T.foot}</span><span>${T.foot_links.map((l) => `<a href="#">${l}</a>`).join(' | ')}</span></div>
 </div>
 </body>
 </html>`;
@@ -143,8 +147,8 @@ router.post('/instance/stop', (req, res) => { const s = sid(req); if (instances[
 // ── Store files ──
 router.get('/page', (req, res) => {
   const s = sid(req);
-  if (!isRunning(s)) return notActive(res);
-  res.set('Cache-Control', 'no-store').type('html').send(storePage(s));
+  if (!isRunning(s)) return notActive(req, res);
+  res.set('Cache-Control', 'no-store').type('html').send(storePage(s, langOf(req)));
 });
 router.get('/js/store.js', (req, res) => {
   const s = sid(req);

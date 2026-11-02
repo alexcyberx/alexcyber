@@ -3,6 +3,10 @@ const { flagFor } = require('../flags');
 const router  = express.Router();
 const { flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt }  = require('../../middleware/logger');
+const { langFor, texts, notActivePage, HTML_LANG } = require('../i18n');
+const TEXT = require('./i18n');
+// Language of this request: ?lang= or the one the instance was opened in.
+const L = (req) => langFor(req, instances[sid(req)]);
 
 const FLAG     = flagFor('web-04'); // server/labs/flags.js
 const PASSCODE = 'NX-2024-INTERNAL';
@@ -32,27 +36,11 @@ function isInstanceRunning(s) {
   return (INSTANCE_DURATION_SEC - elapsed) > 0;
 }
 
-function sendInstanceNotActive(res) {
-  res.status(403).setHeader('Content-Type', 'text/html');
-  res.send(`<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>Instance Not Active</title>
-<style>
-  body{background:#0a0a12;color:#e4e4ef;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;}
-  .box{max-width:420px;padding:32px;}
-  h1{font-size:20px;margin:0 0 10px;}
-  p{font-size:14px;color:#9999a6;line-height:1.6;}
-</style></head>
-<body>
-  <div class="box">
-    <h1>Instance Not Active</h1>
-    <p>This lab instance is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p>
-  </div>
-</body>
-</html>`);
+function sendInstanceNotActive(req, res) {
+  res.status(403).type('html').send(notActivePage(req, 'background:#0a0a12;color:#e4e4ef'));
 }
 
-// ── INSTANCE ENDPOINTS ────────────────────────────────────────────
+// ── INSTANCE ENDPOINTS ──
 router.get('/instance/status', (req, res) => res.json(instStatus(sid(req))));
 
 router.post('/instance/restart', (req, res) => {
@@ -71,14 +59,15 @@ router.post('/instance/stop', (req, res) => {
 // ── HOMEPAGE ──────────────────────────────────────────────────────
 router.get('/page', (req, res) => {
   const s = sid(req);
-  if (!isInstanceRunning(s)) return sendInstanceNotActive(res);
+  if (!isInstanceRunning(s)) return sendInstanceNotActive(req, res);
+  const lang = L(req), T = texts(TEXT, lang);
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
-<html lang="en">
+<html lang="${HTML_LANG[lang]}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NexaCloud - Modern SaaS Platform</title>
+<title>${T.t_home}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#06080f;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;color:#e2e8f0;}
@@ -124,26 +113,23 @@ body{background:#06080f;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
     <span class="nav-logo-text">Nexa<span>Cloud</span></span>
   </div>
   <div class="nav-links">
-    <a class="nav-link" href="#">Product</a>
-    <a class="nav-link" href="#">Pricing</a>
-    <a class="nav-link" href="#">Docs</a>
-    <a class="nav-link" href="#">Blog</a>
+    ${T.nav.map((n) => `<a class="nav-link" href="#">${n}</a>`).join('\n    ')}
   </div>
-  <button class="nav-cta">Get Started</button>
+  <button class="nav-cta">${T.cta}</button>
 </div>
 <div class="hero">
   <div class="hero-badge">
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" fill="#818cf8"/></svg>
-    Now in public beta
+    ${T.badge}
   </div>
-  <h1 class="hero-title">The smarter way to<br><span>scale your product</span></h1>
-  <p class="hero-sub">NexaCloud gives engineering teams the infrastructure, observability, and deployment tools they need to ship faster and stay reliable.</p>
+  <h1 class="hero-title">${T.h1}</h1>
+  <p class="hero-sub">${T.sub}</p>
   <div class="hero-btns">
     <button class="btn-primary">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M3 2.5l7 4-7 4V2.5z" fill="#fff"/></svg>
-      Start free trial
+      ${T.trial}
     </button>
-    <button class="btn-secondary">View documentation</button>
+    <button class="btn-secondary">${T.docs}</button>
   </div>
 </div>
 <div class="features">
@@ -151,30 +137,28 @@ body{background:#06080f;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
     <div class="feature-icon">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="3" stroke="#818cf8" stroke-width="1.2"/><path d="M5 9h8M9 5v8" stroke="#818cf8" stroke-width="1.2" stroke-linecap="round"/></svg>
     </div>
-    <div class="feature-title">Instant Deployments</div>
-    <div class="feature-desc">Push to deploy in under 30 seconds. Automatic rollbacks on failure with zero downtime.</div>
+    <div class="feature-title">${T.feats[0][0]}</div>
+    <div class="feature-desc">${T.feats[0][1]}</div>
   </div>
   <div class="feature-card">
     <div class="feature-icon">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6" stroke="#818cf8" stroke-width="1.2"/><path d="M9 6v3l2 2" stroke="#818cf8" stroke-width="1.2" stroke-linecap="round"/></svg>
     </div>
-    <div class="feature-title">Real-time Monitoring</div>
-    <div class="feature-desc">Full observability stack built in. Metrics, traces, and logs in one unified dashboard.</div>
+    <div class="feature-title">${T.feats[1][0]}</div>
+    <div class="feature-desc">${T.feats[1][1]}</div>
   </div>
   <div class="feature-card">
     <div class="feature-icon">
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2L3 5v4c0 3 2 5.5 6 6.5 4-1 6-3.5 6-6.5V5L9 2z" stroke="#818cf8" stroke-width="1.2"/></svg>
     </div>
-    <div class="feature-title">Enterprise Security</div>
-    <div class="feature-desc">SOC 2 Type II certified. End-to-end encryption, SSO, and granular access controls.</div>
+    <div class="feature-title">${T.feats[2][0]}</div>
+    <div class="feature-desc">${T.feats[2][1]}</div>
   </div>
 </div>
 <div class="footer-bar">
-  <span class="footer-text">NexaCloud Inc. 2024. All rights reserved.</span>
+  <span class="footer-text">${T.foot}</span>
   <div class="footer-links">
-    <a class="footer-link" href="#">Privacy</a>
-    <a class="footer-link" href="#">Terms</a>
-    <a class="footer-link" href="#">Security</a>
+    ${T.foot_links.map((n) => `<a class="footer-link" href="#">${n}</a>`).join('\n    ')}
   </div>
 </div>
 </body>
@@ -183,7 +167,7 @@ body{background:#06080f;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
 
 // ── ROBOTS.TXT ────────────────────────────────────────────────────
 router.get('/robots.txt', (req, res) => {
-  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(req, res);
   logAttempt('ROBOTS', req.ip, 'GET /robots.txt', 'accessed');
   res.setHeader('Content-Type', 'text/plain');
   res.send(`User-agent: *
@@ -196,38 +180,39 @@ Disallow: /staging/
 
 // ── DECOY PATHS ───────────────────────────────────────────────────
 router.get('/admin/', (req, res) => {
-  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(req, res);
   logAttempt('ROBOTS', req.ip, 'GET /admin/', 'decoy_403');
   res.setHeader('Content-Type', 'text/html');
-  res.status(403).send(`<!DOCTYPE html><html><head><title>403 Forbidden</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#dc2626" stroke-width="1.5"/><path d="M24 16v8M24 30v2" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg><h1>403 Forbidden</h1><p>You do not have permission to access this resource.</p></body></html>`);
+  res.status(403).send(`<!DOCTYPE html><html><head><title>403 Forbidden</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#dc2626" stroke-width="1.5"/><path d="M24 16v8M24 30v2" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg><h1>403 Forbidden</h1><p>${texts(TEXT, L(req)).e403}</p></body></html>`);
 });
 
 router.get('/backup/', (req, res) => {
-  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(req, res);
   logAttempt('ROBOTS', req.ip, 'GET /backup/', 'decoy_404');
   res.setHeader('Content-Type', 'text/html');
-  res.status(404).send(`<!DOCTYPE html><html><head><title>404 Not Found</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#f59e0b" stroke-width="1.5"/><path d="M16 16l16 16M32 16L16 32" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/></svg><h1>404 Not Found</h1><p>This path has been removed or does not exist.</p></body></html>`);
+  res.status(404).send(`<!DOCTYPE html><html><head><title>404 Not Found</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#f59e0b" stroke-width="1.5"/><path d="M16 16l16 16M32 16L16 32" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/></svg><h1>404 Not Found</h1><p>${texts(TEXT, L(req)).e404}</p></body></html>`);
 });
 
 router.get('/staging/', (req, res) => {
-  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(req, res);
   logAttempt('ROBOTS', req.ip, 'GET /staging/', 'decoy_503');
   res.setHeader('Content-Type', 'text/html');
-  res.status(503).send(`<!DOCTYPE html><html><head><title>503 Service Unavailable</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#64748b" stroke-width="1.5"/><path d="M24 14v10M24 32v2" stroke="#64748b" stroke-width="2" stroke-linecap="round"/></svg><h1>503 Service Unavailable</h1><p>Staging environment is currently offline.</p></body></html>`);
+  res.status(503).send(`<!DOCTYPE html><html><head><title>503 Service Unavailable</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#64748b" stroke-width="1.5"/><path d="M24 14v10M24 32v2" stroke="#64748b" stroke-width="2" stroke-linecap="round"/></svg><h1>503 Service Unavailable</h1><p>${texts(TEXT, L(req)).e503}</p></body></html>`);
 });
 
 // ── VAULT PAGE ────────────────────────────────────────────────────
 router.get('/internal/vault/', (req, res) => {
   const s = sid(req);
-  if (!isInstanceRunning(s)) return sendInstanceNotActive(res);
+  if (!isInstanceRunning(s)) return sendInstanceNotActive(req, res);
   logAttempt('ROBOTS', req.ip, 'GET /internal/vault/', 'vault_accessed');
+  const lang = L(req), T = texts(TEXT, lang);
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
-<html lang="en">
+<html lang="${HTML_LANG[lang]}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NexaCloud Internal Vault</title>
+<title>${T.t_vault}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:#06080f;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
@@ -259,29 +244,30 @@ input::placeholder{color:#1e293b;font-family:'Segoe UI',sans-serif;letter-spacin
     <div class="vault-icon">
       <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="3" y="11" width="20" height="13" rx="2.5" stroke="#818cf8" stroke-width="1.4"/><path d="M7 11V8.5a6 6 0 0112 0V11" stroke="#818cf8" stroke-width="1.4" stroke-linecap="round"/><circle cx="13" cy="17.5" r="1.5" fill="#818cf8"/></svg>
     </div>
-    <div class="vault-title">NexaCloud Internal Vault</div>
-    <div class="vault-sub">Restricted access. Authorized personnel only.</div>
+    <div class="vault-title">${T.t_vault}</div>
+    <div class="vault-sub">${T.vault_sub}</div>
   </div>
   <div class="vault-body">
     <div class="err-box" id="errBox">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#f87171" stroke-width="1"/><path d="M7 4.5v3M7 9.5v.5" stroke="#f87171" stroke-width="1.2" stroke-linecap="round"/></svg>
-      <span id="errMsg">Invalid passcode. Access denied.</span>
+      <span id="errMsg">${T.bad_code}</span>
     </div>
-    <label>Vault Passcode</label>
-    <input type="text" id="passcodeInput" placeholder="Enter passcode" autocomplete="off" spellcheck="false">
+    <label>${T.code_label}</label>
+    <input type="text" id="passcodeInput" placeholder="${T.code_ph}" autocomplete="off" spellcheck="false">
     <button class="unlock-btn" id="unlockBtn" onclick="doUnlock()">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1.5" y="6" width="10" height="7" rx="1.5" stroke="#fff" stroke-width="1.1"/><path d="M4 6V4.5a3 3 0 016 0V6" stroke="#fff" stroke-width="1.1" stroke-linecap="round"/></svg>
-      Unlock Vault
+      ${T.unlock}
     </button>
     <div class="flag-box" id="flagBox">
-      <div class="flag-label">Vault Unlocked</div>
+      <div class="flag-label">${T.unlocked}</div>
       <div class="flag-value" id="flagValue"></div>
     </div>
-    <p class="notice">This system is monitored. All access attempts are logged and reviewed.</p>
+    <p class="notice">${T.notice}</p>
   </div>
 </div>
 <script>
 const LAB_SESSION = ${JSON.stringify(s).replace(/</g, '\\u003c')};
+const T = ${JSON.stringify({ bad_code: T.bad_code, conn_err: T.conn_err }).replace(/</g, '\\u003c')};
 async function doUnlock() {
   const btn = document.getElementById('unlockBtn');
   const err = document.getElementById('errBox');
@@ -300,12 +286,12 @@ async function doUnlock() {
       document.getElementById('flagBox').classList.add('show');
       btn.style.display = 'none';
     } else {
-      document.getElementById('errMsg').textContent = data.error || 'Invalid passcode. Access denied.';
+      document.getElementById('errMsg').textContent = data.error || T.bad_code;
       err.classList.add('show');
       btn.disabled = false;
     }
   } catch(e) {
-    document.getElementById('errMsg').textContent = 'Connection error. Please try again.';
+    document.getElementById('errMsg').textContent = T.conn_err;
     err.classList.add('show');
     btn.disabled = false;
   }
@@ -324,14 +310,14 @@ router.post('/vault/unlock', flagLimiter, (req, res) => {
   // FIX: sirf truthy check tha (`!passcode`), agar body mein passcode ki
   // jagah object/array/number bheja jaaye toh yeh truthy hi hota aur
   // niche .trim() pe crash ho jaata. Type bhi check karo.
-  if (typeof passcode !== 'string' || !passcode.trim()) return res.status(400).json({ error: 'No passcode provided.' });
+  if (typeof passcode !== 'string' || !passcode.trim()) return res.status(400).json({ error: texts(TEXT, L(req)).no_code });
   if (passcode.trim() === PASSCODE) {
     logAttempt('ROBOTS', req.ip, 'vault_unlock', 'correct');
     getOrCreate(s).solved = true;
     return res.json({ success: true, flag: FLAG });
   }
   logAttempt('ROBOTS', req.ip, 'vault_unlock:wrong', 'fail');
-  res.status(401).json({ success: false, error: 'Invalid passcode. Access denied.' });
+  res.status(401).json({ success: false, error: texts(TEXT, L(req)).bad_code });
 });
 
 // ── SUBMIT ────────────────────────────────────────────────────────
