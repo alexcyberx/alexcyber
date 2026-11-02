@@ -439,6 +439,9 @@ export default function RoomsView({ challenges: cards, i18n: cardI18n, labOrigin
     }
     // noopener: the lab tab gets no handle to this page (a lab is vulnerable
     // on purpose and runs on its own origin). Its "Back to CTF" closes it.
+    // The lab opens in the language picked on the site (labs that have no
+    // translation ignore ?lang= and stay in English).
+    if (url !== '#') url += (url.includes('?') ? '&' : '?') + 'lang=' + encodeURIComponent(lang);
     window.open(url, '_blank', 'noopener');
     // The start page restarts the instance: open it once, then the page itself.
     if (labNext.current) { labUrl.current = labNext.current; labNext.current = null; }

@@ -10,6 +10,7 @@ from the project). Owner direction lives in `CLAUDE.md`; security detail in `bra
   resources, leaderboard. Implemented. Evidence: `CLAUDE.md`, `web/src/app/*`, `server/labs/*`, `server/tools/*`.
 - Everything is free; no payments anywhere. Inferred (no payment code; Permissions-Policy disables `payment`,
   `server/index.js:36-39`).
+- Lab pages open in the language picked on the site (`?lang=`, owner 2026-11-02); web-02 is translated, older labs are still English only (Missing for them). Implemented for web-02 (`server/labs/web02-ayurdant/i18n.js`, `server/labs/mount.js`, `RoomsView.tsx`).
 - 8 UI languages: hl (Hinglish), hi, en, pa, ta, te, bn, mr. Default `en` for new visitors. Implemented
   (`js/i18n.js:20-29`, `web/src/lib/ui-text.ts`). Chapters/CTF text in other languages are machine-translated in the
   browser (`web/src/lib/chapter-translate.ts`, `ctf-translate.ts`).

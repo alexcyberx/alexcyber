@@ -20,6 +20,10 @@ company. Products: Laung, Neem, Kesar Gold toothpaste and Dant Manjan. Tagline
 feel: "daadi ka nuskha, ab tube mein". A fictional online store for a CTF room,
 not a copy of any real company.
 
+## Language
+Every text is in `i18n.js` for the 8 site languages (English default). The
+lab reads `?lang=` and keeps it on every link and on the reviews API call.
+
 ## Pages
 `page` (home), `login`, `product?item=<laung|neem|kesar|manjan>`, `account`,
 `nuskha` (the vault), `logout`, `api/reviews?product=`, `css/store.css`,

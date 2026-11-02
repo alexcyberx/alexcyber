@@ -20,6 +20,7 @@ const path = require('path');
 const { flagFor } = require('../flags');
 const { flagLimiter, loginLimiter } = require('../../middleware/rateLimit');
 const { logAttempt } = require('../../middleware/logger');
+const { LANGS, textsFor } = require('./i18n');
 
 const router = express.Router();
 const FLAG = flagFor('web-02');
@@ -32,6 +33,12 @@ const IMAGES = {};
 for (const n of ['hero', 'laung', 'neem', 'kesar', 'manjan']) IMAGES[n] = fs.readFileSync(path.join(__dirname, 'img', n + '.webp'));
 
 function sid(req) { return req.headers['x-lab-session'] || req.query.session || req.ip; }
+// The CTF page opens the lab with ?lang= (the language picked on the site); English by default.
+function langOf(req) { return typeof req.query.lang === 'string' && LANGS.includes(req.query.lang) ? req.query.lang : 'en'; }
+const HTML_LANG = { en: 'en', hl: 'hi-Latn', hi: 'hi', pa: 'pa', ta: 'ta', te: 'te', bn: 'bn', mr: 'mr' };
+// Query string kept on every link (session + language). `amp` for HTML attributes.
+function qs(s, lang, amp = true) { return 'session=' + encodeURIComponent(s) + (amp ? '&amp;' : '&') + 'lang=' + lang; }
+const LOCK = '<svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true" style="vertical-align:-1px;margin-left:4px"><rect x="2.5" y="6" width="9" height="6.5" rx="1.2" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 6V4.3a2.5 2.5 0 015 0V6" stroke="currentColor" stroke-width="1.4"/></svg>';
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const rupee = (n) => '&#8377;' + n.toLocaleString('en-IN');
 const uid = () => 'AYD-' + (10000 + crypto.randomInt(90000));
@@ -53,42 +60,32 @@ function isRunning(s) { const inst = instances[s]; return !!inst && (INSTANCE_DU
 
 // ── Catalogue ──
 const PRODUCTS = {
-  laung: { name: 'Laung Shakti Toothpaste', meta: '150 g. Laung and babool', price: 95, mrp: 120, rating: '4.6', count: '2,310',
-    points: ['Laung (clove) oil for daant dard and fresh breath', 'Babool bark for strong gums', 'No artificial colour'] },
-  neem: { name: 'Neem Raksha Toothpaste', meta: '150 g. Neem and pudina', price: 89, mrp: 110, rating: '4.5', count: '1,876',
-    points: ['Neem for healthy gums', 'Pudina for a cool, fresh mouth', 'Fluoride free'] },
-  kesar: { name: 'Kesar Gold Toothpaste', meta: '100 g. Kesar and chandan', price: 179, mrp: 225, rating: '4.8', count: '1,284', tag: 'Bestseller',
-    points: ['Real Kashmiri kesar and chandan', "Daadi's 1962 recipe, unchanged", 'Fluoride free, 100 g'] },
-  manjan: { name: 'Daadi ka Dant Manjan', meta: '100 g jar. 11 herbs', price: 129, mrp: 150, rating: '4.7', count: '3,042',
-    points: ['11 jadibootiyan, ground by hand', 'Use with a finger or a soft brush', 'Comes in a reusable glass jar'] },
+  laung: { name: 'Laung Shakti Toothpaste', price: 95, mrp: 120, rating: '4.6', count: '2,310' },
+  neem: { name: 'Neem Raksha Toothpaste', price: 89, mrp: 110, rating: '4.5', count: '1,876' },
+  kesar: { name: 'Kesar Gold Toothpaste', price: 179, mrp: 225, rating: '4.8', count: '1,284', best: true },
+  manjan: { name: 'Daadi ka Dant Manjan', price: 129, mrp: 150, rating: '4.7', count: '3,042' },
 };
 const off = (p) => Math.round((1 - p.price / p.mrp) * 100);
 
 // Reviews come from the store's API. The owner's replies carry her full
 // staff record (uid, email, role): THE LEAK. The page only shows her name.
-function reviewsFor(slug, inst) {
+function reviewsFor(slug, inst, T) {
   const owner = { uid: inst.ownerUid, name: 'Savitri Devi', email: 'savitri@ayurdant.test', role: 'owner' };
   const R = {
     kesar: [
-      { id: 'r-5512', user: 'Ankit S.', rating: 5, date: '2026-10-28', text: 'The kesar smell is amazing. Will you ever share the recipe?',
-        reply: { text: 'Beta, this is daadi ka raaz. The recipe stays in our vault only.', by: owner } },
-      { id: 'r-5498', user: 'Meena R.', rating: 4, date: '2026-10-19', text: 'A little costly, but very good for the gums.' },
-      { id: 'r-5431', user: 'Farhan Q.', rating: 5, date: '2026-10-07', text: 'My whole family uses only this now. Delivery was quick too.',
-        reply: { text: 'Shukriya Farhan ji, Diwali ki shubhkamnayein!', by: owner } },
+      { id: 'r-5512', user: 'Ankit S.', rating: 5, date: '2026-10-28', reply: true },
+      { id: 'r-5498', user: 'Meena R.', rating: 4, date: '2026-10-19' },
+      { id: 'r-5431', user: 'Farhan Q.', rating: 5, date: '2026-10-07', reply: true },
     ],
-    laung: [
-      { id: 'r-5520', user: 'Pooja N.', rating: 5, date: '2026-10-30', text: 'Helped with my toothache in two days.' },
-      { id: 'r-5470', user: 'Vikram T.', rating: 4, date: '2026-10-14', text: 'Strong taste, but it works.' },
-    ],
-    neem: [
-      { id: 'r-5509', user: 'Sneha G.', rating: 4, date: '2026-10-25', text: 'Bitter at first, you get used to it. Gums feel better.' },
-    ],
-    manjan: [
-      { id: 'r-5502', user: 'Ramesh K.', rating: 5, date: '2026-10-22', text: 'Just like my nani used to make.',
-        reply: { text: 'Bas yahi to humara maqsad hai. Dhanyavaad!', by: owner } },
-    ],
+    laung: [{ id: 'r-5520', user: 'Pooja N.', rating: 5, date: '2026-10-30' }, { id: 'r-5470', user: 'Vikram T.', rating: 4, date: '2026-10-14' }],
+    neem: [{ id: 'r-5509', user: 'Sneha G.', rating: 4, date: '2026-10-25' }],
+    manjan: [{ id: 'r-5502', user: 'Ramesh K.', rating: 5, date: '2026-10-22', reply: true }],
   };
-  return R[slug] || [];
+  return (R[slug] || []).map((r) => {
+    const o = { id: r.id, user: r.user, rating: r.rating, date: r.date, text: T.rv[r.id] };
+    if (r.reply) o.reply = { text: T.rv[r.id + 'r'], by: owner };
+    return o;
+  });
 }
 
 // ── The session cookie (THE BUG: plain Base64 JSON, no signature) ──
@@ -117,42 +114,44 @@ function cookieOpts(req) { return `Path=${req.baseUrl}/; SameSite=Lax`; }
 
 // ── Page chrome ──
 const FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Rozha+One&amp;family=Mukta:wght@400;500;600;700&amp;display=swap" rel="stylesheet">';
-function page(title, s, user, body, script) {
-  const q = 'session=' + encodeURIComponent(s);
+function page(req, title, user, body, script) {
+  const s = sid(req), lang = langOf(req), T = textsFor(lang), q = qs(s, lang);
   const who = user
-    ? `<a href="account?${q}">${esc(user.name.split(' ')[0] || 'Account')}</a>`
-    : `<a href="login?${q}">Login</a>`;
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
-<title>${esc(title)}</title>${FONTS}<link rel="stylesheet" href="css/store.css?${q}"></head><body>
-<div class="strip">Free delivery on orders above <b>&#8377;299</b>. Diwali offer: 20% off with code <b>DAADI20</b></div>
-<header class="hdr"><div class="wrap"><a class="logo" href="page?${q}"><span class="seal">&#2310;</span><span><span class="name">Ayurdant</span><small>&#2310;&#2351;&#2369;&#2352;&#2381;&#2342;&#2306;&#2340;. Since 1962</small></span></a>
-<nav class="nav"><a href="product?item=laung&amp;${q}">Toothpaste</a><a href="product?item=manjan&amp;${q}">Dant Manjan</a><a href="page?${q}#combo">Combo Packs</a><a href="page?${q}#kahani">Humari Kahani</a></nav>
-<div class="hright"><div class="search">Search Laung, Neem...</div>${who}<span class="cart">Cart (<b id="cc">0</b>)</span></div></div></header><div class="border"></div>
+    ? `<a href="account?${q}">${esc(user.name.split(' ')[0] || T.acct)}</a>`
+    : `<a href="login?${q}">${T.login}</a>`;
+  return `<!DOCTYPE html><html lang="${HTML_LANG[lang]}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>${esc(title)}</title>${FONTS}<link rel="stylesheet" href="css/store.css"></head><body>
+<div class="strip">${T.strip}</div>
+<header class="hdr"><div class="wrap"><a class="logo" href="page?${q}"><span class="seal">&#2310;</span><span><span class="name">Ayurdant</span><small>&#2310;&#2351;&#2369;&#2352;&#2381;&#2342;&#2306;&#2340;. ${T.since}</small></span></a>
+<nav class="nav"><a href="product?item=laung&amp;${q}">${T.nav_paste}</a><a href="product?item=manjan&amp;${q}">${T.nav_manjan}</a><a href="page?${q}#combo">${T.nav_combo}</a><a href="page?${q}#kahani">${T.nav_story}</a></nav>
+<div class="hright"><div class="search">${T.search}</div>${who}<span class="cart">${T.cart} (<b id="cc">0</b>)</span></div></div></header><div class="border"></div>
 ${body}
-<footer class="foot"><div class="wrap"><div><h4>Ayurdant</h4>Daadi ka nuskha, ab tube mein. Desi dant-care made with laung, neem and kesar, in Haridwar since 1962.</div>
-<div><h4>Shop</h4><a href="product?item=laung&amp;${q}">Toothpaste</a><a href="product?item=manjan&amp;${q}">Dant Manjan</a><a href="page?${q}#combo">Combo Packs</a></div>
-<div><h4>Help</h4><a href="account?${q}">Track order</a><a href="#">Returns</a><a href="#">Contact us</a></div>
-<div><h4>Company</h4><a href="page?${q}#kahani">Humari Kahani</a><a href="#">Careers</a></div></div>
-<div class="fine">&copy; 2026 Ayurdant. A fictional store built for AlexCyberX Labs. No real brand or person.</div></footer>
+<footer class="foot"><div class="wrap"><div><h4>Ayurdant</h4>${T.foot_about}</div>
+<div><h4>${T.foot_shop}</h4><a href="product?item=laung&amp;${q}">${T.nav_paste}</a><a href="product?item=manjan&amp;${q}">${T.nav_manjan}</a><a href="page?${q}#combo">${T.nav_combo}</a></div>
+<div><h4>${T.foot_help}</h4><a href="account?${q}">${T.f_track}</a><a href="#">${T.f_returns}</a><a href="#">${T.f_contact}</a></div>
+<div><h4>${T.foot_company}</h4><a href="page?${q}#kahani">${T.nav_story}</a><a href="#">${T.f_careers}</a></div></div>
+<div class="fine">&copy; 2026 Ayurdant. ${T.fine}</div></footer>
 <div class="toast" id="toast"></div>
 <script>
 var S=${JSON.stringify(String(s)).replace(/</g, '\\u003c')};
+var LANG=${JSON.stringify(lang)};
+var T=${JSON.stringify({ added: T.added, rev_none: T.rev_none, rev_fail: T.rev_fail }).replace(/</g, '\\u003c')};
 function toast(t){var e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('show')},1800)}
-document.querySelectorAll('[data-add]').forEach(function(b){b.addEventListener('click',function(ev){ev.preventDefault();var c=document.getElementById('cc');c.textContent=+c.textContent+1;toast('Added to cart')})});
+document.querySelectorAll('[data-add]').forEach(function(b){b.addEventListener('click',function(ev){ev.preventDefault();var c=document.getElementById('cc');c.textContent=+c.textContent+1;toast(T.added)})});
 ${script || ''}
 </script></body></html>`;
 }
 
-function notActive(res) {
-  res.status(403).type('html').send(`<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Instance not active</title><style>${CSS}</style></head><body><div class="notice"><h1>Lab not running</h1><p>This lab instance is not running. Go back to the room on AlexCyberX and press Start (or Restart) to open a fresh store.</p></div></body></html>`);
+function notActive(req, res) {
+  const T = textsFor(langOf(req));
+  res.status(403).type('html').send(`<!DOCTYPE html><html lang="${HTML_LANG[langOf(req)]}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Instance not active</title><style>${CSS}</style></head><body><div class="notice"><h1>${T.na_title}</h1><p>${T.na_text}</p></div></body></html>`);
 }
 
-function card(slug, s) {
+function card(slug, q, T) {
   const p = PRODUCTS[slug];
-  const q = 'session=' + encodeURIComponent(s);
-  return `<div class="card" style="position:relative"><a class="pic" href="product?item=${slug}&amp;${q}"><img src="img/${slug}.webp?${q}" alt="${esc(p.name)}" loading="lazy"></a>${p.tag ? `<span class="tag">${p.tag}</span>` : ''}
-<div class="body"><h3><a href="product?item=${slug}&amp;${q}">${esc(p.name)}</a></h3><div class="meta">${esc(p.meta)}</div><div class="meta"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> ${p.rating} (${p.count})</div>
-<div class="row"><span class="price">${rupee(p.price)}<span class="mrp">${rupee(p.mrp)}</span></span><a class="add" href="#" data-add>Add</a></div></div></div>`;
+  return `<div class="card" style="position:relative"><a class="pic" href="product?item=${slug}&amp;${q}"><img src="img/${slug}.webp" alt="${esc(p.name)}" loading="lazy"></a>${p.best ? `<span class="tag">${T.bestseller}</span>` : ''}
+<div class="body"><h3><a href="product?item=${slug}&amp;${q}">${esc(p.name)}</a></h3><div class="meta">${T.products[slug].meta}</div><div class="meta"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> ${p.rating} (${p.count})</div>
+<div class="row"><span class="price">${rupee(p.price)}<span class="mrp">${rupee(p.mrp)}</span></span><a class="add" href="#" data-add>${T.add}</a></div></div></div>`;
 }
 
 // ── Instance endpoints ──
@@ -171,14 +170,14 @@ router.get('/img/:name.webp', (req, res, next) => {
 // ── Home ──
 router.get('/page', (req, res) => {
   const s = sid(req);
-  if (!isRunning(s)) return notActive(res);
-  const q = 'session=' + encodeURIComponent(s);
-  const body = `<section class="hero"><div class="wrap"><div><div class="kicker">Haridwar se, 1962 se</div><h1>Daadi ka nuskha,<br>ab tube mein.</h1><p>Laung, neem and real kesar. No chemical shine, just the old desi asar.</p><a class="btn btn-red" href="product?item=kesar&amp;${q}">Shop Kesar Gold</a> &nbsp; <a class="btn btn-line" href="#kahani">Humari Kahani</a></div><img class="heroimg" src="img/hero.webp?${q}" alt="Ayurdant toothpaste range"></div></section>
-<div class="trust"><div><b>4 lakh+</b>happy customers</div><div><b>11 jadibootiyan</b>in every tube</div><div><b>Free delivery</b>above &#8377;299</div><div><b>Cash on delivery</b>all over India</div></div>
-<section class="sec"><div class="wrap"><h2>Humare products</h2><p class="lead">Four nuskhe, loved in every ghar.</p><div class="grid">${Object.keys(PRODUCTS).map((k) => card(k, s)).join('')}</div></div></section>
-<section class="sec" id="combo" style="padding-top:0"><div class="wrap"><div class="offer"><div><h3>Diwali par 20% off</h3><p>On every combo pack. Only till 15 November.</p></div><span class="code">DAADI20</span></div></div></section>
-<section class="sec" id="kahani" style="padding-top:0"><div class="wrap"><h2>Humari Kahani</h2><p class="lead" style="max-width:720px">In 1962 Savitri Devi started grinding dant manjan for her neighbours in Haridwar. Today her grandchildren run Ayurdant, and she still signs off every batch of Kesar Gold herself. The Kesar Gold recipe has never left the family: it lives only in her vault.</p></div></section>`;
-  res.set('Cache-Control', 'no-store').type('html').send(page('Ayurdant: daadi ka nuskha, ab tube mein', s, readSession(req), body));
+  if (!isRunning(s)) return notActive(req, res);
+  const T = textsFor(langOf(req)), q = qs(s, langOf(req));
+  const body = `<section class="hero"><div class="wrap"><div><div class="kicker">${T.kicker}</div><h1>${T.h1}</h1><p>${T.hero_p}</p><a class="btn btn-red" href="product?item=kesar&amp;${q}">${T.shop_kesar}</a> &nbsp; <a class="btn btn-line" href="#kahani">${T.nav_story}</a></div><img class="heroimg" src="img/hero.webp" alt="Ayurdant"></div></section>
+<div class="trust">${T.trust.map(([b, t]) => `<div><b>${b}</b>${t}</div>`).join('')}</div>
+<section class="sec"><div class="wrap"><h2>${T.prod_h2}</h2><p class="lead">${T.prod_lead}</p><div class="grid">${Object.keys(PRODUCTS).map((k) => card(k, q, T)).join('')}</div></div></section>
+<section class="sec" id="combo" style="padding-top:0"><div class="wrap"><div class="offer"><div><h3>${T.offer_h3}</h3><p>${T.offer_p}</p></div><span class="code">DAADI20</span></div></div></section>
+<section class="sec" id="kahani" style="padding-top:0"><div class="wrap"><h2>${T.nav_story}</h2><p class="lead" style="max-width:720px">${T.story}</p></div></section>`;
+  res.set('Cache-Control', 'no-store').type('html').send(page(req, T.t_home, readSession(req), body));
 });
 
 // ── Product page (reviews load from the API) ──
@@ -186,29 +185,29 @@ router.get('/product', (req, res, next) => {
   const s = sid(req);
   const slug = typeof req.query.item === 'string' ? req.query.item : '';
   if (!Object.prototype.hasOwnProperty.call(PRODUCTS, slug)) return next();
-  if (!isRunning(s)) return notActive(res);
+  if (!isRunning(s)) return notActive(req, res);
+  const lang = langOf(req), T = textsFor(lang), q = qs(s, lang);
   const p = PRODUCTS[slug];
-  const q = 'session=' + encodeURIComponent(s);
-  const others = Object.keys(PRODUCTS).filter((k) => k !== slug).map((k) => `<a class="mini" href="product?item=${k}&amp;${q}"><img src="img/${k}.webp?${q}" alt=""><span><b>${esc(PRODUCTS[k].name)}</b><span>${rupee(PRODUCTS[k].price)}</span></span></a>`).join('');
-  const body = `<div class="wrap"><div class="crumbs"><a href="page?${q}">Home</a> / Toothpaste / ${esc(p.name)}</div>
-<div class="pd"><div class="big"><img src="img/${slug}.webp?${q}" alt="${esc(p.name)}"></div><div>
-${p.tag ? `<div class="kicker">${p.tag}</div>` : ''}<h1>${esc(p.name)}</h1><div class="rate"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> ${p.rating} (${p.count} reviews)</div>
-<span class="price">${rupee(p.price)}<span class="mrp">${rupee(p.mrp)}</span><span class="off">${off(p)}% off</span></span>
-<ul>${p.points.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>
-<span class="qty"><span>-</span><span>1</span><span>+</span></span><a class="btn btn-red" href="#" data-add>Add to cart</a>
-<h2 style="font:26px/1.1 'Rozha One',serif;color:var(--maroon);font-weight:400;margin:30px 0 0">Reviews</h2>
-<div id="revs"><div class="revload">Loading reviews...</div></div>
+  const others = Object.keys(PRODUCTS).filter((k) => k !== slug).map((k) => `<a class="mini" href="product?item=${k}&amp;${q}"><img src="img/${k}.webp" alt=""><span><b>${esc(PRODUCTS[k].name)}</b><span>${rupee(PRODUCTS[k].price)}</span></span></a>`).join('');
+  const body = `<div class="wrap"><div class="crumbs"><a href="page?${q}">${T.crumb_home}</a> / ${T.nav_paste} / ${esc(p.name)}</div>
+<div class="pd"><div class="big"><img src="img/${slug}.webp" alt="${esc(p.name)}"></div><div>
+${p.best ? `<div class="kicker">${T.bestseller}</div>` : ''}<h1>${esc(p.name)}</h1><div class="rate"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span> ${p.rating} (${T.reviews_n.replace('{n}', p.count)})</div>
+<span class="price">${rupee(p.price)}<span class="mrp">${rupee(p.mrp)}</span><span class="off">${T.off.replace('{n}', off(p))}</span></span>
+<ul>${T.products[slug].points.map((t) => `<li>${t}</li>`).join('')}</ul>
+<span class="qty"><span>-</span><span>1</span><span>+</span></span><a class="btn btn-red" href="#" data-add>${T.add_cart}</a>
+<h2 style="font:26px/1.1 'Rozha One',serif;color:var(--maroon);font-weight:400;margin:30px 0 0">${T.reviews}</h2>
+<div id="revs"><div class="revload">${T.rev_loading}</div></div>
 <div class="thumbs">${others}</div></div></div></div>`;
   const script = `
 function e(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML}
-fetch('api/reviews?product=${slug}&session='+encodeURIComponent(S)).then(function(r){return r.json()}).then(function(d){
+fetch('api/reviews?product=${slug}&session='+encodeURIComponent(S)+'&lang='+LANG).then(function(r){return r.json()}).then(function(d){
   var h=(d.reviews||[]).map(function(r){
     return '<div class="rev"><div class="h">'+e(r.user)+' <span class="stars">'+'\\u2605'.repeat(r.rating)+'\\u2606'.repeat(5-r.rating)+'</span><span class="date">'+e(r.date)+'</span></div><p>'+e(r.text)+'</p>'+
       (r.reply?'<div class="reply"><b>'+e(r.reply.by.name)+'</b> <span class="staff">AYURDANT</span><br>'+e(r.reply.text)+'</div>':'')+'</div>';
   }).join('');
-  document.getElementById('revs').innerHTML=h||'<div class="revload">No reviews yet.</div>';
-}).catch(function(){document.getElementById('revs').innerHTML='<div class="revload">Could not load reviews.</div>'});`;
-  res.set('Cache-Control', 'no-store').type('html').send(page(p.name + ': Ayurdant', s, readSession(req), body, script));
+  document.getElementById('revs').innerHTML=h||'<div class="revload">'+e(T.rev_none)+'</div>';
+}).catch(function(){document.getElementById('revs').innerHTML='<div class="revload">'+e(T.rev_fail)+'</div>'});`;
+  res.set('Cache-Control', 'no-store').type('html').send(page(req, p.name + ': Ayurdant', readSession(req), body, script));
 });
 
 router.get('/api/reviews', (req, res) => {
@@ -216,25 +215,25 @@ router.get('/api/reviews', (req, res) => {
   if (!isRunning(s)) return res.status(403).json({ error: 'Instance not active' });
   const slug = typeof req.query.product === 'string' ? req.query.product : '';
   if (!Object.prototype.hasOwnProperty.call(PRODUCTS, slug)) return res.status(404).json({ error: 'Unknown product' });
-  res.set('Cache-Control', 'no-store').json({ product: slug, reviews: reviewsFor(slug, instances[s]) });
+  res.set('Cache-Control', 'no-store').json({ product: slug, reviews: reviewsFor(slug, instances[s], textsFor(langOf(req))) });
 });
 
 // ── Login ──
 router.get('/login', (req, res) => {
   const s = sid(req);
-  if (!isRunning(s)) return notActive(res);
-  const q = 'session=' + encodeURIComponent(s);
-  if (readSession(req)) return res.redirect(302, 'account?' + q);
-  const body = `<div class="wrap"><div class="authwrap"><div class="authart"><img src="img/hero.webp?${q}" alt=""><p>"Daadi kehti thi, daant mazboot to sehat mazboot."</p></div>
-<div class="form"><h2>Swagat hai</h2><p class="sub">Log in to your Ayurdant account.</p>
-<div class="tabs"><button class="on" data-tab="in" type="button">Login</button><button data-tab="up" type="button">New account</button></div>
-<form class="on" id="in"><div class="err" id="err">Wrong email or password.</div>
-<label for="em">Email</label><input class="inp" id="em" autocomplete="username" value="${esc(CREDS.email)}">
-<label for="pw">Password</label><input class="inp" id="pw" type="password" autocomplete="current-password" value="${esc(CREDS.password)}">
-<button class="btn btn-red" type="submit">Login</button>
-<p class="small" style="margin-top:14px">Lab note: Riya's login from the room is filled in for you.</p></form>
-<form id="up"><p class="small" style="margin:0 0 16px">New accounts are paused during the Diwali rush. Please check back after 15 November.</p>
-<label>Name</label><input class="inp" disabled><label>Email</label><input class="inp" disabled><button class="btn btn-red" type="button" disabled>Create account</button></form>
+  if (!isRunning(s)) return notActive(req, res);
+  const lang = langOf(req), T = textsFor(lang), q = qs(s, lang);
+  if (readSession(req)) return res.redirect(302, 'account?' + qs(s, lang, false));
+  const body = `<div class="wrap"><div class="authwrap"><div class="authart"><img src="img/hero.webp" alt=""><p>${T.h1.replace('<br>', ' ')}</p></div>
+<div class="form"><h2>${T.welcome}</h2><p class="sub">${T.welcome_sub}</p>
+<div class="tabs"><button class="on" data-tab="in" type="button">${T.tab_login}</button><button data-tab="up" type="button">${T.tab_new}</button></div>
+<form class="on" id="in"><div class="err" id="err">${T.err_login}</div>
+<label for="em">${T.email}</label><input class="inp" id="em" autocomplete="username" value="${esc(CREDS.email)}">
+<label for="pw">${T.password}</label><input class="inp" id="pw" type="password" autocomplete="current-password" value="${esc(CREDS.password)}">
+<button class="btn btn-red" type="submit">${T.btn_login}</button>
+<p class="small" style="margin-top:14px">${T.lab_note}</p></form>
+<form id="up"><p class="small" style="margin:0 0 16px">${T.new_paused}</p>
+<label>${T.name}</label><input class="inp" disabled><label>${T.email}</label><input class="inp" disabled><button class="btn btn-red" type="button" disabled>${T.create}</button></form>
 </div></div></div>`;
   const script = `
 document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){
@@ -243,10 +242,10 @@ document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener
 })});
 document.getElementById('in').addEventListener('submit',function(ev){ev.preventDefault();
   fetch('login?session='+encodeURIComponent(S),{method:'POST',headers:{'Content-Type':'application/json','X-Lab-Session':S},body:JSON.stringify({email:document.getElementById('em').value,password:document.getElementById('pw').value})})
-  .then(function(r){return r.json()}).then(function(d){if(d.success){location.href='account?session='+encodeURIComponent(S)}else{document.getElementById('err').classList.add('show')}})
+  .then(function(r){return r.json()}).then(function(d){if(d.success){location.href='account?session='+encodeURIComponent(S)+'&lang='+LANG}else{document.getElementById('err').classList.add('show')}})
   .catch(function(){document.getElementById('err').classList.add('show')});
 });`;
-  res.set('Cache-Control', 'no-store').type('html').send(page('Login: Ayurdant', s, null, body, script));
+  res.set('Cache-Control', 'no-store').type('html').send(page(req, T.t_login, null, body, script));
 });
 
 router.post('/login', loginLimiter, (req, res) => {
@@ -271,63 +270,62 @@ router.get('/logout', (req, res) => {
   const o = cookieOpts(req) + '; Max-Age=0';
   res.append('Set-Cookie', `ayd_session=; ${o}`);
   res.append('Set-Cookie', `ayd_cart=; ${o}`);
-  res.redirect(302, 'page?session=' + encodeURIComponent(s));
+  res.redirect(302, 'page?' + qs(s, langOf(req), false));
 });
 
 // ── Account (trusts the cookie) ──
-function sideNav(s, user, on, isOwner) {
-  const q = 'session=' + encodeURIComponent(s);
+function sideNav(q, T, user, on, isOwner) {
   const initial = esc((user.name.trim()[0] || 'A').toUpperCase());
-  return `<aside class="side"><div class="who"><span class="av">${initial}</span><span><b>${esc(user.name)}${isOwner ? '<span class="staff">OWNER</span>' : ''}</b><small>Customer ID ${esc(user.uid)}</small></span></div>
-<a class="${on === 'acct' ? 'on' : ''}" href="account?${q}">Mera Khaata</a><a href="account?${q}#orders">Orders</a><a href="account?${q}#address">Addresses</a>
-<a class="${on === 'vault' ? 'on' : ''}" href="nuskha?${q}">Daadi ka Nuskha${isOwner ? '' : ' &#128274;'}</a><a href="logout?${q}">Logout</a></aside>`;
+  return `<aside class="side"><div class="who"><span class="av">${initial}</span><span><b>${esc(user.name)}${isOwner ? '<span class="staff">OWNER</span>' : ''}</b><small>${T.cust_id} ${esc(user.uid)}</small></span></div>
+<a class="${on === 'acct' ? 'on' : ''}" href="account?${q}">${T.acct}</a><a href="account?${q}#orders">${T.side_orders}</a><a href="account?${q}#address">${T.side_addr}</a>
+<a class="${on === 'vault' ? 'on' : ''}" href="nuskha?${q}">${T.vault}${isOwner ? '' : LOCK}</a><a href="logout?${q}">${T.logout}</a></aside>`;
 }
 
 router.get('/account', (req, res) => {
   const s = sid(req);
-  if (!isRunning(s)) return notActive(res);
-  const q = 'session=' + encodeURIComponent(s);
+  if (!isRunning(s)) return notActive(req, res);
+  const lang = langOf(req), T = textsFor(lang), q = qs(s, lang);
   const user = readSession(req);
-  if (!user) return res.redirect(302, 'login?' + q);
+  if (!user) return res.redirect(302, 'login?' + qs(s, lang, false));
   const inst = instances[s];
   const isOwner = user.role === 'owner' && user.uid === inst.ownerUid;
   const main = isOwner
-    ? `<div class="stats"><div class="stat"><span>Orders today</span><b>418</b></div><div class="stat"><span>Revenue today</span><b>&#8377;61,240</b></div><div class="stat"><span>Kesar Gold stock</span><b>2,960</b></div></div>
-<div class="panel"><h3>Namaste, Savitri ji</h3><p style="margin:0">Batch KG-1102 is waiting for your sign-off. The recipe is in your vault.</p></div>`
-    : `<div class="panel"><h3>Mera Khaata</h3><div class="kv"><span>Name</span><b>${esc(user.name)}</b><span>Customer ID</span><b class="mono">${esc(user.uid)}</b><span>Account type</span><b>${esc(user.role)}</b><span>Email</span><b>${user.uid === inst.riyaUid ? esc(CREDS.email) : '-'}</b></div></div>
-<div class="panel" id="orders"><h3>Orders</h3><div class="tbl"><table><thead><tr><th>Order</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody>
-<tr><td class="mono">#AY-77310</td><td>29 Oct 2026</td><td>Kesar Gold x1, Neem Raksha x2</td><td>${rupee(357)}</td><td><span class="pill o">Shipped</span></td></tr>
-<tr><td class="mono">#AY-76854</td><td>11 Oct 2026</td><td>Daadi ka Dant Manjan x1</td><td>${rupee(129)}</td><td><span class="pill">Delivered</span></td></tr>
-<tr><td class="mono">#AY-75120</td><td>20 Sep 2026</td><td>Laung Shakti x3</td><td>${rupee(285)}</td><td><span class="pill r">Returned</span></td></tr></tbody></table></div></div>
-<div class="panel" id="address"><h3>Address</h3><p style="margin:0">Riya Kapoor<br>B-14, Shanti Kunj, Jwalapur<br>Haridwar, Uttarakhand 249407</p></div>`;
-  const body = `<div class="wrap"><div class="crumbs"><a href="page?${q}">Home</a> / Mera Khaata</div><div class="acct">${sideNav(s, user, 'acct', isOwner)}<div>${main}</div></div></div>`;
-  res.set('Cache-Control', 'no-store').type('html').send(page('Mera Khaata: Ayurdant', s, user, body));
+    ? `<div class="stats"><div class="stat"><span>${T.own_stats[0]}</span><b>418</b></div><div class="stat"><span>${T.own_stats[1]}</span><b>&#8377;61,240</b></div><div class="stat"><span>${T.own_stats[2]}</span><b>2,960</b></div></div>
+<div class="panel"><h3>${T.own_hello}</h3><p style="margin:0">${T.own_text}</p></div>`
+    : `<div class="panel"><h3>${T.acct}</h3><div class="kv"><span>${T.name}</span><b>${esc(user.name)}</b><span>${T.cust_id}</span><b class="mono">${esc(user.uid)}</b><span>${T.k_type}</span><b>${esc(user.role)}</b><span>${T.email}</span><b>${user.uid === inst.riyaUid ? esc(CREDS.email) : '-'}</b></div></div>
+<div class="panel" id="orders"><h3>${T.orders_h}</h3><div class="tbl"><table><thead><tr>${T.th.map((h) => `<th>${h}</th>`).join('')}</tr></thead><tbody>
+<tr><td class="mono">#AY-77310</td><td>29/10/2026</td><td>Kesar Gold x1, Neem Raksha x2</td><td>${rupee(357)}</td><td><span class="pill o">${T.st_shipped}</span></td></tr>
+<tr><td class="mono">#AY-76854</td><td>11/10/2026</td><td>Daadi ka Dant Manjan x1</td><td>${rupee(129)}</td><td><span class="pill">${T.st_delivered}</span></td></tr>
+<tr><td class="mono">#AY-75120</td><td>20/09/2026</td><td>Laung Shakti x3</td><td>${rupee(285)}</td><td><span class="pill r">${T.st_returned}</span></td></tr></tbody></table></div></div>
+<div class="panel" id="address"><h3>${T.addr_h}</h3><p style="margin:0">Riya Kapoor<br>B-14, Shanti Kunj, Jwalapur<br>Haridwar, Uttarakhand 249407</p></div>`;
+  const body = `<div class="wrap"><div class="crumbs"><a href="page?${q}">${T.crumb_home}</a> / ${T.acct}</div><div class="acct">${sideNav(q, T, user, 'acct', isOwner)}<div>${main}</div></div></div>`;
+  res.set('Cache-Control', 'no-store').type('html').send(page(req, T.t_account, user, body));
 });
 
 // ── The vault: owner only, decided from the cookie alone ──
 router.get('/nuskha', (req, res) => {
   const s = sid(req);
-  if (!isRunning(s)) return notActive(res);
-  const q = 'session=' + encodeURIComponent(s);
+  if (!isRunning(s)) return notActive(req, res);
+  const lang = langOf(req), T = textsFor(lang), q = qs(s, lang);
   const user = readSession(req);
-  if (!user) return res.redirect(302, 'login?' + q);
+  if (!user) return res.redirect(302, 'login?' + qs(s, lang, false));
   const inst = instances[s];
   const isOwner = user.role === 'owner' && user.uid === inst.ownerUid;
   let main;
   if (isOwner) {
     if (!inst.solved) logAttempt('AYURDANT', req.ip, 'vault:open', 'correct');
     inst.solved = true;
-    main = `<div class="panel"><h3>Daadi ka Nuskha: Kesar Gold (1962)</h3>
-<table><tbody><tr><td>Kashmiri kesar</td><td>2 g per 10 kg batch</td></tr><tr><td>Chandan powder</td><td>120 g</td></tr><tr><td>Laung oil</td><td>18 ml</td></tr><tr><td>Mulethi</td><td>90 g</td></tr><tr><td>Desi ghee (just a little)</td><td>"Andaaza se", says daadi</td></tr></tbody></table>
-<p style="margin:16px 0 6px" class="small">Vault code, for family only:</p><div class="code" style="display:inline-block;word-break:break-all">${esc(FLAG)}</div></div>`;
+    main = `<div class="panel"><h3>${T.vault_title}</h3>
+<table><tbody>${T.ing.map(([n, v]) => `<tr><td>${n}</td><td>${v}</td></tr>`).join('')}</tbody></table>
+<p style="margin:16px 0 6px" class="small">${T.vault_code}</p><div class="code" style="display:inline-block;word-break:break-all">${esc(FLAG)}</div></div>`;
   } else if (user.role === 'owner') {
     logAttempt('AYURDANT', req.ip, 'vault:role_mismatch', 'wrong');
-    main = `<div class="panel"><h3>Security alert</h3><p style="margin:0 0 10px"><span class="pill r">BLOCKED</span></p><p style="margin:0">The role <b>owner</b> does not belong to customer ID <span class="mono">${esc(user.uid)}</span>. This attempt has been noted.</p></div>`;
+    main = `<div class="panel"><h3>${T.alert_title}</h3><p style="margin:0 0 10px"><span class="pill r">${T.alert_blocked}</span></p><p style="margin:0">${T.alert_text.replace('{uid}', '<span class="mono">' + esc(user.uid) + '</span>')}</p></div>`;
   } else {
-    main = `<div class="panel"><h3>Daadi ka Nuskha &#128274;</h3><p style="margin:0">This vault is only for the owner of Ayurdant.</p></div>`;
+    main = `<div class="panel"><h3>${T.vault}${LOCK}</h3><p style="margin:0">${T.locked}</p></div>`;
   }
-  const body = `<div class="wrap"><div class="crumbs"><a href="page?${q}">Home</a> / <a href="account?${q}">Mera Khaata</a> / Daadi ka Nuskha</div><div class="acct">${sideNav(s, user, 'vault', isOwner)}<div>${main}</div></div></div>`;
-  res.set('Cache-Control', 'no-store').type('html').send(page('Daadi ka Nuskha: Ayurdant', s, user, body));
+  const body = `<div class="wrap"><div class="crumbs"><a href="page?${q}">${T.crumb_home}</a> / <a href="account?${q}">${T.acct}</a> / ${T.vault}</div><div class="acct">${sideNav(q, T, user, 'vault', isOwner)}<div>${main}</div></div></div>`;
+  res.set('Cache-Control', 'no-store').type('html').send(page(req, T.t_vault, user, body));
 });
 
 // ── Flag submit (the CTF page posts to the MAIN server; this is a fallback) ──

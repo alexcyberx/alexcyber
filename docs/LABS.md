@@ -64,4 +64,5 @@ web-01 hidden ("Before Go-Live", rebuilt 2026-11-01: secrets in client-side JS, 
 ## Rules for new labs
 - Add the lab to `LABS` in `server/labs/mount.js` and its flag theme to `server/labs/flags.js`; never write a flag.
 - A lab must not need a database key or a login token. Anything that awards XP happens on the main server.
+- Language: the CTF page opens a lab with `?lang=<code>` (the language picked on the site, one of en hl hi pa ta te bn mr); the start page passes it on to `/page`. A lab shows every text in that language (English default, see `server/labs/web02-ayurdant/i18n.js`) and keeps `lang` on its links. Owner rule (2026-11-02): no emojis and no en or em dashes in lab text. Labs built before this still show English.
 - Links back to the site use `/rooms?open=<slug>` (redirected by the labs server); no `window.opener` calls.
