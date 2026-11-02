@@ -16,7 +16,7 @@ const crypto = require('crypto');
 const THEMES = {
   'web-01': 'st4g1ng_k3ys_sh1p_w1th_th3_js',
   'web-02': 'uns1gn3d_c00k13s_0p3n_th3_v4ult',
-  'web-03': 'un10n_s3l3ct_g0t_m3',
+  'web-03': 'un10n_s3l3ct_0p3ns_th3_4rch1v3',
   'web-04': 'r0b0ts_txt_l34ks_s3cr3ts',
   'web-06': 'tru5t_n0th1ng_fr0m_th3_cl13nt',
   'web-07': 'l3ngth_pr3f1x3s_l13_2_y0u',

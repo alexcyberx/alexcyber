@@ -1,4 +1,4 @@
-// ── web-02 "Daadi ka Nuskha" (cookie tampering) ─────────────────
+// ── web-02 "Session Cookie" (cookie tampering) ──────────────────
 // Ayurdant, a fictional ayurvedic toothpaste brand from Haridwar, runs an
 // online store. After login the store keeps WHO you are in a plain Base64
 // JSON cookie (ayd_session: uid, name, role) with no signature, and the
