@@ -101,6 +101,7 @@ body{background:#06080f;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
 .footer-links{display:flex;gap:20px;}
 .footer-link{font-size:11px;color:#1e293b;text-decoration:none;}
 .footer-link:hover{color:#64748b;}
+@media (max-width:700px){.nav{padding:0 16px}.nav-links{display:none}.nav-cta{white-space:nowrap}.hero{padding:56px 18px 40px}.hero-title{font-size:34px}.features{grid-template-columns:1fr;padding:24px 16px 40px}.footer-bar{flex-direction:column;gap:10px;padding:18px 16px;text-align:center}}
 </style>
 </head>
 <body>
@@ -183,21 +184,21 @@ router.get('/admin/', (req, res) => {
   if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(req, res);
   logAttempt('ROBOTS', req.ip, 'GET /admin/', 'decoy_403');
   res.setHeader('Content-Type', 'text/html');
-  res.status(403).send(`<!DOCTYPE html><html><head><title>403 Forbidden</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#dc2626" stroke-width="1.5"/><path d="M24 16v8M24 30v2" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg><h1>403 Forbidden</h1><p>${texts(TEXT, L(req)).e403}</p></body></html>`);
+  res.status(403).send(`<!DOCTYPE html><html lang="${HTML_LANG[L(req)]}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>403 Forbidden</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;max-width:420px;text-align:center;padding:0 20px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#dc2626" stroke-width="1.5"/><path d="M24 16v8M24 30v2" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg><h1>403 Forbidden</h1><p>${texts(TEXT, L(req)).e403}</p></body></html>`);
 });
 
 router.get('/backup/', (req, res) => {
   if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(req, res);
   logAttempt('ROBOTS', req.ip, 'GET /backup/', 'decoy_404');
   res.setHeader('Content-Type', 'text/html');
-  res.status(404).send(`<!DOCTYPE html><html><head><title>404 Not Found</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#f59e0b" stroke-width="1.5"/><path d="M16 16l16 16M32 16L16 32" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/></svg><h1>404 Not Found</h1><p>${texts(TEXT, L(req)).e404}</p></body></html>`);
+  res.status(404).send(`<!DOCTYPE html><html lang="${HTML_LANG[L(req)]}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>404 Not Found</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;max-width:420px;text-align:center;padding:0 20px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#f59e0b" stroke-width="1.5"/><path d="M16 16l16 16M32 16L16 32" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/></svg><h1>404 Not Found</h1><p>${texts(TEXT, L(req)).e404}</p></body></html>`);
 });
 
 router.get('/staging/', (req, res) => {
   if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(req, res);
   logAttempt('ROBOTS', req.ip, 'GET /staging/', 'decoy_503');
   res.setHeader('Content-Type', 'text/html');
-  res.status(503).send(`<!DOCTYPE html><html><head><title>503 Service Unavailable</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#64748b" stroke-width="1.5"/><path d="M24 14v10M24 32v2" stroke="#64748b" stroke-width="2" stroke-linecap="round"/></svg><h1>503 Service Unavailable</h1><p>${texts(TEXT, L(req)).e503}</p></body></html>`);
+  res.status(503).send(`<!DOCTYPE html><html lang="${HTML_LANG[L(req)]}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>503 Service Unavailable</title><style>body{background:#06080f;color:#e2e8f0;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:12px;}h1{font-size:28px;font-weight:700;}p{color:#64748b;font-size:14px;max-width:420px;text-align:center;padding:0 20px;}</style></head><body><svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:8px;"><circle cx="24" cy="24" r="20" stroke="#64748b" stroke-width="1.5"/><path d="M24 14v10M24 32v2" stroke="#64748b" stroke-width="2" stroke-linecap="round"/></svg><h1>503 Service Unavailable</h1><p>${texts(TEXT, L(req)).e503}</p></body></html>`);
 });
 
 // ── VAULT PAGE ────────────────────────────────────────────────────

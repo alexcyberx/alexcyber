@@ -1,4 +1,6 @@
 const express = require('express');
+const { langOf, texts } = require('../i18n');
+const MSG = require('./i18n');
 const { flagFor } = require('../flags');
 const router  = express.Router();
 const { loginLimiter, flagLimiter } = require('../../middleware/rateLimit');
@@ -46,14 +48,14 @@ router.get('/init', loginLimiter, (req, res) => {
 router.get('/check', flagLimiter, (req, res) => {
   const raw = req.cookies && req.cookies[COOKIE_NAME];
   if (!raw) {
-    return res.status(400).json({ authenticated: false, error: 'No session cookie found. Log in first.' });
+    return res.status(400).json({ authenticated: false, error: texts(MSG, langOf(req)).no_cookie });
   }
 
   let serialized;
   try {
     serialized = Buffer.from(raw, 'base64').toString('utf8');
   } catch (e) {
-    return res.status(400).json({ authenticated: false, error: 'Malformed session cookie.' });
+    return res.status(400).json({ authenticated: false, error: texts(MSG, langOf(req)).bad_cookie });
   }
 
   const isAdmin = extractIsAdmin(serialized);

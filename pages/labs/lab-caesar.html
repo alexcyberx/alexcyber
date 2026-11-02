@@ -95,13 +95,13 @@
   }
 </style>
 </head>
-<body>
+<body data-lab-id="cry-01">
 
 <div class="overlay" id="inactiveOverlay">
   <div class="ocard">
-    <h2>Instance stopped</h2>
-    <p>Another challenge was started, so this instance is no longer live. Go back and relaunch cry-01 if needed.</p>
-    <button class="ocard-btn" onclick="goBack()">Back to CTF</button>
+    <h2 data-i18n="stop_h">Instance stopped</h2>
+    <p data-i18n="stop_p">Another challenge was started, so this instance is no longer live. Go back and relaunch cry-01 if needed.</p>
+    <button class="ocard-btn" onclick="goBack()" data-i18n="back">Back to CTF</button>
   </div>
 </div>
 
@@ -112,16 +112,16 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
         redcell_intercept_0417.txt
       </div>
-      <div class="status" id="statusEl"><span class="dot"></span> loading</div>
+      <div class="status" id="statusEl"><span class="dot"></span> <span data-i18n="st_loading">loading</span></div>
     </div>
 
     <div class="console-body">
-      <div class="ciphertext loading" id="cipherEl">loading...</div>
+      <div class="ciphertext loading" id="cipherEl" data-i18n="c_loading">loading...</div>
 
       <div class="bars" id="barsEl"></div>
 
       <div class="shiftblock">
-        <div class="label">Shift</div>
+        <div class="label" data-i18n="shift">Shift</div>
         <div class="shiftrow">
           <button class="shiftbtn" id="shiftDown" type="button">-</button>
           <div class="shiftval" id="shiftVal">0</div>
@@ -132,15 +132,26 @@
 
       <div class="output-label">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/></svg>
-        Live decode at this shift
+        <span data-i18n="live">Live decode at this shift</span>
       </div>
       <div class="output" id="decodedEl">&mdash;</div>
     </div>
   </div>
 </div>
 
+<script src="lab-i18n.js"></script>
 <script>
 'use strict';
+const t = ACX_I18N({
+  en: { st_loading: 'loading', c_loading: 'loading...', shift: 'Shift', live: 'Live decode at this shift', intercepted: 'intercepted', load_fail: 'Could not load ciphertext. Refresh to retry.' },
+  hl: { st_loading: 'load ho raha hai', c_loading: 'load ho raha hai...', shift: 'Shift', live: 'Is shift par live decode', intercepted: 'pakda gaya', load_fail: 'Ciphertext load nahi hua. Page refresh karke dobara try karo.' },
+  hi: { st_loading: 'लोड हो रहा है', c_loading: 'लोड हो रहा है...', shift: 'शिफ़्ट', live: 'इस शिफ़्ट पर लाइव डिकोड', intercepted: 'पकड़ा गया', load_fail: 'सिफ़रटेक्स्ट लोड नहीं हुआ। पेज रिफ़्रेश करके फिर कोशिश करें।' },
+  pa: { st_loading: 'ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ', c_loading: 'ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ...', shift: 'ਸ਼ਿਫ਼ਟ', live: 'ਇਸ ਸ਼ਿਫ਼ਟ ਤੇ ਲਾਈਵ ਡੀਕੋਡ', intercepted: 'ਫੜਿਆ ਗਿਆ', load_fail: 'ਸਾਈਫ਼ਰਟੈਕਸਟ ਲੋਡ ਨਹੀਂ ਹੋਇਆ। ਪੇਜ ਰਿਫ੍ਰੈਸ਼ ਕਰਕੇ ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।' },
+  ta: { st_loading: 'ஏற்றப்படுகிறது', c_loading: 'ஏற்றப்படுகிறது...', shift: 'நகர்வு', live: 'இந்த நகர்வில் நேரடி டிகோட்', intercepted: 'இடைமறிக்கப்பட்டது', load_fail: 'Ciphertext ஏற்ற முடியவில்லை. பக்கத்தைப் புதுப்பித்து மீண்டும் முயலுங்கள்.' },
+  te: { st_loading: 'లోడ్ అవుతోంది', c_loading: 'లోడ్ అవుతోంది...', shift: 'షిఫ్ట్', live: 'ఈ షిఫ్ట్ వద్ద లైవ్ డీకోడ్', intercepted: 'పట్టుకున్నాం', load_fail: 'Ciphertext లోడ్ కాలేదు. పేజీ రిఫ్రెష్ చేసి మళ్లీ ప్రయత్నించండి.' },
+  bn: { st_loading: 'লোড হচ্ছে', c_loading: 'লোড হচ্ছে...', shift: 'শিফট', live: 'এই শিফটে লাইভ ডিকোড', intercepted: 'আটকানো হয়েছে', load_fail: 'Ciphertext লোড হয়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।' },
+  mr: { st_loading: 'लोड होत आहे', c_loading: 'लोड होत आहे...', shift: 'शिफ्ट', live: 'या शिफ्टवर लाइव्ह डिकोड', intercepted: 'पकडले', load_fail: 'Ciphertext लोड झाला नाही. पेज रिफ्रेश करून पुन्हा प्रयत्न करा.' },
+});
 
 function getSession() {
   const params = new URLSearchParams(window.location.search);
@@ -257,14 +268,15 @@ async function loadCiphertext() {
       el.textContent = data.ciphertext;
       el.classList.remove('loading');
       status.classList.add('live');
-      status.innerHTML = '<span class="dot"></span> intercepted';
+      status.innerHTML = '<span class="dot"></span> ';
+      status.appendChild(document.createTextNode(t('intercepted')));
       setShift(0);
     } else {
       throw new Error('no ciphertext in response');
     }
   } catch (e) {
     console.warn('[Caesar] info fetch failed', e);
-    el.textContent = 'Could not load ciphertext. Refresh to retry.';
+    el.textContent = t('load_fail');
   }
 }
 

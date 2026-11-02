@@ -163,13 +163,13 @@
   .ocard-btn{ color:#fff; font-size:13.5px; font-weight:600; border:none; border-radius:999px; padding:10px 20px; cursor:pointer; background:var(--accent); }
 </style>
 </head>
-<body>
+<body data-lab-id="ai-01">
 
 <div class="overlay" id="inactiveOverlay">
   <div class="ocard">
-    <h2>Instance stopped</h2>
-    <p>Another challenge was started, so this instance is no longer live. Go back and relaunch it if needed.</p>
-    <button class="ocard-btn" type="button" onclick="goBack()">Back to CTF</button>
+    <h2 data-i18n="stop_h">Instance stopped</h2>
+    <p data-i18n="stop_p">Another challenge was started, so this instance is no longer live. Go back and relaunch it if needed.</p>
+    <button class="ocard-btn" type="button" onclick="goBack()" data-i18n="back">Back to CTF</button>
   </div>
 </div>
 
@@ -195,7 +195,7 @@
       <span class="left-count" id="leftEl" hidden></span>
       <button class="ghost-btn" id="resetBtn" type="button" aria-label="Reset chat">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 12a8 8 0 11-2.6-5.9M20 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span>Reset chat</span>
+        <span data-i18n="reset">Reset chat</span>
       </button>
     </div>
   </header>
@@ -206,15 +206,15 @@
     <div class="col">
       <section class="hero" id="heroEl">
         <div class="hero-logo-wrap">
-          <div class="hello" aria-hidden="true">Hello!</div>
+          <div class="hello" aria-hidden="true" data-i18n="hello">Hello!</div>
           <span class="logo" aria-hidden="true"><svg viewBox="0 0 40 40"><use href="#cx-logo"/></svg></span>
         </div>
-        <h1>Your <em>IT Helpdesk</em><br>assistant</h1>
-        <p>Get instant help with password resets, VPN access and software requests.</p>
+        <h1 data-i18n-html="h1">Your <em>IT Helpdesk</em><br>assistant</h1>
+        <p data-i18n="intro">Get instant help with password resets, VPN access and software requests.</p>
         <div class="chips">
-          <button class="chip" type="button" data-q="I need a password reset">Password reset</button>
-          <button class="chip" type="button" data-q="I need VPN access">VPN access</button>
-          <button class="chip" type="button" data-q="I need a software installed">Software request</button>
+          <button class="chip" type="button" data-q="I need a password reset" data-qk="q1" data-i18n="c1">Password reset</button>
+          <button class="chip" type="button" data-q="I need VPN access" data-qk="q2" data-i18n="c2">VPN access</button>
+          <button class="chip" type="button" data-q="I need a software installed" data-qk="q3" data-i18n="c3">Software request</button>
         </div>
       </section>
       <div id="colEl"></div>
@@ -224,18 +224,29 @@
   <footer class="composer">
     <div class="col" style="min-height:0">
       <div class="row">
-        <textarea id="inputEl" rows="1" maxlength="500" placeholder="Type your message" aria-label="Message"></textarea>
+        <textarea id="inputEl" rows="1" maxlength="500" placeholder="Type your message" data-i18n-ph="ph" aria-label="Message"></textarea>
         <button class="send" id="sendBtn" type="button" aria-label="Send message">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12l16-8-6 16-2.5-6.5L4 12z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>
         </button>
       </div>
-      <div class="fine">Powered by <b>Alex Cyber<span class="x">X</span></b>. Conversations with this assistant are logged.</div>
+      <div class="fine" data-i18n-html="fine">Powered by <b>Alex Cyber<span class="x">X</span></b>. Conversations with this assistant are logged.</div>
     </div>
   </footer>
 </div>
 
+<script src="lab-i18n.js"></script>
 <script>
 'use strict';
+const t = ACX_I18N({
+  en: { reset: 'Reset chat', hello: 'Hello!', h1: 'Your <em>IT Helpdesk</em><br>assistant', intro: 'Get instant help with password resets, VPN access and software requests.', c1: 'Password reset', c2: 'VPN access', c3: 'Software request', q1: 'I need a password reset', q2: 'I need VPN access', q3: 'I need a software installed', ph: 'Type your message', fine: 'Powered by <b>Alex Cyber<span class="x">X</span></b>. Conversations with this assistant are logged.', you: 'You', left: '{n} messages left', left1: '1 message left', n_many: 'Too many messages. Wait a moment, then try again.', n_down: 'The assistant is not available right now. Try again in a moment.', n_empty: 'The assistant sent an empty reply. Try sending your message again.', n_net: 'Could not reach the server. Check your connection and try again.', n_reset: 'Could not reset the conversation. Try again.' },
+  hl: { reset: 'Chat reset karo', hello: 'Namaste!', h1: 'Aapka <em>IT Helpdesk</em><br>assistant', intro: 'Password reset, VPN access aur software requests mein turant madad pao.', c1: 'Password reset', c2: 'VPN access', c3: 'Software request', q1: 'Mujhe password reset chahiye', q2: 'Mujhe VPN access chahiye', q3: 'Mujhe ek software install karwana hai', ph: 'Apna message likho', fine: '<b>Alex Cyber<span class="x">X</span></b> dwara. Is assistant ki baatcheet log hoti hai.', you: 'Aap', left: '{n} messages baaki', left1: '1 message baaki', n_many: 'Bahut saare messages. Thoda ruk kar phir try karo.', n_down: 'Assistant abhi available nahi hai. Thodi der mein try karo.', n_empty: 'Assistant ne khaali jawab bheja. Apna message phir se bhejo.', n_net: 'Server tak nahi pahunch paaye. Connection check karke phir try karo.', n_reset: 'Baatcheet reset nahi hui. Phir try karo.' },
+  hi: { reset: 'चैट रीसेट करें', hello: 'नमस्ते!', h1: 'आपका <em>IT हेल्पडेस्क</em><br>सहायक', intro: 'पासवर्ड रीसेट, VPN एक्सेस और सॉफ़्टवेयर अनुरोधों में तुरंत मदद पाएं।', c1: 'पासवर्ड रीसेट', c2: 'VPN एक्सेस', c3: 'सॉफ़्टवेयर अनुरोध', q1: 'मुझे पासवर्ड रीसेट चाहिए', q2: 'मुझे VPN एक्सेस चाहिए', q3: 'मुझे एक सॉफ़्टवेयर इंस्टॉल करवाना है', ph: 'अपना संदेश लिखें', fine: '<b>Alex Cyber<span class="x">X</span></b> द्वारा संचालित। इस सहायक से बातचीत दर्ज की जाती है।', you: 'आप', left: '{n} संदेश बाकी', left1: '1 संदेश बाकी', n_many: 'बहुत सारे संदेश। थोड़ा रुककर फिर कोशिश करें।', n_down: 'सहायक अभी उपलब्ध नहीं है। थोड़ी देर में कोशिश करें।', n_empty: 'सहायक ने खाली जवाब भेजा। अपना संदेश फिर से भेजें।', n_net: 'सर्वर तक नहीं पहुंच सके। कनेक्शन जांचकर फिर कोशिश करें।', n_reset: 'बातचीत रीसेट नहीं हुई। फिर कोशिश करें।' },
+  pa: { reset: 'ਚੈਟ ਰੀਸੈੱਟ ਕਰੋ', hello: 'ਸਤ ਸ੍ਰੀ ਅਕਾਲ!', h1: 'ਤੁਹਾਡਾ <em>IT ਹੈਲਪਡੈਸਕ</em><br>ਸਹਾਇਕ', intro: 'ਪਾਸਵਰਡ ਰੀਸੈੱਟ, VPN ਐਕਸੈਸ ਅਤੇ ਸੌਫ਼ਟਵੇਅਰ ਬੇਨਤੀਆਂ ਵਿੱਚ ਤੁਰੰਤ ਮਦਦ ਪਾਓ।', c1: 'ਪਾਸਵਰਡ ਰੀਸੈੱਟ', c2: 'VPN ਐਕਸੈਸ', c3: 'ਸੌਫ਼ਟਵੇਅਰ ਬੇਨਤੀ', q1: 'ਮੈਨੂੰ ਪਾਸਵਰਡ ਰੀਸੈੱਟ ਚਾਹੀਦਾ ਹੈ', q2: 'ਮੈਨੂੰ VPN ਐਕਸੈਸ ਚਾਹੀਦਾ ਹੈ', q3: 'ਮੈਨੂੰ ਇੱਕ ਸੌਫ਼ਟਵੇਅਰ ਇੰਸਟਾਲ ਕਰਵਾਉਣਾ ਹੈ', ph: 'ਆਪਣਾ ਸੁਨੇਹਾ ਲਿਖੋ', fine: '<b>Alex Cyber<span class="x">X</span></b> ਦੁਆਰਾ। ਇਸ ਸਹਾਇਕ ਨਾਲ ਗੱਲਬਾਤ ਦਰਜ ਹੁੰਦੀ ਹੈ।', you: 'ਤੁਸੀਂ', left: '{n} ਸੁਨੇਹੇ ਬਾਕੀ', left1: '1 ਸੁਨੇਹਾ ਬਾਕੀ', n_many: 'ਬਹੁਤ ਸੁਨੇਹੇ। ਥੋੜ੍ਹਾ ਰੁਕ ਕੇ ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।', n_down: 'ਸਹਾਇਕ ਹੁਣ ਉਪਲਬਧ ਨਹੀਂ। ਥੋੜ੍ਹੀ ਦੇਰ ਵਿੱਚ ਕੋਸ਼ਿਸ਼ ਕਰੋ।', n_empty: 'ਸਹਾਇਕ ਨੇ ਖਾਲੀ ਜਵਾਬ ਭੇਜਿਆ। ਆਪਣਾ ਸੁਨੇਹਾ ਫਿਰ ਭੇਜੋ।', n_net: 'ਸਰਵਰ ਤੱਕ ਨਹੀਂ ਪਹੁੰਚ ਸਕੇ। ਕਨੈਕਸ਼ਨ ਦੇਖ ਕੇ ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।', n_reset: 'ਗੱਲਬਾਤ ਰੀਸੈੱਟ ਨਹੀਂ ਹੋਈ। ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।' },
+  ta: { reset: 'அரட்டையை மீட்டமை', hello: 'வணக்கம்!', h1: 'உங்கள் <em>IT உதவி மைய</em><br>உதவியாளர்', intro: 'கடவுச்சொல் மீட்டமைப்பு, VPN அணுகல், மென்பொருள் கோரிக்கைகளுக்கு உடனடி உதவி பெறுங்கள்.', c1: 'கடவுச்சொல் மீட்டமைப்பு', c2: 'VPN அணுகல்', c3: 'மென்பொருள் கோரிக்கை', q1: 'எனக்கு கடவுச்சொல் மீட்டமைப்பு வேண்டும்', q2: 'எனக்கு VPN அணுகல் வேண்டும்', q3: 'எனக்கு ஒரு மென்பொருள் நிறுவ வேண்டும்', ph: 'உங்கள் செய்தியை எழுதுங்கள்', fine: '<b>Alex Cyber<span class="x">X</span></b> வழங்குவது. இந்த உதவியாளருடனான உரையாடல்கள் பதிவு செய்யப்படுகின்றன.', you: 'நீங்கள்', left: '{n} செய்திகள் மீதம்', left1: '1 செய்தி மீதம்', n_many: 'அதிக செய்திகள். சிறிது நேரம் காத்திருந்து மீண்டும் முயலுங்கள்.', n_down: 'உதவியாளர் இப்போது கிடைக்கவில்லை. சிறிது நேரத்தில் முயலுங்கள்.', n_empty: 'உதவியாளர் வெற்றுப் பதில் அனுப்பியது. உங்கள் செய்தியை மீண்டும் அனுப்புங்கள்.', n_net: 'Server ஐ அடைய முடியவில்லை. இணைப்பைச் சரிபார்த்து மீண்டும் முயலுங்கள்.', n_reset: 'உரையாடலை மீட்டமைக்க முடியவில்லை. மீண்டும் முயலுங்கள்.' },
+  te: { reset: 'చాట్ రీసెట్', hello: 'నమస్తే!', h1: 'మీ <em>IT హెల్ప్‌డెస్క్</em><br>సహాయకుడు', intro: 'పాస్‌వర్డ్ రీసెట్, VPN యాక్సెస్, సాఫ్ట్‌వేర్ అభ్యర్థనలకు తక్షణ సహాయం పొందండి.', c1: 'పాస్‌వర్డ్ రీసెట్', c2: 'VPN యాక్సెస్', c3: 'సాఫ్ట్‌వేర్ అభ్యర్థన', q1: 'నాకు పాస్‌వర్డ్ రీసెట్ కావాలి', q2: 'నాకు VPN యాక్సెస్ కావాలి', q3: 'నాకు ఒక సాఫ్ట్‌వేర్ ఇన్‌స్టాల్ కావాలి', ph: 'మీ సందేశం రాయండి', fine: '<b>Alex Cyber<span class="x">X</span></b> ద్వారా. ఈ సహాయకుడితో సంభాషణలు నమోదు అవుతాయి.', you: 'మీరు', left: '{n} సందేశాలు మిగిలాయి', left1: '1 సందేశం మిగిలింది', n_many: 'చాలా సందేశాలు. కాసేపు ఆగి మళ్లీ ప్రయత్నించండి.', n_down: 'సహాయకుడు ఇప్పుడు అందుబాటులో లేడు. కాసేపట్లో ప్రయత్నించండి.', n_empty: 'సహాయకుడు ఖాళీ సమాధానం పంపాడు. మీ సందేశాన్ని మళ్లీ పంపండి.', n_net: 'Server ను చేరలేకపోయాం. కనెక్షన్ చూసి మళ్లీ ప్రయత్నించండి.', n_reset: 'సంభాషణ రీసెట్ కాలేదు. మళ్లీ ప్రయత్నించండి.' },
+  bn: { reset: 'চ্যাট রিসেট', hello: 'নমস্কার!', h1: 'আপনার <em>IT হেল্পডেস্ক</em><br>সহকারী', intro: 'পাসওয়ার্ড রিসেট, VPN অ্যাক্সেস আর সফটওয়্যার অনুরোধে তাৎক্ষণিক সাহায্য পান।', c1: 'পাসওয়ার্ড রিসেট', c2: 'VPN অ্যাক্সেস', c3: 'সফটওয়্যার অনুরোধ', q1: 'আমার পাসওয়ার্ড রিসেট দরকার', q2: 'আমার VPN অ্যাক্সেস দরকার', q3: 'আমার একটি সফটওয়্যার ইনস্টল করা দরকার', ph: 'আপনার বার্তা লিখুন', fine: '<b>Alex Cyber<span class="x">X</span></b> চালিত। এই সহকারীর সাথে কথোপকথন নথিভুক্ত হয়।', you: 'আপনি', left: '{n}টি বার্তা বাকি', left1: '1টি বার্তা বাকি', n_many: 'অনেক বার্তা। একটু অপেক্ষা করে আবার চেষ্টা করুন।', n_down: 'সহকারী এখন পাওয়া যাচ্ছে না। একটু পরে চেষ্টা করুন।', n_empty: 'সহকারী খালি উত্তর পাঠিয়েছে। বার্তাটি আবার পাঠান।', n_net: 'Server-এ পৌঁছানো গেল না। সংযোগ দেখে আবার চেষ্টা করুন।', n_reset: 'কথোপকথন রিসেট হয়নি। আবার চেষ্টা করুন।' },
+  mr: { reset: 'चॅट रीसेट करा', hello: 'नमस्कार!', h1: 'तुमचा <em>IT हेल्पडेस्क</em><br>सहाय्यक', intro: 'पासवर्ड रीसेट, VPN प्रवेश आणि सॉफ्टवेअर विनंत्यांसाठी त्वरित मदत मिळवा.', c1: 'पासवर्ड रीसेट', c2: 'VPN प्रवेश', c3: 'सॉफ्टवेअर विनंती', q1: 'मला पासवर्ड रीसेट हवा आहे', q2: 'मला VPN प्रवेश हवा आहे', q3: 'मला एक सॉफ्टवेअर इन्स्टॉल करायचे आहे', ph: 'तुमचा संदेश लिहा', fine: '<b>Alex Cyber<span class="x">X</span></b> द्वारे. या सहाय्यकाशी होणाऱ्या संभाषणांची नोंद होते.', you: 'तुम्ही', left: '{n} संदेश शिल्लक', left1: '1 संदेश शिल्लक', n_many: 'खूप संदेश. थोडे थांबून पुन्हा प्रयत्न करा.', n_down: 'सहाय्यक सध्या उपलब्ध नाही. थोड्या वेळाने प्रयत्न करा.', n_empty: 'सहाय्यकाने रिकामे उत्तर पाठवले. तुमचा संदेश पुन्हा पाठवा.', n_net: 'Server पर्यंत पोहोचता आले नाही. कनेक्शन तपासून पुन्हा प्रयत्न करा.', n_reset: 'संभाषण रीसेट झाले नाही. पुन्हा प्रयत्न करा.' },
+});
 
 /* ── Lab plumbing (same pattern as the other lab pages) ── */
 function getSession() {
@@ -323,7 +334,7 @@ function addMsg(role, text) {
   const meta = document.createElement('div');
   meta.className = 'meta';
   const name = document.createElement('b');
-  name.textContent = isUser ? 'You' : 'CorpX Assistant';
+  name.textContent = isUser ? t('you') : 'CorpX Assistant';
   meta.appendChild(name);
   meta.appendChild(document.createTextNode('  ' + nowTime()));
 
@@ -375,7 +386,7 @@ function setBusy(v) {
 
 function setLeft(n) {
   if (typeof n === 'number' && n >= 0) {
-    leftEl.textContent = n + (n === 1 ? ' message left' : ' messages left');
+    leftEl.textContent = n === 1 ? t('left1') : t('left', { n: n });
     leftEl.hidden = false;
   } else {
     leftEl.hidden = true;
@@ -388,7 +399,7 @@ function autosize() {
 }
 
 function apiFetch(path, body) {
-  return fetch(API + path + '?session=' + encodeURIComponent(getSession()), {
+  return fetch(API + path + '?session=' + encodeURIComponent(getSession()) + '&lang=' + t.lang, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Lab-Session': getSession() },
     body: JSON.stringify(body || {})
@@ -432,20 +443,20 @@ async function send() {
       try { data = await res.json(); } catch (e) {}
       hideTyping();
       if (res.status === 429) {
-        addNote(data.error || 'Too many messages. Wait a moment, then try again.');
+        addNote(data.error || t('n_many'));
       } else if (!res.ok) {
-        addNote(data.error || 'The assistant is not available right now. Try again in a moment.');
+        addNote(data.error || t('n_down'));
       } else if (typeof data.reply === 'string' && data.reply) {
         addMsg('bot', data.reply);
         setLeft(data.remaining);
       } else {
-        addNote('The assistant sent an empty reply. Try sending your message again.');
+        addNote(t('n_empty'));
       }
     }
   } catch (e) {
     console.warn('[AI lab] chat request failed', e);
     hideTyping();
-    addNote('Could not reach the server. Check your connection and try again.');
+    addNote(t('n_net'));
   }
 
   setBusy(false);
@@ -467,7 +478,7 @@ async function resetChat() {
       const res = await apiFetch('/reset');
       if (!res.ok) throw new Error('reset failed');
     } catch (e) {
-      addNote('Could not reset the conversation. Try again.');
+      addNote(t('n_reset'));
       setBusy(false);
       return;
     }
@@ -488,7 +499,7 @@ inputEl.addEventListener('keydown', function(e) {
 });
 document.querySelectorAll('.chip').forEach(function(c) {
   c.addEventListener('click', function() {
-    inputEl.value = c.getAttribute('data-q') || '';
+    inputEl.value = t(c.getAttribute('data-qk')) || c.getAttribute('data-q') || '';
     send();
   });
 });
