@@ -537,33 +537,77 @@ const CTF_OVERRIDES = {
     }
   },
   'web-02': {
+    hl: {
+      desc: "Ayurdant, Haridwar ka ek desi toothpaste brand, apni Kesar Gold ki secret recipe online store par owner ki tijori mein rakhta hai. Ek customer Riya ne apna login WhatsApp group mein share kar diya. Usi se andar jao aur owner ki tijori kholo.",
+      scenario: "Riya ka login: <b>riya.kapoor@mailbox.test</b> / <b>Kesar@1962</b><br><br>Riya ban kar Ayurdant store mein login karo. Uske account page par Daadi ka Nuskha naam ki tijori hai, par wo sirf owner Savitri Devi ke liye khulti hai. Pata karo store kaise yaad rakhta hai ki tum kaun ho, aur use yakeen dilao ki tum hi owner ho. Tijori ka code hi flag hai.",
+      hints: [
+        "Login ke baad DevTools kholo, Application tab mein Cookies dekho. Store ne tumhare baare mein kya save kiya hai?",
+        "ayd_session Base64 hai. Console mein atob() se decode karo, badlo, btoa() se wapas banao aur cookie mein save karo.",
+        "Sirf role badalna kaafi nahi: tijori customer ID bhi check karti hai. Product page ke reviews ek API se aate hain. Network tab mein uska response padho."
+      ]
+    },
     en: {
-      desc: 'NovaCorp Employee Portal blindly trusts its session cookies. A leaked employee account has been found. Can you escalate your privileges and access the Admin Control Panel?',
-      hints: ['Check DevTools Application tab and inspect all cookies set after login.', 'One cookie is Base64 encoded JSON. Decode it with atob() in browser console.', 'The server checks more than one cookie. Changing only one triggers a security alert.']
+      desc: "Ayurdant, a desi toothpaste brand from Haridwar, keeps its secret Kesar Gold recipe in the owner's vault on its online store. A customer, Riya, shared her login in a WhatsApp group. Use it and open the owner's vault.",
+      scenario: "Riya's login: <b>riya.kapoor@mailbox.test</b> / <b>Kesar@1962</b><br><br>Log in to the Ayurdant store as Riya. Her account page has a vault called Daadi ka Nuskha, but it opens only for the owner, Savitri Devi. Work out how the store remembers who you are, and make it believe you are the owner. The vault code is the flag.",
+      hints: [
+        "After login, open DevTools, go to the Application tab and look at Cookies. What has the store saved about you?",
+        "ayd_session is Base64. Decode it in the Console with atob(), edit it, turn it back with btoa() and save it in the cookie.",
+        "Changing only the role is not enough: the vault also checks the customer ID. Reviews on the product page load from an API. Read its response in the Network tab."
+      ]
     },
     hi: {
-      desc: 'NovaCorp Employee Portal अपनी session cookies पर आंख बंद करके भरोसा करता है। एक leaked employee account मिल गया है। क्या आप अपनी privileges बढ़ाकर Admin Control Panel तक पहुंच सकते हैं?',
-      hints: ['DevTools के Application tab में जाकर login के बाद set हुई सभी cookies चेक करो।', 'एक cookie Base64 encoded JSON है। ब्राउज़र console में atob() से decode करो।', 'Server एक से ज्यादा cookie चेक करता है। सिर्फ एक बदलने पर security alert आ जाता है।']
+      desc: "Ayurdant, हरिद्वार का एक देसी toothpaste brand, अपनी Kesar Gold की secret recipe online store पर owner की तिजोरी में रखता है। एक customer रिया ने अपना login WhatsApp group में share कर दिया। उसी से अंदर जाओ और owner की तिजोरी खोलो।",
+      scenario: "रिया का login: <b>riya.kapoor@mailbox.test</b> / <b>Kesar@1962</b><br><br>रिया बनकर Ayurdant store में login करो। उसके account page पर Daadi ka Nuskha नाम की तिजोरी है, पर वो सिर्फ owner सावित्री देवी के लिए खुलती है। पता करो store कैसे याद रखता है कि तुम कौन हो, और उसे यकीन दिलाओ कि तुम ही owner हो। तिजोरी का code ही flag है।",
+      hints: [
+        "Login के बाद DevTools खोलो, Application tab में Cookies देखो। Store ने तुम्हारे बारे में क्या save किया है?",
+        "ayd_session Base64 है। Console में atob() से decode करो, बदलो, btoa() से वापस बनाओ और cookie में save करो।",
+        "सिर्फ role बदलना काफी नहीं: तिजोरी customer ID भी check करती है। Product page के reviews एक API से आते हैं। Network tab में उसका response पढ़ो।"
+      ]
     },
     pa: {
-      desc: 'NovaCorp Employee Portal ਆਪਣੀਆਂ session cookies ਤੇ ਅੱਖਾਂ ਬੰਦ ਕਰਕੇ ਭਰੋਸਾ ਕਰਦਾ ਹੈ। ਇੱਕ leaked employee account ਮਿਲ ਗਿਆ ਹੈ। ਕੀ ਤੁਸੀਂ ਆਪਣੀਆਂ privileges ਵਧਾ ਕੇ Admin Control Panel ਤੱਕ ਪਹੁੰਚ ਸਕਦੇ ਹੋ?',
-      hints: ['DevTools ਦੇ Application tab ਵਿੱਚ ਜਾ ਕੇ login ਤੋਂ ਬਾਅਦ set ਹੋਈਆਂ ਸਾਰੀਆਂ cookies ਚੈੱਕ ਕਰੋ।', 'ਇੱਕ cookie Base64 encoded JSON ਹੈ। ਬ੍ਰਾਊਜ਼ਰ console ਵਿੱਚ atob() ਨਾਲ decode ਕਰੋ।', 'Server ਇੱਕ ਤੋਂ ਵੱਧ cookie ਚੈੱਕ ਕਰਦਾ ਹੈ। ਸਿਰਫ਼ ਇੱਕ ਬਦਲਣ ਤੇ security alert ਆ ਜਾਂਦਾ ਹੈ।']
+      desc: "Ayurdant, ਹਰਿਦੁਆਰ ਦਾ ਇੱਕ ਦੇਸੀ toothpaste brand, ਆਪਣੀ Kesar Gold ਦੀ secret recipe online store ਤੇ owner ਦੀ ਤਿਜੋਰੀ ਵਿੱਚ ਰੱਖਦਾ ਹੈ। ਇੱਕ customer ਰੀਆ ਨੇ ਆਪਣਾ login WhatsApp group ਵਿੱਚ share ਕਰ ਦਿੱਤਾ। ਉਸੇ ਨਾਲ ਅੰਦਰ ਜਾਓ ਅਤੇ owner ਦੀ ਤਿਜੋਰੀ ਖੋਲ੍ਹੋ।",
+      scenario: "ਰੀਆ ਦਾ login: <b>riya.kapoor@mailbox.test</b> / <b>Kesar@1962</b><br><br>ਰੀਆ ਬਣ ਕੇ Ayurdant store ਵਿੱਚ login ਕਰੋ। ਉਸਦੇ account page ਤੇ Daadi ka Nuskha ਨਾਮ ਦੀ ਤਿਜੋਰੀ ਹੈ, ਪਰ ਉਹ ਸਿਰਫ਼ owner ਸਾਵਿਤਰੀ ਦੇਵੀ ਲਈ ਖੁੱਲ੍ਹਦੀ ਹੈ। ਪਤਾ ਕਰੋ store ਕਿਵੇਂ ਯਾਦ ਰੱਖਦਾ ਹੈ ਕਿ ਤੁਸੀਂ ਕੌਣ ਹੋ, ਅਤੇ ਉਸਨੂੰ ਯਕੀਨ ਦਿਵਾਓ ਕਿ ਤੁਸੀਂ ਹੀ owner ਹੋ। ਤਿਜੋਰੀ ਦਾ code ਹੀ flag ਹੈ।",
+      hints: [
+        "Login ਤੋਂ ਬਾਅਦ DevTools ਖੋਲ੍ਹੋ, Application tab ਵਿੱਚ Cookies ਦੇਖੋ। Store ਨੇ ਤੁਹਾਡੇ ਬਾਰੇ ਕੀ save ਕੀਤਾ ਹੈ?",
+        "ayd_session Base64 ਹੈ। Console ਵਿੱਚ atob() ਨਾਲ decode ਕਰੋ, ਬਦਲੋ, btoa() ਨਾਲ ਵਾਪਸ ਬਣਾਓ ਅਤੇ cookie ਵਿੱਚ save ਕਰੋ।",
+        "ਸਿਰਫ਼ role ਬਦਲਣਾ ਕਾਫ਼ੀ ਨਹੀਂ: ਤਿਜੋਰੀ customer ID ਵੀ check ਕਰਦੀ ਹੈ। Product page ਦੇ reviews ਇੱਕ API ਤੋਂ ਆਉਂਦੇ ਹਨ। Network tab ਵਿੱਚ ਉਸਦਾ response ਪੜ੍ਹੋ।"
+      ]
     },
     ta: {
-      desc: 'NovaCorp Employee Portal தனது session cookies-ஐ கண்மூடித்தனமாக நம்புகிறது. கசிந்த ஒரு பணியாளர் கணக்கு கண்டுபிடிக்கப்பட்டுள்ளது. உங்கள் அதிகாரங்களை உயர்த்தி Admin Control Panel-ஐ அணுக முடியுமா?',
-      hints: ['DevTools-இன் Application tab-ஐ சரிபார்த்து login செய்த பிறகு அமைக்கப்பட்ட அனைத்து cookies-ஐயும் ஆராயுங்கள்.', 'ஒரு cookie Base64 encoded JSON ஆகும். பிரௌசர் console-இல் atob() மூலம் decode செய்யுங்கள்.', 'Server ஒன்றுக்கும் மேற்பட்ட cookie-ஐ சரிபார்க்கிறது. ஒன்றை மட்டும் மாற்றினால் security alert வரும்.']
+      desc: "ஹரித்வாரைச் சேர்ந்த desi toothpaste brand ஆன Ayurdant, தனது Kesar Gold secret recipe-ஐ online store-இல் owner-இன் பெட்டகத்தில் வைத்திருக்கிறது. ரியா என்ற customer தனது login-ஐ ஒரு WhatsApp group-இல் share செய்துவிட்டார். அதைப் பயன்படுத்தி owner-இன் பெட்டகத்தைத் திறங்கள்.",
+      scenario: "ரியாவின் login: <b>riya.kapoor@mailbox.test</b> / <b>Kesar@1962</b><br><br>ரியாவாக Ayurdant store-இல் login செய்யுங்கள். அவரது account page-இல் Daadi ka Nuskha என்ற பெட்டகம் உள்ளது, ஆனால் அது owner சாவித்ரி தேவிக்கு மட்டுமே திறக்கும். நீங்கள் யார் என்பதை store எப்படி நினைவில் வைக்கிறது என்று கண்டுபிடித்து, நீங்கள்தான் owner என்று அதை நம்ப வையுங்கள். பெட்டகத்தின் code தான் flag.",
+      hints: [
+        "Login செய்த பிறகு DevTools-ஐ திறந்து, Application tab-இல் Cookies-ஐ பாருங்கள். Store உங்களைப் பற்றி என்ன save செய்துள்ளது?",
+        "ayd_session Base64 ஆகும். Console-இல் atob() மூலம் decode செய்து, மாற்றி, btoa() மூலம் திரும்ப உருவாக்கி cookie-இல் save செய்யுங்கள்.",
+        "Role-ஐ மட்டும் மாற்றுவது போதாது: பெட்டகம் customer ID-ஐயும் check செய்கிறது. Product page reviews ஒரு API-இலிருந்து வருகின்றன. Network tab-இல் அதன் response-ஐ படியுங்கள்."
+      ]
     },
     te: {
-      desc: 'NovaCorp Employee Portal తన session cookies‌ను గుడ్డిగా నమ్ముతుంది. లీక్ అయిన ఒక ఉద్యోగి ఖాతా దొరికింది. మీ అధికారాలను పెంచుకుని Admin Control Panel‌ను యాక్సెస్ చేయగలరా?',
-      hints: ['DevTools లోని Application tab చెక్ చేసి login తర్వాత సెట్ అయిన అన్ని cookies‌ను పరిశీలించండి.', 'ఒక cookie Base64 encoded JSON. బ్రౌజర్ console లో atob() తో decode చేయండి.', 'Server ఒకటి కంటే ఎక్కువ cookie చెక్ చేస్తుంది. ఒక్కటి మాత్రమే మార్చితే security alert వస్తుంది.']
+      desc: "హరిద్వార్‌కు చెందిన desi toothpaste brand Ayurdant, తన Kesar Gold secret recipe‌ను online store‌లో owner ఖజానాలో ఉంచుతుంది. రియా అనే customer తన login‌ను ఒక WhatsApp group‌లో share చేసింది. దానితో లోపలికి వెళ్లి owner ఖజానాను తెరవండి.",
+      scenario: "రియా login: <b>riya.kapoor@mailbox.test</b> / <b>Kesar@1962</b><br><br>రియాగా Ayurdant store‌లో login అవ్వండి. ఆమె account page‌లో Daadi ka Nuskha అనే ఖజానా ఉంది, కానీ అది owner సావిత్రి దేవికి మాత్రమే తెరుచుకుంటుంది. మీరు ఎవరో store ఎలా గుర్తుంచుకుంటుందో కనుగొని, మీరే owner అని దాన్ని నమ్మించండి. ఖజానా code నే flag.",
+      hints: [
+        "Login తర్వాత DevTools తెరిచి, Application tab‌లో Cookies చూడండి. Store మీ గురించి ఏమి save చేసింది?",
+        "ayd_session Base64. Console‌లో atob() తో decode చేసి, మార్చి, btoa() తో తిరిగి తయారు చేసి cookie‌లో save చేయండి.",
+        "Role ఒక్కటే మార్చడం సరిపోదు: ఖజానా customer ID ని కూడా check చేస్తుంది. Product page reviews ఒక API నుండి వస్తాయి. Network tab‌లో దాని response చదవండి."
+      ]
     },
     bn: {
-      desc: 'NovaCorp Employee Portal তার session cookies-কে চোখ বুজে বিশ্বাস করে। একটি leaked employee account পাওয়া গেছে। আপনি কি আপনার প্রিভিলেজ বাড়িয়ে Admin Control Panel অ্যাক্সেস করতে পারবেন?',
-      hints: ['DevTools-এর Application tab চেক করে লগইনের পর সেট হওয়া সব cookies পরীক্ষা করুন।', 'একটি cookie Base64 encoded JSON। ব্রাউজার consoleতে atob() দিয়ে decode করুন।', 'Server একটির বেশি cookie চেক করে। শুধু একটি বদলালে security alert আসে।']
+      desc: "হরিদ্বারের একটি desi toothpaste brand, Ayurdant, তার Kesar Gold-এর secret recipe online store-এ owner-এর সিন্দুকে রাখে। রিয়া নামে এক customer তার login একটি WhatsApp group-এ share করে দিয়েছে। সেটা দিয়ে ঢুকে owner-এর সিন্দুক খুলুন।",
+      scenario: "রিয়ার login: <b>riya.kapoor@mailbox.test</b> / <b>Kesar@1962</b><br><br>রিয়া হয়ে Ayurdant store-এ login করুন। তার account page-এ Daadi ka Nuskha নামে একটি সিন্দুক আছে, কিন্তু সেটা শুধু owner সাবিত্রী দেবীর জন্য খোলে। Store কীভাবে মনে রাখে আপনি কে, তা খুঁজে বের করুন, আর তাকে বিশ্বাস করান যে আপনিই owner। সিন্দুকের code-ই flag।",
+      hints: [
+        "Login-এর পর DevTools খুলে Application tab-এ Cookies দেখুন। Store আপনার সম্পর্কে কী save করেছে?",
+        "ayd_session Base64। Console-এ atob() দিয়ে decode করুন, বদলান, btoa() দিয়ে আবার বানিয়ে cookie-তে save করুন।",
+        "শুধু role বদলানো যথেষ্ট নয়: সিন্দুক customer ID-ও check করে। Product page-এর reviews একটি API থেকে আসে। Network tab-এ তার response পড়ুন।"
+      ]
     },
     mr: {
-      desc: 'NovaCorp Employee Portal आपल्या session cookies वर डोळे झाकून विश्वास ठेवते. एक leaked employee account सापडले आहे. तुम्ही तुमचे अधिकार वाढवून Admin Control Panel मध्ये प्रवेश करू शकता का?',
-      hints: ['DevTools च्या Application tab मध्ये जाऊन लॉगिन नंतर सेट झालेल्या सर्व cookies तपासा.', 'एक cookie Base64 encoded JSON आहे. ब्राउझर console मध्ये atob() ने decode करा.', 'Server एकापेक्षा जास्त cookie तपासते. फक्त एक बदलल्यास security alert येतो.']
+      desc: "Ayurdant, हरिद्वारचा एक देसी toothpaste brand, आपली Kesar Gold ची secret recipe online store वर owner च्या तिजोरीत ठेवतो. रिया नावाच्या एका customer ने आपला login एका WhatsApp group मध्ये share केला. त्याच login ने आत जा आणि owner ची तिजोरी उघडा.",
+      scenario: "रियाचा login: <b>riya.kapoor@mailbox.test</b> / <b>Kesar@1962</b><br><br>रिया बनून Ayurdant store मध्ये login करा. तिच्या account page वर Daadi ka Nuskha नावाची तिजोरी आहे, पण ती फक्त owner सावित्री देवींसाठी उघडते. तुम्ही कोण आहात हे store कसे लक्षात ठेवते ते शोधा, आणि त्याला पटवून द्या की तुम्हीच owner आहात. तिजोरीचा code हाच flag आहे.",
+      hints: [
+        "Login नंतर DevTools उघडा, Application tab मध्ये Cookies बघा. Store ने तुमच्याबद्दल काय save केले आहे?",
+        "ayd_session Base64 आहे. Console मध्ये atob() ने decode करा, बदला, btoa() ने परत बनवा आणि cookie मध्ये save करा.",
+        "फक्त role बदलणे पुरेसे नाही: तिजोरी customer ID पण check करते. Product page चे reviews एका API मधून येतात. Network tab मध्ये त्याचा response वाचा."
+      ]
     }
   },
   'web-03': {

@@ -54,7 +54,7 @@ components, diagrams) -> routes -> SPA catch-all (clean URLs -> `index.html`) ->
 | `server/labs/flags.js` | Every lab flag: `ACX{<theme>_<12 hex>}`, the tail is HMAC-SHA256 of the slug with `FLAG_SECRET` (else the service-role key). No flag is in the repo; on start-up the server writes sha256 of each flag to `ctf_challenges.flag_hash`. |
 
 ### Lab routes (`/api/lab/...`)
-hidden (web01-golive, "Before Go-Live"), cookie, sqli101, robots, packet, metadata,
+hidden (web01-golive, "Before Go-Live"), cookie (web02-ayurdant, "Daadi ka Nuskha"), sqli101, robots, packet, metadata,
 caesar, base64, deserialize, deserialize-medium, aichat-easy, plus hint / search / admin-search.
 
 ## 6. Auth model
