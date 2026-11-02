@@ -19,12 +19,16 @@ const { flagFor } = require('../flags');
 const router = express.Router();
 const { flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt } = require('../../middleware/logger');
+const { langFor, texts, fill, notActivePage, HTML_LANG } = require('../i18n');
+const TEXT = require('./i18n');
 
 const FLAG = flagFor('for-04');
 const INSTANCE_DURATION_SEC = 30 * 60;
 const instances = {};
 
 function sid(req) { return req.headers['x-lab-session'] || req.query.session || req.ip; }
+// Language of this request: ?lang= or the one the instance was opened in.
+const L = (req) => langFor(req, instances[sid(req)]);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 // ── The case, built from one seed ──
@@ -295,61 +299,64 @@ body{margin:0;background:#f1f3f7;font-family:'Noto Sans',Arial,sans-serif;color:
 
 const LOGO = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5l8-3z" stroke="#a5b4fc" stroke-width="1.8"/><path d="M8.5 12l2.5 2.5 4.5-5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-function reportForm() {
-  return `<h2>Incident report</h2>
+function reportForm(T) {
+  return `<h2>${T.h_rep}</h2>
 <form class="form" id="rep" novalidate>
-  <div><label for="fIp">Attacker IP address</label><input class="inp" id="fIp" name="ip" placeholder="e.g. 192.0.2.10" autocomplete="off" spellcheck="false" maxlength="64"></div>
-  <div><label for="fUser">Account they broke into</label><input class="inp" id="fUser" name="user" placeholder="username" autocomplete="off" spellcheck="false" maxlength="64"></div>
-  <div><label for="fTime">Time of the successful login</label><input class="inp" id="fTime" name="time" placeholder="HH:MM:SS (server time)" autocomplete="off" spellcheck="false" maxlength="64"></div>
+  <div><label for="fIp">${T.f_ip}</label><input class="inp" id="fIp" name="ip" placeholder="${T.ip_ph}" autocomplete="off" spellcheck="false" maxlength="64"></div>
+  <div><label for="fUser">${T.f_user}</label><input class="inp" id="fUser" name="user" placeholder="${T.user_ph}" autocomplete="off" spellcheck="false" maxlength="64"></div>
+  <div><label for="fTime">${T.f_time}</label><input class="inp" id="fTime" name="time" placeholder="${T.time_ph}" autocomplete="off" spellcheck="false" maxlength="64"></div>
   <div class="msg" id="msg" role="status" hidden></div>
-  <button class="btn" type="submit" id="sendBtn">Submit report</button>
+  <button class="btn" type="submit" id="sendBtn">${T.submit}</button>
 </form>
-<div class="tip">Teeno sahi hone par case close hoga aur flag milega.</div>`;
+<div class="tip">${T.tip_all}</div>`;
 }
 
-function winHtml(inst) {
+function winHtml(inst, T) {
   const a = inst.ans;
-  return `<h2>Incident report</h2>
+  return `<h2>${T.h_rep}</h2>
 <div class="form">
-  <div><label>Attacker IP address</label><input class="inp good" value="${esc(a.ip)}" readonly></div>
-  <div><label>Account they broke into</label><input class="inp good" value="${esc(a.user)}" readonly></div>
-  <div><label>Time of the successful login</label><input class="inp good" value="${clock(a.t)}" readonly></div>
+  <div><label>${T.f_ip}</label><input class="inp good" value="${esc(a.ip)}" readonly></div>
+  <div><label>${T.f_user}</label><input class="inp good" value="${esc(a.user)}" readonly></div>
+  <div><label>${T.f_time}</label><input class="inp good" value="${clock(a.t)}" readonly></div>
 </div>
 <div class="win">
-  <b>Report accepted. Case closed.</b>
-  <p>Brute force ke baad <b>${esc(a.user)}</b> account khul gaya tha. Ye raha tumhara flag, ise CTF page par submit karo:</p>
-  <div class="flag"><code id="flagCode">${esc(FLAG)}</code><button class="btn" type="button" id="copyFlag">Copy</button></div>
-  <p class="next">Asli SOC mein agla kadam: ${esc(a.ip)} ko block karo, ${esc(a.user)} ka password badlo, aur SSH par password login band karke sirf key se login rakho.</p>
+  <b>${T.accepted}</b>
+  <p>${fill(T.win_p, { user: esc(a.user) })}</p>
+  <div class="flag"><code id="flagCode">${esc(FLAG)}</code><button class="btn" type="button" id="copyFlag">${T.copy}</button></div>
+  <p class="next">${fill(T.next, { ip: esc(a.ip), user: esc(a.user) })}</p>
 </div>`;
 }
 
-function page(s, inst) {
+function page(s, inst, lang) {
+  const T = texts(TEXT, lang);
   const m = inst.meta;
   const opened = clock(m.opened).slice(0, 5);
   const S = JSON.stringify(String(s)).replace(/</g, '\\u003c');
   const q = encodeURIComponent(s);
-  return `<!DOCTYPE html><html lang="en"><head>${HEAD}<title>Paynova SOC: INC-2026-${m.caseNo}</title>${STYLE}</head><body>
-<header class="top"><div class="in"><div class="logo">${LOGO}Paynova SOC</div><nav class="nav" aria-label="Portal"><a href="#">Alerts</a><a class="on" href="#">Cases</a><a href="#">Assets</a><a href="#">Reports</a></nav><div class="who"><span>Analyst on shift</span><span class="av">YOU</span></div></div></header>
+  return `<!DOCTYPE html><html lang="${HTML_LANG[lang]}"><head>${HEAD}<title>Paynova SOC: INC-2026-${m.caseNo}</title>${STYLE}</head><body>
+<header class="top"><div class="in"><div class="logo">${LOGO}Paynova SOC</div><nav class="nav" aria-label="Portal"><a href="#">${T.nav[0]}</a><a class="on" href="#">${T.nav[1]}</a><a href="#">${T.nav[2]}</a><a href="#">${T.nav[3]}</a></nav><div class="who"><span>${T.analyst}</span><span class="av">${T.you}</span></div></div></header>
 <main class="wrap">
-  <div class="case"><span class="cid">INC-2026-${m.caseNo}</span><span class="pill sev">High</span><span class="pill st${inst.solved ? ' closed' : ''}" id="status">${inst.solved ? 'Closed' : 'Investigating'}</span><span class="meta">Opened 31 Oct 2026, ${opened} IST &middot; Asset vpn-gw01</span><h1>Suspicious SSH login on vpn-gw01</h1></div>
+  <div class="case"><span class="cid">INC-2026-${m.caseNo}</span><span class="pill sev">${T.sev}</span><span class="pill st${inst.solved ? ' closed' : ''}" id="status">${inst.solved ? T.closed : T.inv}</span><span class="meta">${fill(T.opened, { t: opened })}</span><h1>${T.h1}</h1></div>
   <div class="grid">
     <div class="col">
-      <section class="card"><h2>Alert summary</h2><div class="body">Last night our IDS saw a big burst of failed SSH logins on <b>vpn-gw01</b>, and then one login that looks wrong. The night shift saved the server's <b>auth.log</b>. Find out <b>who got in</b>: the attacker's IP, the account they broke into, and the exact time of that login.</div></section>
-      <section class="card"><h2>Evidence</h2>
-        <div class="ev"><div class="file"><span class="ic"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 2h7l4 4v12H5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 2v4h4M7.5 10h6M7.5 13h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><div><b>auth.log</b><small>vpn-gw01 &middot; 30-31 Oct &middot; ${m.count.toLocaleString('en-IN')} lines</small></div></div>
-          <a class="btn g" href="auth.log?session=${q}&amp;download=1" download="auth.log"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8M4.5 7L8 10.5 11.5 7M3 13.5h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Download</a></div>
-        <div class="vtools"><label class="search"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.6" stroke="#6b7280" stroke-width="1.5"/><path d="M10.5 10.5L14 14" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/></svg><input id="q" placeholder="Filter lines: a word or an IP" autocomplete="off" spellcheck="false" aria-label="Filter log lines"></label><button type="button" class="chip" data-q="Failed password">Failed password</button><button type="button" class="chip" data-q="Accepted">Accepted</button><button type="button" class="chip" data-q="Invalid user">Invalid user</button></div>
-        <div class="count" id="count">Loading auth.log...</div>
+      <section class="card"><h2>${T.h_alert}</h2><div class="body">${T.alert}</div></section>
+      <section class="card"><h2>${T.h_ev}</h2>
+        <div class="ev"><div class="file"><span class="ic"><svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 2h7l4 4v12H5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 2v4h4M7.5 10h6M7.5 13h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><div><b>auth.log</b><small>${fill(T.ev_meta, { n: m.count.toLocaleString('en-IN') })}</small></div></div>
+          <a class="btn g" href="auth.log?session=${q}&amp;download=1" download="auth.log"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8M4.5 7L8 10.5 11.5 7M3 13.5h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${T.dl}</a></div>
+        <div class="vtools"><label class="search"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="4.6" stroke="#6b7280" stroke-width="1.5"/><path d="M10.5 10.5L14 14" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round"/></svg><input id="q" placeholder="${T.filter_ph}" autocomplete="off" spellcheck="false" aria-label="${T.filter_aria}"></label><button type="button" class="chip" data-q="Failed password">Failed password</button><button type="button" class="chip" data-q="Accepted">Accepted</button><button type="button" class="chip" data-q="Invalid user">Invalid user</button></div>
+        <div class="count" id="count">${T.loading}</div>
         <div class="log" id="log" tabindex="0" aria-label="auth.log"></div>
       </section>
     </div>
-    <section class="card" id="report">${inst.solved ? winHtml(inst) : reportForm()}</section>
+    <section class="card" id="report">${inst.solved ? winHtml(inst, T) : reportForm(T)}</section>
   </div>
 </main>
-<div class="foot">Paynova is a fictional company built for AlexCyberX Labs. All names and IPs in this case are made up.</div>
+<div class="foot">${T.foot}</div>
 <script>
 (function(){
 var S=${S};
+var LANG=${JSON.stringify(lang)};
+var T=${JSON.stringify({ no_match: T.no_match, showing: T.showing, load_fail: T.load_fail, copy: T.copy, copied: T.copied, too_many: T.too_many, expired: T.expired, not_quite: T.not_quite, net_fail: T.net_fail, closed: T.closed }).replace(/</g, '\\u003c')};
 
 var logEl=document.getElementById('log'),countEl=document.getElementById('count'),qEl=document.getElementById('q'),chips=document.querySelectorAll('.chip');
 var lines=[],lower=[];
@@ -366,9 +373,9 @@ function render(){
     tx.textContent=l;row.appendChild(ln);row.appendChild(tx);frag.appendChild(row);
   }
   logEl.textContent='';
-  if(!n){var e=document.createElement('div');e.className='empty';e.textContent='No line matches this filter.';frag.appendChild(e)}
+  if(!n){var e=document.createElement('div');e.className='empty';e.textContent=T.no_match;frag.appendChild(e)}
   logEl.appendChild(frag);logEl.scrollTop=0;
-  countEl.textContent='Showing '+fmt(n)+' of '+fmt(lines.length)+' lines';
+  countEl.textContent=T.showing.replace('{n}',fmt(n)).replace('{total}',fmt(lines.length));
   for(var c=0;c<chips.length;c++)chips[c].classList.toggle('on',!!f&&chips[c].getAttribute('data-q').toLowerCase()===f);
 }
 var deb;qEl.addEventListener('input',function(){clearTimeout(deb);deb=setTimeout(render,120)});
@@ -376,13 +383,13 @@ for(var c=0;c<chips.length;c++)chips[c].addEventListener('click',function(){var 
 fetch('auth.log?session='+encodeURIComponent(S),{headers:{'X-Lab-Session':S}})
   .then(function(r){if(!r.ok)throw new Error();return r.text()})
   .then(function(t){lines=t.replace(/\\n$/,'').split('\\n');lower=lines.map(function(l){return l.toLowerCase()});render()})
-  .catch(function(){countEl.textContent='Could not load auth.log. Go back to the room and press Restart.'});
+  .catch(function(){countEl.textContent=T.load_fail});
 
 var rep=document.getElementById('report');
 rep.addEventListener('click',function(e){
   if(!e.target||e.target.id!=='copyFlag')return;
   var code=document.getElementById('flagCode').textContent,b=e.target;
-  var done=function(){b.textContent='Copied';setTimeout(function(){b.textContent='Copy'},1500)};
+  var done=function(){b.textContent=T.copied;setTimeout(function(){b.textContent=T.copy},1500)};
   if(navigator.clipboard)navigator.clipboard.writeText(code).then(done,function(){});
 });
 var form=document.getElementById('rep');
@@ -391,29 +398,29 @@ if(form)form.addEventListener('submit',function(e){
   var ids=['fIp','fUser','fTime'],inputs=ids.map(function(id){return document.getElementById(id)});
   var msg=document.getElementById('msg'),btn=document.getElementById('sendBtn');
   btn.disabled=true;
-  fetch('report?session='+encodeURIComponent(S),{method:'POST',headers:{'Content-Type':'application/json','X-Lab-Session':S},body:JSON.stringify({ip:inputs[0].value,user:inputs[1].value,time:inputs[2].value})})
+  fetch('report?session='+encodeURIComponent(S)+'&lang='+LANG,{method:'POST',headers:{'Content-Type':'application/json','X-Lab-Session':S},body:JSON.stringify({ip:inputs[0].value,user:inputs[1].value,time:inputs[2].value})})
     .then(function(r){return r.json().then(function(d){return {s:r.status,d:d}})})
     .then(function(x){
       btn.disabled=false;var d=x.d;
-      if(x.s===429){msg.textContent='Bahut saare reports ek saath. Ek minute ruk kar dobara try karo.';msg.hidden=false;return}
-      if(x.s===403){msg.textContent='Lab ka time khatam ho gaya. Room par wapas jaakar Restart dabao.';msg.hidden=false;return}
+      if(x.s===429){msg.textContent=T.too_many;msg.hidden=false;return}
+      if(x.s===403){msg.textContent=T.expired;msg.hidden=false;return}
       if(d.success){
         rep.innerHTML=d.html;
-        var st=document.getElementById('status');st.textContent='Closed';st.classList.add('closed');
+        var st=document.getElementById('status');st.textContent=T.closed;st.classList.add('closed');
         return;
       }
       (d.right||[]).forEach(function(ok,i){inputs[i].classList.toggle('good',ok);inputs[i].classList.toggle('bad',!ok)});
-      msg.textContent='Not quite. '+(d.count||0)+' of 3 answers are right. '+(d.tip||'');msg.hidden=false;
+      msg.textContent=T.not_quite.replace('{n}',d.count||0)+' '+(d.tip||'');msg.hidden=false;
     })
-    .catch(function(){btn.disabled=false;msg.textContent='Report nahi gaya. Internet check karke dobara try karo.';msg.hidden=false});
+    .catch(function(){btn.disabled=false;msg.textContent=T.net_fail;msg.hidden=false});
 });
 })();
 </script>
 </body></html>`;
 }
 
-function notActive(res) {
-  res.status(403).type('html').send(`<!DOCTYPE html><html lang="en"><head>${HEAD}<title>Instance not active</title>${STYLE}</head><body style="display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center"><div style="max-width:420px;padding:24px"><h1 style="font-size:20px">Instance not active</h1><p style="color:#6b7280;font-size:14px;line-height:1.6">This lab is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p></div></body></html>`);
+function notActive(req, res) {
+  res.status(403).type('html').send(notActivePage(req, 'background:#f5f6f8;color:#111827'));
 }
 
 // ── Instance endpoints ──
@@ -423,8 +430,8 @@ router.post('/instance/stop', (req, res) => { const s = sid(req); if (instances[
 
 router.get('/page', (req, res) => {
   const s = sid(req);
-  if (!isRunning(s)) return notActive(res);
-  res.set('Cache-Control', 'no-store').type('html').send(page(s, instances[s]));
+  if (!isRunning(s)) return notActive(req, res);
+  res.set('Cache-Control', 'no-store').type('html').send(page(s, instances[s], L(req)));
 });
 
 // The evidence file, rebuilt from the instance's seed. Plain text only.
@@ -438,23 +445,24 @@ router.get('/auth.log', (req, res) => {
 });
 
 // What to say when the report is not right yet: never the answer, only where to look.
-function tipFor(inst, ip, right) {
+function tipFor(inst, ip, right, T) {
   const m = inst.meta;
   if (!right[0]) {
-    if (!ip) return 'Attacker ka IP likho. Shuru "Failed password" wali lines se karo.';
-    if (ip === m.decoy) return 'Sabse zyada failed attempts wala IP hi attacker ho, ye zaroori nahi. Kya is IP ki koi "Accepted" line hai?';
-    if (/^10\./.test(ip)) return 'Ye IP company ke andar ka hai (10.20.x.x). Attacker bahar se aaya tha.';
-    if (m.scanners.includes(ip)) return 'Is IP ne bas kuch hi baar try kiya aur chala gaya. Wo IP dhoondho jo bahut baar fail hua aur phir andar aa gaya.';
-    return 'Ye IP is log mein kahin nahi hai. IP log se hi copy karo.';
+    if (!ip) return T.t_noip;
+    if (ip === m.decoy) return T.t_decoy;
+    if (/^10\./.test(ip)) return T.t_internal;
+    if (m.scanners.includes(ip)) return T.t_scanner;
+    return T.t_unknown;
   }
-  if (!right[1]) return 'IP sahi hai. Ab isi IP ki "Accepted password" wali line dekho: wo kis user ke liye hai?';
-  return 'IP aur account sahi hain. Time usi "Accepted password" line ke shuru mein hai (HH:MM:SS).';
+  if (!right[1]) return T.t_user;
+  return T.t_time;
 }
 
 router.post('/report', flagLimiter, (req, res) => {
   const s = sid(req);
   if (!isRunning(s)) return res.status(403).json({ error: 'Instance not active' });
   const inst = instances[s];
+  const T = texts(TEXT, L(req));
   const b = req.body || {};
   const str = (v) => (typeof v === 'string' ? v.trim().slice(0, 64) : '');
   const ip = str(b.ip), user = str(b.user).toLowerCase(), time = str(b.time);
@@ -465,9 +473,9 @@ router.post('/report', flagLimiter, (req, res) => {
   logAttempt('MIDNIGHT', req.ip, 'report:' + right.map(Number).join(''), count === 3 ? 'correct' : 'wrong');
   if (count === 3) {
     inst.solved = true;
-    return res.json({ success: true, right, html: winHtml(inst) });
+    return res.json({ success: true, right, html: winHtml(inst, T) });
   }
-  res.json({ success: false, right, count, tip: tipFor(inst, ip, right) });
+  res.json({ success: false, right, count, tip: tipFor(inst, ip, right, T) });
 });
 
 // ── Flag submit (the CTF page posts to the MAIN server; this is a fallback) ──
