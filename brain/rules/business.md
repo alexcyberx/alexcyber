@@ -64,6 +64,7 @@ from the project). Owner direction lives in `CLAUDE.md`; security detail in `bra
 | `solvers` count increases on first solve | Implemented (trigger) | `increment_challenge_solvers` |
 | New active challenge → notification to everyone | Implemented | `acx_notify_new_content` trigger |
 | Removed room Log Hunter (for-03) | Implemented (row deleted 2026-10-16) | `supabase/migrations/2026-10-17_remove_log_hunter.sql`, `2026-10-19_delete_log_hunter_row.sql` |
+| Room names are the real vulnerability name (e.g. "SQL Injection: UNION Attack", "Session Cookie"); the story goes in the description and the lab (owner 2026-11-02). Applied to web-02 and web-03; other rooms keep their names until they are upgraded | Implemented (web-02, web-03) | `js/ctf-challenges-data.js`, `supabase/migrations/2026-11-02_ctf_web03_union_and_web02_name.sql` |
 | Per-player unique flags / anti-sharing | Missing | — |
 
 ## 5. Courses

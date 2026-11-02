@@ -33,7 +33,7 @@ const ctfChallenges = window.CTF_CHALLENGES = [
   },
   {
     id: 'web-02', addedAt: '2026-09-16', cat: 'Web', icon: '\ud83c\udf10', iconClass: 'ctf-cat-web',
-    title: 'Daadi ka Nuskha',
+    title: 'Session Cookie',
     desc: "Ayurdant, a desi toothpaste brand from Haridwar, keeps its secret Kesar Gold recipe in the owner's vault on its online store. A customer, Riya, shared her login in a WhatsApp group. Use it and open the owner's vault.",
     scenario: "Riya's login: <b>riya.kapoor@mailbox.test</b> / <b>Kesar@1962</b><br><br>Log in to the Ayurdant store as Riya. Her account page has a vault called Daadi ka Nuskha, but it opens only for the owner, Savitri Devi. Work out how the store remembers who you are, and make it believe you are the owner. The vault code is the flag.",
     author: 'AlexCyberX',
@@ -55,16 +55,27 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     ]
   },
   {
-    id: 'web-03', addedAt: '2026-09-16', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
-    title: 'SQL Injection 101',
-    desc: 'VaultBank Employee Portal has a vulnerable search feature. Extract the flag from a hidden database table using UNION-based SQL injection.',
+    id: 'web-03', addedAt: '2026-09-16', cat: 'Web', icon: '\ud83c\udf10', iconClass: 'ctf-cat-web',
+    title: 'SQL Injection: UNION Attack',
+    desc: "Narmada Valley College put its library catalogue online in 2004 and never changed the code. The rare manuscripts archive sits in the same database. Use the catalogue search to read the archive's access code.",
+    scenario: "The college cyber club has asked you to check the Central Library's online catalogue (OPAC). Anyone can search it by book title, no login needed.<br><br>The library's rare manuscripts archive is kept in the same database, but no page shows it. Show the risk: get the archive's access code out through the search box. That code is the flag.",
     author: 'AlexCyberX',
-    diff: 'Medium', pts: 200, xp: 350,
-    hints: ['Add a single quote to the search field to trigger a SQL error and confirm the injection point.', 'Use ORDER BY to count columns, then UNION SELECT NULL to find which column accepts strings.', 'Query information_schema.tables to find hidden tables, then extract data from vault_secrets.'],
-    labUrl: '/pages/labs/lab-sqli101.html',
+    tags: ['Web', 'SQL Injection', 'UNION Attack', 'OWASP A03:2021'],
+    diff: 'Medium', pts: 150, xp: 250,
+    hints: [
+      "Put a single quote ' in the search box and read what the catalogue says back.",
+      "The results table has a fixed number of columns, and a UNION query must return the same number. Where does SQLite keep the list of its tables?",
+      "Read the sql column of the table you found: it tells you the table's column names."
+    ],
     labApiPath: '/api/lab/sqli101',
     hasLabFlow: true,
-    solvers: 89
+    solvers: 89,
+    objectives: [
+      'Find where the catalogue search breaks',
+      'Work out how many columns the results have',
+      'List the tables of the database',
+      "Read the archive's access code and submit it"
+    ]
   },
   {
     id: 'web-04', addedAt: '2026-09-16', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',

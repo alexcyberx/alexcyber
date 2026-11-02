@@ -611,33 +611,77 @@ const CTF_OVERRIDES = {
     }
   },
   'web-03': {
+    hl: {
+      desc: "Narmada Valley College ne 2004 mein library catalogue online kiya aur tab se code nahi badla. Rare manuscripts archive bhi usi database mein hai. Catalogue search se archive ka access code padho.",
+      scenario: "College ke cyber club ne tumhe Central Library ka online catalogue (OPAC) check karne bulaya hai. Koi bhi kitaab ke naam se search kar sakta hai, login ki zaroorat nahi.<br><br>Library ka rare manuscripts archive bhi usi database mein hai, par koi page use nahi dikhata. Khatra dikhao: search box se archive ka access code nikalo. Wahi code flag hai.",
+      hints: [
+        "Search box mein ek single quote ' daalo aur dekho catalogue kya jawab deta hai.",
+        "Results table ke column fixed hain, aur UNION query ko bhi utne hi column lautane honge. SQLite apni tables ki list kahan rakhta hai?",
+        "Jo table mili, uska sql column padho: usse table ke column ke naam pata chalenge."
+      ]
+    },
     en: {
-      desc: 'VaultBank Employee Portal has a vulnerable search feature. Extract the flag from a hidden database table using UNION-based SQL injection.',
-      hints: ['Add a single quote to the search field to trigger a SQL error and confirm the injection point.', 'Use ORDER BY to count columns, then UNION SELECT NULL to find which column accepts strings.', 'Query information_schema.tables to find hidden tables, then extract data from vault_secrets.']
+      desc: "Narmada Valley College put its library catalogue online in 2004 and never changed the code. The rare manuscripts archive sits in the same database. Use the catalogue search to read the archive's access code.",
+      scenario: "The college cyber club has asked you to check the Central Library's online catalogue (OPAC). Anyone can search it by book title, no login needed.<br><br>The library's rare manuscripts archive is kept in the same database, but no page shows it. Show the risk: get the archive's access code out through the search box. That code is the flag.",
+      hints: [
+        "Put a single quote ' in the search box and read what the catalogue says back.",
+        "The results table has a fixed number of columns, and a UNION query must return the same number. Where does SQLite keep the list of its tables?",
+        "Read the sql column of the table you found: it tells you the table's column names."
+      ]
     },
     hi: {
-      desc: 'VaultBank Employee Portal के search feature में vulnerability है। UNION-based SQL injection से hidden database table से flag निकालो।',
-      hints: ['Search field में single quote डालकर SQL error trigger करो और injection point confirm करो।', 'ORDER BY से columns count करो, फिर UNION SELECT NULL से देखो कौन सा column strings accept करता है।', 'information_schema.tables query करके hidden tables ढूंढो, फिर vault_secrets से data निकालो।']
+      desc: "नर्मदा वैली कॉलेज ने 2004 में लाइब्रेरी कैटलॉग ऑनलाइन किया और तब से कोड नहीं बदला। दुर्लभ पांडुलिपियों का संग्रह भी उसी डेटाबेस में है। कैटलॉग खोज से संग्रह का access code पढ़ें।",
+      scenario: "कॉलेज के साइबर क्लब ने आपको केंद्रीय पुस्तकालय का ऑनलाइन कैटलॉग (OPAC) जांचने बुलाया है। कोई भी किताब के शीर्षक से खोज सकता है, लॉगिन की ज़रूरत नहीं।<br><br>पुस्तकालय का दुर्लभ पांडुलिपि संग्रह भी उसी डेटाबेस में है, पर कोई पेज उसे नहीं दिखाता। खतरा दिखाएं: खोज बॉक्स से संग्रह का access code निकालें। वही कोड flag है।",
+      hints: [
+        "खोज बॉक्स में एक single quote ' डालें और देखें कैटलॉग क्या जवाब देता है।",
+        "परिणाम तालिका के कॉलम तय हैं, और UNION क्वेरी को भी उतने ही कॉलम लौटाने होंगे। SQLite अपनी तालिकाओं की सूची कहां रखता है?",
+        "जो तालिका मिली, उसका sql कॉलम पढ़ें: उससे तालिका के कॉलम के नाम पता चलेंगे।"
+      ]
     },
     pa: {
-      desc: 'VaultBank Employee Portal ਦੇ search feature ਵਿੱਚ vulnerability ਹੈ। UNION-based SQL injection ਨਾਲ hidden database table ਤੋਂ flag ਕੱਢੋ।',
-      hints: ['Search field ਵਿੱਚ single quote ਪਾ ਕੇ SQL error trigger ਕਰੋ ਅਤੇ injection point confirm ਕਰੋ।', 'ORDER BY ਨਾਲ columns count ਕਰੋ, ਫਿਰ UNION SELECT NULL ਨਾਲ ਦੇਖੋ ਕਿਹੜਾ column strings accept ਕਰਦਾ ਹੈ।', 'information_schema.tables query ਕਰਕੇ hidden tables ਲੱਭੋ, ਫਿਰ vault_secrets ਤੋਂ data ਕੱਢੋ।']
+      desc: "ਨਰਮਦਾ ਵੈਲੀ ਕਾਲਜ ਨੇ 2004 ਵਿੱਚ ਲਾਇਬ੍ਰੇਰੀ ਕੈਟਾਲਾਗ ਔਨਲਾਈਨ ਕੀਤਾ ਅਤੇ ਉਦੋਂ ਤੋਂ ਕੋਡ ਨਹੀਂ ਬਦਲਿਆ। ਦੁਰਲੱਭ ਹੱਥ-ਲਿਖਤਾਂ ਦਾ ਸੰਗ੍ਰਹਿ ਵੀ ਉਸੇ ਡਾਟਾਬੇਸ ਵਿੱਚ ਹੈ। ਕੈਟਾਲਾਗ ਖੋਜ ਨਾਲ ਸੰਗ੍ਰਹਿ ਦਾ access code ਪੜ੍ਹੋ।",
+      scenario: "ਕਾਲਜ ਦੇ ਸਾਈਬਰ ਕਲੱਬ ਨੇ ਤੁਹਾਨੂੰ ਕੇਂਦਰੀ ਲਾਇਬ੍ਰੇਰੀ ਦਾ ਔਨਲਾਈਨ ਕੈਟਾਲਾਗ (OPAC) ਜਾਂਚਣ ਲਈ ਬੁਲਾਇਆ ਹੈ। ਕੋਈ ਵੀ ਕਿਤਾਬ ਦੇ ਸਿਰਲੇਖ ਨਾਲ ਖੋਜ ਸਕਦਾ ਹੈ, ਲੌਗਇਨ ਦੀ ਲੋੜ ਨਹੀਂ।<br><br>ਲਾਇਬ੍ਰੇਰੀ ਦਾ ਦੁਰਲੱਭ ਹੱਥ-ਲਿਖਤ ਸੰਗ੍ਰਹਿ ਵੀ ਉਸੇ ਡਾਟਾਬੇਸ ਵਿੱਚ ਹੈ, ਪਰ ਕੋਈ ਪੇਜ ਉਸਨੂੰ ਨਹੀਂ ਦਿਖਾਉਂਦਾ। ਖ਼ਤਰਾ ਦਿਖਾਓ: ਖੋਜ ਬਕਸੇ ਤੋਂ ਸੰਗ੍ਰਹਿ ਦਾ access code ਕੱਢੋ। ਉਹੀ ਕੋਡ flag ਹੈ।",
+      hints: [
+        "ਖੋਜ ਬਕਸੇ ਵਿੱਚ ਇੱਕ single quote ' ਪਾਓ ਅਤੇ ਦੇਖੋ ਕੈਟਾਲਾਗ ਕੀ ਜਵਾਬ ਦਿੰਦਾ ਹੈ।",
+        "ਨਤੀਜਿਆਂ ਦੀ ਸਾਰਣੀ ਦੇ ਕਾਲਮ ਤੈਅ ਹਨ, ਅਤੇ UNION ਕੁਐਰੀ ਨੂੰ ਵੀ ਉਨੇ ਹੀ ਕਾਲਮ ਮੋੜਨੇ ਪੈਣਗੇ। SQLite ਆਪਣੀਆਂ ਸਾਰਣੀਆਂ ਦੀ ਸੂਚੀ ਕਿੱਥੇ ਰੱਖਦਾ ਹੈ?",
+        "ਜੋ ਸਾਰਣੀ ਮਿਲੀ, ਉਸਦਾ sql ਕਾਲਮ ਪੜ੍ਹੋ: ਉਸ ਤੋਂ ਸਾਰਣੀ ਦੇ ਕਾਲਮਾਂ ਦੇ ਨਾਮ ਪਤਾ ਲੱਗਣਗੇ।"
+      ]
     },
     ta: {
-      desc: 'VaultBank Employee Portal-இன் search feature-இல் ஒரு பாதிப்பு உள்ளது. UNION-அடிப்படையிலான SQL injection மூலம் மறைக்கப்பட்ட database table-இலிருந்து flag-ஐ எடுங்கள்.',
-      hints: ['Search field-இல் ஒரு single quote சேர்த்து SQL error-ஐ ஏற்படுத்தி injection point-ஐ உறுதிப்படுத்துங்கள்.', 'ORDER BY பயன்படுத்தி columns-ஐ எண்ணுங்கள், பின் UNION SELECT NULL மூலம் எந்த column strings ஏற்கும் என்று கண்டறியுங்கள்.', 'information_schema.tables-ஐ query செய்து மறைக்கப்பட்ட tables-ஐ கண்டறிந்து, vault_secrets-இலிருந்து தரவை எடுங்கள்.']
+      desc: "நர்மதா வேலி கல்லூரி 2004 இல் நூலகப் பட்டியலை இணையத்தில் வைத்தது, அன்றிலிருந்து code மாறவில்லை. அரிய கையெழுத்துப் பிரதிகளின் காப்பகமும் அதே தரவுத்தளத்தில் உள்ளது. பட்டியல் தேடல் மூலம் காப்பகத்தின் access code ஐப் படியுங்கள்.",
+      scenario: "கல்லூரியின் சைபர் கிளப் மைய நூலகத்தின் இணையப் பட்டியலை (OPAC) சோதிக்க உங்களை அழைத்துள்ளது. நூல் தலைப்பால் யார் வேண்டுமானாலும் தேடலாம், உள்நுழைவு தேவையில்லை.<br><br>நூலகத்தின் அரிய கையெழுத்துப் பிரதிக் காப்பகமும் அதே தரவுத்தளத்தில் உள்ளது, ஆனால் எந்தப் பக்கமும் அதைக் காட்டுவதில்லை. அபாயத்தைக் காட்டுங்கள்: தேடல் பெட்டி மூலம் காப்பகத்தின் access code ஐ எடுங்கள். அந்த code தான் flag.",
+      hints: [
+        "தேடல் பெட்டியில் ஒரு single quote ' போட்டு, பட்டியல் என்ன சொல்கிறது என்று பாருங்கள்.",
+        "முடிவு அட்டவணையின் நெடுவரிசைகள் நிலையானவை, UNION query யும் அதே எண்ணிக்கையைத் தர வேண்டும். SQLite தன் அட்டவணைகளின் பட்டியலை எங்கே வைக்கிறது?",
+        "கிடைத்த அட்டவணையின் sql நெடுவரிசையைப் படியுங்கள்: அது நெடுவரிசைப் பெயர்களைச் சொல்லும்."
+      ]
     },
     te: {
-      desc: 'VaultBank Employee Portal యొక్క search feature‌లో ఒక లోపం ఉంది. UNION-ఆధారిత SQL injection ఉపయోగించి దాచిన database table నుండి flag‌ను తీసుకోండి.',
-      hints: ['Search field‌లో ఒక single quote చేర్చి SQL error ట్రిగ్గర్ చేసి injection point నిర్ధారించండి.', 'ORDER BY ఉపయోగించి columns లెక్కించండి, తర్వాత UNION SELECT NULL ద్వారా ఏ column strings అంగీకరిస్తుందో కనుగొనండి.', 'information_schema.tables క్వరీ చేసి దాచిన tables కనుగొని, తర్వాత vault_secrets నుండి డేటా తీసుకోండి.']
+      desc: "నర్మదా వ్యాలీ కళాశాల 2004 లో గ్రంథాలయ కేటలాగ్‌ను ఆన్‌లైన్ చేసింది, అప్పటి నుండి code మార్చలేదు. అరుదైన తాళపత్రాల ఆర్కైవ్ కూడా అదే డేటాబేస్‌లో ఉంది. కేటలాగ్ శోధనతో ఆర్కైవ్ access code చదవండి.",
+      scenario: "కళాశాల సైబర్ క్లబ్ కేంద్ర గ్రంథాలయ ఆన్‌లైన్ కేటలాగ్ (OPAC) ను తనిఖీ చేయమని మిమ్మల్ని పిలిచింది. ఎవరైనా పుస్తకం శీర్షికతో వెతకవచ్చు, లాగిన్ అవసరం లేదు.<br><br>గ్రంథాలయ అరుదైన తాళపత్రాల ఆర్కైవ్ కూడా అదే డేటాబేస్‌లో ఉంది, కానీ ఏ పేజీ దాన్ని చూపదు. ప్రమాదాన్ని చూపండి: శోధన పెట్టె ద్వారా ఆర్కైవ్ access code తీయండి. ఆ code నే flag.",
+      hints: [
+        "శోధన పెట్టెలో ఒక single quote ' వేసి, కేటలాగ్ ఏమి చెబుతుందో చూడండి.",
+        "ఫలితాల పట్టికలో నిలువు వరుసల సంఖ్య స్థిరం, UNION query కూడా అంతే సంఖ్యలో ఇవ్వాలి. SQLite తన పట్టికల జాబితాను ఎక్కడ ఉంచుతుంది?",
+        "దొరికిన పట్టిక యొక్క sql నిలువు వరుస చదవండి: అది నిలువు వరుసల పేర్లు చెబుతుంది."
+      ]
     },
     bn: {
-      desc: 'VaultBank Employee Portal-এর search feature-এ একটি দুর্বলতা আছে। UNION-ভিত্তিক SQL injection দিয়ে লুকানো database table থেকে flag বের করুন।',
-      hints: ['Search field-এ একটি single quote দিয়ে SQL error trigger করুন এবং injection point নিশ্চিত করুন।', 'ORDER BY দিয়ে columns গুনুন, তারপর UNION SELECT NULL দিয়ে দেখুন কোন column strings গ্রহণ করে।', 'information_schema.tables query করে লুকানো tables খুঁজুন, তারপর vault_secrets থেকে ডেটা বের করুন।']
+      desc: "নর্মদা ভ্যালি কলেজ 2004 সালে লাইব্রেরি ক্যাটালগ অনলাইনে এনেছিল, তারপর থেকে code বদলায়নি। দুর্লভ পাণ্ডুলিপির আর্কাইভও একই ডেটাবেসে আছে। ক্যাটালগ খোঁজ দিয়ে আর্কাইভের access code পড়ুন।",
+      scenario: "কলেজের সাইবার ক্লাব আপনাকে কেন্দ্রীয় গ্রন্থাগারের অনলাইন ক্যাটালগ (OPAC) যাচাই করতে ডেকেছে। যে কেউ বইয়ের শিরোনাম দিয়ে খুঁজতে পারে, লগইন লাগে না।<br><br>গ্রন্থাগারের দুর্লভ পাণ্ডুলিপি আর্কাইভও একই ডেটাবেসে আছে, কিন্তু কোনো পেজ তা দেখায় না। ঝুঁকিটা দেখান: খোঁজের বাক্স দিয়ে আর্কাইভের access code বের করুন। সেই code-ই flag।",
+      hints: [
+        "খোঁজের বাক্সে একটি single quote ' দিন আর দেখুন ক্যাটালগ কী উত্তর দেয়।",
+        "ফলাফলের টেবিলের কলাম সংখ্যা নির্দিষ্ট, UNION query-কেও ততগুলো কলাম ফেরত দিতে হবে। SQLite তার টেবিলের তালিকা কোথায় রাখে?",
+        "যে টেবিল পেলেন, তার sql কলাম পড়ুন: তাতে কলামগুলোর নাম জানা যাবে।"
+      ]
     },
     mr: {
-      desc: 'VaultBank Employee Portal च्या search feature मध्ये एक त्रुटी आहे. UNION-आधारित SQL injection वापरून लपलेल्या database table मधून flag काढा.',
-      hints: ['Search field मध्ये एक single quote टाकून SQL error ट्रिगर करा आणि injection point निश्चित करा.', 'ORDER BY वापरून columns मोजा, नंतर UNION SELECT NULL ने कोणता column strings स्वीकारतो ते शोधा.', 'information_schema.tables क्वेरी करून लपलेल्या tables शोधा, नंतर vault_secrets मधून डेटा काढा.']
+      desc: "नर्मदा व्हॅली कॉलेजने 2004 मध्ये ग्रंथालय कॅटलॉग ऑनलाइन केला आणि तेव्हापासून code बदलला नाही. दुर्मिळ हस्तलिखितांचा संग्रहही त्याच डेटाबेसमध्ये आहे. कॅटलॉग शोधातून संग्रहाचा access code वाचा.",
+      scenario: "कॉलेजच्या सायबर क्लबने तुम्हाला मध्यवर्ती ग्रंथालयाचा ऑनलाइन कॅटलॉग (OPAC) तपासायला बोलावले आहे. कोणीही पुस्तकाच्या शीर्षकाने शोधू शकतो, लॉगिनची गरज नाही.<br><br>ग्रंथालयाचा दुर्मिळ हस्तलिखित संग्रहही त्याच डेटाबेसमध्ये आहे, पण कोणतेही पेज तो दाखवत नाही. धोका दाखवा: शोध बॉक्समधून संग्रहाचा access code काढा. तोच code flag आहे.",
+      hints: [
+        "शोध बॉक्समध्ये एक single quote ' टाका आणि कॅटलॉग काय उत्तर देतो ते पाहा.",
+        "निकाल तक्त्याचे स्तंभ ठराविक आहेत, आणि UNION query नेही तितकेच स्तंभ परत द्यायला हवेत. SQLite आपल्या तक्त्यांची यादी कुठे ठेवतो?",
+        "सापडलेल्या तक्त्याचा sql स्तंभ वाचा: त्यातून स्तंभांची नावे कळतील."
+      ]
     }
   },
   'web-04': {

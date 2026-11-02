@@ -102,8 +102,9 @@ Severity = impact × likelihood (Critical / High / Medium / Low).
 ### T5. Denial of service on the single instance — **Medium · CONFIRMED pieces**
 - Regex DoS: `server/tools/alextrace/modules/utils.js:38` email regex is quadratic; input length is not limited
   before it (`server/tools/alextrace/routes.js:92`). Login required, 8 req/10 min.
-- Unbounded in-memory lab instances: any `?session=` string creates state; `web03-sqli101` builds a full sql.js DB per
-  session (`server/labs/web03-sqli101/routes.js:41-47,89-92`), no rate limit, cleanup every 10 min
+- Unbounded in-memory lab instances: any `?session=` string creates state (cleanup every 10 min). Since 2026-11-02
+  web-03 keeps no database on the main thread: queries run in `server/labs/web03-library/db-worker.js` (at most 150
+  cached databases, read only, SQLite heap capped, 1.5 s limit, thread restarted on timeout)
   (`server/index.js:242,268`).
 - (Fixed 2026-11-01) The old `hidden-sight` lab rewrote `data/hidden.db` on every submit; it and `server/db/sqlite.js` are gone.
 - All rate limits are in memory (`server/middleware/rateLimit.js`), reset on restart, per instance.

@@ -1,6 +1,6 @@
 # web-02 Ayurdant store: design assets
 
-web-02 "Daadi ka Nuskha" (lab name `cookie`, built 2026-11-02 on this design).
+web-02 "Session Cookie" (lab name `cookie`; the vault in the store is called Daadi ka Nuskha, built 2026-11-02 on this design).
 Cookie tampering (OWASP A07:2021): the store trusts an unsigned Base64
 `ayd_session` cookie; the owner's vault also needs her customer ID, which the
 reviews API (`api/reviews`) sends but the page never shows. The owner ID is
