@@ -1,6 +1,6 @@
 # Security checklist: AlexCyberX
 
-Last verified: 2026-11-01 (lab `/submit` no longer logs the submitted flag: all labs log the label `submit` + result,
+Last verified: 2026-11-02 (web-02 rebuilt as Daadi ka Nuskha: cookie values escaped (closes the old web-02 self-XSS), no flag logged; 2026-11-01 lab `/submit` no longer logs the submitted flag: all labs log the label `submit` + result,
 closing the plaintext-flag part of finding #7; web-01 rebuilt as Before Go-Live, the old lab's flag-attempt file `data/hidden.db` is gone; new lab ai-02 `campusdesk`: AI-written SQL runs only in a read-only worker DB with heap and time caps, the LLM never sees the flag; 2026-10-31 new lab for-04 `midnight`: text-only log, answers checked server-side under `flagLimiter`, no flag logged; 2026-10-24 labs on their own origin; 2026-10-23 admin panel phase 4; full audit 2026-10-16, commit `fffd15f`). **Read this before changing auth, labs, tools, Supabase SQL, the admin
 panel, or anything that renders HTML.** `[x]` = in place (verified), `[ ]` = gap. Each gap: Severity → Evidence →
 Risk → Location → Why it matters → Fix. Labels: CONFIRMED · WEAKNESS · MISSING · VERIFY · REC.

@@ -32,16 +32,27 @@ const ctfChallenges = window.CTF_CHALLENGES = [
     ]
   },
   {
-    id: 'web-02', addedAt: '2026-09-16', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',
-    title: 'Cookie Monster',
-    desc: 'NovaCorp Employee Portal blindly trusts its session cookies. A leaked employee account has been found. Can you escalate your privileges and access the Admin Control Panel?',
+    id: 'web-02', addedAt: '2026-09-16', cat: 'Web', icon: '\ud83c\udf10', iconClass: 'ctf-cat-web',
+    title: 'Daadi ka Nuskha',
+    desc: "Ayurdant, a desi toothpaste brand from Haridwar, keeps its secret Kesar Gold recipe in the owner's vault on its online store. A customer, Riya, shared her login in a WhatsApp group. Use it and open the owner's vault.",
+    scenario: "Riya's login: <b>riya.kapoor@mailbox.test</b> / <b>Kesar@1962</b><br><br>Log in to the Ayurdant store as Riya. Her account page has a vault called Daadi ka Nuskha, but it opens only for the owner, Savitri Devi. Work out how the store remembers who you are, and make it believe you are the owner. The vault code is the flag.",
     author: 'AlexCyberX',
+    tags: ['Web', 'Cookie Tampering', 'Broken Authentication', 'OWASP A07:2021'],
     diff: 'Medium', pts: 150, xp: 250,
-    hints: ['Check DevTools Application tab and inspect all cookies set after login.', 'One cookie is Base64 encoded JSON. Decode it with atob() in browser console.', 'The server checks more than one cookie. Changing only one triggers a security alert.'],
-    labUrl: '/pages/labs/lab-cookie.html',
+    hints: [
+      "After login, open DevTools, go to the Application tab and look at Cookies. What has the store saved about you?",
+      "ayd_session is Base64. Decode it in the Console with atob(), edit it, turn it back with btoa() and save it in the cookie.",
+      "Changing only the role is not enough: the vault also checks the customer ID. Reviews on the product page load from an API. Read its response in the Network tab."
+    ],
     labApiPath: '/api/lab/cookie',
     hasLabFlow: true,
-    solvers: 67
+    solvers: 67,
+    objectives: [
+      'Log in as Riya and find the locked vault',
+      'Decode the session cookie and see what the store trusts',
+      "Find the owner's customer ID",
+      'Make the store believe you are the owner and open the vault'
+    ]
   },
   {
     id: 'web-03', addedAt: '2026-09-16', cat: 'Web', icon: '🌐', iconClass: 'ctf-cat-web',

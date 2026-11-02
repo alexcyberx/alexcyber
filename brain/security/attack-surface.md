@@ -1,6 +1,6 @@
 # Attack surface: AlexCyberX
 
-Last verified: 2026-11-01 (web-01 rebuilt as `hidden` = Before Go-Live: store page, `js/store.js` with a per-instance staging key, `api/v1/preorder/book-pro` checks the key and returns the flag, images served from a fixed whitelist; ai-02 `campusdesk` lab; 2026-10-31 for-04 `midnight` lab; static `/quiz` folder for the course quiz iframe; 2026-10-24 labs on their own origin; 2026-10-23 admin panel phase 4; full audit 2026-10-16, commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · MISSING · VERIFY · REC (see
+Last verified: 2026-11-02 (web-02 rebuilt as `cookie` = Daadi ka Nuskha (`server/labs/web02-ayurdant`): Ayurdant store, unsigned Base64 `ayd_session` cookie trusted by design, `api/reviews` leaks the owner uid by design, owner uid random per instance, cookie values escaped, login under `loginLimiter`, images from a fixed whitelist, no flag logged; 2026-11-01 web-01 rebuilt as `hidden` = Before Go-Live: store page, `js/store.js` with a per-instance staging key, `api/v1/preorder/book-pro` checks the key and returns the flag, images served from a fixed whitelist; ai-02 `campusdesk` lab; 2026-10-31 for-04 `midnight` lab; static `/quiz` folder for the course quiz iframe; 2026-10-24 labs on their own origin; 2026-10-23 admin panel phase 4; full audit 2026-10-16, commit `fffd15f`). Labels: CONFIRMED · WEAKNESS · MISSING · VERIFY · REC (see
 `threat-model.md`). "IP" limits use `req.ip` (correct: `app.set('trust proxy', 1)`, `server/index.js:13`).
 
 ## 1. Network / deployment exposure
@@ -38,7 +38,7 @@ Last verified: 2026-11-01 (web-01 rebuilt as `hidden` = Before Go-Live: store pa
 ### Lab-specific notes (beyond the intended vulnerabilities)
 - **FIXED 2026-10-16** (session guard `server/middleware/labSession.js`): `?session=` was reflected into inline script — `web02-cookie/routes.js:158`,
   `web03-sqli101/routes.js:189`, `web04-robots/routes.js:284` (see T1).
-- WEAKNESS: cookie values echoed unescaped in web-02 dashboard (`web02-cookie/routes.js:291,297,303,311`) — self-XSS
+- FIXED 2026-11-02: cookie values were echoed unescaped in the old web-02 dashboard (`web02-cookie`, self-XSS). The lab was rebuilt as `web02-ayurdant` (Daadi ka Nuskha), which HTML-escapes every value it reads from the tampered `ayd_session` cookie and caps its length.
   unless cookies can be planted.
 - WEAKNESS: `/api/lab/sqli101/search` has no limiter and returns DB error text (intended for the lab) — the DB is a
   per-session in-memory sql.js, not real data.
