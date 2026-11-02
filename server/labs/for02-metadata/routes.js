@@ -8,37 +8,24 @@ const FLAG = flagFor('for-02'); // server/labs/flags.js
 
 const INSTANCE_DURATION_SEC = 30 * 60;
 const instances = {};
+const { langFor, texts, notActivePage, HTML_LANG, qs } = require('../i18n');
+const TEXT = require('./i18n');
 function sid(req) { return req.headers['x-lab-session'] || req.query.session || req.ip; }
 function getOrCreate(s) { if (!instances[s]) instances[s] = { startedAt: Date.now(), solved: false }; return instances[s]; }
 function resetInst(s)   { instances[s] = { startedAt: Date.now(), solved: false }; return instances[s]; }
 function instStatus(s)  { const inst = getOrCreate(s); const e = Math.floor((Date.now()-inst.startedAt)/1000); const r = Math.max(0, INSTANCE_DURATION_SEC-e); return { running: r>0, remaining_sec: r, solved: inst.solved }; }
+// Language of this request: ?lang= or the one the instance was opened in.
+const L = (req) => langFor(req, instances[sid(req)]);
 function isInstanceRunning(s) {
   const inst = instances[s];
   if (!inst) return false;
   const e = Math.floor((Date.now() - inst.startedAt) / 1000);
   return (INSTANCE_DURATION_SEC - e) > 0;
 }
-function sendInstanceNotActive(res) {
-  res.status(403).setHeader('Content-Type', 'text/html');
-  res.send(`<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>Instance Not Active</title>
-<style>
-  body{background:#0a0a12;color:#e4e4ef;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;}
-  .box{max-width:420px;padding:32px;}
-  h1{font-size:20px;margin:0 0 10px;}
-  p{font-size:14px;color:#9999a6;line-height:1.6;}
-</style></head>
-<body>
-  <div class="box">
-    <h1>Instance Not Active</h1>
-    <p>This lab instance is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p>
-  </div>
-</body>
-</html>`);
+function sendInstanceNotActive(req, res) {
+  res.status(403).type('html').send(notActivePage(req, 'background:#09090f;color:#e4e4ef'));
 }
 
-// ── Build JPEG with embedded EXIF ─────────────────────────────────
 function buildExifJpeg(flag) {
   // Split flag into 4 parts: artist=ACX{m3t4  comment=_d4t4_  usercomment=_1s_3v  copyright=3rywh3r3}
   const p1 = flag.slice(0, 8);   // ACX{m3t4
@@ -119,10 +106,11 @@ router.post('/instance/stop',   (req, res) => { const s=sid(req); if(instances[s
 
 // ── HOMEPAGE ──────────────────────────────────────────────────────
 router.get('/page', (req, res) => {
-  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(req, res);
+  const lang = L(req), T = texts(TEXT, lang), q = qs(sid(req), lang);
   res.setHeader('Content-Type','text/html');
   res.send(`<!DOCTYPE html>
-<html lang="en">
+<html lang="${HTML_LANG[lang]}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -172,51 +160,52 @@ body{background:#0c0c10;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
     <span class="logo-text">Pixel<span>Drop</span></span>
   </div>
   <div class="nav-right">
-    <a class="nav-link" href="#">Pricing</a>
-    <a class="nav-link" href="#">Docs</a>
+    <a class="nav-link" href="#">${T.nav[0]}</a>
+    <a class="nav-link" href="#">${T.nav[1]}</a>
   </div>
 </div>
 <div class="hero">
   <div class="hero-label">
     <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><circle cx="4" cy="4" r="3" fill="#a78bfa"/></svg>
-    Fast and anonymous
+    ${T.label}
   </div>
-  <h1 class="hero-title">Share files<br><span>instantly</span></h1>
-  <p class="hero-sub">Drop any file and get a shareable link in seconds. No account needed. Files expire automatically.</p>
+  <h1 class="hero-title">${T.h1}</h1>
+  <p class="hero-sub">${T.sub}</p>
   <div class="upload-zone">
     <div class="upload-icon">
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 3v12M7 7l4-4 4 4" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 17h14" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round"/></svg>
     </div>
-    <div class="upload-title">Drag and drop your files here</div>
-    <div class="upload-sub">or click to browse. Max 50MB per file.</div>
+    <div class="upload-title">${T.up_t}</div>
+    <div class="upload-sub">${T.up_s}</div>
   </div>
-  <div class="or-row"><div class="or-line"></div><span class="or-text">or browse a shared file</span><div class="or-line"></div></div>
+  <div class="or-row"><div class="or-line"></div><span class="or-text">${T.or}</span><div class="or-line"></div></div>
 </div>
 <div class="recent-section">
-  <div class="section-label">Recently Shared</div>
-  <a class="file-card" href="/api/lab/metadata/share/nx7k2p">
+  <div class="section-label">${T.recent}</div>
+  <a class="file-card" href="share/nx7k2p?${q}">
     <div class="file-thumb">
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="2" width="16" height="18" rx="2" stroke="#7c3aed" stroke-width="1.2"/><circle cx="8.5" cy="8.5" r="2" stroke="#7c3aed" stroke-width="1.1"/><path d="M3 15l4-4 3 3 3-4 5 6" stroke="#7c3aed" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <div class="file-info">
       <div class="file-name">asset_photo.jpg</div>
-      <div class="file-meta">Shared 2 hours ago, 351 bytes, Image</div>
+      <div class="file-meta">${T.meta}</div>
     </div>
-    <span class="file-badge">View</span>
+    <span class="file-badge">${T.view}</span>
   </a>
 </div>
-<div class="footer">PixelDrop v2.1.4. Anonymous file sharing. Files are auto-deleted after 7 days.</div>
+<div class="footer">${T.foot}</div>
 </body>
 </html>`);
 });
 
 // ── SHARE PAGE ────────────────────────────────────────────────────
 router.get('/share/nx7k2p', (req, res) => {
-  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(res);
+  if (!isInstanceRunning(sid(req))) return sendInstanceNotActive(req, res);
   logAttempt('META', req.ip, 'GET /share', 'accessed');
+  const lang = L(req), T = texts(TEXT, lang), q = qs(sid(req), lang);
   res.setHeader('Content-Type','text/html');
   res.send(`<!DOCTYPE html>
-<html lang="en">
+<html lang="${HTML_LANG[lang]}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -259,7 +248,7 @@ body{background:#0c0c10;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
 </div>
 <div class="main">
   <div class="breadcrumb">
-    <a href="/api/lab/metadata/page">Home</a>
+    <a href="../page?${q}">${T.home}</a>
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 2l4 4-4 4" stroke="#334155" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     <span>asset_photo.jpg</span>
   </div>
@@ -272,17 +261,17 @@ body{background:#0c0c10;font-family:'Segoe UI',Arial,sans-serif;min-height:100vh
     <div class="file-details">
       <div class="file-title">asset_photo.jpg</div>
       <div class="meta-grid">
-        <div class="meta-item"><div class="meta-key">Type</div><div class="meta-val">image/jpeg</div></div>
-        <div class="meta-item"><div class="meta-key">Size</div><div class="meta-val">351 bytes</div></div>
-        <div class="meta-item"><div class="meta-key">Shared</div><div class="meta-val">2 hours ago</div></div>
-        <div class="meta-item"><div class="meta-key">Expires</div><div class="meta-val">7 days</div></div>
+        <div class="meta-item"><div class="meta-key">${T.keys[0]}</div><div class="meta-val">image/jpeg</div></div>
+        <div class="meta-item"><div class="meta-key">${T.keys[1]}</div><div class="meta-val">${T.vals[0]}</div></div>
+        <div class="meta-item"><div class="meta-key">${T.keys[2]}</div><div class="meta-val">${T.vals[1]}</div></div>
+        <div class="meta-item"><div class="meta-key">${T.keys[3]}</div><div class="meta-val">${T.vals[2]}</div></div>
       </div>
       <div class="note-box">
-        Submitted as part of an IT asset inventory audit. The image documents a piece of hardware equipment. Uploaded via PixelDrop desktop client.
+        ${T.note}
       </div>
-      <a class="dl-btn" href="/api/lab/metadata/download/image" download="asset_photo.jpg">
+      <a class="dl-btn" href="../download/image?${q}" download="asset_photo.jpg">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11h10" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></svg>
-        Download File
+        ${T.dl}
       </a>
     </div>
   </div>

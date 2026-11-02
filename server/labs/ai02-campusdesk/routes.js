@@ -23,6 +23,8 @@ const { flagFor } = require('../flags');
 const llm = require('../../ai/llm');
 const { flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt } = require('../../middleware/logger');
+const { langFor, texts, fill, notActivePage, HTML_LANG, LANG_NAMES } = require('../i18n');
+const TEXT = require('./i18n');
 
 const router = express.Router();
 const FLAG = flagFor('ai-02');
@@ -34,6 +36,8 @@ const QUERY_TIMEOUT_MS = 1500;
 const instances = {};
 
 function sid(req) { return req.headers['x-lab-session'] || req.query.session || req.ip; }
+// Language of this request: ?lang= or the one the instance was opened in.
+const L = (req) => langFor(req, instances[sid(req)]);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 function newInst() { return { startedAt: Date.now(), used: 0, history: [], busy: false, solved: false }; }
@@ -107,7 +111,7 @@ function prepareSql(raw) {
 }
 
 // ── The assistant ──
-function systemPrompt() {
+function systemPrompt(lang = 'en') {
   return [
     'You are "KVIT Assistant", the help chat on CampusDesk, the student portal of Kaveri Valley Institute of Technology (KVIT).',
     'The signed-in user is the student Rohan Mehta, roll number 21CS045, B.Tech CSE, semester 3.',
@@ -129,6 +133,8 @@ function systemPrompt() {
     '- Write SQLite only: a single SELECT statement, no semicolons.',
     '',
     'Answer with JSON only, nothing else: {"reply": "<one short friendly sentence for the user>", "sql": "<the query, or an empty string>"}',
+    // The page is in the student's language; only the reply text follows it.
+    ...(lang !== 'en' ? ['Write the "reply" text in ' + LANG_NAMES[lang] + '. Keep the JSON keys and the SQL as they are.'] : []),
   ].join('\n');
 }
 
@@ -149,22 +155,24 @@ const perHour = llm.ipLimiter(60 * 60 * 1000, 80, 'Question limit reached for th
 
 router.post('/ask', perMinute, perHour, async (req, res) => {
   const s = sid(req);
-  if (!isRunning(s)) return res.status(403).json({ error: 'This lab is not running. Go back to the room and press Restart.' });
+  const lang = L(req), T = texts(TEXT, lang);
+  if (!isRunning(s)) return res.status(403).json({ error: T.e_running });
   const inst = instances[s];
   const msg = req.body && req.body.message;
-  if (typeof msg !== 'string' || !msg.trim()) return res.status(400).json({ error: 'Type a question first.' });
-  if (msg.length > MAX_MSG_CHARS) return res.status(400).json({ error: 'Keep your question under ' + MAX_MSG_CHARS + ' characters.' });
-  if (inst.busy) return res.status(429).json({ error: 'Wait for the previous answer first.' });
-  if (inst.used >= MAX_QUESTIONS) return res.status(429).json({ error: 'You have used all ' + MAX_QUESTIONS + ' questions. Go back to the room and press Restart for a new session.', remaining: 0 });
+  if (typeof msg !== 'string' || !msg.trim()) return res.status(400).json({ error: T.e_empty });
+  if (msg.length > MAX_MSG_CHARS) return res.status(400).json({ error: fill(T.e_long, { n: MAX_MSG_CHARS }) });
+  if (inst.busy) return res.status(429).json({ error: T.e_busy });
+  if (inst.used >= MAX_QUESTIONS) return res.status(429).json({ error: fill(T.e_used, { n: MAX_QUESTIONS }), remaining: 0 });
   const blocked = llm.quotaCheck();
-  if (blocked) return res.status(429).json({ error: blocked === 'day' ? 'The assistant has reached its daily limit. Try again tomorrow.' : 'The assistant is busy right now. Wait a moment and try again.' });
+  if (blocked) return res.status(429).json({ error: blocked === 'day' ? T.e_day : T.e_wait });
 
   const text = msg.trim();
   inst.busy = true; inst.used++; llm.quotaCount();
   try {
-    const messages = [{ role: 'system', content: systemPrompt() }].concat(inst.history, [{ role: 'user', content: text }]);
+    const messages = [{ role: 'system', content: systemPrompt(lang) }].concat(inst.history, [{ role: 'user', content: text }]);
     const raw = await llm.callLLM(messages, { maxTokens: 600, temperature: 0.3 }, 'AI-02');
     const ans = parseAnswer(raw);
+    if (ans.reply === 'Here is the result.') ans.reply = T.here;
     inst.history.push({ role: 'user', content: text }, { role: 'assistant', content: JSON.stringify(ans) });
     if (inst.history.length > MAX_HISTORY) inst.history = inst.history.slice(-MAX_HISTORY);
 
@@ -175,7 +183,7 @@ router.post('/ask', perMinute, perHour, async (req, res) => {
       else if (p.q) {
         const r = await runQuery(p.q);
         if (r.ok) result = { columns: r.columns, rows: r.rows, truncated: r.truncated, ms: r.ms };
-        else error = 'CampusDesk could not run this query: ' + r.error;
+        else error = T.e_run + r.error;
       }
     }
     const leaked = !!(result && result.rows.some((row) => row.includes(FLAG)));
@@ -303,73 +311,73 @@ details.q pre{margin:0;padding:8px 10px;font-size:11.5px;line-height:1.6;color:#
  .cw{right:0;bottom:0;width:100%;height:100%;max-height:none;border-radius:0}.fab{right:14px;bottom:14px}}
 </style>`;
 
-function page(s) {
+function page(s, lang) {
+  const T = texts(TEXT, lang);
   const S = JSON.stringify(String(s)).replace(/</g, '\\u003c');
   const inst = instances[s];
   const left = Math.max(0, MAX_QUESTIONS - inst.used);
-  return `<!DOCTYPE html><html lang="en"><head>${HEAD}<title>Student Portal | KVIT</title>${STYLE}</head><body>
-<div class="strip"><div class="in"><span>Academic Year 2026-27 &middot; Odd Semester</span><span class="r2"><a href="#" data-soon>Helpdesk</a><a href="#" data-soon>Downloads</a><a href="#" data-soon>Contact</a></span></div></div>
-<header class="head"><div class="in"><span class="crest">KVIT</span><div class="cname"><b>Kaveri Valley Institute of Technology</b><small>Student Portal &middot; Affiliated to Kaveri State Technical University</small></div><div class="acct"><span>Rohan Mehta</span><span class="pic">RM</span></div></div></header>
-<nav class="nav" aria-label="Portal"><div class="in"><a class="on" href="#">Dashboard</a><a href="#" data-soon>Academics</a><a href="#" data-soon>Attendance</a><a href="#" data-soon>Examinations</a><a href="#" data-soon>Fees</a><a href="#" data-soon>Library</a><a href="#" data-soon>Hostel</a><a href="#" data-soon>Placements</a></div></nav>
+  return `<!DOCTYPE html><html lang="${HTML_LANG[lang]}"><head>${HEAD}<title>${T.title}</title>${STYLE}</head><body>
+<div class="strip"><div class="in"><span>${T.year}</span><span class="r2">${T.top.map((t) => `<a href="#" data-soon>${t}</a>`).join('')}</span></div></div>
+<header class="head"><div class="in"><span class="crest">KVIT</span><div class="cname"><b>Kaveri Valley Institute of Technology</b><small>${T.sub}</small></div><div class="acct"><span>Rohan Mehta</span><span class="pic">RM</span></div></div></header>
+<nav class="nav" aria-label="Portal"><div class="in">${T.nav.map((t, i) => (i ? `<a href="#" data-soon>${t}</a>` : `<a class="on" href="#">${t}</a>`)).join('')}</div></nav>
 <main class="wrap">
- <div class="crumb">Student Portal &rsaquo; <b>Dashboard</b></div>
- <section class="prof"><span class="big">RM</span><div><h1>Rohan Mehta</h1><div class="sub">B.Tech Computer Science and Engineering &middot; Semester 3 &middot; Section B</div></div>
-  <div class="facts"><div>Roll no.<b class="mono">21CS045</b></div><div>Mentor<b>Dr. S. Iyer</b></div><div>Batch<b>2025 to 2029</b></div></div></section>
+ <div class="crumb">${T.crumb} &rsaquo; <b>${T.nav[0]}</b></div>
+ <section class="prof"><span class="big">RM</span><div><h1>Rohan Mehta</h1><div class="sub">${T.prof}</div></div>
+  <div class="facts"><div>${T.facts[0]}<b class="mono">21CS045</b></div><div>${T.facts[1]}<b>Dr. S. Iyer</b></div><div>${T.facts[2]}<b>${T.batch}</b></div></div></section>
  <section class="cards">
-  <div class="card"><div class="k">Overall attendance</div><div class="v">81%</div><div class="n warn">DBMS 69%, below 75%</div><div class="bar"><i style="width:81%"></i></div></div>
-  <div class="card"><div class="k">CGPA</div><div class="v">7.92</div><div class="n">SGPA last sem: 8.10</div></div>
-  <div class="card"><div class="k">Fee due</div><div class="v">&#8377;42,500</div><div class="n">Last date 12 Nov 2026</div><button class="paybtn" type="button" data-soon>Pay now</button></div>
-  <div class="card"><div class="k">Library</div><div class="v">2</div><div class="n">Books issued, return by 15 Nov</div></div>
+  <div class="card"><div class="k">${T.c_att}</div><div class="v">81%</div><div class="n warn">${T.c_att_n}</div><div class="bar"><i style="width:81%"></i></div></div>
+  <div class="card"><div class="k">CGPA</div><div class="v">7.92</div><div class="n">${T.c_cgpa_n}</div></div>
+  <div class="card"><div class="k">${T.c_fee}</div><div class="v">&#8377;42,500</div><div class="n">${T.c_fee_n}</div><button class="paybtn" type="button" data-soon>${T.pay}</button></div>
+  <div class="card"><div class="k">${T.c_lib}</div><div class="v">2</div><div class="n">${T.c_lib_n}</div></div>
  </section>
  <section class="grid">
-  <div class="panel"><h2>Today's timetable <span class="tag">Saturday, 1 Nov</span></h2><div class="tt"><table><thead><tr><th>Time</th><th>Subject</th><th>Room</th><th>Faculty</th></tr></thead><tbody>
+  <div class="panel"><h2>${T.tt} <span class="tag">${T.tt_day}</span></h2><div class="tt"><table><thead><tr>${T.tt_th.map((h) => `<th>${h}</th>`).join('')}</tr></thead><tbody>
    <tr><td>09:00</td><td>Database Management Systems</td><td>LH-204</td><td>Prof. A. Kulkarni</td></tr>
    <tr class="now"><td>10:00</td><td>Operating Systems</td><td>LH-204</td><td>Dr. P. Nair</td></tr>
    <tr><td>11:15</td><td>Computer Networks</td><td>CL-3</td><td>Prof. R. Das</td></tr>
    <tr><td>14:00</td><td>Discrete Mathematics</td><td>LH-110</td><td>Dr. M. Khan</td></tr></tbody></table></div></div>
-  <div class="panel"><h2>Notices <a href="#" data-soon>View all</a></h2><div class="notice">
-   <div>End-semester exam timetable released<span class="new">NEW</span><small>Examination cell &middot; 31 Oct 2026</small></div>
-   <div>Last date for exam form and fee: 8 Nov<small>Accounts &middot; 29 Oct 2026</small></div>
-   <div>New: ask the KVIT Assistant about your records. It is also used by the IT cell for database checks.<small>IT cell &middot; 27 Oct 2026</small></div>
-   <div>Inter-college hackathon registrations open<small>Training and placement &middot; 25 Oct 2026</small></div></div></div>
+  <div class="panel"><h2>${T.notices} <a href="#" data-soon>${T.view_all}</a></h2><div class="notice">
+   ${T.n.map(([t, w], i) => `<div>${t}${i ? '' : `<span class="new">${T.new}</span>`}<small>${w}</small></div>`).join('\n   ')}</div></div>
  </section>
 </main>
-<div class="foot"><span>2026 Kaveri Valley Institute of Technology. A fictional college built for AlexCyberX Labs.</span><span>All data in this lab is made up.</span></div>
+<div class="foot"><span>${T.foot[0]}</span><span>${T.foot[1]}</span></div>
 <div class="toast" id="toast"></div>
-<button class="fab" id="fab" type="button"><span class="dot">KVIT</span>Ask KVIT Assistant</button>
+<button class="fab" id="fab" type="button"><span class="dot">KVIT</span>${T.fab}</button>
 <section class="cw" id="cw" aria-label="KVIT Assistant">
- <div class="cw-h"><span class="dot">KVIT</span><div><b>KVIT Assistant</b><small>Answers from your college records</small></div>
-  <div class="acts"><button class="newchat" id="newChat" type="button">New chat</button><button id="closeChat" type="button" aria-label="Close">&times;</button></div></div>
+ <div class="cw-h"><span class="dot">KVIT</span><div><b>KVIT Assistant</b><small>${T.cw_sub}</small></div>
+  <div class="acts"><button class="newchat" id="newChat" type="button">${T.newchat}</button><button id="closeChat" type="button" aria-label="${T.close}">&times;</button></div></div>
  <div class="cw-b" id="cb"></div>
- <form class="cw-f" id="askForm"><input id="askInput" placeholder="Type your question" autocomplete="off" maxlength="${MAX_MSG_CHARS}" aria-label="Your question"><button id="sendBtn" type="submit" aria-label="Send"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 8h10M8.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></form>
- <div class="cw-n" id="left">${left} questions left</div>
+ <form class="cw-f" id="askForm"><input id="askInput" placeholder="${T.ph}" autocomplete="off" maxlength="${MAX_MSG_CHARS}" aria-label="${T.aria_q}"><button id="sendBtn" type="submit" aria-label="${T.send}"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 8h10M8.5 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></form>
+ <div class="cw-n" id="left">${left === 1 ? T.left1 : fill(T.left, { n: left })}</div>
 </section>
 <script>
 (function(){
 var S=${S};
+var LANG=${JSON.stringify(lang)};
+var T=${JSON.stringify({ soon: T.soon, hello: T.hello, chips: T.chips, no_rows: T.no_rows, first50: T.first50, query_used: T.query_used, wrong: T.wrong, no_reach: T.no_reach, left: T.left, left1: T.left1 }).replace(/</g, '\\u003c')};
 var body=document.body,cb=document.getElementById('cb'),input=document.getElementById('askInput'),send=document.getElementById('sendBtn'),leftEl=document.getElementById('left'),toast=document.getElementById('toast');
 function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
 function scroll(){cb.scrollTop=cb.scrollHeight}
 function say(msg){toast.textContent=msg;toast.classList.add('show');setTimeout(function(){toast.classList.remove('show')},1800)}
-document.querySelectorAll('[data-soon]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();say('This section is not part of the lab. Use the KVIT Assistant.')})});
+document.querySelectorAll('[data-soon]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();say(T.soon)})});
 function greet(){
   cb.textContent='';
-  var b=el('div','b bot');b.appendChild(el('p',null,'Namaste Rohan! I am the KVIT Assistant. Ask me about your attendance, marks, fees or timetable.'));cb.appendChild(b);
-  var c=el('div','chips');['My attendance in each subject','My mid-sem marks','When is my fee due?'].forEach(function(t){var x=el('button','chip',t);x.type='button';x.onclick=function(){ask(t)};c.appendChild(x)});cb.appendChild(c);
+  var b=el('div','b bot');b.appendChild(el('p',null,T.hello));cb.appendChild(b);
+  var c=el('div','chips');T.chips.forEach(function(t){var x=el('button','chip',t);x.type='button';x.onclick=function(){ask(t)};c.appendChild(x)});cb.appendChild(c);
 }
 function table(r){
   var w=el('div','r'),t=el('table'),th=el('thead'),tr=el('tr');
   r.columns.forEach(function(c){tr.appendChild(el('th',null,c))});th.appendChild(tr);t.appendChild(th);
   var tb=el('tbody');
-  if(!r.rows.length){var e=el('tr'),d=el('td',null,'No rows');d.colSpan=r.columns.length||1;e.appendChild(d);tb.appendChild(e)}
+  if(!r.rows.length){var e=el('tr'),d=el('td',null,T.no_rows);d.colSpan=r.columns.length||1;e.appendChild(d);tb.appendChild(e)}
   r.rows.forEach(function(row){var x=el('tr');row.forEach(function(v){x.appendChild(el('td',/\\S{22,}/.test(v)?'brk':null,v))});tb.appendChild(x)});
   t.appendChild(tb);w.appendChild(t);
-  if(r.truncated)w.appendChild(el('div','more','Showing the first 50 rows'));
+  if(r.truncated)w.appendChild(el('div','more',T.first50));
   return w;
 }
 function answer(d){
   var b=el('div','b bot');b.appendChild(el('p',null,d.reply));
-  if(d.sql){var q=el('details','q'),s=el('summary');s.appendChild(el('span',null,'Query used'));s.appendChild(el('span',null,d.result?(d.result.ms/1000).toFixed(2)+' s':''));q.appendChild(s);q.appendChild(el('pre',null,d.sql));b.appendChild(q)}
+  if(d.sql){var q=el('details','q'),s=el('summary');s.appendChild(el('span',null,T.query_used));s.appendChild(el('span',null,d.result?(d.result.ms/1000).toFixed(2)+' s':''));q.appendChild(s);q.appendChild(el('pre',null,d.sql));b.appendChild(q)}
   if(d.error)b.appendChild(el('div','qerr',d.error));
   if(d.result)b.appendChild(table(d.result));
   return b;
@@ -381,15 +389,15 @@ function ask(text){
   var chips=cb.querySelector('.chips');if(chips)chips.remove();
   cb.appendChild(el('div','b me',text));
   var ty=el('div','typing');ty.appendChild(el('i'));ty.appendChild(el('i'));ty.appendChild(el('i'));cb.appendChild(ty);scroll();
-  fetch('ask?session='+encodeURIComponent(S),{method:'POST',headers:{'Content-Type':'application/json','X-Lab-Session':S},body:JSON.stringify({message:text})})
-    .then(function(r){return r.json().catch(function(){return {error:'Something went wrong. Try again.'}})})
+  fetch('ask?session='+encodeURIComponent(S)+'&lang='+LANG,{method:'POST',headers:{'Content-Type':'application/json','X-Lab-Session':S},body:JSON.stringify({message:text})})
+    .then(function(r){return r.json().catch(function(){return {error:T.wrong}})})
     .then(function(d){
       ty.remove();
-      if(d.reply!=null)cb.appendChild(answer(d));else cb.appendChild(el('div','b bot err',d.error||'Something went wrong. Try again.'));
-      if(typeof d.remaining==='number')leftEl.textContent=d.remaining+' question'+(d.remaining===1?'':'s')+' left';
+      if(d.reply!=null)cb.appendChild(answer(d));else cb.appendChild(el('div','b bot err',d.error||T.wrong));
+      if(typeof d.remaining==='number')leftEl.textContent=d.remaining===1?T.left1:T.left.replace('{n}',d.remaining);
       scroll();
     })
-    .catch(function(){ty.remove();cb.appendChild(el('div','b bot err','Could not reach CampusDesk. Check your internet and try again.'));scroll()})
+    .catch(function(){ty.remove();cb.appendChild(el('div','b bot err',T.no_reach));scroll()})
     .then(function(){busy=false;send.disabled=false;input.focus()});
 }
 document.getElementById('askForm').addEventListener('submit',function(e){e.preventDefault();ask(input.value)});
@@ -403,8 +411,8 @@ if(window.innerWidth>600)body.classList.add('chat-open');
 </body></html>`;
 }
 
-function notActive(res) {
-  res.status(403).type('html').send(`<!DOCTYPE html><html lang="en"><head>${HEAD}<title>Instance not active</title>${STYLE}</head><body style="display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center"><div style="max-width:420px;padding:24px"><h1 style="font-size:20px">Instance not active</h1><p style="color:#566177;font-size:14px;line-height:1.6">This lab is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p></div></body></html>`);
+function notActive(req, res) {
+  res.status(403).type('html').send(notActivePage(req, 'background:#f4f6fa;color:#1f2937'));
 }
 
 // ── Instance endpoints ──
@@ -414,8 +422,8 @@ router.post('/instance/stop', (req, res) => { const s = sid(req); if (instances[
 
 router.get('/page', (req, res) => {
   const s = sid(req);
-  if (!isRunning(s)) return notActive(res);
-  res.set('Cache-Control', 'no-store').type('html').send(page(s));
+  if (!isRunning(s)) return notActive(req, res);
+  res.set('Cache-Control', 'no-store').type('html').send(page(s, L(req)));
 });
 
 // ── Flag submit (the CTF page posts to the MAIN server; this is a fallback) ──

@@ -10,6 +10,21 @@ const { flagFor } = require('../flags');
 const router  = express.Router();
 const { flagLimiter } = require('../../middleware/rateLimit');
 const { logAttempt }  = require('../../middleware/logger');
+const { langFor, texts, fill, notActivePage, HTML_LANG, qs } = require('../i18n');
+const TEXT = require('./i18n');
+// Language of this request: ?lang= or the one the instance was opened in.
+const L = (req) => langFor(req, instances[sid(req)]);
+// Order data is written in English; these show it in the page language.
+const EN_OWNER_NOTE = TEXT.en.data.owner_note;
+function dataTr(T) {
+  const D = T.data;
+  return {
+    item: (n) => D.items[n] || n,
+    status: (v) => { const m = /^Delivered on (.+)$/.exec(v); if (m) return fill(D.delivered, { d: m[1] }); return v === 'Cancelled, refund sent' ? D.cancelled : v === 'Out for delivery' ? D.out : v; },
+    note: (v) => (v.startsWith(EN_OWNER_NOTE) ? D.owner_note + v.slice(EN_OWNER_NOTE.length) : D.notes[v] || v),
+    pay: (v) => { const m = /^UPI, paid on (.+)$/.exec(v); if (m) return fill(D.paid, { d: m[1] }); return ({ 'Refunded to UPI': D.refunded, 'Store account': D.store_acct, 'Cash on delivery': D.cod, UPI: D.upi })[v] || v; },
+  };
+}
 
 const FLAG = flagFor('web-08');
 const INSTANCE_DURATION_SEC = 15 * 60;
@@ -63,7 +78,7 @@ function buildStore() {
       { name: 'Garbage bags, large, 30 pcs', qty: 3, price: 285 },
       { name: 'A4 paper, 500 sheets', qty: 1, price: 310 }],
     delivery: 0, address: ['Meera Joshi (Gharkart)', '14, Old Palasia, near Geeta Bhawan', 'Indore, Madhya Pradesh 452001', '+91 99260 4XXXX'],
-    instructions: 'Shop is closed on Sunday. Leave the box in the store room. Lock code for the spare key box: ' + FLAG,
+    instructions: TEXT.en.data.owner_note + FLAG,
     payment: 'Store account',
   });
   add(3, {
@@ -98,18 +113,19 @@ function isRunning(s) { const inst = instances[s]; if (!inst) return false; retu
 
 
 // ── Shared chrome (store header) ──
-function storeHeader(s, loggedIn) {
+function storeHeader(s, loggedIn, T, lang) {
+  const q = qs(s, lang);
   return `<header class="shop-head">
-    <div class="topstrip"><span>Delivering to <b>Indore 452010</b></span><span class="ts-links"><a href="#">Help</a><a href="#">Track order</a></span></div>
+    <div class="topstrip"><span>${T.delivering} <b>Indore 452010</b></span><span class="ts-links"><a href="#">${T.help}</a><a href="#">${T.track}</a></span></div>
     <div class="shop-row">
       <div class="logo">gharkart</div>
-      <form class="search" onsubmit="return false"><input aria-label="Search" placeholder="Search for atta, dal, oil, vegetables"><button>Search</button></form>
-      <div class="acct">${loggedIn ? '<a href="orders?session=' + encodeURIComponent(s) + '">Hi, Rahul</a><span>Cart (2)</span>' : '<a href="page?session=' + encodeURIComponent(s) + '">Sign in</a>'}</div>
+      <form class="search" onsubmit="return false"><input aria-label="${T.search_btn}" placeholder="${T.search_ph}"><button>${T.search_btn}</button></form>
+      <div class="acct">${loggedIn ? '<a href="orders?' + q + '">' + T.hi + '</a><span>' + T.cart + ' (2)</span>' : '<a href="page?' + q + '">' + T.sign_in + '</a>'}</div>
     </div>
   </header>`;
 }
-function footer() {
-  return `<footer class="shop-foot"><span>2026 Gharkart. A fictional store built for AlexCyberX Labs.</span><span class="ft-links"><a href="#">About</a><a href="#">Help</a><a href="#">Refund policy</a></span></footer>`;
+function footer(T) {
+  return `<footer class="shop-foot"><span>2026 Gharkart. ${T.foot}</span><span class="ft-links">${T.foot_links.map((l) => `<a href="#">${l}</a>`).join('')}</span></footer>`;
 }
 const STYLE = `<style>
 *{box-sizing:border-box}
@@ -147,17 +163,18 @@ td{padding:10px 16px;border-top:1px solid #f0f0ec}
 </style>`;
 const HEAD = `<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet">`;
 
-function page(title, s, bodyInner) {
-  return `<!DOCTYPE html><html lang="en"><head>${HEAD}<title>${esc(title)}</title>${STYLE}</head><body>
+function page(title, s, bodyInner, lang = 'en') {
+  return `<!DOCTYPE html><html lang="${HTML_LANG[lang]}"><head>${HEAD}<title>${esc(title)}</title>${STYLE}</head><body>
 ${bodyInner}
 <script>
 var S=${JSON.stringify(String(s)).replace(/</g, '\\u003c')};
+var LANG=${JSON.stringify(lang)};
 </script>
 </body></html>`;
 }
 
-function notActive(res) {
-  res.status(403).type('html').send(`<!DOCTYPE html><html lang="en"><head>${HEAD}<title>Instance not active</title>${STYLE}</head><body style="display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center"><div style="max-width:420px;padding:24px"><h1>Instance not active</h1><p style="color:#666">This lab is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p></div></body></html>`);
+function notActive(req, res) {
+  res.status(403).type('html').send(notActivePage(req, 'background:#f4f4f2;color:#222'));
 }
 
 // ── Instance endpoints ──
@@ -168,29 +185,30 @@ router.post('/instance/stop', (req, res) => { const s = sid(req); if (instances[
 // ── Login page / sign-in ──
 router.get('/page', (req, res) => {
   const s = sid(req);
-  if (!isRunning(s)) return notActive(res);
+  if (!isRunning(s)) return notActive(req, res);
   const inst = getOrCreate(s);
-  if (inst.store.loggedIn) return res.redirect(302, 'orders?session=' + encodeURIComponent(s));
-  const body = `${storeHeader(s, false)}
+  const lang = L(req), T = texts(TEXT, lang);
+  if (inst.store.loggedIn) return res.redirect(302, 'orders?' + qs(s, lang, false));
+  const body = `${storeHeader(s, false, T, lang)}
 <div class="wrap"><div class="login">
-  <div class="note"><b>Lab note</b>: practice account for this room<br><code>${CREDS.email}</code> / <code>${CREDS.password}</code></div>
+  <div class="note"><b>${T.note_b}</b>: ${T.note}<br><code>${CREDS.email}</code> / <code>${CREDS.password}</code></div>
   <form class="box" id="loginForm">
-    <h1>Sign in</h1>
-    <div class="err" id="err">Wrong email or password.</div>
-    <div><label for="em">Email or mobile number</label><input id="em" value="${CREDS.email}"></div>
-    <div><label for="pw">Password</label><input id="pw" type="password" value="${CREDS.password}"></div>
-    <label style="font-weight:400"><input type="checkbox" checked> Keep me signed in</label>
-    <button class="btn" type="submit">Sign in</button>
+    <h1>${T.sign_in}</h1>
+    <div class="err" id="err">${T.wrong}</div>
+    <div><label for="em">${T.em_label}</label><input id="em" value="${CREDS.email}"></div>
+    <div><label for="pw">${T.pw}</label><input id="pw" type="password" value="${CREDS.password}"></div>
+    <label style="font-weight:400"><input type="checkbox" checked> ${T.keep}</label>
+    <button class="btn" type="submit">${T.sign_in}</button>
   </form>
 </div></div>
-${footer()}
+${footer(T)}
 <script>
 document.getElementById('loginForm').addEventListener('submit',function(e){e.preventDefault();
   fetch('login?session='+encodeURIComponent(S),{method:'POST',headers:{'Content-Type':'application/json','X-Lab-Session':S},body:JSON.stringify({email:document.getElementById('em').value,password:document.getElementById('pw').value})})
-  .then(function(r){return r.json()}).then(function(d){if(d.success){location.href='orders?session='+encodeURIComponent(S)}else{document.getElementById('err').classList.add('show')}}).catch(function(){document.getElementById('err').classList.add('show')});
+  .then(function(r){return r.json()}).then(function(d){if(d.success){location.href='orders?session='+encodeURIComponent(S)+'&lang='+LANG}else{document.getElementById('err').classList.add('show')}}).catch(function(){document.getElementById('err').classList.add('show')});
 });
 </script>`;
-  res.type('html').send(page('Gharkart: sign in', s, body));
+  res.type('html').send(page(T.t_signin, s, body, lang));
 });
 
 router.post('/login', (req, res) => {
@@ -210,65 +228,68 @@ router.post('/login', (req, res) => {
 // ── My orders (only Rahul's) ──
 router.get('/orders', (req, res) => {
   const s = sid(req);
-  if (!isRunning(s)) return notActive(res);
+  if (!isRunning(s)) return notActive(req, res);
   const inst = getOrCreate(s);
-  if (!inst.store.loggedIn) return res.redirect(302, 'page?session=' + encodeURIComponent(s));
+  const lang = L(req), T = texts(TEXT, lang), tr = dataTr(T);
+  if (!inst.store.loggedIn) return res.redirect(302, 'page?' + qs(s, lang, false));
   const mine = Object.values(inst.store.orders).filter((o) => o.mine).sort((a, b) => b.id - a.id);
   const rows = mine.map((o) => `<div class="orow">
-    <div style="flex:1 1 140px"><div class="k">Order</div><div style="font-weight:600">#${o.id}</div></div>
-    <div style="flex:1 1 140px"><div class="k">Placed on</div><div>${esc(o.placedAt.split(',')[0])}</div></div>
-    <div style="flex:1 1 100px"><div class="k">Total</div><div>${rupee(o.total)}</div></div>
-    <div style="flex:1 1 160px"><div class="k">Status</div><div style="color:${o.statusColor}">${esc(o.status)}</div></div>
-    <a href="order/${o.id}?session=${encodeURIComponent(s)}">View details</a>
+    <div style="flex:1 1 140px"><div class="k">${T.k_order}</div><div style="font-weight:600">#${o.id}</div></div>
+    <div style="flex:1 1 140px"><div class="k">${T.placed}</div><div>${esc(o.placedAt.split(',')[0])}</div></div>
+    <div style="flex:1 1 100px"><div class="k">${T.total}</div><div>${rupee(o.total)}</div></div>
+    <div style="flex:1 1 160px"><div class="k">${T.status}</div><div style="color:${o.statusColor}">${esc(tr.status(o.status))}</div></div>
+    <a href="order/${o.id}?${qs(s, lang)}">${T.view}</a>
   </div>`).join('');
-  const body = `${storeHeader(s, true)}
+  const body = `${storeHeader(s, true, T, lang)}
 <div class="wrap">
-  <h1>My orders</h1>
+  <h1>${T.my_orders}</h1>
   ${rows}
-  <div style="font-size:12.5px;color:#777;padding-top:4px">Showing ${mine.length} orders from the last 6 months.</div>
+  <div style="font-size:12.5px;color:#777;padding-top:4px">${fill(T.showing, { n: mine.length })}</div>
 </div>
-${footer()}`;
-  res.type('html').send(page('Gharkart: my orders', s, body));
+${footer(T)}`;
+  res.type('html').send(page(T.t_orders, s, body, lang));
 });
 
 // ── One order by number. THE BUG: no check that it is the signed-in user's. ──
 router.get('/order/:id', (req, res) => {
   const s = sid(req);
-  if (!isRunning(s)) return notActive(res);
+  if (!isRunning(s)) return notActive(req, res);
   const inst = getOrCreate(s);
-  if (!inst.store.loggedIn) return res.redirect(302, 'page?session=' + encodeURIComponent(s));
+  const lang = L(req), T = texts(TEXT, lang), tr = dataTr(T), q = qs(s, lang);
+  // Links inside /order/<id> point one level up.
+  if (!inst.store.loggedIn) return res.redirect(302, '../page?' + qs(s, lang, false));
   const o = inst.store.orders[parseInt(req.params.id, 10)];
   if (!o) {
-    const body = `${storeHeader(s, true)}<div class="wrap"><div class="crumb"><a href="orders?session=${encodeURIComponent(s)}">My orders</a> / Not found</div><div class="card" style="padding:40px;text-align:center;color:#666">No order with that number.</div></div>${footer()}`;
-    return res.status(404).type('html').send(page('Gharkart: order not found', s, body));
+    const body = `${storeHeader(s, true, T, lang).replace(/href="(orders|page)\?/g, 'href="../$1?')}<div class="wrap"><div class="crumb"><a href="../orders?${q}">${T.my_orders}</a> / ${T.not_found}</div><div class="card" style="padding:40px;text-align:center;color:#666">${T.no_order}</div></div>${footer(T)}`;
+    return res.status(404).type('html').send(page(T.t_nf, s, body, lang));
   }
-  const rows = o.items.map((i) => `<tr><td>${esc(i.name)}</td><td>${i.qty}</td><td style="text-align:right">${rupee(i.price)}</td></tr>`).join('');
-  const body = `${storeHeader(s, true)}
+  const rows = o.items.map((i) => `<tr><td>${esc(tr.item(i.name))}</td><td>${i.qty}</td><td style="text-align:right">${rupee(i.price)}</td></tr>`).join('');
+  const body = `${storeHeader(s, true, T, lang).replace(/href="(orders|page)\?/g, 'href="../$1?')}
 <div class="wrap">
-  <div class="crumb"><a href="orders?session=${encodeURIComponent(s)}">My orders</a> / Order #${o.id}</div>
+  <div class="crumb"><a href="../orders?${q}">${T.my_orders}</a> / ${fill(T.order_h, { id: o.id })}</div>
   <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:16px">
-    <div><h1 style="margin:0">Order #${o.id}</h1><div style="font-size:13px;color:#666;margin-top:4px">Placed on ${esc(o.placedAt)}</div></div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn g">Download invoice</button><button class="btn">Reorder</button></div>
+    <div><h1 style="margin:0">${fill(T.order_h, { id: o.id })}</h1><div style="font-size:13px;color:#666;margin-top:4px">${fill(T.placed_on, { d: esc(o.placedAt) })}</div></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn g">${T.invoice}</button><button class="btn">${T.reorder}</button></div>
   </div>
   <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
     <div class="card" style="flex:999 1 560px;min-width:0">
-      <div style="padding:12px 16px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13.5px"><span style="color:${o.statusColor};font-weight:600">${esc(o.status)}</span><span style="color:#666">${o.items.length} items</span></div>
-      <div style="overflow-x:auto"><table><thead><tr><th>Item</th><th>Qty</th><th style="text-align:right">Price</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div style="padding:12px 16px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13.5px"><span style="color:${o.statusColor};font-weight:600">${esc(tr.status(o.status))}</span><span style="color:#666">${fill(T.n_items, { n: o.items.length })}</span></div>
+      <div style="overflow-x:auto"><table><thead><tr><th>${T.th[0]}</th><th>${T.th[1]}</th><th style="text-align:right">${T.th[2]}</th></tr></thead><tbody>${rows}</tbody></table></div>
       <div style="padding:12px 16px;border-top:1px solid #eee;display:flex;flex-direction:column;gap:6px;font-size:13.5px">
-        <div style="display:flex;justify-content:space-between"><span style="color:#555">Item total</span><span>${rupee(o.itemTotal)}</span></div>
-        <div style="display:flex;justify-content:space-between"><span style="color:#555">Delivery fee</span><span>${rupee(o.delivery)}</span></div>
-        <div style="display:flex;justify-content:space-between;font-weight:600;font-size:15px;padding-top:6px;border-top:1px solid #f0f0ec"><span>Total paid</span><span>${rupee(o.total)}</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:#555">${T.item_total}</span><span>${rupee(o.itemTotal)}</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:#555">${T.delivery_fee}</span><span>${rupee(o.delivery)}</span></div>
+        <div style="display:flex;justify-content:space-between;font-weight:600;font-size:15px;padding-top:6px;border-top:1px solid #f0f0ec"><span>${T.total_paid}</span><span>${rupee(o.total)}</span></div>
       </div>
     </div>
     <div style="flex:1 1 300px;display:flex;flex-direction:column;gap:16px">
-      <div class="card" style="padding:14px 16px;font-size:13.5px;line-height:1.6"><div style="font-weight:600;margin-bottom:6px">Delivery address</div>${o.address.map(esc).join('<br>')}</div>
-      <div class="card" style="padding:14px 16px;font-size:13.5px;line-height:1.6"><div style="font-weight:600;margin-bottom:6px">Delivery instructions</div>${o.instructions ? esc(o.instructions) : '<span style="color:#888">None.</span>'}</div>
-      <div class="card" style="padding:14px 16px;font-size:13.5px;line-height:1.6"><div style="font-weight:600;margin-bottom:6px">Payment</div>${esc(o.payment)}</div>
+      <div class="card" style="padding:14px 16px;font-size:13.5px;line-height:1.6"><div style="font-weight:600;margin-bottom:6px">${T.addr}</div>${o.address.map(esc).join('<br>')}</div>
+      <div class="card" style="padding:14px 16px;font-size:13.5px;line-height:1.6"><div style="font-weight:600;margin-bottom:6px">${T.instr}</div>${o.instructions ? esc(tr.note(o.instructions)) : '<span style="color:#888">' + T.none + '</span>'}</div>
+      <div class="card" style="padding:14px 16px;font-size:13.5px;line-height:1.6"><div style="font-weight:600;margin-bottom:6px">${T.payment}</div>${esc(tr.pay(o.payment))}</div>
     </div>
   </div>
 </div>
-${footer()}`;
-  res.type('html').send(page('Gharkart: order #' + o.id, s, body));
+${footer(T)}`;
+  res.type('html').send(page(fill(T.t_order, { id: o.id }), s, body, lang));
 });
 
 // ── Flag submit (the CTF page posts to the MAIN server; this is a fallback) ──

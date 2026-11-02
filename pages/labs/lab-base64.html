@@ -126,13 +126,13 @@
   }
 </style>
 </head>
-<body>
+<body data-lab-id="cry-02">
 
 <div class="overlay" id="inactiveOverlay">
   <div class="ocard">
-    <h2>Instance stopped</h2>
-    <p>Another challenge was started, so this instance is no longer live. Go back and relaunch cry-02 if needed.</p>
-    <button class="ocard-btn" onclick="goBack()">Back to CTF</button>
+    <h2 data-i18n="stop_h">Instance stopped</h2>
+    <p data-i18n="stop_p">Another challenge was started, so this instance is no longer live. Go back and relaunch cry-02 if needed.</p>
+    <button class="ocard-btn" onclick="goBack()" data-i18n="back">Back to CTF</button>
   </div>
 </div>
 
@@ -142,15 +142,15 @@
     Alex CyberX
   </a>
   <div class="nav-links">
-    <a href="#">Products</a>
-    <a href="#">Company</a>
-    <a href="#">Pricing</a>
-    <a href="#">Docs</a>
-    <a href="#">Changelog</a>
+    <a href="#" data-i18n="n1">Products</a>
+    <a href="#" data-i18n="n2">Company</a>
+    <a href="#" data-i18n="n3">Pricing</a>
+    <a href="#" data-i18n="n4">Docs</a>
+    <a href="#" data-i18n="n5">Changelog</a>
   </div>
   <div class="nav-right">
-    <a href="#" class="nav-login">Log in</a>
-    <a href="#" class="nav-signup">Sign up</a>
+    <a href="#" class="nav-login" data-i18n="login">Log in</a>
+    <a href="#" class="nav-signup" data-i18n="signup">Sign up</a>
   </div>
 </nav>
 
@@ -159,16 +159,16 @@
   <div class="hero-icon">
     <svg width="46" height="46" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="url(#iconGrad)" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="url(#iconGrad)" stroke-width="1.6" stroke-linejoin="round"/><defs><linearGradient id="iconGrad" x1="4" y1="2" x2="20" y2="22"><stop stop-color="#4ade80"/><stop offset="1" stop-color="#22c55e"/></linearGradient></defs></svg>
   </div>
-  <h1>Download the intercepted file<span class="file" id="fileName">ns7_telemetry_snapshot.jpg</span></h1>
-  <p class="sub">Exported from the NS-7 ORION telemetry archive. Extension does not guarantee file type, inspect the contents yourself.</p>
+  <h1><span data-i18n="h1">Download the intercepted file</span><span class="file" id="fileName">ns7_telemetry_snapshot.jpg</span></h1>
+  <p class="sub" data-i18n="sub">Exported from the NS-7 ORION telemetry archive. Extension does not guarantee file type, inspect the contents yourself.</p>
 
   <div class="dl-row">
     <button class="dl-btn" id="dlBtn" type="button">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3v13m0 0l-4-4m4 4l4-4M4 21h16" stroke="#06210f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Download File
+      <span data-i18n="dl">Download File</span>
     </button>
   </div>
-  <div class="meta-line" id="metaLine">loading file info...</div>
+  <div class="meta-line" id="metaLine" data-i18n="loading">loading file info...</div>
 </section>
 
 <div class="brand-strip">
@@ -176,13 +176,24 @@
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" fill="url(#stripGrad)"/><defs><linearGradient id="stripGrad" x1="4" y1="2" x2="20" y2="22"><stop stop-color="#4ade80"/><stop offset="1" stop-color="#22c55e"/></linearGradient></defs></svg>
     Alex CyberX
   </div>
-  <div class="tagline">Decode it. <em>Crack it.</em> Keep going.</div>
+  <div class="tagline" data-i18n-html="tag">Decode it. <em>Crack it.</em> Keep going.</div>
 </div>
 
 <footer>Alex CyberX, CTF Labs</footer>
 
+<script src="lab-i18n.js"></script>
 <script>
 'use strict';
+const t = ACX_I18N({
+  en: { n1: 'Products', n2: 'Company', n3: 'Pricing', n4: 'Docs', n5: 'Changelog', login: 'Log in', signup: 'Sign up', h1: 'Download the intercepted file', sub: 'Exported from the NS-7 ORION telemetry archive. Extension does not guarantee file type, inspect the contents yourself.', dl: 'Download File', loading: 'loading file info...', tag: 'Decode it. <em>Crack it.</em> Keep going.', single: 'single file', info_fail: 'Could not load file info.', preparing: 'Preparing...' },
+  hl: { n1: 'Products', n2: 'Company', n3: 'Pricing', n4: 'Docs', n5: 'Changelog', login: 'Log in', signup: 'Sign up', h1: 'Pakdi gayi file download karo', sub: 'NS-7 ORION telemetry archive se nikali gayi. Extension se file ka type pakka nahi hota, andar ka content khud check karo.', dl: 'File download karo', loading: 'file ki info load ho rahi hai...', tag: 'Decode karo. <em>Crack karo.</em> Aage badho.', single: 'ek file', info_fail: 'File ki info load nahi hui.', preparing: 'Taiyaar ho raha hai...' },
+  hi: { n1: 'प्रोडक्ट', n2: 'कंपनी', n3: 'कीमतें', n4: 'डॉक्स', n5: 'बदलाव', login: 'लॉग इन', signup: 'साइन अप', h1: 'पकड़ी गई फ़ाइल डाउनलोड करें', sub: 'NS-7 ORION टेलीमेट्री संग्रह से निकाली गई। एक्सटेंशन से फ़ाइल का प्रकार पक्का नहीं होता, अंदर की सामग्री खुद जांचें।', dl: 'फ़ाइल डाउनलोड करें', loading: 'फ़ाइल की जानकारी लोड हो रही है...', tag: 'डिकोड करें। <em>क्रैक करें।</em> आगे बढ़ें।', single: 'एक फ़ाइल', info_fail: 'फ़ाइल की जानकारी लोड नहीं हुई।', preparing: 'तैयार हो रहा है...' },
+  pa: { n1: 'ਪ੍ਰੋਡਕਟ', n2: 'ਕੰਪਨੀ', n3: 'ਕੀਮਤਾਂ', n4: 'ਡੌਕਸ', n5: 'ਬਦਲਾਅ', login: 'ਲੌਗ ਇਨ', signup: 'ਸਾਈਨ ਅੱਪ', h1: 'ਫੜੀ ਗਈ ਫ਼ਾਈਲ ਡਾਊਨਲੋਡ ਕਰੋ', sub: 'NS-7 ORION ਟੈਲੀਮੈਟਰੀ ਸੰਗ੍ਰਹਿ ਤੋਂ ਕੱਢੀ ਗਈ। ਐਕਸਟੈਂਸ਼ਨ ਨਾਲ ਫ਼ਾਈਲ ਦੀ ਕਿਸਮ ਪੱਕੀ ਨਹੀਂ ਹੁੰਦੀ, ਅੰਦਰਲੀ ਸਮੱਗਰੀ ਆਪ ਜਾਂਚੋ।', dl: 'ਫ਼ਾਈਲ ਡਾਊਨਲੋਡ ਕਰੋ', loading: 'ਫ਼ਾਈਲ ਦੀ ਜਾਣਕਾਰੀ ਲੋਡ ਹੋ ਰਹੀ ਹੈ...', tag: 'ਡੀਕੋਡ ਕਰੋ। <em>ਕ੍ਰੈਕ ਕਰੋ।</em> ਅੱਗੇ ਵਧੋ।', single: 'ਇੱਕ ਫ਼ਾਈਲ', info_fail: 'ਫ਼ਾਈਲ ਦੀ ਜਾਣਕਾਰੀ ਲੋਡ ਨਹੀਂ ਹੋਈ।', preparing: 'ਤਿਆਰ ਹੋ ਰਿਹਾ ਹੈ...' },
+  ta: { n1: 'தயாரிப்புகள்', n2: 'நிறுவனம்', n3: 'விலை', n4: 'ஆவணங்கள்', n5: 'மாற்றங்கள்', login: 'உள்நுழை', signup: 'பதிவு செய்', h1: 'இடைமறித்த கோப்பைப் பதிவிறக்குங்கள்', sub: 'NS-7 ORION டெலிமெட்ரி காப்பகத்திலிருந்து எடுக்கப்பட்டது. நீட்டிப்பு கோப்பு வகையை உறுதிப்படுத்தாது, உள்ளடக்கத்தை நீங்களே சோதியுங்கள்.', dl: 'கோப்பைப் பதிவிறக்கு', loading: 'கோப்புத் தகவல் ஏற்றப்படுகிறது...', tag: 'டிகோட் செய். <em>உடை.</em> தொடர்ந்து செல்.', single: 'ஒரு கோப்பு', info_fail: 'கோப்புத் தகவலை ஏற்ற முடியவில்லை.', preparing: 'தயாராகிறது...' },
+  te: { n1: 'ఉత్పత్తులు', n2: 'సంస్థ', n3: 'ధరలు', n4: 'డాక్స్', n5: 'మార్పులు', login: 'లాగిన్', signup: 'సైన్ అప్', h1: 'పట్టుకున్న ఫైల్‌ను డౌన్‌లోడ్ చేయండి', sub: 'NS-7 ORION టెలిమెట్రీ ఆర్కైవ్ నుండి తీసినది. ఎక్స్‌టెన్షన్ ఫైల్ రకానికి హామీ కాదు, లోపలి విషయాన్ని మీరే పరిశీలించండి.', dl: 'ఫైల్ డౌన్‌లోడ్ చేయండి', loading: 'ఫైల్ సమాచారం లోడ్ అవుతోంది...', tag: 'డీకోడ్ చేయండి. <em>క్రాక్ చేయండి.</em> ముందుకు సాగండి.', single: 'ఒక ఫైల్', info_fail: 'ఫైల్ సమాచారం లోడ్ కాలేదు.', preparing: 'సిద్ధమవుతోంది...' },
+  bn: { n1: 'প্রোডাক্ট', n2: 'কোম্পানি', n3: 'দাম', n4: 'ডকস', n5: 'পরিবর্তন', login: 'লগ ইন', signup: 'সাইন আপ', h1: 'আটকানো ফাইলটি ডাউনলোড করুন', sub: 'NS-7 ORION টেলিমেট্রি আর্কাইভ থেকে বের করা। এক্সটেনশন দেখে ফাইলের ধরন নিশ্চিত হয় না, ভেতরের বিষয়বস্তু নিজে যাচাই করুন।', dl: 'ফাইল ডাউনলোড করুন', loading: 'ফাইলের তথ্য লোড হচ্ছে...', tag: 'ডিকোড করুন। <em>ক্র্যাক করুন।</em> এগিয়ে চলুন।', single: 'একটি ফাইল', info_fail: 'ফাইলের তথ্য লোড হয়নি।', preparing: 'প্রস্তুত হচ্ছে...' },
+  mr: { n1: 'उत्पादने', n2: 'कंपनी', n3: 'किंमती', n4: 'डॉक्स', n5: 'बदल', login: 'लॉग इन', signup: 'साइन अप', h1: 'पकडलेली फाइल डाउनलोड करा', sub: 'NS-7 ORION टेलिमेट्री संग्रहातून काढलेली. एक्सटेन्शनवरून फाइलचा प्रकार नक्की होत नाही, आतील मजकूर स्वतः तपासा.', dl: 'फाइल डाउनलोड करा', loading: 'फाइलची माहिती लोड होत आहे...', tag: 'डिकोड करा. <em>क्रॅक करा.</em> पुढे चला.', single: 'एक फाइल', info_fail: 'फाइलची माहिती लोड झाली नाही.', preparing: 'तयार होत आहे...' },
+});
 
 function getSession() {
   const params = new URLSearchParams(window.location.search);
@@ -234,11 +245,12 @@ async function loadInfo() {
     const data = await res.json();
     if (data.filename) document.getElementById('fileName').textContent = data.filename;
     if (data.size_bytes) {
-      document.getElementById('metaLine').innerHTML = '<span>' + data.size_bytes + ' bytes</span> &middot; single file';
+      document.getElementById('metaLine').innerHTML = '<span>' + Number(data.size_bytes) + ' bytes</span> &middot; ';
+      document.getElementById('metaLine').appendChild(document.createTextNode(t('single')));
     }
   } catch (e) {
     console.warn('[Base64] info fetch failed', e);
-    document.getElementById('metaLine').textContent = 'Could not load file info.';
+    document.getElementById('metaLine').textContent = t('info_fail');
   }
 }
 
@@ -246,7 +258,7 @@ function downloadFile() {
   const btn = document.getElementById('dlBtn');
   const original = btn.innerHTML;
   btn.disabled = true;
-  btn.textContent = 'Preparing...';
+  btn.textContent = t('preparing');
 
   const session = getSession();
   const url = '/api/lab/base64/download?session=' + encodeURIComponent(session);

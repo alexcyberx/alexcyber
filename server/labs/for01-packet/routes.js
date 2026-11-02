@@ -11,6 +11,8 @@ const PCAP = require('./pcap').buildPcap(FLAG); // DNS exfil of the flag, see pc
 const INSTANCE_DURATION_SEC = 30 * 60;
 const instances = {};
 
+const { langOf, texts, notActivePage, HTML_LANG } = require('../i18n');
+const TEXT = require('./i18n');
 function sid(req) { return req.headers['x-lab-session'] || req.query.session || req.ip; }
 function getOrCreate(s) { if (!instances[s]) instances[s] = { startedAt: Date.now(), solved: false }; return instances[s]; }
 function resetInst(s)   { instances[s] = { startedAt: Date.now(), solved: false }; return instances[s]; }
@@ -23,27 +25,10 @@ function isInstanceRunning(s) {
   return (INSTANCE_DURATION_SEC - elapsed) > 0;
 }
 
-function sendInstanceNotActive(res) {
-  res.status(403).setHeader('Content-Type', 'text/html');
-  res.send(`<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>Instance Not Active</title>
-<style>
-  body{background:#0a0a12;color:#e4e4ef;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;}
-  .box{max-width:420px;padding:32px;}
-  h1{font-size:20px;margin:0 0 10px;}
-  p{font-size:14px;color:#9999a6;line-height:1.6;}
-</style></head>
-<body>
-  <div class="box">
-    <h1>Instance Not Active</h1>
-    <p>This lab instance is not running. Go back to the challenge and press Start (or Restart Instance) to begin a fresh session.</p>
-  </div>
-</body>
-</html>`);
+function sendInstanceNotActive(req, res) {
+  res.status(403).type('html').send(notActivePage(req, 'background:#07070f;color:#e4e4ef'));
 }
 
-// ── INSTANCE ENDPOINTS ────────────────────────────────────────────
 router.get('/instance/status', (req, res) => res.json(instStatus(sid(req))));
 
 router.post('/instance/restart', (req, res) => {
@@ -62,14 +47,15 @@ router.post('/instance/stop', (req, res) => {
 // GET /api/lab/packet/page, target site shown in iframe
 router.get('/page', (req, res) => {
   const s = sid(req);
-  if (!isInstanceRunning(s)) return sendInstanceNotActive(res);
+  if (!isInstanceRunning(s)) return sendInstanceNotActive(req, res);
+  const lang = langOf(req), T = texts(TEXT, lang);
   res.setHeader('Content-Type', 'text/html');
   res.send(`<!DOCTYPE html>
-<html lang="en">
+<html lang="${HTML_LANG[lang]}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AlexNet Internal Portal</title>
+<title>${T.title}</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -170,11 +156,11 @@ body{background:#07070f;font-family:'Inter',sans-serif;min-height:100vh;display:
     <div class="logo-mark">
       <svg width="17" height="17" viewBox="0 0 16 16" fill="none"><path d="M3 8a5 5 0 1010 0A5 5 0 003 8z" stroke="#07070f" stroke-width="1.4"/><path d="M8 5v3l2 2" stroke="#07070f" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
-    <span class="logo-text">Alex<span>Net</span><span class="logo-sub">Internal Portal</span></span>
+    <span class="logo-text">Alex<span>Net</span><span class="logo-sub">${T.sub}</span></span>
   </div>
   <div class="topbar-right">
     <div class="status-dot"></div>
-    Systems Operational
+    ${T.ok}
   </div>
 </div>
 
@@ -184,8 +170,8 @@ body{background:#07070f;font-family:'Inter',sans-serif;min-height:100vh;display:
       <div class="portal-icon">
         <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 5h16M3 11h10M3 17h6" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round"/><circle cx="17" cy="15" r="4" stroke="#38bdf8" stroke-width="1.3"/><path d="M15.5 15h3M17 13.5v3" stroke="#38bdf8" stroke-width="1.2" stroke-linecap="round"/></svg>
       </div>
-      <div class="portal-title">Network Capture Archive</div>
-      <div class="portal-sub">Authorized personnel only. This capture was recorded at the AlexNet egress point and has been flagged for internal review.</div>
+      <div class="portal-title">${T.h}</div>
+      <div class="portal-sub">${T.p}</div>
     </div>
     <div class="portal-body">
       <div class="file-row">
@@ -194,22 +180,22 @@ body{background:#07070f;font-family:'Inter',sans-serif;min-height:100vh;display:
         </div>
         <div class="file-meta">
           <div class="file-name">corpx_network.pcap</div>
-          <div class="file-size">2.1 KB &nbsp;·&nbsp; 21 packets &nbsp;·&nbsp; 20s capture</div>
+          <div class="file-size">${T.size}</div>
         </div>
         <a class="dl-btn" href="/api/lab/packet/download?session=${encodeURIComponent(s)}" download="corpx_network.pcap">
           <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v8M3 6.5l3.5 3L10 6.5M2 12h9" stroke="#07070f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Download
+          ${T.dl}
         </a>
       </div>
       <div class="notice">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="#40406a" stroke-width="1.1"/><path d="M7 5v.4M7 7v3" stroke="#40406a" stroke-width="1.1" stroke-linecap="round"/></svg>
-        Open with Wireshark or any compatible packet analyzer. Available free at wireshark.org
+        ${T.notice}
       </div>
     </div>
   </div>
 </div>
 
-<div class="footer">AlexNet Internal Systems &nbsp;·&nbsp; Authorized Access Only</div>
+<div class="footer">${T.foot}</div>
 </body>
 </html>
 `);

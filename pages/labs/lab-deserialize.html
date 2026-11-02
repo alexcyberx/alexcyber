@@ -88,40 +88,51 @@
   }
 </style>
 </head>
-<body>
+<body data-lab-id="web-06">
 
 <div class="topbar">
-  <div class="brand"><span class="dot"></span> NovaSat Internal Portal</div>
+  <div class="brand"><span class="dot"></span> <span data-i18n="brand">NovaSat Internal Portal</span></div>
   <div class="env-tag">STAGING</div>
 </div>
 
 <div class="wrap">
   <div class="head">
-    <h1>Member Area</h1>
-    <p>Log in as a guest to get a session, then check your access level below.</p>
+    <h1 data-i18n="h1">Member Area</h1>
+    <p data-i18n="intro">Log in as a guest to get a session, then check your access level below.</p>
   </div>
 
   <div class="card">
     <div class="card-row">
-      <div class="label">Session</div>
-      <div id="sessionBox" class="session-empty">Not logged in.</div>
+      <div class="label" data-i18n="session">Session</div>
+      <div id="sessionBox" class="session-empty" data-i18n="not_in">Not logged in.</div>
     </div>
     <div class="card-row">
-      <button class="btn btn-primary" id="loginBtn" type="button">Log In As Guest</button>
+      <button class="btn btn-primary" id="loginBtn" type="button" data-i18n="login">Log In As Guest</button>
     </div>
     <div class="card-row">
-      <button class="btn btn-secondary" id="checkBtn" type="button">Check Access</button>
+      <button class="btn btn-secondary" id="checkBtn" type="button" data-i18n="check">Check Access</button>
       <div class="result" id="resultEl"></div>
     </div>
   </div>
 
-  <div class="cookie-hint">
+  <div class="cookie-hint" data-i18n-html="hint">
     Session state is kept in a browser cookie named <code>acx_session</code>. The server trusts whatever it reads back from it.
   </div>
 </div>
 
+<script src="lab-i18n.js"></script>
 <script>
 'use strict';
+const t = ACX_I18N({
+  en: { brand: 'NovaSat Internal Portal', h1: 'Member Area', intro: 'Log in as a guest to get a session, then check your access level below.', session: 'Session', not_in: 'Not logged in.', login: 'Log In As Guest', check: 'Check Access', hint: 'Session state is kept in a browser cookie named <code>acx_session</code>. The server trusts whatever it reads back from it.', logging: 'Logging in...', checking: 'Checking...', not_yet: 'Not logged in yet.', lvl_admin: 'Access level: admin.', lvl_user: 'Access level: user. No admin privileges.', no_server: 'Could not reach the server.' },
+  hl: { brand: 'NovaSat Internal Portal', h1: 'Member Area', intro: 'Session lene ke liye guest ban kar log in karo, phir neeche apna access level check karo.', session: 'Session', not_in: 'Log in nahi hai.', login: 'Guest ban kar log in karo', check: 'Access check karo', hint: 'Session ki jaankari <code>acx_session</code> naam ki browser cookie mein rehti hai. Server usmein jo bhi padhta hai, us par bharosa karta hai.', logging: 'Log in ho raha hai...', checking: 'Check ho raha hai...', not_yet: 'Abhi log in nahi hua.', lvl_admin: 'Access level: admin.', lvl_user: 'Access level: user. Admin ke adhikaar nahi.', no_server: 'Server tak nahi pahunch paaye.' },
+  hi: { brand: 'NovaSat आंतरिक पोर्टल', h1: 'सदस्य क्षेत्र', intro: 'सेशन पाने के लिए गेस्ट के रूप में लॉग इन करें, फिर नीचे अपना एक्सेस स्तर जांचें।', session: 'सेशन', not_in: 'लॉग इन नहीं है।', login: 'गेस्ट के रूप में लॉग इन करें', check: 'एक्सेस जांचें', hint: 'सेशन की जानकारी <code>acx_session</code> नाम की ब्राउज़र कुकी में रहती है। सर्वर उसमें जो भी पढ़ता है, उस पर भरोसा करता है।', logging: 'लॉग इन हो रहा है...', checking: 'जांच हो रही है...', not_yet: 'अभी लॉग इन नहीं हुआ।', lvl_admin: 'एक्सेस स्तर: admin.', lvl_user: 'एक्सेस स्तर: user. एडमिन अधिकार नहीं।', no_server: 'सर्वर तक नहीं पहुंच सके।' },
+  pa: { brand: 'NovaSat ਅੰਦਰੂਨੀ ਪੋਰਟਲ', h1: 'ਮੈਂਬਰ ਖੇਤਰ', intro: 'ਸੈਸ਼ਨ ਲੈਣ ਲਈ ਗੈਸਟ ਵਜੋਂ ਲੌਗ ਇਨ ਕਰੋ, ਫਿਰ ਹੇਠਾਂ ਆਪਣਾ ਐਕਸੈਸ ਪੱਧਰ ਜਾਂਚੋ।', session: 'ਸੈਸ਼ਨ', not_in: 'ਲੌਗ ਇਨ ਨਹੀਂ ਹੈ।', login: 'ਗੈਸਟ ਵਜੋਂ ਲੌਗ ਇਨ ਕਰੋ', check: 'ਐਕਸੈਸ ਜਾਂਚੋ', hint: 'ਸੈਸ਼ਨ ਦੀ ਜਾਣਕਾਰੀ <code>acx_session</code> ਨਾਮ ਦੀ ਬ੍ਰਾਊਜ਼ਰ ਕੂਕੀ ਵਿੱਚ ਰਹਿੰਦੀ ਹੈ। ਸਰਵਰ ਉਸ ਵਿੱਚੋਂ ਜੋ ਵੀ ਪੜ੍ਹਦਾ ਹੈ, ਉਸ ਤੇ ਭਰੋਸਾ ਕਰਦਾ ਹੈ।', logging: 'ਲੌਗ ਇਨ ਹੋ ਰਿਹਾ ਹੈ...', checking: 'ਜਾਂਚ ਹੋ ਰਹੀ ਹੈ...', not_yet: 'ਹਾਲੇ ਲੌਗ ਇਨ ਨਹੀਂ ਹੋਇਆ।', lvl_admin: 'ਐਕਸੈਸ ਪੱਧਰ: admin.', lvl_user: 'ਐਕਸੈਸ ਪੱਧਰ: user. ਐਡਮਿਨ ਅਧਿਕਾਰ ਨਹੀਂ।', no_server: 'ਸਰਵਰ ਤੱਕ ਨਹੀਂ ਪਹੁੰਚ ਸਕੇ।' },
+  ta: { brand: 'NovaSat உள் போர்டல்', h1: 'உறுப்பினர் பகுதி', intro: 'Session பெற விருந்தினராக உள்நுழையுங்கள், பின் கீழே உங்கள் அணுகல் நிலையைச் சோதியுங்கள்.', session: 'Session', not_in: 'உள்நுழையவில்லை.', login: 'விருந்தினராக உள்நுழை', check: 'அணுகலைச் சோதி', hint: 'Session நிலை <code>acx_session</code> என்ற browser cookie இல் வைக்கப்படுகிறது. அதிலிருந்து படிப்பதை server அப்படியே நம்புகிறது.', logging: 'உள்நுழைகிறது...', checking: 'சோதிக்கிறது...', not_yet: 'இன்னும் உள்நுழையவில்லை.', lvl_admin: 'அணுகல் நிலை: admin.', lvl_user: 'அணுகல் நிலை: user. Admin உரிமைகள் இல்லை.', no_server: 'Server ஐ அடைய முடியவில்லை.' },
+  te: { brand: 'NovaSat అంతర్గత పోర్టల్', h1: 'సభ్యుల విభాగం', intro: 'Session పొందడానికి అతిథిగా లాగిన్ అవ్వండి, తర్వాత కింద మీ యాక్సెస్ స్థాయిని తనిఖీ చేయండి.', session: 'Session', not_in: 'లాగిన్ కాలేదు.', login: 'అతిథిగా లాగిన్', check: 'యాక్సెస్ తనిఖీ', hint: 'Session స్థితి <code>acx_session</code> అనే browser cookie లో ఉంటుంది. అందులో నుండి చదివిన దాన్ని server నమ్ముతుంది.', logging: 'లాగిన్ అవుతోంది...', checking: 'తనిఖీ చేస్తోంది...', not_yet: 'ఇంకా లాగిన్ కాలేదు.', lvl_admin: 'యాక్సెస్ స్థాయి: admin.', lvl_user: 'యాక్సెస్ స్థాయి: user. Admin అధికారాలు లేవు.', no_server: 'Server ను చేరలేకపోయాం.' },
+  bn: { brand: 'NovaSat অভ্যন্তরীণ পোর্টাল', h1: 'সদস্য এলাকা', intro: 'Session পেতে অতিথি হিসেবে লগ ইন করুন, তারপর নিচে আপনার অ্যাক্সেস লেভেল দেখুন।', session: 'Session', not_in: 'লগ ইন করা নেই।', login: 'অতিথি হিসেবে লগ ইন', check: 'অ্যাক্সেস যাচাই', hint: 'Session-এর অবস্থা <code>acx_session</code> নামের browser cookie-তে থাকে। সেখান থেকে যা পড়ে server তাই বিশ্বাস করে।', logging: 'লগ ইন হচ্ছে...', checking: 'যাচাই হচ্ছে...', not_yet: 'এখনো লগ ইন হয়নি।', lvl_admin: 'অ্যাক্সেস লেভেল: admin.', lvl_user: 'অ্যাক্সেস লেভেল: user. Admin অধিকার নেই।', no_server: 'Server-এ পৌঁছানো গেল না।' },
+  mr: { brand: 'NovaSat अंतर्गत पोर्टल', h1: 'सदस्य विभाग', intro: 'Session मिळवण्यासाठी पाहुणा म्हणून लॉग इन करा, मग खाली तुमचा प्रवेश स्तर तपासा.', session: 'Session', not_in: 'लॉग इन केलेले नाही.', login: 'पाहुणा म्हणून लॉग इन', check: 'प्रवेश तपासा', hint: 'Session ची माहिती <code>acx_session</code> नावाच्या browser cookie मध्ये ठेवली जाते. त्यातून जे वाचते त्यावर server विश्वास ठेवतो.', logging: 'लॉग इन होत आहे...', checking: 'तपासत आहे...', not_yet: 'अजून लॉग इन झाले नाही.', lvl_admin: 'प्रवेश स्तर: admin.', lvl_user: 'प्रवेश स्तर: user. Admin अधिकार नाहीत.', no_server: 'Server पर्यंत पोहोचता आले नाही.' },
+});
 
 function getSession() {
   const params = new URLSearchParams(window.location.search);
@@ -152,7 +163,8 @@ function renderSession() {
   const raw = readCookie('acx_session');
   const box = document.getElementById('sessionBox');
   if (!raw) {
-    box.innerHTML = '<span class="session-empty">Not logged in.</span>';
+    box.innerHTML = '<span class="session-empty"></span>';
+    box.firstChild.textContent = t('not_in');
     return;
   }
   box.innerHTML =
@@ -167,9 +179,9 @@ async function login() {
   const btn = document.getElementById('loginBtn');
   btn.disabled = true;
   const original = btn.textContent;
-  btn.textContent = 'Logging in...';
+  btn.textContent = t('logging');
   try {
-    const res = await fetch('/api/lab/deserialize/init?session=' + encodeURIComponent(getSession()), {
+    const res = await fetch('/api/lab/deserialize/init?session=' + encodeURIComponent(getSession()) + '&lang=' + t.lang, {
       credentials: 'include',
       headers: { 'X-Lab-Session': getSession() }
     });
@@ -187,9 +199,9 @@ async function checkAccess() {
   const box = document.getElementById('resultEl');
   btn.disabled = true;
   const original = btn.textContent;
-  btn.textContent = 'Checking...';
+  btn.textContent = t('checking');
   try {
-    const res = await fetch('/api/lab/deserialize/check?session=' + encodeURIComponent(getSession()), {
+    const res = await fetch('/api/lab/deserialize/check?session=' + encodeURIComponent(getSession()) + '&lang=' + t.lang, {
       credentials: 'include',
       headers: { 'X-Lab-Session': getSession() }
     });
@@ -197,21 +209,21 @@ async function checkAccess() {
 
     if (!res.ok || !data.authenticated) {
       box.className = 'result show err';
-      box.textContent = data.error || 'Not logged in yet.';
+      box.textContent = data.error || t('not_yet');
       return;
     }
 
     if (data.role === 'admin') {
       box.className = 'result show ok';
-      box.innerHTML = 'Access level: admin.<span class="flagline">' + escapeHtml(data.flag) + '</span>';
+      box.innerHTML = escapeHtml(t('lvl_admin')) + '<span class="flagline">' + escapeHtml(data.flag) + '</span>';
     } else {
       box.className = 'result show err';
-      box.textContent = 'Access level: user. No admin privileges.';
+      box.textContent = t('lvl_user');
     }
   } catch (e) {
     console.warn('[Deserialize] check failed', e);
     box.className = 'result show err';
-    box.textContent = 'Could not reach the server.';
+    box.textContent = t('no_server');
   } finally {
     btn.disabled = false;
     btn.textContent = original;

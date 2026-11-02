@@ -71,7 +71,7 @@
   .outbody .flag{ color:var(--get); font-weight:600; user-select:all; }
 </style>
 </head>
-<body>
+<body data-lab-id="web-07">
 
 <div class="wrap">
   <div class="title">NovaSat / member-session</div>
@@ -81,14 +81,14 @@
     <div class="reqline"><span class="verb">GET</span><span class="path">/api/lab/deserialize-medium/init</span></div>
     <div class="field">
       <div class="field-label">cookie: acx_session_v2</div>
-      <div class="field-value empty" id="cookieBox">unset</div>
+      <div class="field-value empty" id="cookieBox" data-i18n="unset">unset</div>
     </div>
-    <button class="runbtn" id="initBtn" type="button">run</button>
+    <button class="runbtn" id="initBtn" type="button" data-i18n="run">run</button>
   </div>
 
   <div class="req">
     <div class="reqline"><span class="verb">GET</span><span class="path">/api/lab/deserialize-medium/check</span></div>
-    <button class="runbtn" id="checkBtn" type="button">run</button>
+    <button class="runbtn" id="checkBtn" type="button" data-i18n="run">run</button>
     <div class="out" id="responseWrap">
       <div class="outline"><span class="status" id="statusLabel"></span></div>
       <div class="outbody" id="responseBox"></div>
@@ -96,8 +96,19 @@
   </div>
 </div>
 
+<script src="lab-i18n.js"></script>
 <script>
 'use strict';
+const t = ACX_I18N({
+  en: { unset: 'unset', run: 'run', sending: 'sending', failed: 'request failed, could not reach host' },
+  hl: { unset: 'set nahi', run: 'chalao', sending: 'bhej rahe hain', failed: 'request fail hui, host tak nahi pahunche' },
+  hi: { unset: 'सेट नहीं', run: 'चलाएं', sending: 'भेज रहे हैं', failed: 'अनुरोध विफल, होस्ट तक नहीं पहुंचे' },
+  pa: { unset: 'ਸੈੱਟ ਨਹੀਂ', run: 'ਚਲਾਓ', sending: 'ਭੇਜ ਰਹੇ ਹਾਂ', failed: 'ਬੇਨਤੀ ਨਾਕਾਮ, ਹੋਸਟ ਤੱਕ ਨਹੀਂ ਪਹੁੰਚੇ' },
+  ta: { unset: 'அமைக்கப்படவில்லை', run: 'இயக்கு', sending: 'அனுப்புகிறது', failed: 'கோரிக்கை தோல்வி, host ஐ அடைய முடியவில்லை' },
+  te: { unset: 'సెట్ కాలేదు', run: 'నడుపు', sending: 'పంపుతోంది', failed: 'అభ్యర్థన విఫలమైంది, host ను చేరలేకపోయాం' },
+  bn: { unset: 'সেট করা নেই', run: 'চালান', sending: 'পাঠানো হচ্ছে', failed: 'অনুরোধ ব্যর্থ, host-এ পৌঁছানো যায়নি' },
+  mr: { unset: 'सेट नाही', run: 'चालवा', sending: 'पाठवत आहे', failed: 'विनंती अयशस्वी, host पर्यंत पोहोचलो नाही' },
+});
 
 function getSession() {
   const params = new URLSearchParams(window.location.search);
@@ -118,7 +129,7 @@ function renderCookie() {
   const raw = readCookie('acx_session_v2');
   if (!raw) {
     box.className = 'field-value empty';
-    box.textContent = 'unset';
+    box.textContent = t('unset');
     return;
   }
   box.className = 'field-value';
@@ -146,9 +157,9 @@ async function callInit() {
   const btn = document.getElementById('initBtn');
   btn.disabled = true;
   const original = btn.textContent;
-  btn.textContent = 'sending';
+  btn.textContent = t('sending');
   try {
-    await fetch('/api/lab/deserialize-medium/init?session=' + encodeURIComponent(getSession()), {
+    await fetch('/api/lab/deserialize-medium/init?session=' + encodeURIComponent(getSession()) + '&lang=' + t.lang, {
       credentials: 'include',
       headers: { 'X-Lab-Session': getSession() }
     });
@@ -168,9 +179,9 @@ async function callCheck() {
   const box = document.getElementById('responseBox');
   btn.disabled = true;
   const original = btn.textContent;
-  btn.textContent = 'sending';
+  btn.textContent = t('sending');
   try {
-    const res = await fetch('/api/lab/deserialize-medium/check?session=' + encodeURIComponent(getSession()), {
+    const res = await fetch('/api/lab/deserialize-medium/check?session=' + encodeURIComponent(getSession()) + '&lang=' + t.lang, {
       credentials: 'include',
       headers: { 'X-Lab-Session': getSession() }
     });
@@ -185,7 +196,7 @@ async function callCheck() {
     wrap.classList.add('show');
     statusLabel.className = 'status err';
     statusLabel.textContent = 'ERR';
-    box.textContent = 'request failed, could not reach host';
+    box.textContent = t('failed');
   } finally {
     btn.disabled = false;
     btn.textContent = original;

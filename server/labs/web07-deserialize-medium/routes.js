@@ -1,4 +1,6 @@
 const express = require('express');
+const { langOf, texts } = require('../i18n');
+const MSG = require('../web06-deserialize/i18n');
 const { flagFor } = require('../flags');
 const router  = express.Router();
 const { loginLimiter, flagLimiter } = require('../../middleware/rateLimit');
@@ -56,21 +58,21 @@ router.get('/init', loginLimiter, (req, res) => {
 router.get('/check', flagLimiter, (req, res) => {
   const raw = req.cookies && req.cookies[COOKIE_NAME];
   if (!raw) {
-    return res.status(400).json({ authenticated: false, error: 'No session cookie found. Log in first.' });
+    return res.status(400).json({ authenticated: false, error: texts(MSG, langOf(req)).no_cookie });
   }
 
   let serialized;
   try {
     serialized = Buffer.from(raw, 'base64').toString('utf8');
   } catch (e) {
-    return res.status(400).json({ authenticated: false, error: 'Malformed session cookie.' });
+    return res.status(400).json({ authenticated: false, error: texts(MSG, langOf(req)).bad_cookie });
   }
 
   const role = extractRole(serialized);
   logAttempt('WEB07', sid(req), raw, role.ok ? `role=${role.value}` : `malformed: ${role.reason}`);
 
   if (!role.ok) {
-    return res.status(400).json({ authenticated: true, error: 'Session cookie failed to deserialize: ' + role.reason });
+    return res.status(400).json({ authenticated: true, error: texts(MSG, langOf(req)).deser + role.reason });
   }
 
   if (role.value === 'admin') {
